@@ -1,5 +1,3 @@
-![TelcoChisel OS Cover Banner](assets/repo_cover.png)
-
 <div align="center">
   <br/>
   <a href="https://tschisel.telcosec.net">
