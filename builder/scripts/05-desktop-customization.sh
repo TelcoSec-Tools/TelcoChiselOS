@@ -44,11 +44,11 @@ picture-uri-dark='file:///usr/share/backgrounds/telcosec/wallpaper.jpg'
 picture-options='scaled'
 
 [org/gnome/desktop/screensaver]
-lock-enabled=false
-idle-activation-enabled=false
+lock-enabled=true
+idle-activation-enabled=true
 
 [org/gnome/desktop/session]
-idle-delay=uint32 0
+idle-delay=uint32 600
 
 [org/gnome/settings-daemon/plugins/power]
 sleep-inactive-ac-type='nothing'
@@ -190,6 +190,14 @@ if ! grep -q "telcosec_prompt" /etc/bash.bashrc 2>/dev/null; then
 # TelcoSec custom prompt (also loaded by /etc/profile.d/ for login shells)
 if [ -f /etc/profile.d/telcosec_prompt.sh ]; then
     . /etc/profile.d/telcosec_prompt.sh
+fi
+
+# Enable fzf shell integration (Ctrl+r, Alt+c, etc.) if installed
+if [ -f /usr/share/doc/fzf/examples/key-bindings.bash ]; then
+    . /usr/share/doc/fzf/examples/key-bindings.bash
+fi
+if [ -f /usr/share/doc/fzf/examples/completion.bash ]; then
+    . /usr/share/doc/fzf/examples/completion.bash
 fi
 BASHRC
 fi
@@ -482,6 +490,9 @@ send-software-usage-stats=false
 remove-old-trash-files=false
 remove-old-temp-files=false
 recent-files-max-age=-1
+remember-recent-files=false
+usb-protection=true
+usb-protection-level='lockscreen'
 
 # ── Location services ─────────────────────────────────────────────────────────
 [org/gnome/system/location]
@@ -529,6 +540,7 @@ default-zoom-level='standard'
 # ── Search providers: local only, no external cloud ───────────────────────────
 [org/gnome/desktop/search-providers]
 disable-external=true
+disabled=['org.gnome.Contacts.desktop', 'org.gnome.Documents.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Calculator.desktop']
 EOF
 
 # Disable Ubuntu crash reporter — no data should leave the research environment
@@ -556,6 +568,10 @@ clock-format='24h'
 enable-hot-corners=true
 show-battery-percentage=true
 
+# ── Shell theme ────────────────────────────────────────────────────────────────
+[org/gnome/shell/extensions/user-theme]
+name='Yaru-teal-dark'
+
 # ── GNOME Shell extensions to enable ─────────────────────────────────────────
 # apps-menu: traditional "Applications" dropdown in top bar reading
 #   /etc/xdg/menus/gnome-applications.menu — telecom categories appear here.
@@ -564,7 +580,7 @@ show-battery-percentage=true
 # appindicatorsupport: system tray icons (Wireshark, nm-applet, etc.).
 [org/gnome/shell]
 disable-user-extensions=false
-enabled-extensions=['apps-menu@gnome-shell-extensions.gcampax.github.com', 'places-status-indicator@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'ubuntu-appindicators@ubuntu.com']
+enabled-extensions=['apps-menu@gnome-shell-extensions.gcampax.github.com', 'places-status-indicator@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'ubuntu-appindicators@ubuntu.com', 'user-theme@gnome-shell-extensions.gcampax.github.com']
 favorite-apps=['org.gnome.Terminal.desktop', 'firefox.desktop', 'org.wireshark.Wireshark.desktop', 'org.gnome.Nautilus.desktop', 'gnuradio-companion.desktop', 'gqrx.desktop', 'open5gs-start.desktop', 'wireshark-mon.desktop']
 
 # ── Window list (bottom taskbar) behavior ─────────────────────────────────────
@@ -588,6 +604,30 @@ show-line-numbers=true
 show-map=true
 indent-style='space'
 tab-width=uint32 4
+
+# ── Custom Keyboard Shortcuts ─────────────────────────────────────────────────
+[org/gnome/settings-daemon/plugins/media-keys]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/']
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+binding='<Super>Return'
+command='gnome-terminal'
+name='Open Terminal'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1]
+binding='<Super>w'
+command='wireshark'
+name='Open Wireshark'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2]
+binding='<Super>f'
+command='firefox'
+name='Open Firefox'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3]
+binding='<Super>e'
+command='nautilus'
+name='Open Files'
 EOF
 
 # Nautilus bookmarks — quick access to TelcoSec research paths
@@ -601,6 +641,73 @@ if [ -d /home/telcosec ]; then
     sudo mkdir -p /home/telcosec/.config/gtk-3.0
     sudo cp /etc/skel/.config/gtk-3.0/bookmarks /home/telcosec/.config/gtk-3.0/bookmarks
     sudo chown -R telcosec:telcosec /home/telcosec/.config/gtk-3.0
+fi
+
+# 9. Professional tmux configuration
+echo "Configuring tmux status and defaults..."
+cat << 'EOF' | sudo tee /etc/skel/.tmux.conf
+# Enforce 256 colors & truecolor support
+set -g default-terminal "screen-256color"
+set-option -sa terminal-overrides ",xterm-256color:RGB"
+
+# Enable mouse support for scrolling, selecting, and clicking panes
+set -g mouse on
+
+# Increase history limit to 50000 lines
+set -g history-limit 50000
+
+# Set prefix to Ctrl-b (default) and Ctrl-a
+set -g prefix C-b
+set -g prefix2 C-a
+bind C-a send-prefix
+
+# Set window and pane index to 1-based (more natural for keyboards)
+set -g base-index 1
+setw -g pane-base-index 1
+
+# Split window keys that make visual sense: | for horizontal, - for vertical
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+unbind '"'
+unbind %
+
+# Vim-style pane selection
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# Fast pane resizing
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# Status bar styling: TelcoSec dark teal theme
+set -g status-style bg='#0D1117',fg='#C9D1D9'
+set -g status-left-length 20
+set -g status-left '#[bg=#00FFD5,fg=#0D1117,bold] ⚡ #S #[bg=default,fg=default] '
+set -g status-right '#[fg=#00FFD5,bold] @#h #[fg=#ABB2BF] %Y-%m-%d %H:%M '
+set -g status-justify left
+
+# Highlight active window
+setw -g window-status-current-style bg='#00FFD5',fg='#0D1117',bold
+setw -g window-status-current-format ' #I:#W '
+setw -g window-status-style bg=default,fg='#8B949E'
+setw -g window-status-format ' #I:#W '
+
+# Pane border styling
+set -g pane-border-style fg='#30363D'
+set -g pane-active-border-style fg='#00FFD5'
+
+# Disable bell sound
+set -g bell-action none
+set -g visual-bell off
+EOF
+
+if [ -d /home/telcosec ]; then
+    sudo cp /etc/skel/.tmux.conf /home/telcosec/.tmux.conf
+    sudo chown telcosec:telcosec /home/telcosec/.tmux.conf
 fi
 
 # 5. GDM3 Login Screen Branding

@@ -119,7 +119,7 @@ apt-get install -y \
   \
   `# === GNOME shell, display manager, and core apps ===` \
   gnome-shell gnome-session gnome-control-center \
-  gdm3 nautilus gnome-tweaks dconf-cli \
+  gdm3 nautilus gnome-tweaks dconf-cli dconf-editor \
   gnome-terminal \
   \
   `# === GNOME themes and icon sets ===` \
@@ -132,7 +132,7 @@ apt-get install -y \
   gnome-extensions-app \
   \
   `# === Core system tools (01-install-base.sh) ===` \
-  git vim nano htop \
+  git vim nano htop fzf \
   build-essential cmake pkg-config \
   ufw openssh-server \
   docker.io docker-compose-v2 \
