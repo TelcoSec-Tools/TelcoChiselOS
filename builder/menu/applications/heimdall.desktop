@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Heimdall (Samsung)
+Comment=Samsung device flash tool (Odin alternative)
+Exec=gnome-terminal -- bash -c "heimdall --help"
+Icon=phone
+Categories=TelcoSec-Device;
+Terminal=false

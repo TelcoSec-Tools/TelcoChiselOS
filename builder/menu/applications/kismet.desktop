@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Kismet
+Comment=Wireless network detector and packet sniffer
+Exec=gnome-terminal -- bash -c "sudo kismet -c mon0"
+Icon=network-wireless
+Categories=TelcoSec-Network;
+Terminal=false

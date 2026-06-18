@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Ericsson ENM CLI
+Comment=Connect to Ericsson ENM (Evolved Network Manager) via CLI or web
+Exec=gnome-terminal --title "Ericsson ENM CLI" -- bash -c "echo 'Ericsson ENM (Evolved Network Manager)'; echo ''; echo 'CLI access: ssh -o StrictHostKeyChecking=no root@<enm-scripting-vm>'; echo 'Web UI: https://<enm-host>/'; echo ''; echo 'ENM CLI example: cmedit get * MeContext'; echo ''; read -p 'Press Enter to exit...'"
+Icon=network-server
+Terminal=false
+Categories=TelcoSec-Core;

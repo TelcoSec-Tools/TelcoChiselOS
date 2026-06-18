@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=TelcoSec
+Description=A beautiful dark theme for TelcoSec.
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/telcosec
+ScriptFile=/usr/share/plymouth/themes/telcosec/telcosec.script

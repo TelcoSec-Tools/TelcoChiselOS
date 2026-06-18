@@ -1,0 +1,295 @@
+name: Build and Release TelcoChisel
+
+on:
+  push:
+    tags: ['v*.*.*']
+  schedule:
+    - cron: '0 2 * * 0'   # weekly — Sunday 02:00 UTC
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'nightly'
+        type: choice
+        options:
+          - nightly   # build + push to SF nightly/, update rolling pre-release
+          - patch     # bump x.y.Z → x.y.Z+1, create versioned release
+          - minor     # bump x.Y.z → x.Y+1.0, create versioned release
+          - major     # bump X.y.z → X+1.0.0, create versioned release
+
+concurrency:
+  group: release
+  cancel-in-progress: false   # never cancel a running build mid-way
+
+env:
+  ISO: TelcoChisel-live.iso
+  SF_USER: rfs85
+  SF_PROJECT: telcochisel
+  SF_HOST: frs.sourceforge.net
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── Determine version & release mode ────────────────────────────────────
+      - name: Resolve Version
+        id: version
+        run: |
+          RELEASE_TYPE="${{ inputs.release_type }}"
+          # tag push always produces a versioned release, overriding the input
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME}"
+            IS_NIGHTLY=false
+          elif [[ -z "$RELEASE_TYPE" || "$RELEASE_TYPE" == "nightly" ]]; then
+            VERSION="nightly-$(git rev-parse --short HEAD)"
+            IS_NIGHTLY=true
+          else
+            # Auto-bump the latest semver tag
+            LATEST=$(git tag --list 'v*.*.*' --sort=-version:refname | head -1)
+            [[ -z "$LATEST" ]] && LATEST="v0.0.0"
+            MAJOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f1)
+            MINOR=$(echo "$LATEST" | cut -d. -f2)
+            PATCH=$(echo "$LATEST" | cut -d. -f3)
+            case "$RELEASE_TYPE" in
+              major) VERSION="v$((MAJOR+1)).0.0" ;;
+              minor) VERSION="v${MAJOR}.$((MINOR+1)).0" ;;
+              patch) VERSION="v${MAJOR}.${MINOR}.$((PATCH+1))" ;;
+            esac
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git config user.name  "github-actions[bot]"
+            git tag -a "$VERSION" -m "Release $VERSION"
+            git push origin "$VERSION"
+            IS_NIGHTLY=false
+          fi
+          echo "version=$VERSION"         >> "$GITHUB_OUTPUT"
+          echo "is_nightly=$IS_NIGHTLY"   >> "$GITHUB_OUTPUT"
+          echo "date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION (nightly=$IS_NIGHTLY)"
+
+      # ── Free disk space ──────────────────────────────────────────────────────
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf \
+            /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /usr/local/share/boost /usr/lib/jvm /usr/share/swift \
+            /usr/local/lib/node_modules /opt/hostedtoolcache /imagegeneration
+          sudo docker image prune -af || true
+          df -h /
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y \
+            debootstrap squashfs-tools grub-pc-bin grub-efi-amd64-bin \
+            xorriso mtools zstd apt-cacher-ng ccache rsync
+          sudo ccache --max-size=4G
+
+      - name: Configure apt-cacher-ng
+        run: |
+          sudo sed -i 's/^# PassThroughPattern:.*/PassThroughPattern: .*/' \
+            /etc/apt-cacher-ng/acng.conf || true
+          sudo systemctl restart apt-cacher-ng
+
+      - name: Restore apt-cacher-ng cache
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt-cacher-ng
+          key: acng-noble-${{ hashFiles('builder/scripts/00-install-all-packages.sh') }}
+          restore-keys: acng-noble-
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: /root/.ccache
+          key: ccache-${{ hashFiles('builder/scripts/*.sh') }}
+          restore-keys: ccache-
+
+      # ── Build ────────────────────────────────────────────────────────────────
+      - name: Build ISO
+        env:
+          APT_PROXY: http://localhost:3142
+          USE_CCACHE: "1"
+          CCACHE_DIR: /root/.ccache
+          SQUASHFS_LEVEL: "3"
+          ISO_VERSION: ${{ steps.version.outputs.version }}
+        run: sudo -E bash build-iso.sh
+
+      # ── Post-build metadata ──────────────────────────────────────────────────
+      - name: Generate Checksum & Metadata
+        id: meta
+        run: |
+          SHA256=$(sha256sum "$ISO" | awk '{print $1}')
+          SIZE=$(du -sh "$ISO" | cut -f1)
+          printf '%s  %s\n' "$SHA256" "$ISO" > "${ISO}.sha256"
+
+          # Collect commits since last stable tag for the changelog
+          LAST_TAG=$(git tag --list 'v*.*.*' --sort=-version:refname | head -1 || true)
+          if [[ -n "$LAST_TAG" ]]; then
+            CHANGELOG=$(git log "${LAST_TAG}..HEAD" --oneline --no-decorate | head -30)
+          else
+            CHANGELOG=$(git log --oneline --no-decorate -20)
+          fi
+          # Store changelog as multiline output
+          {
+            echo "changelog<<EOF"
+            echo "$CHANGELOG"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "sha256=$SHA256"
+            echo "size=$SIZE"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "ISO: $SIZE | SHA256: $SHA256"
+
+      # ── GitHub Actions step summary ──────────────────────────────────────────
+      - name: Build Summary
+        run: |
+          {
+            echo "## TelcoChisel Build — ${{ steps.version.outputs.version }}"
+            echo ""
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| **Version** | \`${{ steps.version.outputs.version }}\` |"
+            echo "| **Date** | ${{ steps.version.outputs.date }} |"
+            echo "| **ISO Size** | ${{ steps.meta.outputs.size }} |"
+            echo "| **SHA-256** | \`${{ steps.meta.outputs.sha256 }}\` |"
+            echo "| **Nightly** | ${{ steps.version.outputs.is_nightly }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ── SourceForge FRS ──────────────────────────────────────────────────────
+      - name: Setup SSH for SourceForge
+        if: env.SF_SSH_KEY != ''
+        env:
+          SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SF_SSH_KEY" > ~/.ssh/sf_deploy
+          chmod 600 ~/.ssh/sf_deploy
+          ssh-keyscan -H "$SF_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy to SourceForge — Nightly
+        if: env.SF_SSH_KEY != '' && steps.version.outputs.is_nightly == 'true'
+        env:
+          SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+          VERSION:    ${{ steps.version.outputs.version }}
+        run: |
+          SF_DIR="/home/frs/project/$SF_PROJECT/nightly"
+          ssh -i ~/.ssh/sf_deploy -o BatchMode=yes "$SF_USER@$SF_HOST" "mkdir -p $SF_DIR"
+          rsync -avP --partial \
+            -e "ssh -i ~/.ssh/sf_deploy -o BatchMode=yes" \
+            "$ISO" "${ISO}.sha256" \
+            "$SF_USER@$SF_HOST:$SF_DIR/"
+          echo "✓ SF nightly → https://sourceforge.net/projects/$SF_PROJECT/files/nightly/"
+
+      - name: Deploy to SourceForge — Versioned Release
+        if: env.SF_SSH_KEY != '' && steps.version.outputs.is_nightly == 'false'
+        env:
+          SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+          VERSION:    ${{ steps.version.outputs.version }}
+        run: |
+          SF_DIR="/home/frs/project/$SF_PROJECT/$VERSION"
+          ssh -i ~/.ssh/sf_deploy -o BatchMode=yes "$SF_USER@$SF_HOST" "mkdir -p $SF_DIR"
+          rsync -avP --partial \
+            -e "ssh -i ~/.ssh/sf_deploy -o BatchMode=yes" \
+            "$ISO" "${ISO}.sha256" \
+            "$SF_USER@$SF_HOST:$SF_DIR/"
+          echo "✓ SF versioned → https://sourceforge.net/projects/$SF_PROJECT/files/$VERSION/"
+
+      # ── GitHub Releases ──────────────────────────────────────────────────────
+      - name: Split ISO for GitHub Release
+        run: |
+          split -b 1900M "$ISO" "${ISO}.part-"
+          ls -lh "${ISO}.part-"*
+
+      - name: Publish Nightly GitHub Release
+        if: steps.version.outputs.is_nightly == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION:  ${{ steps.version.outputs.version }}
+          DATE:     ${{ steps.version.outputs.date }}
+          SIZE:     ${{ steps.meta.outputs.size }}
+          SHA256:   ${{ steps.meta.outputs.sha256 }}
+          CHANGELOG: ${{ steps.meta.outputs.changelog }}
+        run: |
+          NOTES=$(cat << EOF
+          ## TelcoChisel — Nightly Build
+
+          | Field | Value |
+          |-------|-------|
+          | **Build** | \`${VERSION}\` |
+          | **Date** | ${DATE} |
+          | **ISO Size** | ${SIZE} |
+          | **SHA-256** | \`${SHA256}\` |
+
+          ### ⬇ Download (single file — no reassembly needed)
+          **[SourceForge →](https://sourceforge.net/projects/telcochisel/files/nightly/)**
+          Direct download, no size limit, resumable.
+
+          ### Download from GitHub (split parts)
+          Download all \`.part-*\` files and the \`.sha256\` file, then:
+          \`\`\`bash
+          cat TelcoChisel-live.iso.part-* > TelcoChisel-live.iso
+          sha256sum -c TelcoChisel-live.iso.sha256
+          \`\`\`
+
+          ### Changes since last release
+          \`\`\`
+          ${CHANGELOG}
+          \`\`\`
+
+          > **Live boot credentials:** \`telcosec:telcosec\`
+          EOF
+          )
+          gh release delete nightly --yes 2>/dev/null || true
+          git push origin :refs/tags/nightly 2>/dev/null || true
+          gh release create nightly \
+            ${ISO}.part-* "${ISO}.sha256" \
+            --prerelease \
+            --title "Nightly — ${DATE}" \
+            --notes "$NOTES"
+
+      - name: Publish Versioned GitHub Release
+        if: steps.version.outputs.is_nightly == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: "TelcoChisel ${{ steps.version.outputs.version }}"
+          make_latest: true
+          generate_release_notes: true
+          body: |
+            | Field | Value |
+            |-------|-------|
+            | **ISO Size** | ${{ steps.meta.outputs.size }} |
+            | **Built** | ${{ steps.version.outputs.date }} |
+            | **SHA-256** | `${{ steps.meta.outputs.sha256 }}` |
+
+            ### ⬇ Download (single file — no reassembly needed)
+            **[SourceForge →](https://sourceforge.net/projects/telcochisel/files/${{ steps.version.outputs.version }}/)**
+            Direct download, no size limit, resumable.
+
+            ### Download from GitHub (split parts)
+            Download all `.part-*` files and the `.sha256` file, then:
+            ```bash
+            cat TelcoChisel-live.iso.part-* > TelcoChisel-live.iso
+            sha256sum -c TelcoChisel-live.iso.sha256
+            ```
+
+            > **Live boot credentials:** `telcosec:telcosec`
+          files: |
+            ${{ env.ISO }}.part-*
+            ${{ env.ISO }}.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

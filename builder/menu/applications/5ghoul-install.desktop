@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=5Ghoul Setup (USRP B210)
+Comment=Build 5Ghoul with USRP B210 backend — officially supported hardware
+Exec=gnome-terminal --title "5Ghoul Installer" -- bash -c 'sudo 5ghoul-install; echo; read -rp "Press Enter to close..."'
+Icon=utilities-terminal
+Terminal=false
+Categories=TelcoSec-5GNR;

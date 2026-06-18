@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=SIMTester
+Comment=SIM card security testing (SRLabs)
+Exec=gnome-terminal -- bash -c "simtester"
+Icon=smartcard
+Categories=TelcoSec-SIM;
+Terminal=false

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=srsUE
+Comment=srsRAN LTE User Equipment simulator
+Exec=gnome-terminal -- bash -c "srsue"
+Icon=network-wired
+Categories=TelcoSec-LTE;
+Terminal=false

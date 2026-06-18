@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=tcpdump
+Comment=Command-line packet analyzer
+Exec=gnome-terminal -- bash -c "sudo tcpdump -i mon0 -v"
+Icon=utilities-terminal
+Categories=TelcoSec-Network;
+Terminal=false

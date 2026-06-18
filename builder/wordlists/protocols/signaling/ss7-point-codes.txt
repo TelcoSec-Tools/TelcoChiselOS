@@ -1,0 +1,67 @@
+# TelcoSec Academy - https://app.telcosec.net/
+
+# ITU-T 14-Bit Point Codes (Format: Zone-Area-Member / Decimal)
+0-0-0
+0-0-1
+0-0-2
+0-0-3
+0-1-0
+0-2-0
+1-0-0
+2-0-0
+7-255-7
+0-0-0  # Decimal 0
+0-0-1  # Decimal 1
+0-0-2  # Decimal 2
+0-1-0  # Decimal 8
+0-2-0  # Decimal 16
+1-0-0  # Decimal 2048
+2-0-0  # Decimal 4096
+3-0-0  # Decimal 6144
+4-0-0  # Decimal 8192
+5-0-0  # Decimal 10240
+6-0-0  # Decimal 12288
+7-0-0  # Decimal 14336
+7-255-0  # Decimal 16376
+7-255-7  # Decimal 16383 (Max ITU 14-bit value)
+# ANSI 24-Bit Point Codes (Format: Network-Cluster-Member)
+0-0-0
+0-0-1
+0-1-0
+1-0-0
+1-1-1
+2-2-2
+255-255-255
+0-0-0 # Decimal 0
+0-0-1 # Decimal 1
+0-0-2 # Decimal 2
+0-1-0 # Decimal 256
+0-2-0 # Decimal 512
+1-0-0 # Decimal 65536
+2-0-0 # Decimal 131072
+128-0-0 # Decimal 8388608
+254-255-255 # Decimal 16711679
+255-255-255 # Decimal 16777215 (Max ANSI 24-bit value)
+# Common SS7 Sub-System Numbers (SSN)
+0 # Unknown
+1 # SCCP MGMT
+2 # Reserved
+3 # ISUP
+4 # MAP (Mobile Application Part)
+5 # EIR (Equipment Identity Register)
+6 # HLR (Home Location Register)
+7 # VLR (Visitor Location Register)
+8 # MSC (Mobile Switching Center)
+9 # EIC (Equipment Identity Centre)
+10 # AUC (Authentication Centre)
+11 # ISDN
+12 # BroadBand ISDN
+13 # SISG (Signaling Information Services Gateway)
+142 # SGSN (GPRS)
+143 # GGSN (GPRS)
+145 # GMLC (LCS)
+146 # CAP (CAMEL Application Part)
+147 # gsmSCF (CAMEL)
+148 # gsmSSF (CAMEL)
+254 # BSC (Base Station Controller)
+255 # RNC (Radio Network Controller)

@@ -1,0 +1,72 @@
+# TelcoSec Academy - https://app.telcosec.net/
+
+# Diameter Command Codes
+257  # Capabilities-Exchange (CER/CEA)
+258  # Re-Auth (RAR/RAA)
+271  # Accounting (ACR/ACA)
+272  # Credit-Control (CCR/CCA)
+274  # Abort-Session (ASR/ASA)
+275  # Session-Termination (STR/STA)
+280  # Device-Watchdog (DWR/DWA)
+282  # Disconnect-Peer (DPR/DPA)
+316  # Update-Location (ULR/ULA)
+317  # Cancel-Location (CLR/CLA)
+318  # Authentication-Information (AIR/AIA)
+319  # Insert-Subscriber-Data (IDR/IDA)
+320  # Delete-Subscriber-Data (DSR/DSA)
+321  # Purge-UE (PUR/PUA)
+322  # Reset (RSR/RSA)
+323  # Notify (NOR/NOA)
+324  # ME-Identity-Check (ECR/ECA)
+
+# Diameter AVP Codes
+1    # User-Name / IMSI
+33   # Proxy-State
+258  # Auth-Application-Id
+260  # Vendor-Specific-Application-Id
+263  # Session-Id
+264  # Origin-Host
+266  # Vendor-Id
+268  # Result-Code
+269  # Product-Name
+277  # Auth-Session-State
+278  # Origin-State-Id
+280  # Proxy-Host
+282  # Route-Record
+283  # Destination-Realm
+284  # Proxy-Info
+293  # Destination-Host
+296  # Origin-Realm
+443  # Subscription-Id
+444  # Subscription-Id-Data
+450  # Subscription-Id-Type
+628  # Supported-Features
+701  # MSISDN
+1032 # RAT-Type
+1407 # Visited-PLMN-Id
+1416 # Requested-Domain
+1489 # SGSN-Number
+1503 # AN-Trusted
+
+# Common Realm/Domain names used for routing brute-force
+ims.mnc001.mcc001.3gppnetwork.org
+epc.mnc001.mcc001.3gppnetwork.org
+apn.epc.mnc001.mcc001.3gppnetwork.org
+dra.mnc001.mcc001.3gppnetwork.org
+hss.mnc001.mcc001.3gppnetwork.org
+mme.mnc001.mcc001.3gppnetwork.org
+ims.mnc410.mcc310.3gppnetwork.org
+epc.mnc260.mcc310.3gppnetwork.org
+epc.mnc001.mcc262.3gppnetwork.org
+ims.mnc002.mcc262.3gppnetwork.org
+dra.mnc002.mcc262.3gppnetwork.org
+hss.mnc001.mcc262.3gppnetwork.org
+mme.mnc001.mcc262.3gppnetwork.org
+ims.mnc015.mcc234.3gppnetwork.org
+epc.mnc015.mcc234.3gppnetwork.org
+ims.mnc030.mcc234.3gppnetwork.org
+epc.mnc030.mcc234.3gppnetwork.org
+ims.mnc010.mcc208.3gppnetwork.org
+epc.mnc010.mcc208.3gppnetwork.org
+ims.mnc001.mcc208.3gppnetwork.org
+epc.mnc001.mcc208.3gppnetwork.org

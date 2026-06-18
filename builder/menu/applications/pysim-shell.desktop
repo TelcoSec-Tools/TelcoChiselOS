@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=pySim Shell
+Comment=SIM/USIM smartcard programming and profile management shell
+Exec=gnome-terminal --title "pySim Shell" -- bash -c "pySim-shell --help; read -p 'Press enter to exit...'"
+Icon=smartcard
+Terminal=false
+Categories=TelcoSec-SIM;

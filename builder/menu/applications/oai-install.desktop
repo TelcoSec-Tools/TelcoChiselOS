@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=OAI UE Setup
+Comment=Build and install OpenAirInterface UE
+Exec=gnome-terminal -- bash -c "sudo oai-install"
+Icon=network-cellular
+Categories=TelcoSec-5GNR;
+Terminal=false

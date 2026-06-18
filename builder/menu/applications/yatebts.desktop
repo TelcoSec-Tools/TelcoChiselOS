@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=YateBTS (BladeRF A4)
+Comment=YateBTS GSM/UMTS BTS — compile and launch for BladeRF
+Exec=gnome-terminal -- bash -c "sudo yatebts-install"
+Icon=network-wireless
+Categories=TelcoSec-GSM;
+Terminal=false

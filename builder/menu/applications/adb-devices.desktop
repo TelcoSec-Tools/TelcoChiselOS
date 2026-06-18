@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=ADB Devices
+Comment=List connected Android/Samsung devices
+Exec=gnome-terminal -- bash -c "adb devices -l"
+Icon=phone
+Categories=TelcoSec-Device;
+Terminal=false

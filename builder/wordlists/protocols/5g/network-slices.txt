@@ -1,0 +1,23 @@
+# TelcoSec Academy - https://app.telcosec.net/
+
+# Format: SST (Slice/Service Type) or SST-SD (Slice Differentiator)
+# SST values (Standardized 3GPP TS 23.501)
+1  # eMBB (enhanced Mobile Broadband)
+2  # URLLC (Ultra-Reliable Low-Latency Communications)
+3  # MIoT (Massive IoT)
+4  # V2X (Vehicle-to-Everything)
+5  # HMTC (High-performance Machine Type Communication)
+# Common Custom/Operator SST-SD variations (Hex or Decimal)
+1-000000
+1-000001
+1-ffffff
+2-000000
+2-000002
+3-000000
+3-000003
+4-000000
+4-000004
+100-000001
+101-000002
+102-000003
+255-ffffff

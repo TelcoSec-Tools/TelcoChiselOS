@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=IMSI Generator
+Comment=Generate IMSI numbers from MCC/MNC for reconnaissance and testing
+Exec=gnome-terminal --title "IMSI Generator" -- bash -c 'telcosec-imsi-generator --help; echo; read -rp "Press Enter to close..."'
+Icon=system-run
+Terminal=false
+Categories=TelcoSec-Tools;

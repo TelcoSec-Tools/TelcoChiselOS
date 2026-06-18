@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=LTE Cell Scanner
+Comment=Scan for LTE base stations using SDR
+Exec=gnome-terminal -- bash -c "LTE-CellSearch --help"
+Icon=network-wired
+Categories=TelcoSec-LTE;
+Terminal=false

@@ -1,0 +1,13 @@
+{
+  "name": "TelcoChisel-docs",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --port 8000",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview"
+  },
+  "devDependencies": {
+    "nuxt": "^3.13.0"
+  }
+}

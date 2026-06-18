@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=LTESniffer
+Comment=Open-source LTE downlink/uplink sniffer
+Exec=gnome-terminal -- bash -c "ltesniffer --help"
+Icon=network-wired
+Categories=TelcoSec-LTE;
+Terminal=false
