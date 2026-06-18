@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=AT Command Console
+Comment=Interactive AT command terminal (minicom)
+Exec=gnome-terminal -- bash -c "at-console"
+Icon=utilities-terminal
+Categories=TelcoSec-Device;
+Terminal=false

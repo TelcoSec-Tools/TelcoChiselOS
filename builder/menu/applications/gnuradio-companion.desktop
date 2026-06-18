@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=GNU Radio Companion
+Comment=GNU Radio Flowgraph Designer
+Exec=gnuradio-companion
+Icon=gnuradio-grc
+Terminal=false
+Categories=TelcoSec-SDR;

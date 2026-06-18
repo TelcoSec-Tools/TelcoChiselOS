@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Linphone
+Comment=Open-source SIP/VoIP softphone
+Exec=linphone
+Icon=phone
+Terminal=false
+Categories=TelcoSec-VoIP;

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Kalibrate GSM
+Comment=GSM frequency calibration (BladeRF/RTL-SDR)
+Exec=gnome-terminal -- bash -c "kal-gsm -h"
+Icon=utilities-system-monitor
+Categories=TelcoSec-GSM;
+Terminal=false

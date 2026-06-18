@@ -1,0 +1,78 @@
+# TelcoSec Academy - https://app.telcosec.net/
+
+# Standard German GT Prefixes
+491710000000
+491720000000
+491760000000
+491790000000
+# Standard UK GT Prefixes
+447700900000
+447800900000
+447900900000
+# Standard US GT Prefixes (T-Mobile / AT&T)
+12015550100
+14045550100
+12065550100
+12125550100
+14255550100
+19175550100
+# Standard France GT Prefixes
+33607000000
+33608000000
+33609000000
+33650000000
+33653000000
+# Standard Italy GT Prefixes
+393300000000
+393400000000
+393200000000
+393800000000
+# Standard Brazil GT Prefixes
+5511900000000
+5521900000000
+# Standard India GT Prefixes
+919810000000
+919820000000
+919890000000
+# Standard China GT Prefixes
+8613900000000
+8613800000000
+# Test / Private GT Ranges
+00101000000
+99999000000
+88888000000
+# Invalid / Broadcast / Fuzzing GT formats
+00000000000
+11111111111
+99999999999
+FFFFFFFFFFF
+# SS7 Translation Type (TT) candidates
+0
+1
+2
+3
+4
+5
+10
+11
+12
+14
+20
+254
+255
+# Numbering Plan Indicator (NPI) values
+0
+1  # ISDN/Telephony (E.163/E.164)
+2  # Generic Numbering Plan
+3  # Data Numbering Plan (X.121)
+4  # Telex Numbering Plan (F.69)
+5  # Maritime Mobile Numbering Plan
+6  # Land Mobile Numbering Plan (E.212)
+7  # ISDN Sub-Address
+15 # Reserved
+# Nature of Address Indicator (NAI) values
+0
+1 # Subscriber Number
+2 # Unknown
+3 # National Significant Number
+4 # International Number

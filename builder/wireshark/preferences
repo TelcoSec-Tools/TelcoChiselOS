@@ -1,0 +1,12 @@
+# Wireshark preferences file for TelcoChisel
+# Pre-configures useful columns for telecom protocol analysis (GSMTAP, 5G NAS, GTP)
+
+# Column configuration — single line required by Wireshark preferences parser.
+# Custom field columns use the %Cus:<field>:<occurrence>:<align> syntax.
+gui.column.format: "No.", "%m", "Time", "%t", "Protocol", "%p", "Length", "%L", "GSMTAP Ch", "%Cus:gsmtap.cl_type:0:R", "5G NAS Msg", "%Cus:nas_5gs.mm.message_type:0:R", "GTP TEID", "%Cus:gtp.teid:0:R", "MAP MSISDN", "%Cus:gsm_map.msisdn:0:R", "MAP Op", "%Cus:gsm_old.opCode:0:R", "Diameter Cmd", "%Cus:diameter.cmd.code:0:R", "Info", "%i"
+
+# Console log level (28 = warnings + errors; was malformed "1e")
+console.log.level: 28
+
+# Packet list display
+gui.packet_list_elide_mode: 1

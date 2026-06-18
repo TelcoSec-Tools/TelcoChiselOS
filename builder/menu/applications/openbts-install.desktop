@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=OpenBTS Setup
+Comment=Compile and install OpenBTS GSM BTS
+Exec=gnome-terminal -- bash -c "sudo openbts-install"
+Icon=network-wireless
+Categories=TelcoSec-GSM;
+Terminal=false

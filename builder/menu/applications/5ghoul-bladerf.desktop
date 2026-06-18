@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=5Ghoul Setup (BladeRF A4)
+Comment=Build 5Ghoul with BladeRF A4 backend — max 20 MHz NR, bare-metal only
+Exec=gnome-terminal --title "5Ghoul BladeRF Installer" -- bash -c 'sudo 5ghoul-install --radio BLADERF; echo; read -rp "Press Enter to close..."'
+Icon=utilities-terminal
+Terminal=false
+Categories=TelcoSec-5GNR;

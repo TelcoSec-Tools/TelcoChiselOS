@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Zoiper5
+Comment=VoIP softphone (SIP/IAX)
+Exec=zoiper5
+Icon=phone
+Categories=TelcoSec-VoIP;
+Terminal=false

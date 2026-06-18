@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=lpac (eSIM LPA)
+Comment=Local Profile Assistant for eSIM management (eUICC/RSP)
+Exec=gnome-terminal --title "lpac eSIM LPA" -- bash -c "lpac --help; read -p 'Press Enter to exit...'"
+Icon=smartcard
+Terminal=false
+Categories=TelcoSec-SIM;

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Gammu SMS/USSD
+Comment=Send SMS and USSD commands via modem
+Exec=gnome-terminal -- bash -c "gammu-at --help"
+Icon=phone
+Categories=TelcoSec-Device;
+Terminal=false

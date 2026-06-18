@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=gr-gsm Livemon
+Comment=GSM live monitoring receiver using RTL-SDR (GNU Radio Qt GUI)
+Exec=grgsm_livemon
+Icon=utilities-terminal
+Terminal=false
+Categories=TelcoSec-SDR;

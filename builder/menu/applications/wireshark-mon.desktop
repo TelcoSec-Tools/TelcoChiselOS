@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Wireshark (mon0)
+Comment=Capture on monitoring interface (mon0)
+Exec=wireshark -i mon0
+Icon=wireshark
+Categories=TelcoSec-Network;
+Terminal=false

@@ -1,0 +1,45 @@
+# TelcoSec Academy - https://app.telcosec.net/
+
+# 5G NAS Message Types (TS 24.501) - Hex values
+# 5GS Mobility Management (5GMM) message types
+41 # Registration Request
+42 # Registration Accept
+43 # Registration Complete
+44 # Registration Reject
+45 # De-registration Request (UE originating)
+46 # De-registration Accept (UE originating)
+47 # De-registration Request (UE terminating)
+48 # De-registration Accept (UE terminating)
+4C # Service Request
+4D # Service Reject
+4E # Service Accept
+4F # Control plane Service Request
+54 # Configuration Update Command
+55 # Configuration Update Complete
+56 # Authentication Request
+57 # Authentication Response
+58 # Authentication Reject
+59 # Authentication Failure
+5A # Identity Request
+5B # Identity Response
+5C # Identity Reject
+5D # Identity Failure
+5E # Security Mode Command
+5F # Security Mode Complete
+60 # Security Mode Reject
+64 # 5GMM Status
+65 # Notification
+66 # Notification Response
+67 # UL NAS Transport
+68 # DL NAS Transport
+# 5GS Session Management (5GSM) message types
+C1 # PDU Session Establishment Request
+C2 # PDU Session Establishment Accept
+C3 # PDU Session Establishment Reject
+C5 # PDU Session Modification Request
+C6 # PDU Session Modification Accept
+C7 # PDU Session Modification Reject
+C9 # PDU Session Release Request
+CA # PDU Session Release Accept
+CB # PDU Session Release Reject
+D1 # 5GSM Status

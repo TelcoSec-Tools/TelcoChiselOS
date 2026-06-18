@@ -1,0 +1,179 @@
+# TelcoChisel — Plymouth Boot Theme
+# Copyright (C) 2024-2026 TelcoSec  ·  https://telco-sec.com
+
+# ── Layout ──────────────────────────────────────────────────────────────────
+LOGO_SIZE_PCT  = 0.28;     # logo diameter as fraction of shortest screen edge
+LOGO_Y_PCT     = 0.38;     # logo vertical centre as fraction of screen height
+GLOW_SIZE_PCT  = 0.55;     # glow diameter as fraction of shortest screen edge
+LABEL_Y_PCT    = 0.62;     # "TelcoChisel" label top as fraction of screen height
+DOTS_Y_PCT     = 0.72;     # progress dot row top as fraction of screen height
+NUM_DOTS       = 8;
+PULSE_PERIOD   = 80;       # refresh ticks per glow pulsation cycle (≈1.6 s at 50 fps)
+
+# ── Background ──────────────────────────────────────────────────────────────
+Window.SetBackgroundTopColor    (0.047, 0.059, 0.086);   # #0C0F16 obsidian
+Window.SetBackgroundBottomColor (0.031, 0.039, 0.059);   # #080F18 deep space
+
+# ── Brand colours ───────────────────────────────────────────────────────────
+brand.r = 0.0;   brand.g = 0.831;  brand.b = 0.902;   # #00D4E6 brand cyan
+dim.r   = 0.45;  dim.g   = 0.55;   dim.b   = 0.60;    # muted grey-blue for messages
+
+# ── Screen geometry ─────────────────────────────────────────────────────────
+W         = Window.GetWidth(0);
+H         = Window.GetHeight(0);
+small_dim = Math.Min(W, H);
+logo_cx   = W * 0.5;
+logo_cy   = H * LOGO_Y_PCT;
+
+# ── Glow sprite ─────────────────────────────────────────────────────────────
+glow_src   = Image("glow.png");
+glow_size  = small_dim * GLOW_SIZE_PCT;
+glow_scale = glow_size / glow_src.GetWidth();
+glow_img   = glow_src.Scale(glow_src.GetWidth() * glow_scale,
+                             glow_src.GetHeight() * glow_scale);
+glow_spr   = Sprite(glow_img);
+glow_spr.SetPosition(logo_cx - glow_img.GetWidth()/2,
+                      logo_cy - glow_img.GetHeight()/2, -2);
+glow_spr.SetOpacity(0.7);
+
+# ── Logo sprite ─────────────────────────────────────────────────────────────
+logo_src   = Image("logo.png");
+logo_size  = small_dim * LOGO_SIZE_PCT;
+logo_scale = logo_size / logo_src.GetWidth();
+logo_img   = logo_src.Scale(logo_src.GetWidth() * logo_scale,
+                             logo_src.GetHeight() * logo_scale);
+logo_spr   = Sprite(logo_img);
+logo_spr.SetPosition(logo_cx - logo_img.GetWidth()/2,
+                      logo_cy - logo_img.GetHeight()/2, 0);
+
+# ── Brand label ─────────────────────────────────────────────────────────────
+label_img = Image.Text("TelcoChisel", brand.r, brand.g, brand.b);
+label_spr = Sprite(label_img);
+label_spr.SetPosition(W/2 - label_img.GetWidth()/2, H * LABEL_Y_PCT, 1);
+
+# ── Progress dots ────────────────────────────────────────────────────────────
+dot_on  = Image("progress_dot_on.png");
+dot_off = Image("progress_dot_off.png");
+dot_w   = dot_on.GetWidth();
+gap     = Math.Int(dot_w * 0.6);
+row_w   = NUM_DOTS * dot_w + (NUM_DOTS - 1) * gap;
+row_x   = Math.Int(W/2 - row_w/2);
+dot_y   = Math.Int(H * DOTS_Y_PCT);
+
+for (i = 0; i < NUM_DOTS; i++) {
+    dot_spr[i] = Sprite(dot_off);
+    dot_spr[i].SetPosition(row_x + i * (dot_w + gap), dot_y, 1);
+    dot_spr[i].SetOpacity(0.25);
+}
+
+# ── State ────────────────────────────────────────────────────────────────────
+progress_pct  = 0;
+refresh_count = 0;
+prompt_active = 0;
+
+# ── Helpers ──────────────────────────────────────────────────────────────────
+fun cos_opacity(phase, period, lo, hi) {
+    return lo + (hi - lo) * 0.5 * (1 + Math.Cos(phase / period * 2 * Math.Pi));
+}
+
+# ── Glow pulse ──────────────────────────────────────────────────────────────
+fun update_glow() {
+    phase = global.refresh_count % PULSE_PERIOD;
+    global.glow_spr.SetOpacity(cos_opacity(phase, PULSE_PERIOD, 0.45, 1.0));
+}
+
+# ── Dot update ───────────────────────────────────────────────────────────────
+fun update_dots() {
+    filled = Math.Int(global.progress_pct * NUM_DOTS + 0.5);
+    for (i = 0; i < NUM_DOTS; i++) {
+        if (i < filled) {
+            global.dot_spr[i].SetImage(global.dot_on);
+            global.dot_spr[i].SetOpacity(1.0);
+        } else {
+            global.dot_spr[i].SetImage(global.dot_off);
+            # Rolling wave across idle dots (offset per dot position)
+            phase = (global.refresh_count + i * 10) % PULSE_PERIOD;
+            op    = cos_opacity(phase, PULSE_PERIOD, 0.12, 0.35);
+            global.dot_spr[i].SetOpacity(op);
+        }
+    }
+}
+
+# ── Boot progress callback ───────────────────────────────────────────────────
+fun progress_callback(time, pct) {
+    global.progress_pct = pct;
+}
+Plymouth.SetBootProgressFunction(progress_callback);
+
+# ── Refresh callback ─────────────────────────────────────────────────────────
+fun refresh_callback() {
+    global.refresh_count++;
+    update_glow();
+    update_dots();
+}
+Plymouth.SetRefreshFunction(refresh_callback);
+
+# ── Message callback ─────────────────────────────────────────────────────────
+fun message_callback(message) {
+    if (!message || message == "") return;
+    msg_img = Image.Text(message, global.dim.r, global.dim.g, global.dim.b);
+    if (!global.msg_spr) global.msg_spr = Sprite();
+    global.msg_spr.SetImage(msg_img);
+    global.msg_spr.SetPosition(W/2 - msg_img.GetWidth()/2, H * 0.82, 2);
+    global.msg_spr.SetOpacity(1);
+}
+Plymouth.SetMessageFunction(message_callback);
+
+# ── Password dialogue ────────────────────────────────────────────────────────
+password_dot_filename   = "password_dot.png";
+password_field_filename = "password_field.png";
+
+fun password_dialogue_setup(prompt_text) {
+    entry_img  = Image(password_field_filename);
+    bullet_img = Image(password_dot_filename);
+    global.pwd.entry_img  = entry_img;
+    global.pwd.bullet_img = bullet_img;
+
+    prompt_img = Image.Text(prompt_text, global.brand.r, global.brand.g, global.brand.b);
+    global.pwd.prompt_spr = Sprite(prompt_img);
+    global.pwd.prompt_spr.SetPosition(W/2 - prompt_img.GetWidth()/2, H * 0.63, 10);
+
+    global.pwd.entry_spr = Sprite(entry_img);
+    global.pwd.entry_spr.SetPosition(W/2 - entry_img.GetWidth()/2, H * 0.68, 10);
+}
+
+fun display_password_callback(prompt, bullets) {
+    global.prompt_active = 1;
+    if (!global.pwd.entry_spr) password_dialogue_setup(prompt);
+    bimg     = global.pwd.bullet_img;
+    bw       = bimg.GetWidth();
+    area_w   = global.pwd.entry_img.GetWidth() - bw * 2;
+    bstart_x = W/2 - area_w/2;
+    bullet_y = H * 0.68 + global.pwd.entry_img.GetHeight()/2 - bw/2;
+    spaces   = Math.Int(area_w / (bw / 2));
+    if (bullets > spaces) bullets = spaces;
+    for (i = 0; global.pwd.bullets[i] || i < bullets; i++) {
+        if (!global.pwd.bullets[i]) {
+            global.pwd.bullets[i].spr = Sprite(bimg);
+            global.pwd.bullets[i].spr.SetX(bstart_x + i * bw/2);
+            global.pwd.bullets[i].spr.SetY(bullet_y);
+            global.pwd.bullets[i].spr.SetZ(11);
+        }
+        if (i < bullets)
+            global.pwd.bullets[i].spr.SetOpacity(1);
+        else
+            global.pwd.bullets[i].spr.SetOpacity(0);
+    }
+}
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+
+fun display_normal_callback() {
+    global.prompt_active = 0;
+    if (global.pwd.prompt_spr) global.pwd.prompt_spr.SetOpacity(0);
+    if (global.pwd.entry_spr)  global.pwd.entry_spr.SetOpacity(0);
+    if (global.msg_spr)        global.msg_spr.SetOpacity(1);
+}
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
+
+fun quit_callback() {}
+Plymouth.SetQuitFunction(quit_callback);

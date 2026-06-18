@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MTKClient GUI
+Comment=MediaTek BootROM Bypass and Flash GUI Client
+Exec=mtk gui
+Icon=system-run
+Terminal=false
+Categories=TelcoSec-Baseband;

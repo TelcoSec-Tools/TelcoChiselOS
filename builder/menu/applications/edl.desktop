@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=EDL (Qualcomm)
+Comment=Qualcomm Emergency Download Mode tool
+Exec=gnome-terminal -- bash -c "edl --help"
+Icon=phone
+Categories=TelcoSec-Device;
+Terminal=false

@@ -1,0 +1,20 @@
+.claude.md
+CLAUDE.md
+
+# Build artifacts
+live-iso-work/
+
+# Docs build artifacts
+docs/node_modules/
+docs/.nuxt/
+docs/.output/
+docs/dist/
+
+# Local agent/AI scratch dirs
+.claude/
+
+# VM debugging artifacts (never commit these)
+guest_*.txt
+guest_*.log
+TelcoChisel-live.iso
+TelcoChisel-live_*.iso

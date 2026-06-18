@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Gqrx SDR
+Comment=Software Defined Radio Receiver
+Exec=gqrx
+Icon=gqrx
+Terminal=false
+Categories=TelcoSec-SDR;

@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Directory
+Name=06. 5G NR Attacks (5Ghoul)
+Icon=network-cellular
+Comment=5G NR modem fuzzing and rogue gNB attack tools

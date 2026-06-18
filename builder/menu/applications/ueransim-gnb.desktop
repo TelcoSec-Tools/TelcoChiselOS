@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=UERANSIM — gNB
+Comment=5G NR gNodeB simulator
+Exec=gnome-terminal -- bash -c "sudo nr-gnb -c /etc/telcosec/ueransim/gnb.yaml"
+Icon=network-cellular
+Categories=TelcoSec-5GNR;
+Terminal=false

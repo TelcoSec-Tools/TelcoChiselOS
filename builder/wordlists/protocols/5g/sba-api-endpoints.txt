@@ -1,0 +1,46 @@
+# TelcoSec Academy - https://app.telcosec.net/
+
+# UDM SDM (Subscriber Data Management) endpoints
+/nudm-sdm/v1
+/nudm-sdm/v2
+/nudm-sdm/v1/am-data
+/nudm-sdm/v1/smf-selection-subscription-data
+/nudm-sdm/v1/ue-context-in-smf-data
+/nudm-sdm/v1/sms-data
+/nudm-sdm/v1/trace-data
+# AUSF UE Authentication endpoints
+/nausf-auth/v1
+/nausf-auth/v1/ue-authentications
+/nausf-auth/v1/ue-authentications/deregister
+/nausf-auth/v1/rg-authentications
+# AMF Communication endpoints
+/namf-comm/v1
+/namf-comm/v1/ue-contexts
+/namf-comm/v1/subscriptions
+# SMF PDU Session endpoints
+/nsmf-pdusession/v1
+/nsmf-pdusession/v1/sm-contexts
+/nsmf-pdusession/v1/sm-contexts/release
+/nsmf-pdusession/v2
+# NRF NF Management endpoints
+/nnrf-nfm/v1
+/nnrf-nfm/v1/nf-instances
+/nnrf-nfm/v1/nf-instances/register
+/nnrf-nfm/v1/subscriptions
+# NRF NF Discovery endpoints
+/nnrf-disc/v1
+/nnrf-disc/v1/nf-instances
+# UDM UE Authentication
+/nudm-ueau/v1
+/nudm-ueau/v1/security-information
+/nudm-ueau/v1/auth-events
+# UDM UE Context Management
+/nudm-uecm/v1
+/nudm-uecm/v1/registrations
+# UDR Data Repository
+/nudr-dr/v1
+/nudr-dr/v1/subscription-data
+/nudr-dr/v1/policy-data
+# NSSF Slice Selection
+/nnssf-nsselection/v1
+/nnssf-nsselection/v1/network-slice-information

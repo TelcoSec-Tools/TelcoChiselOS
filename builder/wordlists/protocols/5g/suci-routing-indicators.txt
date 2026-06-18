@@ -1,0 +1,30 @@
+# TelcoSec Academy - https://app.telcosec.net/
+
+# Common Routing Indicators (Home Network Routing Indicator - HNRI)
+# Format: 4-digit decimal/hex representation
+0000
+1111
+2222
+3333
+4444
+5555
+6666
+7777
+8888
+9999
+FFFF
+F000
+F100
+F200
+9000
+0001
+0002
+0003
+0010
+0020
+0100
+0200
+1000
+2000
+3000
+4000

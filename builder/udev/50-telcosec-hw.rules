@@ -1,0 +1,64 @@
+# TelcoChisel Hardware Access Rules for SDR and SIMtrace Devices
+# This allows members of the plugdev and dialout groups to access radio interfaces without root privileges.
+
+# HackRF One & Great Scott Gadgets
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6089", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="cc15", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+
+# BladeRF (Nuand)
+ATTRS{idVendor}=="2cf0", ATTRS{idProduct}=="5250", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+
+# LimeSDR
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6108", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+
+# RTL-SDR Dongles
+ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2832", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2838", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+
+# USRP UHD (Ettus Research / National Instruments)
+ATTRS{idVendor}=="2514", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+
+# Osmocom SIMtrace 2 (Sniffer & Card Emulators)
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6076", MODE="0660", GROUP="plugdev"
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6085", MODE="0660", GROUP="plugdev"
+
+# ── Samsung Device Rules ───────────────────────────────────────────────────────
+# Samsung ADB mode
+ATTRS{idVendor}=="04e8", MODE="0660", GROUP="plugdev"
+# Samsung Download Mode (Odin/Heimdall)
+ATTRS{idVendor}=="04e8", ATTRS{idProduct}=="6601", MODE="0660", GROUP="plugdev", SYMLINK+="samsung_download"
+# Samsung Diagnostic Mode
+ATTRS{idVendor}=="04e8", ATTRS{idProduct}=="685d", MODE="0660", GROUP="plugdev", SYMLINK+="samsung_diag"
+# Samsung MTP
+ATTRS{idVendor}=="04e8", ATTRS{idProduct}=="685c", MODE="0660", GROUP="plugdev"
+
+# ── MediaTek Device Rules ─────────────────────────────────────────────────────
+# MediaTek PreLoader (BROM — before flashing)
+ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="0003", MODE="0660", GROUP="plugdev", SYMLINK+="mtk_preloader"
+# MediaTek BROM (alternative product ID)
+ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="2000", MODE="0660", GROUP="plugdev", SYMLINK+="mtk_brom"
+# MediaTek DA (Download Agent, during flash)
+ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="2001", MODE="0660", GROUP="plugdev"
+# MediaTek ADB / CDC ACM
+ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="2005", MODE="0660", GROUP="plugdev"
+
+# ── Qualcomm Device Rules ─────────────────────────────────────────────────────
+# Qualcomm EDL (Emergency Download — 9008 mode)
+ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9008", MODE="0660", GROUP="plugdev", SYMLINK+="qc_edl"
+# Qualcomm DIAG (diagnostic interface)
+ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9001", MODE="0660", GROUP="plugdev", SYMLINK+="qc_diag"
+# Qualcomm ADB
+ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9025", MODE="0660", GROUP="plugdev"
+ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9091", MODE="0660", GROUP="plugdev"
+
+# ── Modem & USB Dongle Rules ──────────────────────────────────────────────────
+# Huawei modems (various)
+ATTRS{idVendor}=="12d1", MODE="0660", GROUP="dialout"
+# ZTE modems
+ATTRS{idVendor}=="19d2", MODE="0660", GROUP="dialout"
+# Sierra Wireless
+ATTRS{idVendor}=="1199", MODE="0660", GROUP="dialout"
+# Option / GlobeSurfer
+ATTRS{idVendor}=="0af0", MODE="0660", GROUP="dialout"
+# Novatel Wireless
+ATTRS{idVendor}=="1410", MODE="0660", GROUP="dialout"
