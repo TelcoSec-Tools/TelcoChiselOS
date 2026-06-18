@@ -1,6 +1,7 @@
 export const toolsCatalog = [
     {
         name: "GNU Radio 3.10",
+        slug: "gnu-radio-companion",
         category: "sdr",
         status: "ready",
         desc: "The primary digital signal processing (DSP) framework and graphical flowchart design suite for SDR transceiver implementation.",
@@ -9,6 +10,7 @@ export const toolsCatalog = [
     },
     {
         name: "SoapySDR",
+        slug: "soapysdr",
         category: "sdr",
         status: "ready",
         desc: "A vendor-neutral SDR hardware abstraction layer and API, allowing software built against it to work with a wide range of transceivers.",
@@ -17,6 +19,7 @@ export const toolsCatalog = [
     },
     {
         name: "UHD (USRP Hardware Driver)",
+        slug: "uhd-usrp-hardware-driver",
         category: "sdr",
         status: "ready",
         desc: "Official device driver and interface software for Ettus Research USRP software-defined radios (B210, X310, etc.), compiled from source.",
@@ -25,6 +28,7 @@ export const toolsCatalog = [
     },
     {
         name: "HackRF Host Tools",
+        slug: "hackrf-host-tools",
         category: "sdr",
         status: "ready",
         desc: "Command-line configuration and operation tools for the Great Scott Gadgets HackRF One, including firmware flashers and receiver utilities.",
@@ -33,6 +37,7 @@ export const toolsCatalog = [
     },
     {
         name: "gr-gsm Tools",
+        slug: "gr-gsm-tools",
         category: "sdr",
         status: "ready",
         desc: "Gnu Radio blocks and scripts for receiving, decoding, and analyzing the GSM air interface (2G). Includes live channel monitoring.",
@@ -41,6 +46,7 @@ export const toolsCatalog = [
     },
     {
         name: "Kalibrate RTL (kal)",
+        slug: "kalibrate-rtl",
         category: "sdr",
         status: "ready",
         desc: "Scans for GSM base stations and uses their broadcasts to calibrate the local oscillator frequency offset on RTL-SDR dongles.",
@@ -49,6 +55,7 @@ export const toolsCatalog = [
     },
     {
         name: "FirmWire Emulation",
+        slug: "firmwire-emulation",
         category: "ue",
         status: "ready",
         desc: "A baseband firmware emulation and fuzzing platform. Emulates Samsung Shannon and MediaTek modems under QEMU, enabling analysis of baseband OTA packets.",
@@ -57,6 +64,7 @@ export const toolsCatalog = [
     },
     {
         name: "QCSuper",
+        slug: "qcsuper",
         category: "ue",
         status: "ready",
         desc: "Qualcomm diagnostic protocol log parser that generates PCAP files from baseband OTA messages sniffed from a phone connected via USB.",
@@ -65,6 +73,7 @@ export const toolsCatalog = [
     },
     {
         name: "MTKClient",
+        slug: "mtkclient",
         category: "ue",
         status: "ready",
         desc: "A powerful dump, flash, partition editor, and bootloader/BROM bypass tool for MediaTek (MTK) chipset devices.",
@@ -73,6 +82,7 @@ export const toolsCatalog = [
     },
     {
         name: "Balong-Flash & Balongtool",
+        slug: "balong-flash-balongtool",
         category: "ue",
         status: "ready",
         desc: "Firmware compilation, modification, and direct USB flasher utilities targeting Huawei Balong-based LTE modems and routers.",
@@ -81,6 +91,7 @@ export const toolsCatalog = [
     },
     {
         name: "Osmocom SIMtrace 2 Host",
+        slug: "osmocom-simtrace-2-host",
         category: "sim",
         status: "ready",
         desc: "Host-side companion daemon and sniffer utilities to inspect smartcard ISO-7816 communication between SIM readers and actual handsets.",
@@ -89,6 +100,7 @@ export const toolsCatalog = [
     },
     {
         name: "Osmocom pySim",
+        slug: "osmocom-pysim",
         category: "sim",
         status: "ready",
         desc: "An interactive smartcard management shell and scripting library capable of reading, writing, and configuring USIM/SIM credentials.",
@@ -97,6 +109,7 @@ export const toolsCatalog = [
     },
     {
         name: "lpac (eSIM LPA)",
+        slug: "lpac-esim-lpa",
         category: "sim",
         status: "ready",
         desc: "An independent Local Profile Assistant (LPA) for eSIM profiles, implementing GSMA SGP.22 specifications over PC/SC readers.",
@@ -105,6 +118,7 @@ export const toolsCatalog = [
     },
     {
         name: "SIMurai (swsim)",
+        slug: "simurai-software-sim",
         category: "sim",
         status: "ready",
         desc: "A software SIM platform that emulates a full UICC/SIM card speaking ISO-7816 over TCP/IP, plus a virtual PC/SC IFD driver (swicc-pcsc) that exposes the emulated card to any pcscd-aware tool.",
@@ -113,6 +127,7 @@ export const toolsCatalog = [
     },
     {
         name: "PCSC Daemon (pcscd)",
+        slug: "pcsc-daemon-pcscd",
         category: "sim",
         status: "ready",
         desc: "Smartcard interface daemon facilitating reader communication between hardware card slot readers and software tools.",
@@ -121,6 +136,7 @@ export const toolsCatalog = [
     },
     {
         name: "srsRAN 4G/5G Simulator",
+        slug: "srsran-4g-5g-simulator",
         category: "ran",
         status: "setup",
         desc: "Full open-source SDR-based 4G/5G mobile network simulator implementing gNodeB, eNodeB, and User Equipment (UE). Suitable for virtual cell testing.",
@@ -129,6 +145,7 @@ export const toolsCatalog = [
     },
     {
         name: "Wireshark & TShark",
+        slug: "wireshark-tshark",
         category: "ran",
         status: "ready",
         desc: "World-class packet sniffer customized with layout profiles displaying GSMTAP, 5G NAS, Diameter codes, and GTP headers.",
@@ -137,6 +154,7 @@ export const toolsCatalog = [
     },
     {
         name: "SIPVicious",
+        slug: "sipvicious",
         category: "ran",
         status: "ready",
         desc: "Audit toolset for SIP-based VoIP systems. Designed to scan target networks, brute-force extensions, and audit registration systems.",
@@ -145,6 +163,7 @@ export const toolsCatalog = [
     },
     {
         name: "sctpscan",
+        slug: "sctpscan",
         category: "ran",
         status: "ready",
         desc: "A fast SCTP port scanner to map host capabilities and discover ports running S1AP, NGAP, Diameter, or M3UA SIGTRAN protocols.",
@@ -153,6 +172,7 @@ export const toolsCatalog = [
     },
     {
         name: "SigPloit",
+        slug: "sigploit",
         category: "ran",
         status: "ready",
         desc: "Signaling exploitation framework targeting SS7, Diameter, and GTP protocols to audit core telecom networks for routing vulnerabilities.",
@@ -161,6 +181,7 @@ export const toolsCatalog = [
     },
     {
         name: "Diafuzzer",
+        slug: "diafuzzer",
         category: "ran",
         status: "ready",
         desc: "Diameter protocol fuzzer written by Orange Security, designed to test core interfaces (S6a, Gx, Gy) for vulnerability to malformed requests.",
@@ -169,6 +190,7 @@ export const toolsCatalog = [
     },
     {
         name: "Scapy (with SS7/Diameter modules)",
+        slug: "scapy-ss7-diameter",
         category: "ran",
         status: "ready",
         desc: "Interactive packet manipulation program extended to support construction of custom MAP, TCAP, M3UA, and Diameter network frames.",
@@ -177,6 +199,7 @@ export const toolsCatalog = [
     },
     {
         name: "5Ghoul Fuzzer Wrapper",
+        slug: "5ghoul-fuzzer",
         category: "ran",
         status: "setup",
         desc: "Custom launcher wrapper that simplifies executing the 5Ghoul fuzzer, automatically patching configurations for BladeRF and USRP transceivers.",
@@ -185,6 +208,7 @@ export const toolsCatalog = [
     },
     {
         name: "Open5GS Core Network",
+        slug: "open5gs-core-network",
         category: "ran",
         status: "setup",
         desc: "A complete open-source implementation of 4G EPC and 5G Core Network functions (AMF, SMF, UPF, UDM, HSS) built with high performance in C.",
@@ -193,6 +217,7 @@ export const toolsCatalog = [
     },
     {
         name: "Docker & Docker Compose",
+        slug: "docker-docker-compose",
         category: "sys",
         status: "ready",
         desc: "Containerization engine pre-configured for non-root management. Used to spin up large-scale core network elements quickly.",
@@ -201,15 +226,16 @@ export const toolsCatalog = [
     },
     {
         name: "Telecom Wordlists",
+        slug: "telecom-wordlists",
         category: "sys",
         status: "ready",
         desc: "Bundled telecom-specific wordlist collection covering carrier APNs, VoIP/SIP credentials, RAN element passwords, SIM OTA test keys, hardware defaults, PLMNs/IMSI prefixes, and protocol-level lists for 5G NAS, GTP, SS7, Diameter, SMS, and USSD. Includes telcosec-apn-permutator and telcosec-imsi-generator helper scripts on PATH.",
         path: "/usr/share/wordlists/telecom/",
         cmd: "ls -lR /usr/share/wordlists/telecom/"
     },
-    // ── GSM / 2G ──────────────────────────────────────────────────────────
     {
         name: "YateBTS",
+        slug: "yatebts",
         category: "gsm",
         status: "setup",
         desc: "Open-source GSM/UMTS BTS implementation built on the Yate telephony engine. Optimized for BladeRF A4 with a dedicated hardware config.",
@@ -218,6 +244,7 @@ export const toolsCatalog = [
     },
     {
         name: "OpenBTS",
+        slug: "openbts",
         category: "gsm",
         status: "setup",
         desc: "Pioneering open-source GSM base transceiver station. Implements the Um air interface enabling rogue GSM cell and protocol audit scenarios.",
@@ -226,6 +253,7 @@ export const toolsCatalog = [
     },
     {
         name: "Osmocom GSM Stack",
+        slug: "osmocom-gsm-stack",
         category: "gsm",
         status: "ready",
         desc: "Complete Osmocom GSM network stack: OsmoBSC, OsmoMSC, OsmoHLR, OsmoBTS-TRX. Supports osmo-trx-bladerf for BladeRF A4 hardware.",
@@ -234,15 +262,16 @@ export const toolsCatalog = [
     },
     {
         name: "Kalibrate GSM",
+        slug: "kalibrate-gsm",
         category: "gsm",
         status: "ready",
         desc: "GSM-band frequency offset calibration tool using broadcast channel timing from live base stations. Complements kalibrate-rtl for calibrating BladeRF.",
         path: "/usr/local/bin/kal-gsm",
         cmd: "kal-gsm -s GSM900 -g 40"
     },
-    // ── LTE / 4G ──────────────────────────────────────────────────────────
     {
         name: "srsUE",
+        slug: "srsue",
         category: "lte",
         status: "ready",
         desc: "Software-defined LTE UE (User Equipment) that connects to real or simulated eNodeBs. Used for protocol testing, attach procedures, and downlink captures.",
@@ -251,6 +280,7 @@ export const toolsCatalog = [
     },
     {
         name: "srsGUI",
+        slug: "srsgui",
         category: "lte",
         status: "ready",
         desc: "Real-time visualization GUI for srsRAN metrics: constellation diagrams, spectrum, BER counters, and RLC/PDCP throughput graphs.",
@@ -259,6 +289,7 @@ export const toolsCatalog = [
     },
     {
         name: "LTE-CellScanner",
+        slug: "lte-cellscanner",
         category: "lte",
         status: "ready",
         desc: "Open-source LTE cell searcher and MIB/SIB decoder. Scans a frequency range and decodes cell IDs, bandwidth, and system information blocks.",
@@ -267,6 +298,7 @@ export const toolsCatalog = [
     },
     {
         name: "LTESniffer",
+        slug: "ltesniffer",
         category: "lte",
         status: "ready",
         desc: "Open-source LTE downlink and uplink sniffer. Decodes physical layer frames and logs RRC, NAS, and user-plane traffic to PCAP.",
@@ -275,6 +307,7 @@ export const toolsCatalog = [
     },
     {
         name: "SCAT",
+        slug: "scat",
         category: "lte",
         status: "ready",
         desc: "DIAG protocol parser for Qualcomm and Samsung modems. Decodes OTA messages from USB-connected phones to PCAP with full NAS/RRC content.",
@@ -283,15 +316,16 @@ export const toolsCatalog = [
     },
     {
         name: "Modmobmap",
+        slug: "modmobmap",
         category: "lte",
         status: "ready",
         desc: "Maps 2G/3G/4G cells visible to a USB modem by issuing AT commands. Generates cell-tower geolocation data and signal reports.",
         path: "/opt/telcosec/modmobmap/",
         cmd: "modmobmap -m /dev/ttyUSB1"
     },
-    // ── 5G NR ─────────────────────────────────────────────────────────────
     {
         name: "UERANSIM",
+        slug: "ueransim",
         category: "5g",
         status: "ready",
         desc: "The most complete open-source 5G SA UE and gNB simulator. Emulates full N1/N2/N3 interfaces, compatible with Open5GS. Pre-configured for test PLMN 001/01.",
@@ -300,6 +334,7 @@ export const toolsCatalog = [
     },
     {
         name: "GTP5G Kernel Module",
+        slug: "gtp5g-kernel-module",
         category: "5g",
         status: "setup",
         desc: "Linux kernel module implementing the GTP-U encapsulation layer required by UERANSIM and free5GC for 5G user-plane forwarding.",
@@ -308,15 +343,16 @@ export const toolsCatalog = [
     },
     {
         name: "OAI UE (OpenAirInterface)",
+        slug: "oai-ue-openairinterface",
         category: "5g",
         status: "setup",
         desc: "OpenAirInterface 5G NR UE implementation from EURECOM. Full PHY/MAC/RLC stack for 5G SA and NSA testing with real radio hardware.",
         path: "Helper: oai-install (deferred build)",
         cmd: "sudo oai-install"
     },
-    // ── Device Tools ──────────────────────────────────────────────────────
     {
         name: "Heimdall (Samsung)",
+        slug: "heimdall-samsung",
         category: "device",
         status: "ready",
         desc: "Open-source, cross-platform Samsung Odin replacement for flashing firmware on Samsung devices in Download Mode.",
@@ -325,6 +361,7 @@ export const toolsCatalog = [
     },
     {
         name: "ADB & Fastboot",
+        slug: "adb-fastboot",
         category: "device",
         status: "ready",
         desc: "Android Debug Bridge and Fastboot tools for communicating with Android devices in normal, recovery, and bootloader modes.",
@@ -333,6 +370,7 @@ export const toolsCatalog = [
     },
     {
         name: "EDL (Qualcomm Emergency Download)",
+        slug: "edl-qualcomm-emergency-download",
         category: "device",
         status: "ready",
         desc: "Comprehensive Qualcomm EDL/9008 mode toolkit for reading, writing, and erasing partitions on Snapdragon devices via Sahara/Firehose protocols.",
@@ -341,6 +379,7 @@ export const toolsCatalog = [
     },
     {
         name: "SIMTester",
+        slug: "simtester",
         category: "device",
         status: "ready",
         desc: "Java-based SIM card security audit tool from SRLabs. Tests for roaming, OTA update vulnerabilities, and SIM application exploits.",
@@ -349,6 +388,7 @@ export const toolsCatalog = [
     },
     {
         name: "AT Command Console",
+        slug: "at-command-console",
         category: "device",
         status: "ready",
         desc: "Interactive AT command terminal (minicom) pre-configured for modem control. Supports querying IMEI, network registration, signal strength, and USSD.",
@@ -357,15 +397,16 @@ export const toolsCatalog = [
     },
     {
         name: "Gammu",
+        slug: "gammu",
         category: "device",
         status: "ready",
         desc: "Universal mobile device manager supporting SMS sending/receiving, USSD queries, call management, and phonebook access via AT commands.",
         path: "System-wide",
         cmd: "gammu --port /dev/ttyUSB0 --connection at115200 identify"
     },
-    // ── Network Analysis ──────────────────────────────────────────────────
     {
         name: "Kismet",
+        slug: "kismet",
         category: "network",
         status: "ready",
         desc: "Wireless network detector, sniffer, and intrusion detection system. Captures raw 802.11 frames on mon0 and logs device fingerprints.",
@@ -374,15 +415,16 @@ export const toolsCatalog = [
     },
     {
         name: "tcpdump",
+        slug: "tcpdump",
         category: "network",
         status: "ready",
         desc: "CLI packet capture tool. Used in TelcoSec scripts to capture raw traffic on the monitoring interface and pipe to Wireshark.",
         path: "System-wide",
         cmd: "sudo tcpdump -i mon0 -w capture.pcap"
     },
-    // ── VoIP & Messaging ──────────────────────────────────────────────────
     {
         name: "Zoiper5",
+        slug: "zoiper5",
         category: "voip",
         status: "ready",
         desc: "Commercial-grade VoIP softphone supporting SIP and IAX2. Used for testing SIP registrars, call flows, and intercepted credential replays.",
@@ -391,15 +433,16 @@ export const toolsCatalog = [
     },
     {
         name: "SIPp",
+        slug: "sipp",
         category: "voip",
         status: "ready",
         desc: "SIP load tester and traffic generator. Sends scripted SIP scenarios (INVITE storms, registration floods) to audit VoIP infrastructure.",
         path: "System-wide",
         cmd: "sipp -h"
     },
-    // ── Newly Added Tools ─────────────────────────────────────────────────
     {
         name: "atinout",
+        slug: "atinout",
         category: "device",
         status: "ready",
         desc: "Quick command-line tool to send AT commands to a modem and capture the output. Excellent for scripting USSD or SMS tasks.",
@@ -408,6 +451,7 @@ export const toolsCatalog = [
     },
     {
         name: "ModemManager GUI",
+        slug: "modem-manager-gui",
         category: "device",
         status: "ready",
         desc: "Graphical frontend for ModemManager, dbus, and NetworkManager. Allows sending SMS, USSD, and reading SIM contacts directly from the desktop.",
@@ -416,6 +460,7 @@ export const toolsCatalog = [
     },
     {
         name: "SP Flash Tool (Helper)",
+        slug: "sp-flash-tool",
         category: "device",
         status: "setup",
         desc: "Proprietary flash tool for MediaTek devices. The pre-installed helper script provides download links and extraction instructions.",
@@ -424,6 +469,7 @@ export const toolsCatalog = [
     },
     {
         name: "Linphone",
+        slug: "linphone",
         category: "voip",
         status: "ready",
         desc: "Open-source SIP softphone used for voice and video over IP. Useful as an alternative to Zoiper for testing PBX configurations and SIP registrars.",
@@ -432,6 +478,7 @@ export const toolsCatalog = [
     },
     {
         name: "Nokia NetAct CLI",
+        slug: "nokia-netact-cli",
         category: "sys",
         status: "ready",
         desc: "Wrapper for connecting to Nokia NetAct OSS systems using standard telecom administrative protocols.",
@@ -440,6 +487,7 @@ export const toolsCatalog = [
     },
     {
         name: "Ericsson ENM CLI",
+        slug: "ericsson-enm-cli",
         category: "sys",
         status: "ready",
         desc: "Wrapper for connecting to Ericsson Network Manager (ENM) infrastructure via SSH.",
@@ -448,6 +496,7 @@ export const toolsCatalog = [
     },
     {
         name: "Huawei U2000 CLI",
+        slug: "huawei-u2000-cli",
         category: "sys",
         status: "ready",
         desc: "Wrapper for accessing Huawei U2000 management interfaces using telnet or SSH fallback.",

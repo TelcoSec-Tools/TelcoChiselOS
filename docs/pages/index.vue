@@ -252,17 +252,28 @@
             <div v-if="filteredTools.length === 0" style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted);">
               <p>No tools match your query.</p>
             </div>
-            <div v-for="tool in filteredTools" :key="tool.name" class="card highlight-teal">
-              <div class="card-title">
-                {{ tool.name }}
-                <span class="tag" :class="tagClass(tool.category)">{{ tagLabel(tool.category) }}</span>
-                <span class="tag" :class="tool.status === 'setup' ? 'status-setup' : 'status-ready'">{{ tool.status === 'setup' ? 'Setup required' : 'Ready' }}</span>
+            <div v-for="tool in filteredTools" :key="tool.name" class="card highlight-teal" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div class="card-title">
+                  {{ tool.name }}
+                  <span class="tag" :class="tagClass(tool.category)">{{ tagLabel(tool.category) }}</span>
+                  <span class="tag" :class="tool.status === 'setup' ? 'status-setup' : 'status-ready'">{{ tool.status === 'setup' ? 'Setup required' : 'Ready' }}</span>
+                </div>
+                <p class="card-desc" style="margin-bottom:15px;">{{ tool.desc }}</p>
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px;">
+                  <strong>Location:</strong> <code class="inline-code" style="color:var(--text-secondary);">{{ tool.path }}</code>
+                </div>
+                <TerminalBlock :code="tool.cmd" />
               </div>
-              <p class="card-desc" style="margin-bottom:15px;">{{ tool.desc }}</p>
-              <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px;">
-                <strong>Location:</strong> <code class="inline-code" style="color:var(--text-secondary);">{{ tool.path }}</code>
+              <div class="card-footer-action" style="margin-top: 14px; display: flex; justify-content: flex-end;">
+                <NuxtLink :to="`/tools/${tool.slug}`" class="btn-tool-link">
+                  View Guide
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </NuxtLink>
               </div>
-              <TerminalBlock :code="tool.cmd" />
             </div>
           </div>
         </section>
@@ -275,12 +286,12 @@
           </div>
 
           <p>
-            Traditional security environments force you to run RF interfaces as root to access raw USB descriptors. TelcoChisel utilizes custom udev permissions, allowing members of the standard `plugdev` group to read and write directly to transceivers.
+            Traditional security environments force you to run RF interfaces as root to access raw USB descriptors. TelcoChisel utilizes custom udev permissions, allowing members of the standard <code class="inline-code">plugdev</code> group to read and write directly to transceivers.
           </p>
 
           <h3>1. Non-Root Hardware Access Rules</h3>
           <p>
-            The file <code class="inline-code">/etc/udev/rules.d/50-telcosec-hw.rules</code> maps USB product and vendor codes, assigning ownership group to `plugdev` and opening permissions:
+            The file <code class="inline-code">/etc/udev/rules.d/50-telcosec-hw.rules</code> maps USB product and vendor codes, assigning ownership group to <code class="inline-code">plugdev</code> and opening permissions:
           </p>
           <TerminalBlock title="udev Vendor / Product Maps" :code='`# RTL-SDR Dongles\nSUBSYSTEMS=="usb", ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2832", MODE:="0666", GROUP:="plugdev"\n# HackRF One\nATTR{idVendor}=="1d50", ATTR{idProduct}=="6089", SYMLINK+="hackrf-%k", MODE:="660", GROUP:="plugdev"\n# Ettus USRP B-Series\nATTRS{idVendor}=="2514", ATTRS{idProduct}=="0002", MODE:="0660", GROUP:="plugdev"\n# Osmocom SIMtrace 2 sniffer\nATTRS{idVendor}=="1d50", ATTRS{idProduct}=="60e3", MODE:="0660", GROUP:="plugdev"`' />
 
@@ -298,6 +309,31 @@
             Auditing physical smartcards requires communicating with USB smartcard adapters. TelcoChisel preconfigures the standard PC/SC daemon (<code class="inline-code">pcscd</code>). Insert your card reader (e.g. Omnikey, ACS) and run:
           </p>
           <TerminalBlock title="Query Smartcard Readers" :code="`# Check daemon state\nsudo systemctl status pcscd\n\n# List connected card readers and cards\npcsc_scan`" />
+
+          <!-- Hardware / Driver Card Grid -->
+          <h3 style="margin-top: 40px;">4. Supported Hardware — Setup Guides</h3>
+          <p>Each supported transceiver and smartcard reader has a dedicated setup guide with udev rules, diagnostic commands, and troubleshooting steps:</p>
+          <div class="grid-2">
+            <div v-for="drv in driversCatalog" :key="drv.slug" class="card highlight-teal" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div class="card-title">
+                  {{ drv.name }}
+                  <span class="tag" :class="driverTagClass(drv.category)">{{ driverTagLabel(drv.category) }}</span>
+                </div>
+                <p class="card-desc" style="margin-bottom: 15px;">{{ drv.desc }}</p>
+                <TerminalBlock :code="drv.cmd" />
+              </div>
+              <div class="card-footer-action" style="margin-top: 14px; display: flex; justify-content: flex-end;">
+                <NuxtLink :to="`/drivers/${drv.slug}`" class="btn-tool-link">
+                  View Guide
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- SECTION: FUZZER -->
@@ -818,6 +854,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
 </template>
 <script setup>
 import { toolsCatalog } from '~/data/tools.js'
+import { driversCatalog } from '~/data/drivers.js'
 
 // SEO metadata
 useHead({
@@ -1104,6 +1141,22 @@ function tagLabel(cat) {
     network: 'Network',
     voip:    'VoIP',
     sys:     'System'
+  }[cat] || cat
+}
+
+// Driver / hardware tag helpers
+function driverTagClass(cat) {
+  return {
+    transceiver: 'tag-sdr',
+    sniffing:    'tag-sim',
+    reader:      'tag-device'
+  }[cat] || ''
+}
+function driverTagLabel(cat) {
+  return {
+    transceiver: 'RF Transceiver',
+    sniffing:    'Sniffer Hardware',
+    reader:      'Smartcard Reader'
   }[cat] || cat
 }
 </script>
