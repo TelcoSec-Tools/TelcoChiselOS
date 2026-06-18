@@ -197,6 +197,31 @@
           <p>
             Additionally, GRUB configs disable CPU mitigations (<code class="inline-code">mitigations=off</code>) and set the clocksource to TSC for stable timing on bare metal installations.
           </p>
+
+          <!-- OS Customizations Card Grid -->
+          <h3 style="margin-top: 40px;">OS Customization Guides</h3>
+          <p>Each kernel and system configuration topic has a dedicated guide with exact config files, verification commands, and troubleshooting steps:</p>
+          <div class="grid-2">
+            <div v-for="feat in featuresCatalog" :key="feat.slug" class="card highlight-teal" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div class="card-title">
+                  {{ feat.name }}
+                  <span class="tag" :class="featureCatClass(feat.category)">{{ featureCatLabel(feat.category) }}</span>
+                </div>
+                <p class="card-desc" style="margin-bottom: 15px;">{{ feat.desc }}</p>
+                <TerminalBlock :code="feat.cmd" />
+              </div>
+              <div class="card-footer-action" style="margin-top: 14px; display: flex; justify-content: flex-end;">
+                <NuxtLink :to="`/features/${feat.slug}`" class="btn-tool-link">
+                  View Guide
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- SECTION: TOOLS -->
@@ -855,6 +880,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
 <script setup>
 import { toolsCatalog } from '~/data/tools.js'
 import { driversCatalog } from '~/data/drivers.js'
+import { featuresCatalog } from '~/data/features.js'
 
 // SEO metadata
 useHead({
@@ -1157,6 +1183,28 @@ function driverTagLabel(cat) {
     transceiver: 'RF Transceiver',
     sniffing:    'Sniffer Hardware',
     reader:      'Smartcard Reader'
+  }[cat] || cat
+}
+
+// OS Customizations / Features tag helpers
+function featureCatClass(cat) {
+  return {
+    kernel:      'tag-5g',
+    network:     'tag-ran',
+    security:    'tag-sim',
+    hardware:    'tag-sdr',
+    tools:       'tag-lte',
+    environment: 'tag-ue'
+  }[cat] || ''
+}
+function featureCatLabel(cat) {
+  return {
+    kernel:      'Kernel Tuning',
+    network:     'Network Stack',
+    security:    'Security Hardening',
+    hardware:    'Hardware Access',
+    tools:       'Tool Config',
+    environment: 'Dev Environment'
   }[cat] || cat
 }
 </script>
