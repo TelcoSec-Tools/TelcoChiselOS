@@ -199,8 +199,7 @@ jobs:
           VERSION:    ${{ steps.version.outputs.version }}
         run: |
           SF_DIR="/home/frs/project/$SF_PROJECT/nightly"
-          ssh -i ~/.ssh/sf_deploy -o BatchMode=yes "$SF_USER@$SF_HOST" "mkdir -p $SF_DIR"
-          rsync -avP --partial \
+          rsync -avP --partial --mkpath \
             -e "ssh -i ~/.ssh/sf_deploy -o BatchMode=yes" \
             "$ISO" "${ISO}.sha256" \
             "$SF_USER@$SF_HOST:$SF_DIR/"
@@ -213,8 +212,7 @@ jobs:
           VERSION:    ${{ steps.version.outputs.version }}
         run: |
           SF_DIR="/home/frs/project/$SF_PROJECT/$VERSION"
-          ssh -i ~/.ssh/sf_deploy -o BatchMode=yes "$SF_USER@$SF_HOST" "mkdir -p $SF_DIR"
-          rsync -avP --partial \
+          rsync -avP --partial --mkpath \
             -e "ssh -i ~/.ssh/sf_deploy -o BatchMode=yes" \
             "$ISO" "${ISO}.sha256" \
             "$SF_USER@$SF_HOST:$SF_DIR/"
