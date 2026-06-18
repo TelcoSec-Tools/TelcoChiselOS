@@ -1901,3 +1901,39 @@ body.light-theme #spectrumCanvas {
         width: 100%;
     }
 }
+
+/* ─── 24. Tool Detail Link Button ────────────────────────────────────────── */
+.btn-tool-link {
+    font-family: var(--disp);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--amber);
+    border: 1px solid var(--bdr-mid);
+    background: var(--bg-inset);
+    padding: 5px 12px;
+    border-radius: 2px;
+    transition: all var(--t);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-tool-link:hover {
+    color: var(--tx);
+    background: var(--amber-g);
+    border-color: var(--amber);
+    box-shadow: 0 0 10px var(--amber-g2);
+    transform: translateY(-1px);
+}
+
+.btn-tool-link svg {
+    transition: transform var(--t);
+}
+
+.btn-tool-link:hover svg {
+    transform: translateX(2px);
+}
