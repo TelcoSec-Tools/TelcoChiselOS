@@ -229,6 +229,15 @@ sudo systemctl disable gnome-remote-desktop 2>/dev/null || true
 sudo systemctl disable avahi-daemon 2>/dev/null || true
 sudo systemctl mask avahi-daemon 2>/dev/null || true
 
+# 11b. Systemd-resolved DNS privacy configuration
+echo "Harden systemd-resolved (disable LLMNR and mDNS)..."
+sudo mkdir -p /etc/systemd/resolved.conf.d
+cat << 'EOF' | sudo tee /etc/systemd/resolved.conf.d/telcosec-privacy.conf
+[Resolve]
+LLMNR=no
+MulticastDNS=no
+EOF
+
 # 12. Custom Domain Certificates Trust
 # If a custom Root/Intermediate CA cert exists, install it to system CA trust store
 if [ -f /tmp/security/telcosec-ca.crt ]; then
