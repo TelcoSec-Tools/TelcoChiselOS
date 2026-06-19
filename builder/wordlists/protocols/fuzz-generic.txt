@@ -1,0 +1,73 @@
+﻿# TelcoSec Academy - https://app.telcosec.net/
+
+A
+AA
+AAAA
+AAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+%s
+%s%s%s%s
+%x
+%p
+%n
+%d
+%i
+%f
+%1000s
+%n%n%n%n%n%n%n%n
+\0
+\x00
+\xff
+\xfe
+\x7f
+\x80
+\r\n
+\n
+\r
+\t
+\b
+\f
+\v
+' OR '1'='1
+'--
+admin'
+; id
+; /bin/sh
+| whoami
+`id`
+$(id)
+<script>alert(1)</script>
+<script>alert('rfs')</script>
+%00
+%20
+%27
+%22
+%3c
+%3e
+%0d%0a
+%0d%0a%0d%0a
+..
+../
+../../
+../../../../../../etc/passwd
+C:\Windows\System32\drivers\etc\hosts
+0
+-1
+1
+2147483647
+-2147483648
+4294967295
+0.0.0.0.0.0
+255.255.255.255.255
+127.0.0.1
+::1
+localhost
+NaN
+Infinity
+null
+undefined
+{[ "json": "fuzz" ]}
+<xml><fuzz>rfs</fuzz></xml>
+

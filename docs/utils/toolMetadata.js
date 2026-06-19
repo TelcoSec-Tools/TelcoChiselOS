@@ -220,7 +220,7 @@ const specificMetadata = {
     config: [
       "Scan a subnet for active SIP endpoints: svmap 192.168.1.0/24",
       "Brute-force extensions on an active target: svwar 192.168.1.100 --range 100-200",
-      "Perform password auditing on an extension: svcrack 192.168.1.100 -u 101 -d wordlists/telecom/sip-passwords.txt"
+      "Perform password auditing on an extension: svcrack 192.168.1.100 -u 101 -d wordlists/telecom/protocols/sip/sip-passwords.txt"
     ],
     troubleshooting: "Ensure you scan only authorized networks, as SIPvicious generates significant traffic that can trigger SIP server rate-limiting or firewall bans.",
     faq: [

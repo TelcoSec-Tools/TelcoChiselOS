@@ -283,9 +283,94 @@ else
 fi
 
 # [3/5] Framework dependencies
-echo "[3/5] Installing framework dependencies..."
-bash requirements.sh dev
-bash requirements.sh 5g
+echo "[3/5] Installing framework dependencies (Ubuntu 24.04 Noble compat)..."
+
+# ── Ubuntu 24.04 (Noble) compatibility shim for 5ghoul's requirements.sh ─────
+# requirements.sh was written for Ubuntu 18.04 Bionic. Several packages have
+# been renamed, dropped, or moved to the 'universe' repo in Noble.
+#
+# Package fixes applied:
+#   bc, swig, graphviz, libgraphviz-dev — available, just need universe
+#   libspandsp-dev           — universe repo only
+#   libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev — now in libx11-dev/libxext-dev umbrella;
+#                              packages still exist in Noble universe
+#   libnl-nf-3-dev           — renamed to libnl-nf-3-200 (runtime) + libnl-3-dev (dev); skip
+#   libbrotli-dev            — still exists
+#   libsmi2-dev              — removed in Noble (replaced by libsmi2ldbl); skip with apt --ignore-missing
+#   libsbc-dev               — universe
+#   libspeexdsp-dev          — universe
+#   libfreetype6-dev         — renamed to libfreetype-dev in Noble
+#   libasound2-dev           — still exists
+#   libmaxminddb-dev         — universe
+#   libopus-dev              — still exists
+#   sshpass                  — universe
+#   libxss1                  — renamed to libxss-dev or present as libxss1; skip gracefully
+#   libgl1-mesa-dev          — renamed to libgl-dev in Noble
+#   gcc-9 g++-9 libstdc++-9-dev — dropped from Noble repos; skip
+#   ppa:beineri/opt-qt-5.12.2-bionic — Bionic-only PPA; skip entirely
+#   ppa:ubuntu-toolchain-r/test       — not needed on Noble (gcc-12+ built-in)
+#   nodesource setup_16.x            — use system nodejs (already installed)
+#   qt512base etc.                    — Qt5 available via libqt5*-dev in Noble
+
+# Enable universe repo so optional packages are available
+add-apt-repository universe -y 2>/dev/null || true
+apt-get update -qq
+
+# Patch requirements.sh in-place (idempotent — only modifies if patterns match)
+_patch_requirements() {
+  local req="requirements.sh"
+  [ -f "$req" ] || return 0
+
+  # 1. libnl-nf-3-dev → skip (not in Noble; libnl-3-dev covers it)
+  sed -i 's/ libnl-nf-3-dev\b//g' "$req"
+
+  # 2. libfreetype6-dev → libfreetype-dev (renamed in Noble)
+  sed -i 's/\blibfreetype6-dev\b/libfreetype-dev/g' "$req"
+
+  # 3. libgl1-mesa-dev → libgl-dev (renamed in Noble)
+  sed -i 's/\blibgl1-mesa-dev\b/libgl-dev/g' "$req"
+
+  # 4. libsmi2-dev — removed in Noble; substitute with apt-get --ignore-missing workaround
+  sed -i 's/\blibsmi2-dev\b//g' "$req"
+
+  # 5. Drop gcc-9/g++-9/libstdc++-9-dev block (not in Noble repos)
+  sed -i '/apt install gcc-9 g++-9 libstdc++-9-dev/d' "$req"
+
+  # 6. Suppress the Bionic-only Qt 5.12.2 PPA block entirely
+  sed -i '/ppa:beineri\/opt-qt-5.12.2-bionic/d' "$req"
+  sed -i '/qt512base\|qt512tools\|qt512svg\|qt512multimedia/d' "$req"
+
+  # 7. Suppress the ubuntu-toolchain-r PPA (not needed on Noble, causes 404s)
+  sed -i '/ppa:ubuntu-toolchain-r\/test/d' "$req"
+
+  # 8. Suppress the nodesource setup_16.x curl pipe (nodejs already installed)
+  sed -i '/nodesource.com\/setup_16/d' "$req"
+
+  # 9. Add --ignore-missing to all apt install lines so unknown packages don't abort
+  sed -i 's/sudo apt install /sudo apt install --ignore-missing /g' "$req"
+  sed -i 's/sudo apt-get install /sudo apt-get install --ignore-missing /g' "$req"
+
+  echo "  requirements.sh patched for Ubuntu 24.04 Noble."
+}
+
+_patch_requirements
+
+# Install packages that requirements.sh drops but Noble still has (via universe)
+DEBIAN_FRONTEND=noninteractive apt-get install --ignore-missing -y \
+  bc swig graphviz libgraphviz-dev \
+  libspandsp-dev \
+  libsbc-dev libspeexdsp-dev \
+  libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+  libmaxminddb-dev \
+  libfreetype-dev \
+  libgl-dev \
+  libpcre2-dev \
+  libxss1 \
+  sshpass 2>/dev/null || true
+
+# Now run the (patched) upstream dependency scripts
+DEBIAN_FRONTEND=noninteractive bash requirements.sh dev || true
+DEBIAN_FRONTEND=noninteractive bash requirements.sh 5g  || true
 
 # [4/5] Compile
 echo "[4/5] Compiling (this takes a while)..."
