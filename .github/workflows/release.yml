@@ -181,6 +181,35 @@ jobs:
           sudo chown -R runner:docker /root/.ccache || true
           sudo chown -R runner:docker /var/cache/apt-cacher-ng || true
 
+      - name: Generate Release README for SourceForge
+        env:
+          VERSION:  ${{ steps.version.outputs.version }}
+          DATE:     ${{ steps.version.outputs.date }}
+          SIZE:     ${{ steps.meta.outputs.size }}
+          SHA256:   ${{ steps.meta.outputs.sha256 }}
+          CHANGELOG: ${{ steps.meta.outputs.changelog }}
+        run: |
+          cat << EOF > README.md
+          # TelcoChisel $VERSION
+          
+          | Field | Value |
+          |-------|-------|
+          | **Build** | \`$VERSION\` |
+          | **Date** | $DATE |
+          | **ISO Size** | $SIZE |
+          | **SHA-256** | \`$SHA256\` |
+          
+          ### ⬇ Download
+          Download the \`.iso\` file directly from this directory. No extraction or reassembly is needed.
+          
+          > **Live boot credentials:** \`telcosec:telcosec\`
+          
+          ### Changes since last release
+          \`\`\`text
+          $CHANGELOG
+          \`\`\`
+          EOF
+
       # ── SourceForge FRS ──────────────────────────────────────────────────────
       - name: Setup SSH for SourceForge
         if: env.SF_SSH_KEY != ''
@@ -200,13 +229,15 @@ jobs:
         run: |
           SF_DIR="/home/frs/project/$SF_PROJECT/nightly"
           SF_SSH="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR"
-          # SourceForge's rsync server runs 3.1.4dev — --mkpath was added in 3.2.3
-          # and is rejected as an unknown option, closing the connection (exit 12).
-          # Create the remote directory explicitly via SSH before rsyncing.
-          $SF_SSH "$SF_USER@$SF_HOST" "mkdir -p $SF_DIR"
+          
+          # SourceForge's restricted shell blocks arbitrary SSH commands like 'mkdir',
+          # but allows 'mkdir' via sftp. Create the directory via an sftp batch script.
+          echo "-mkdir $SF_DIR" > sftp_batch
+          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_batch "$SF_USER@$SF_HOST"
+          
           rsync -avP --partial \
             -e "$SF_SSH" \
-            "$ISO" "${ISO}.sha256" \
+            "$ISO" "${ISO}.sha256" "README.md" \
             "$SF_USER@$SF_HOST:$SF_DIR/"
           echo "✓ SF nightly → https://sourceforge.net/projects/$SF_PROJECT/files/nightly/"
 
@@ -218,13 +249,15 @@ jobs:
         run: |
           SF_DIR="/home/frs/project/$SF_PROJECT/$VERSION"
           SF_SSH="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR"
-          # SourceForge's rsync server runs 3.1.4dev — --mkpath was added in 3.2.3
-          # and is rejected as an unknown option, closing the connection (exit 12).
-          # Create the remote directory explicitly via SSH before rsyncing.
-          $SF_SSH "$SF_USER@$SF_HOST" "mkdir -p $SF_DIR"
+          
+          # SourceForge's restricted shell blocks arbitrary SSH commands like 'mkdir',
+          # but allows 'mkdir' via sftp. Create the directory via an sftp batch script.
+          echo "-mkdir $SF_DIR" > sftp_batch
+          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_batch "$SF_USER@$SF_HOST"
+          
           rsync -avP --partial \
             -e "$SF_SSH" \
-            "$ISO" "${ISO}.sha256" \
+            "$ISO" "${ISO}.sha256" "README.md" \
             "$SF_USER@$SF_HOST:$SF_DIR/"
           echo "✓ SF versioned → https://sourceforge.net/projects/$SF_PROJECT/files/$VERSION/"
 
