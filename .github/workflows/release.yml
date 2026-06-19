@@ -199,8 +199,13 @@ jobs:
           VERSION:    ${{ steps.version.outputs.version }}
         run: |
           SF_DIR="/home/frs/project/$SF_PROJECT/nightly"
-          rsync -avP --partial --mkpath \
-            -e "ssh -i ~/.ssh/sf_deploy -o BatchMode=yes" \
+          SF_SSH="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR"
+          # SourceForge's rsync server runs 3.1.4dev — --mkpath was added in 3.2.3
+          # and is rejected as an unknown option, closing the connection (exit 12).
+          # Create the remote directory explicitly via SSH before rsyncing.
+          $SF_SSH "$SF_USER@$SF_HOST" "mkdir -p $SF_DIR"
+          rsync -avP --partial \
+            -e "$SF_SSH" \
             "$ISO" "${ISO}.sha256" \
             "$SF_USER@$SF_HOST:$SF_DIR/"
           echo "✓ SF nightly → https://sourceforge.net/projects/$SF_PROJECT/files/nightly/"
@@ -212,8 +217,13 @@ jobs:
           VERSION:    ${{ steps.version.outputs.version }}
         run: |
           SF_DIR="/home/frs/project/$SF_PROJECT/$VERSION"
-          rsync -avP --partial --mkpath \
-            -e "ssh -i ~/.ssh/sf_deploy -o BatchMode=yes" \
+          SF_SSH="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR"
+          # SourceForge's rsync server runs 3.1.4dev — --mkpath was added in 3.2.3
+          # and is rejected as an unknown option, closing the connection (exit 12).
+          # Create the remote directory explicitly via SSH before rsyncing.
+          $SF_SSH "$SF_USER@$SF_HOST" "mkdir -p $SF_DIR"
+          rsync -avP --partial \
+            -e "$SF_SSH" \
             "$ISO" "${ISO}.sha256" \
             "$SF_USER@$SF_HOST:$SF_DIR/"
           echo "✓ SF versioned → https://sourceforge.net/projects/$SF_PROJECT/files/$VERSION/"
