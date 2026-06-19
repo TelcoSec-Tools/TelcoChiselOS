@@ -121,64 +121,15 @@ if (!tool) {
   throw createError({ statusCode: 404, statusMessage: 'Tool not found' })
 }
 
-// SEO Head setup
-useHead({
-  title: `${tool.name} Guide — 5G/4G Telecom Security | TelcoChisel`,
-  meta: [
-    { name: 'description', content: `Learn how to run and configure ${tool.name} inside TelcoChisel OS for ${tool.keywords[0] || 'cellular security auditing'}. CLI commands, setup steps, and technical FAQs.` },
-    { name: 'keywords', content: [...(tool.keywords || []), tool.name, 'TelcoChisel', 'telecom security', 'cellular pentesting'].join(', ') },
-    { name: 'robots', content: 'index, follow' },
-    { property: 'og:title', content: `${tool.name} Guide — 5G/4G Telecom Security | TelcoChisel` },
-    { property: 'og:description', content: `Learn how to run and configure ${tool.name} inside TelcoChisel OS for ${tool.keywords[0] || 'cellular security auditing'}. CLI commands, setup steps, and technical FAQs.` },
-    { property: 'og:type', content: 'article' },
-    { property: 'og:url', content: `https://tschisel.telcosec.net/tools/${tool.slug}` },
-    { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec/TelcoChisel/main/assets/repo_cover.png' },
-    { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: `${tool.name} Guide — 5G/4G Telecom Security | TelcoChisel` },
-    { name: 'twitter:description', content: `Learn how to run and configure ${tool.name} inside TelcoChisel OS for ${tool.keywords[0] || 'cellular security auditing'}. CLI commands, setup steps, and technical FAQs.` }
-  ],
-  link: [
-    { rel: 'canonical', href: `https://tschisel.telcosec.net/tools/${tool.slug}` }
-  ],
-  script: [
-    {
-      type: 'application/ld+json',
-      children: JSON.stringify([
-        {
-          "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
-          "name": tool.name,
-          "applicationCategory": "SecurityApplication",
-          "applicationSubCategory": "Telecommunications Security, Cellular Auditing",
-          "operatingSystem": "Linux (Ubuntu 24.04 LTS / TelcoChisel)",
-          "description": tool.desc,
-          "url": `https://tschisel.telcosec.net/tools/${tool.slug}`,
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-          },
-          "publisher": {
-            "@type": "Organization",
-            "name": "TelcoSec",
-            "url": "https://telcosec.cloud/"
-          }
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": (tool.faq || []).map(f => ({
-            "@type": "Question",
-            "name": f.q,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": f.a
-            }
-          }))
-        }
-      ])
-    }
-  ]
+// SEO Head setup via generic composable
+useToolSchema({
+  name: tool.name,
+  description: `Learn how to run and configure ${tool.name} inside TelcoChisel OS for ${tool.keywords[0] || 'cellular security auditing'}. CLI commands, setup steps, and technical FAQs.`,
+  category: "SecurityApplication",
+  slug: tool.slug,
+  isFree: true,
+  faq: tool.faq,
+  keywords: [...(tool.keywords || []), tool.name, 'TelcoChisel', 'telecom security', 'cellular pentesting']
 })
 
 // Navigation home helper

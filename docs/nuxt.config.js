@@ -15,6 +15,26 @@ export default defineNuxtConfig({
 
   css: ['~/assets/main.css'],
 
+  modules: [
+    '@nuxtjs/seo'
+  ],
+
+  site: {
+    url: 'https://library.telcosec.net',
+    name: 'TelcoSec Library',
+    description: 'TelcoSec Threat Intelligence, Research & Documentation',
+    defaultLocale: 'en',
+  },
+
+  schemaOrg: {
+    identity: {
+      type: 'Organization',
+      name: 'TelcoSec',
+      url: 'https://www.telco-sec.com/',
+      logo: 'https://cdn.telco-sec.com/logo.png'
+    }
+  },
+
   nitro: {
     preset: 'static',
     prerender: {
