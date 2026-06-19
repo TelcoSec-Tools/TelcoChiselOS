@@ -1,0 +1,49 @@
+﻿# TelcoSec Academy - https://app.telcosec.net/
+
+rtpmap
+fmtp
+sendrecv
+sendonly
+recvonly
+inactive
+ptime
+maxptime
+fmtp:0
+crypto
+fingerprint
+setup
+ice-ufrag
+ice-pwd
+candidate
+mid
+group
+bundle-only
+rtcp
+rtcp-feedback
+rtcp-mux
+extmap
+content
+label
+sdplang
+lang
+orientation
+quality
+framerate
+pcap-replay
+malicious-attr
+buffer-overflow:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+invalid:value
+' OR 1=1
+; id
+%s%s%s
+\0
+\r\n
+\n
+\r
+=
+:
+;
+" "
+"\""
+"'"
+

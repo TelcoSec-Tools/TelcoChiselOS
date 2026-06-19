@@ -1,0 +1,33 @@
+﻿# TelcoSec Academy - https://app.telcosec.net/
+
+INVITE
+REGISTER
+BYE
+ACK
+CANCEL
+OPTIONS
+INFO
+NOTIFY
+PUBLISH
+MESSAGE
+PRACK
+UPDATE
+REFER
+SUBSCRIBE
+SERVICE
+BENOTIFY
+DO
+SPRACK
+MUTATE
+BOGUS
+" "
+\0
+INVITE\0
+A*.repeat(100)
+A*.repeat(1024)
+A*.repeat(4096)
+INVITE%s%s%s%s%s
+REGISTER' OR '1'='1
+BYE; ls -la
+ACK | cat /etc/passwd
+

@@ -220,6 +220,21 @@ apt-get install -y \
   libfmt-dev \
   libasan6 libubsan1 \
   \
+  `# === 5Ghoul requirements.sh deps (Ubuntu 24.04/Noble universe) ===` \
+  `# These are pulled by the upstream requirements.sh on first-run.` \
+  `# Pre-installing here avoids live-system apt errors during 5ghoul-install.` \
+  bc swig graphviz libgraphviz-dev \
+  libspandsp-dev \
+  libsbc-dev libspeexdsp-dev \
+  libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+  libmaxminddb-dev \
+  libfreetype-dev \
+  libgl-dev \
+  libpcre2-dev \
+  libxss1 \
+  sshpass \
+  libgoogle-glog-dev libzstd-dev \
+  \
   `# === Developer tools & language runtimes (10/11) ===` \
   openjdk-17-jdk maven \
   ccache \

@@ -1,0 +1,43 @@
+﻿# TelcoSec Academy - https://app.telcosec.net/
+
+User-Name (1)
+Visited-PLMN-Id (1407)
+ULR-Flags (1408)
+RAT-Type (1032)
+Authentication-Info (1413)
+Cancellation-Type (1420)
+Terminal-Information (1401)
+UE-SRVCC-Capability (1613)
+Public-Identity (601)
+Server-Name (602)
+SIP-Auth-Data-Item (612)
+Data-Reference (703)
+User-Identity (700)
+MSISDN (701)
+Service-Selection (493)
+Destination-Host (293)
+Destination-Realm (283)
+Origin-Host (264)
+Origin-Realm (296)
+Session-Id (263)
+Auth-Session-State (277)
+Vendor-Specific-Application-Id (260)
+Supported-Features (628)
+User-Authorization-Type (623)
+Mandatory-AVP-Bit-Set
+Vendor-Specific-AVP
+Grouped-AVP-Structure
+Code-0
+Code-4294967295
+Negative-Code
+Very-Long-AVP-Header
+NULL-AVP
+Duplicate-AVP
+Invalid-Length
+99999
+11111
+66666
+BAD_VALUE
+' OR 1=1
+; rm -rf /
+
