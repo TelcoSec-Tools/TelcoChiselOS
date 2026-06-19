@@ -1,4 +1,7 @@
 export default defineNuxtConfig({
+  unhead: {
+    legacy: false
+  },
   app: {
     baseURL: '/',
     head: {
