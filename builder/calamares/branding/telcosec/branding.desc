@@ -14,8 +14,8 @@ strings:
     bootloaderEntryName: TelcoSec
     productUrl:          https://www.telcosec.cloud/
     supportUrl:          https://community.telcosec.cloud/
-    knownIssuesUrl:      https://github.com/TelcoSec/TelcoChisel/issues
-    releaseNotesUrl:     https://github.com/TelcoSec/TelcoChisel/releases
+    knownIssuesUrl:      https://github.com/TelcoSec-Tools/TelcoChiselOS/issues
+    releaseNotesUrl:     https://github.com/TelcoSec-Tools/TelcoChiselOS/releases
 
 images:
     productLogo:     "logo.png"

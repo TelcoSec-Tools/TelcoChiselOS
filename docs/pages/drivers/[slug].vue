@@ -143,7 +143,7 @@ useHead({
     { property: 'og:description', content: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.` },
     { property: 'og:type', content: 'article' },
     { property: 'og:url', content: `https://tschisel.telcosec.net/drivers/${driver.slug}` },
-    { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec/TelcoChisel/main/assets/repo_cover.png' },
+    { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png' },
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: `${driver.name} Setup Guide — Telecom Security Hardware by TelcoSec` },
     { name: 'twitter:description', content: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.` }

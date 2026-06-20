@@ -151,7 +151,7 @@ useHead({
     { property: 'og:description', content: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}` },
     { property: 'og:type', content: 'article' },
     { property: 'og:url', content: `https://tschisel.telcosec.net/features/${feature.slug}` },
-    { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec/TelcoChisel/main/assets/repo_cover.png' },
+    { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png' },
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: `${feature.name} — TelcoChisel OS Configuration Guide by TelcoSec` },
     { name: 'twitter:description', content: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}` }
