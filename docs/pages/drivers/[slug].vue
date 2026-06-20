@@ -133,19 +133,19 @@ if (!driver) {
 
 // SEO Head setup
 useHead({
-  title: `${driver.name} Setup Guide — Cellular Hardware | TelcoChisel`,
+  title: `${driver.name} Setup Guide — Telecom Security Hardware by TelcoSec`,
   meta: [
-    { name: 'description', content: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel for ${metadata.keywords[0]}. Check udev rules and CLI commands.` },
-    { name: 'keywords', content: [...metadata.keywords, driver.name, 'TelcoChisel', 'udev rules', 'SDR hardware'].join(', ') },
+    { name: 'description', content: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.` },
+    { name: 'keywords', content: [...metadata.keywords, driver.name, 'TelcoSec', 'TelcoChisel', 'Telecom Security', 'udev rules', 'SDR hardware'].join(', ') },
     { name: 'robots', content: 'index, follow' },
-    { property: 'og:title', content: `${driver.name} Setup Guide — Cellular Hardware | TelcoChisel` },
-    { property: 'og:description', content: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel for ${metadata.keywords[0]}. Check udev rules and CLI commands.` },
+    { property: 'og:title', content: `${driver.name} Setup Guide — Telecom Security Hardware by TelcoSec` },
+    { property: 'og:description', content: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.` },
     { property: 'og:type', content: 'article' },
     { property: 'og:url', content: `https://tschisel.telcosec.net/drivers/${driver.slug}` },
     { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec/TelcoChisel/main/assets/repo_cover.png' },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: `${driver.name} Setup Guide — Cellular Hardware | TelcoChisel` },
-    { name: 'twitter:description', content: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel for ${metadata.keywords[0]}. Check udev rules and CLI commands.` }
+    { name: 'twitter:title', content: `${driver.name} Setup Guide — Telecom Security Hardware by TelcoSec` },
+    { name: 'twitter:description', content: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.` }
   ],
   link: [
     { rel: 'canonical', href: `https://tschisel.telcosec.net/drivers/${driver.slug}` }

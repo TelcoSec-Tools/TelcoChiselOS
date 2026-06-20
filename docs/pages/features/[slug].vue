@@ -141,19 +141,19 @@ function splitCodeBlocks(step) {
 
 // SEO Head
 useHead({
-  title: `${feature.name} — TelcoChisel OS Configuration Guide`,
+  title: `${feature.name} — TelcoChisel OS Configuration Guide by TelcoSec`,
   meta: [
-    { name: 'description', content: `How TelcoChisel configures ${feature.name} for telecom security research. ${feature.desc}` },
-    { name: 'keywords', content: [...metadata.keywords, feature.name, 'TelcoChisel', 'Linux telecom security', 'OS tuning'].join(', ') },
+    { name: 'description', content: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}` },
+    { name: 'keywords', content: [...metadata.keywords, feature.name, 'TelcoSec', 'TelcoChisel', 'Telecom Security', 'OS tuning'].join(', ') },
     { name: 'robots', content: 'index, follow' },
-    { property: 'og:title', content: `${feature.name} — TelcoChisel OS Configuration Guide` },
-    { property: 'og:description', content: `How TelcoChisel configures ${feature.name} for telecom security research. ${feature.desc}` },
+    { property: 'og:title', content: `${feature.name} — TelcoChisel OS Configuration Guide by TelcoSec` },
+    { property: 'og:description', content: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}` },
     { property: 'og:type', content: 'article' },
     { property: 'og:url', content: `https://tschisel.telcosec.net/features/${feature.slug}` },
     { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec/TelcoChisel/main/assets/repo_cover.png' },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: `${feature.name} — TelcoChisel OS Configuration Guide` },
-    { name: 'twitter:description', content: `How TelcoChisel configures ${feature.name} for telecom security research. ${feature.desc}` }
+    { name: 'twitter:title', content: `${feature.name} — TelcoChisel OS Configuration Guide by TelcoSec` },
+    { name: 'twitter:description', content: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}` }
   ],
   link: [
     { rel: 'canonical', href: `https://tschisel.telcosec.net/features/${feature.slug}` }

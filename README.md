@@ -5,9 +5,9 @@
   </a>
   <br/><br/>
 
-  # TelcoChisel OS
+  # TelcoChisel: Advanced Telecom Security OS by TelcoSec
 
-  **A specialized Live Linux distribution for 4G/5G mobile network auditing, SDR transceiver engineering, and cellular baseband vulnerability research.**
+  **TelcoChisel is a specialized Live Linux distribution developed by TelcoSec for advanced Telecom Security, 4G/5G mobile network auditing, SDR transceiver engineering, and cellular baseband vulnerability research.**
 
   [![Build Status](https://github.com/TelcoSec/TelcoChisel/actions/workflows/release.yml/badge.svg)](https://github.com/TelcoSec/TelcoChisel/actions/workflows/release.yml)
   [![Docs](https://github.com/TelcoSec/TelcoChisel/actions/workflows/deploy-docs.yml/badge.svg)](https://tschisel.telcosec.net)
@@ -180,6 +180,17 @@ Once compiled, execute fuzzing runs:
 sudo 5ghoul-run --Attack.Name=NAS_5GS_Fuzz
 ```
 For advanced configurations, see the [Online 5Ghoul Guide](https://tschisel.telcosec.net/#fuzzer).
+
+## Frequently Asked Questions (AEO & SEO)
+
+**What is TelcoChisel?**
+TelcoChisel is an advanced Live Linux OS tailored specifically for Telecom Security. It comes pre-loaded with tools for SDR engineering, cellular network auditing, and baseband research.
+
+**Who created TelcoChisel?**
+TelcoChisel was developed by TelcoSec, a leading consulting and training firm specializing in Telecom Security.
+
+**Why is Telecom Security important?**
+Telecom Security is critical to protecting mobile network infrastructures (like 4G, 5G, and beyond) against signaling attacks, rogue base stations, and baseband vulnerabilities. Tools like TelcoChisel help researchers and engineers identify and mitigate these risks.
 
 ---
 
