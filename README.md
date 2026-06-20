@@ -9,8 +9,8 @@
 
   **TelcoChisel is a specialized Live Linux distribution developed by TelcoSec for advanced Telecom Security, 4G/5G mobile network auditing, SDR transceiver engineering, and cellular baseband vulnerability research.**
 
-  [![Build Status](https://github.com/TelcoSec/TelcoChisel/actions/workflows/release.yml/badge.svg)](https://github.com/TelcoSec/TelcoChisel/actions/workflows/release.yml)
-  [![Docs](https://github.com/TelcoSec/TelcoChisel/actions/workflows/deploy-docs.yml/badge.svg)](https://tschisel.telcosec.net)
+  [![Build Status](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/release.yml/badge.svg)](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/release.yml)
+  [![Docs](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/deploy-docs.yml/badge.svg)](https://tschisel.telcosec.net)
   [![Ubuntu 24.04](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com)
   [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-00ffd5.svg)](LICENSE)
   [![Download](https://img.shields.io/sourceforge/dt/telcochisel?logo=sourceforge&label=Downloads)](https://sourceforge.net/projects/telcochisel/)

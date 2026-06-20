@@ -36,7 +36,7 @@
               </svg>
               Download TelcoChisel ISO
             </button>
-            <a href="https://github.com/TelcoSec/TelcoChisel" target="_blank" class="btn-gh">
+            <a href="https://github.com/TelcoSec-Tools/TelcoChiselOS" target="_blank" class="btn-gh">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
               View on GitHub
             </a>
@@ -161,6 +161,58 @@
               <p class="card-desc" style="font-size: 0.85rem;">In-depth writeups on baseband vulnerabilities, IMS fuzzing, and rogue gNB simulations.</p>
             </a>
           </div>
+        </section>
+
+        <!-- SECTION: INSTALLATION / BOOTING -->
+        <section id="installation" class="content-section" :class="{ active: activeSection === 'installation' }" v-show="activeSection === 'installation'">
+          <div class="section-header" data-label="// Getting Started :: Installation">
+            <h2>Installation &amp; Booting Guide</h2>
+            <p class="subtitle">Flash TelcoChiselOS to a USB drive and boot on bare metal</p>
+          </div>
+          <p>
+            TelcoChisel is distributed as a bootable ISO image. For optimal performance with SDR hardware and the lowest latency, we recommend running TelcoChisel on bare metal from a live USB stick rather than inside a Virtual Machine.
+          </p>
+          <h3>1. Download the ISO</h3>
+          <p>
+            Download the latest TelcoChisel ISO image from our official <a href="https://sourceforge.net/projects/telcochisel/" target="_blank">SourceForge repository</a>. The ISO is approximately 4.5 GB in size.
+          </p>
+          <h3>2. Flash to a USB Drive</h3>
+          <p>
+            You will need a USB flash drive with at least 8 GB of capacity. Note that flashing the ISO will erase all existing data on the USB drive.
+          </p>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">Using BalenaEtcher (Windows/macOS/Linux)</div>
+              <p class="card-desc">
+                1. Download and install <a href="https://etcher.balena.io/" target="_blank">BalenaEtcher</a>.<br>
+                2. Select the downloaded TelcoChisel ISO file.<br>
+                3. Select your target USB drive.<br>
+                4. Click <strong>Flash!</strong> and wait for the process and validation to complete.
+              </p>
+            </div>
+            <div class="card">
+              <div class="card-title">Using Rufus (Windows only)</div>
+              <p class="card-desc">
+                1. Download <a href="https://rufus.ie/" target="_blank">Rufus</a>.<br>
+                2. Select your USB drive under "Device".<br>
+                3. Click "Select" and choose the TelcoChisel ISO.<br>
+                4. Leave other settings as default (Partition scheme: MBR, Target system: BIOS or UEFI).<br>
+                5. Click <strong>Start</strong>. If prompted, write in DD Image mode.
+              </p>
+            </div>
+          </div>
+          <h3>3. Booting from the USB</h3>
+          <p>
+            1. Insert the flashed USB drive into your target computer.<br>
+            2. Reboot the computer and enter the BIOS/UEFI Boot Menu (usually by pressing F12, F10, F8, or Esc during startup).<br>
+            3. Select the USB drive from the boot options.<br>
+            4. The GRUB bootloader will appear. Select the first option: <strong>Try or Install TelcoChisel</strong>.
+          </p>
+          <AppCallout type="info" title="Default Live Credentials">
+            By default, TelcoChisel will automatically log you into the graphical desktop. If you are ever prompted for a login on the console or lock screen, use:<br>
+            <strong>Username:</strong> <code>telcosec</code><br>
+            <strong>Password:</strong> <code>telcosec</code>
+          </AppCallout>
         </section>
 
         <!-- SECTION: FEATURES / OS OPTIMIZATIONS -->
@@ -675,7 +727,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
                 The official build ecosystem for compiling this custom GNOME Debian/Ubuntu live ISO. Contains baseband configurations, customized system-wide Wireshark columns, real-time udev configs, and kernel tuners.
               </p>
               <div style="font-size: 0.85rem; color: var(--text-muted);">
-                <strong>Repository:</strong> <a href="https://github.com/TelcoSec/TelcoChisel" target="_blank">github.com/TelcoSec/TelcoChisel</a>
+                <strong>Repository:</strong> <a href="https://github.com/TelcoSec-Tools/TelcoChiselOS" target="_blank">github.com/TelcoSec-Tools/TelcoChiselOS</a>
               </div>
             </div>
 
@@ -830,6 +882,23 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
           </div>
         </section>
 
+        <!-- SECTION: LEGAL -->
+        <section id="legal" class="content-section" :class="{ active: activeSection === 'legal' }" v-show="activeSection === 'legal'">
+          <div class="section-header" data-label="// Reference :: Legal Disclaimer">
+            <h2>Legal Disclaimer</h2>
+            <p class="subtitle">Important notices regarding RF transmissions and liability</p>
+          </div>
+          <AppCallout type="warning" title="Strictly For Authorized Use">
+            <strong>TelcoChisel is designed solely for authorized security audits, academic research, and educational experimentation in controlled laboratories.</strong>
+          </AppCallout>
+          <p>
+            Radio frequencies are heavily regulated by government authorities worldwide (e.g., the FCC in the United States, Ofcom in the UK, CEPT in Europe). Users of TelcoChisel are strictly responsible for complying with all local regulations, radio licensing requirements, and privacy laws.
+          </p>
+          <p>
+            Intercepting, decoding, or transmitting over public cellular channels without explicit authorization and an appropriate experimental radio license is illegal in most countries and can result in severe civil and criminal penalties. TelcoSec and the contributors to TelcoChisel assume no liability for the misuse of this software.
+          </p>
+        </section>
+
       </main>
     </div>
 
@@ -907,7 +976,7 @@ useHead({
     { property: 'og:url', content: 'https://tschisel.telcosec.net/' },
     { property: 'og:title', content: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec' },
     { property: 'og:description', content: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.' },
-    { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec/TelcoChisel/main/assets/repo_cover.png' },
+    { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png' },
     { property: 'og:image:width', content: '1280' },
     { property: 'og:image:height', content: '640' },
     { property: 'og:image:alt', content: 'TelcoChisel — Telecom Security Linux Distribution' },
@@ -918,7 +987,7 @@ useHead({
     { name: 'twitter:url', content: 'https://tschisel.telcosec.net/' },
     { name: 'twitter:title', content: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec' },
     { name: 'twitter:description', content: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.' },
-    { name: 'twitter:image', content: 'https://raw.githubusercontent.com/TelcoSec/TelcoChisel/main/assets/repo_cover.png' }
+    { name: 'twitter:image', content: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png' }
   ],
   link: [
     { rel: 'canonical', href: 'https://tschisel.telcosec.net/' },
@@ -939,8 +1008,8 @@ useHead({
           "url": "https://tschisel.telcosec.net/",
           "downloadUrl": "https://sourceforge.net/projects/telcochisel/",
           "softwareVersion": "1.1.0",
-          "releaseNotes": "https://github.com/TelcoSec/TelcoChisel/releases",
-          "screenshot": "https://raw.githubusercontent.com/TelcoSec/TelcoChisel/main/assets/repo_cover.png",
+          "releaseNotes": "https://github.com/TelcoSec-Tools/TelcoChiselOS/releases",
+          "screenshot": "https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png",
           "featureList": [
             "SDR drivers for USRP B210, HackRF One, BladeRF, LimeSDR, and RTL-SDR compiled from source",
             "Baseband firmware emulation with FirmWire (Samsung Shannon and MediaTek MTK)",
@@ -953,7 +1022,7 @@ useHead({
             "SCTP kernel tuning and real-time scheduling for SDR stability",
             "Calamares live-to-disk installer"
           ],
-          "license": "https://github.com/TelcoSec/TelcoChisel/blob/main/LICENSE",
+          "license": "https://github.com/TelcoSec-Tools/TelcoChiselOS/blob/main/LICENSE",
           "offers": {
             "@type": "Offer",
             "price": "0",
@@ -1080,7 +1149,7 @@ useHead({
 })
 
 // Section navigation
-const VALID_SECTIONS = ['overview', 'features', 'tools', 'drivers', 'fuzzer', 'builder', 'virtualization', 'projects']
+const VALID_SECTIONS = ['overview', 'installation', 'features', 'tools', 'drivers', 'fuzzer', 'builder', 'virtualization', 'projects', 'legal']
 const activeSection = ref('overview')
 const sidebarOpen = ref(false)
 const downloadModalOpen = ref(false)

@@ -501,6 +501,41 @@ export const toolsCatalog = [
         status: "ready",
         desc: "Wrapper for accessing Huawei U2000 management interfaces using telnet or SSH fallback.",
         path: "/usr/local/bin/huawei-u2000-cli",
-        cmd: "huawei-u2000-cli <host>"
+    },
+    {
+        name: "GQRX",
+        slug: "gqrx",
+        category: "sdr",
+        status: "ready",
+        desc: "An open source software defined radio (SDR) receiver GUI and spectrum analyzer powered by GNU Radio and Qt.",
+        path: "Conda env (telcosec-sdr)",
+        cmd: "gqrx"
+    },
+    {
+        name: "MobileInsight",
+        slug: "mobileinsight",
+        category: "ue",
+        status: "ready",
+        desc: "A mobile network diagnostic analysis framework that extracts, parses, and analyzes 3G/4G/5G baseband messages.",
+        path: "System-wide",
+        cmd: "mobileinsight --help"
+    },
+    {
+        name: "Twinkle",
+        slug: "twinkle",
+        category: "voip",
+        status: "ready",
+        desc: "A SIP softphone for voice over IP and instant messaging communications, useful for VoIP security and signaling audits.",
+        path: "System application (twinkle)",
+        cmd: "twinkle"
+    },
+    {
+        name: "Baresip",
+        slug: "baresip",
+        category: "voip",
+        status: "ready",
+        desc: "A modular, command-line based SIP user agent with audio and video support, ideal for scriptable VoIP and PBX testing.",
+        path: "System-wide",
+        cmd: "baresip"
     }
 ]

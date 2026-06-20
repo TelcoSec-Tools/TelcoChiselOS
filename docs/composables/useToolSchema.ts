@@ -16,7 +16,7 @@ export const useToolSchema = (toolData: {
     ogDescription: toolData.description,
     ogType: 'article',
     ogUrl: `https://tschisel.telcosec.net/tools/${toolData.slug || ''}`,
-    ogImage: 'https://raw.githubusercontent.com/TelcoSec/TelcoChisel/main/assets/repo_cover.png',
+    ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
     twitterCard: 'summary_large_image',
   })
 
