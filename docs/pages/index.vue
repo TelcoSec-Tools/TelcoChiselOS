@@ -30,7 +30,7 @@
           <!-- Download CTA -->
           <div class="download-cta">
             <span class="beta-badge">Beta</span>
-            <button class="btn-download" @click="downloadModalOpen = true">
+            <button class="btn-download" @click="trackDownload">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
@@ -49,7 +49,7 @@
               <span class="academy-badge">RECOMMENDED TRAINING</span>
               <h2>TelcoSec Academy Certification Program</h2>
               <p>Accelerate your career in telecom security. Access interactive sandbox labs, practice 5G Standalone core network hacking, simulate baseband firmware fuzzing, and earn the Certified Telecom Security Practitioner (CTSP) credential.</p>
-              <a href="https://app.telcosec.net/" class="academy-btn" target="_blank">Access Live Labs at app.telcosec.cloud &rarr;</a>
+              <a href="https://app.telcosec.net/" class="academy-btn" target="_blank" @click="trackAcademy">Access Live Labs at app.telcosec.cloud &rarr;</a>
             </div>
             <div class="academy-banner-icon">
               <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -881,6 +881,17 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
 import { toolsCatalog } from '~/data/tools.js'
 import { driversCatalog } from '~/data/drivers.js'
 import { featuresCatalog } from '~/data/features.js'
+
+const { gtag } = useGtag()
+
+function trackDownload() {
+  gtag('event', 'download_iso_intent', { event_category: 'engagement', event_label: 'TelcoChisel_ISO' })
+  downloadModalOpen.value = true
+}
+
+function trackAcademy() {
+  gtag('event', 'outbound_academy', { event_category: 'outbound', event_label: 'TelcoSec_Academy' })
+}
 
 // SEO metadata
 useHead({

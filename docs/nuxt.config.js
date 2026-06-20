@@ -1,3 +1,13 @@
+import { toolsCatalog } from './data/tools.js'
+import { featuresCatalog } from './data/features.js'
+import { driversCatalog } from './data/drivers.js'
+
+const dynamicRoutes = [
+  ...toolsCatalog.map(t => `/tools/${t.slug}`),
+  ...featuresCatalog.map(f => `/features/${f.slug}`),
+  ...driversCatalog.map(d => `/drivers/${d.slug}`)
+]
+
 export default defineNuxtConfig({
   unhead: {
     legacy: false
@@ -19,13 +29,23 @@ export default defineNuxtConfig({
   css: ['~/assets/main.css'],
 
   modules: [
-    '@nuxtjs/seo'
+    '@nuxtjs/seo',
+    'nuxt-gtag',
+    'nuxt-ai-ready'
   ],
 
+  aiReady: {
+    indexNow: true
+  },
+
+  gtag: {
+    id: 'G-HJSSZ9QBCC' // Replace with actual Google Analytics Measurement ID
+  },
+
   site: {
-    url: 'https://library.telcosec.net',
-    name: 'TelcoSec Library',
-    description: 'TelcoSec Threat Intelligence, Research & Documentation',
+    url: 'https://tschisel.telcosec.net',
+    name: 'TelcoChisel',
+    description: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.',
     defaultLocale: 'en',
   },
 
@@ -42,7 +62,7 @@ export default defineNuxtConfig({
     preset: 'static',
     prerender: {
       crawlLinks: true,
-      routes: ['/']
+      routes: ['/', ...dynamicRoutes]
     }
   },
 
