@@ -18,13 +18,13 @@
         <!-- SECTION: OVERVIEW -->
         <section id="overview" class="content-section" :class="{ active: activeSection === 'overview' }" v-show="activeSection === 'overview'">
           <div class="section-header" data-label="// Overview :: TelcoChisel v1.1.0">
-            <h1>TelcoChisel — Telecom Security Linux Distribution</h1>
-            <p class="subtitle">Bootable live OS for 5G/4G security research, SDR analysis, and baseband auditing</p>
+            <h1>TelcoChisel: Advanced Telecom Security OS by TelcoSec</h1>
+            <p class="subtitle">The ultimate bootable live OS for Telecom Security, 5G/4G research, and SDR analysis</p>
             <SpectrumCanvas />
           </div>
 
           <p>
-            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution purpose-built for cellular security researchers, Software Defined Radio (SDR) engineers, and hardware pentesters. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong> with a GNOME Shell desktop, it ships with 50+ pre-configured tools covering SDR drivers, 5G core simulation, baseband emulation, SIM auditing, and telecom protocol fuzzing — ready to use without installation.
+            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution developed by <strong>TelcoSec</strong>, purpose-built for advanced <strong>Telecom Security</strong> research. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong>, it ships with 50+ pre-configured tools for Software Defined Radio (SDR) engineering, baseband auditing, and cellular network penetration testing — ready to use without installation.
           </p>
 
           <!-- Download CTA -->
@@ -884,18 +884,18 @@ import { featuresCatalog } from '~/data/features.js'
 
 // SEO metadata
 useHead({
-  title: 'TelcoChisel — 5G/4G Telecom Security Linux Distribution',
+  title: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec',
   meta: [
-    { name: 'description', content: 'Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 50+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.' },
-    { name: 'keywords', content: 'telecom security linux, 5G security research, 4G LTE penetration testing, SDR security, baseband analysis, FirmWire, GNU Radio, srsRAN, Open5GS, SIMtrace, HackRF, USRP, BladeRF, TelcoChisel' },
+    { name: 'description', content: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.' },
+    { name: 'keywords', content: 'TelcoSec, TelcoChisel, Telecom Security, 5G security research, 4G LTE penetration testing, SDR security, baseband analysis, FirmWire, GNU Radio, srsRAN, Open5GS' },
     { name: 'author', content: 'TelcoSec' },
     { name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
     { name: 'theme-color', content: '#00ffd5' },
     { property: 'og:type', content: 'website' },
     { property: 'og:site_name', content: 'TelcoSec' },
     { property: 'og:url', content: 'https://tschisel.telcosec.net/' },
-    { property: 'og:title', content: 'TelcoChisel — 5G/4G Telecom Security Linux Distribution' },
-    { property: 'og:description', content: 'Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 50+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.' },
+    { property: 'og:title', content: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec' },
+    { property: 'og:description', content: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.' },
     { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec/TelcoChisel/main/assets/repo_cover.png' },
     { property: 'og:image:width', content: '1280' },
     { property: 'og:image:height', content: '640' },
@@ -905,8 +905,8 @@ useHead({
     { name: 'twitter:site', content: '@TelcoSec' },
     { name: 'twitter:creator', content: '@TelcoSec' },
     { name: 'twitter:url', content: 'https://tschisel.telcosec.net/' },
-    { name: 'twitter:title', content: 'TelcoChisel — 5G/4G Telecom Security Linux Distribution' },
-    { name: 'twitter:description', content: 'Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 50+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.' },
+    { name: 'twitter:title', content: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec' },
+    { name: 'twitter:description', content: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.' },
     { name: 'twitter:image', content: 'https://raw.githubusercontent.com/TelcoSec/TelcoChisel/main/assets/repo_cover.png' }
   ],
   link: [

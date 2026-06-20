@@ -124,12 +124,12 @@ if (!tool) {
 // SEO Head setup via generic composable
 useToolSchema({
   name: tool.name,
-  description: `Learn how to run and configure ${tool.name} inside TelcoChisel OS for ${tool.keywords[0] || 'cellular security auditing'}. CLI commands, setup steps, and technical FAQs.`,
+  description: `Learn how to run and configure ${tool.name} inside TelcoChisel by TelcoSec for advanced Telecom Security and ${tool.keywords[0] || 'cellular security auditing'}. CLI commands, setup steps, and technical FAQs.`,
   category: "SecurityApplication",
   slug: tool.slug,
   isFree: true,
   faq: tool.faq,
-  keywords: [...(tool.keywords || []), tool.name, 'TelcoChisel', 'telecom security', 'cellular pentesting']
+  keywords: [...(tool.keywords || []), tool.name, 'TelcoSec', 'TelcoChisel', 'Telecom Security', 'cellular pentesting']
 })
 
 // Navigation home helper
