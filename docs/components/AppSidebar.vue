@@ -2,7 +2,7 @@
   <aside class="sidebar" :class="{ open: open }">
     <div class="brand">
       <div class="brand-logo">T</div>
-      <div class="brand-text">TelcoSec<span>-Chisel</span></div>
+      <div class="brand-text">Telco<span>Chisel</span></div>
     </div>
 
     <div class="sidebar-status">

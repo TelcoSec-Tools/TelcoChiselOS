@@ -4,6 +4,7 @@ import { driversCatalog } from './data/drivers.js'
 
 const dynamicRoutes = [
   ...toolsCatalog.map(t => `/tools/${t.slug}`),
+  ...Array.from(new Set(toolsCatalog.map(t => t.category))).map(c => `/tools/category/${c}`),
   ...featuresCatalog.map(f => `/features/${f.slug}`),
   ...driversCatalog.map(d => `/drivers/${d.slug}`)
 ]
