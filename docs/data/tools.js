@@ -56,7 +56,7 @@ export const toolsCatalog = [
     {
         name: "FirmWire Emulation",
         slug: "firmwire-emulation",
-        category: "ue",
+        category: "baseband",
         status: "ready",
         desc: "A baseband firmware emulation and fuzzing platform. Emulates Samsung Shannon and MediaTek modems under QEMU, enabling analysis of baseband OTA packets.",
         path: "/opt/telcosec/firmwire/",
@@ -65,7 +65,7 @@ export const toolsCatalog = [
     {
         name: "QCSuper",
         slug: "qcsuper",
-        category: "ue",
+        category: "baseband",
         status: "ready",
         desc: "Qualcomm diagnostic protocol log parser that generates PCAP files from baseband OTA messages sniffed from a phone connected via USB.",
         path: "System-wide (pip: qcsuper)",
@@ -74,7 +74,7 @@ export const toolsCatalog = [
     {
         name: "MTKClient",
         slug: "mtkclient",
-        category: "ue",
+        category: "baseband",
         status: "ready",
         desc: "A powerful dump, flash, partition editor, and bootloader/BROM bypass tool for MediaTek (MTK) chipset devices.",
         path: "System-wide python",
@@ -83,7 +83,7 @@ export const toolsCatalog = [
     {
         name: "Balong-Flash & Balongtool",
         slug: "balong-flash-balongtool",
-        category: "ue",
+        category: "baseband",
         status: "ready",
         desc: "Firmware compilation, modification, and direct USB flasher utilities targeting Huawei Balong-based LTE modems and routers.",
         path: "/usr/local/bin/",
@@ -137,7 +137,7 @@ export const toolsCatalog = [
     {
         name: "srsRAN 4G/5G Simulator",
         slug: "srsran-4g-5g-simulator",
-        category: "ran",
+        category: "core",
         status: "setup",
         desc: "Full open-source SDR-based 4G/5G mobile network simulator implementing gNodeB, eNodeB, and User Equipment (UE). Suitable for virtual cell testing.",
         path: "System-wide",
@@ -146,7 +146,7 @@ export const toolsCatalog = [
     {
         name: "Wireshark & TShark",
         slug: "wireshark-tshark",
-        category: "ran",
+        category: "core",
         status: "ready",
         desc: "World-class packet sniffer customized with layout profiles displaying GSMTAP, 5G NAS, Diameter codes, and GTP headers.",
         path: "System desktop application",
@@ -155,7 +155,7 @@ export const toolsCatalog = [
     {
         name: "SIPVicious",
         slug: "sipvicious",
-        category: "ran",
+        category: "core",
         status: "ready",
         desc: "Audit toolset for SIP-based VoIP systems. Designed to scan target networks, brute-force extensions, and audit registration systems.",
         path: "System-wide python",
@@ -164,7 +164,7 @@ export const toolsCatalog = [
     {
         name: "sctpscan",
         slug: "sctpscan",
-        category: "ran",
+        category: "core",
         status: "ready",
         desc: "A fast SCTP port scanner to map host capabilities and discover ports running S1AP, NGAP, Diameter, or M3UA SIGTRAN protocols.",
         path: "/usr/local/bin/sctpscan",
@@ -173,7 +173,7 @@ export const toolsCatalog = [
     {
         name: "SigPloit",
         slug: "sigploit",
-        category: "ran",
+        category: "core",
         status: "ready",
         desc: "Signaling exploitation framework targeting SS7, Diameter, and GTP protocols to audit core telecom networks for routing vulnerabilities.",
         path: "/opt/telcosec/sigploit/",
@@ -182,7 +182,7 @@ export const toolsCatalog = [
     {
         name: "Diafuzzer",
         slug: "diafuzzer",
-        category: "ran",
+        category: "core",
         status: "ready",
         desc: "Diameter protocol fuzzer written by Orange Security, designed to test core interfaces (S6a, Gx, Gy) for vulnerability to malformed requests.",
         path: "/opt/telcosec/diafuzzer/",
@@ -191,7 +191,7 @@ export const toolsCatalog = [
     {
         name: "Scapy (with SS7/Diameter modules)",
         slug: "scapy-ss7-diameter",
-        category: "ran",
+        category: "core",
         status: "ready",
         desc: "Interactive packet manipulation program extended to support construction of custom MAP, TCAP, M3UA, and Diameter network frames.",
         path: "System-wide python",
@@ -200,7 +200,7 @@ export const toolsCatalog = [
     {
         name: "5Ghoul Fuzzer Wrapper",
         slug: "5ghoul-fuzzer",
-        category: "ran",
+        category: "core",
         status: "setup",
         desc: "Custom launcher wrapper that simplifies executing the 5Ghoul fuzzer, automatically patching configurations for BladeRF and USRP transceivers.",
         path: "/usr/local/bin/5ghoul-run",
@@ -209,7 +209,7 @@ export const toolsCatalog = [
     {
         name: "Open5GS Core Network",
         slug: "open5gs-core-network",
-        category: "ran",
+        category: "core",
         status: "setup",
         desc: "A complete open-source implementation of 4G EPC and 5G Core Network functions (AMF, SMF, UPF, UDM, HSS) built with high performance in C.",
         path: "/usr/local/bin/open5gs-install",
@@ -218,7 +218,7 @@ export const toolsCatalog = [
     {
         name: "Docker & Docker Compose",
         slug: "docker-docker-compose",
-        category: "sys",
+        category: "core",
         status: "ready",
         desc: "Containerization engine pre-configured for non-root management. Used to spin up large-scale core network elements quickly.",
         path: "System services",
@@ -227,7 +227,7 @@ export const toolsCatalog = [
     {
         name: "Telecom Wordlists",
         slug: "telecom-wordlists",
-        category: "sys",
+        category: "core",
         status: "ready",
         desc: "Bundled telecom-specific wordlist collection covering carrier APNs, VoIP/SIP credentials, RAN element passwords, SIM OTA test keys, hardware defaults, PLMNs/IMSI prefixes, and protocol-level lists for 5G NAS, GTP, SS7, Diameter, SMS, and USSD. Includes telcosec-apn-permutator and telcosec-imsi-generator helper scripts on PATH.",
         path: "/usr/share/wordlists/telecom/",
@@ -236,7 +236,7 @@ export const toolsCatalog = [
     {
         name: "YateBTS",
         slug: "yatebts",
-        category: "gsm",
+        category: "2g",
         status: "setup",
         desc: "Open-source GSM/UMTS BTS implementation built on the Yate telephony engine. Optimized for BladeRF A4 with a dedicated hardware config.",
         path: "/opt/telcosec/yatebts/ (helper: yatebts-install)",
@@ -245,7 +245,7 @@ export const toolsCatalog = [
     {
         name: "OpenBTS",
         slug: "openbts",
-        category: "gsm",
+        category: "2g",
         status: "setup",
         desc: "Pioneering open-source GSM base transceiver station. Implements the Um air interface enabling rogue GSM cell and protocol audit scenarios.",
         path: "/opt/telcosec/openbts/ (helper: openbts-install)",
@@ -254,7 +254,7 @@ export const toolsCatalog = [
     {
         name: "Osmocom GSM Stack",
         slug: "osmocom-gsm-stack",
-        category: "gsm",
+        category: "2g",
         status: "ready",
         desc: "Complete Osmocom GSM network stack: OsmoBSC, OsmoMSC, OsmoHLR, OsmoBTS-TRX. Supports osmo-trx-bladerf for BladeRF A4 hardware.",
         path: "System packages",
@@ -263,7 +263,7 @@ export const toolsCatalog = [
     {
         name: "Kalibrate GSM",
         slug: "kalibrate-gsm",
-        category: "gsm",
+        category: "2g",
         status: "ready",
         desc: "GSM-band frequency offset calibration tool using broadcast channel timing from live base stations. Complements kalibrate-rtl for calibrating BladeRF.",
         path: "/usr/local/bin/kal-gsm",
@@ -272,7 +272,7 @@ export const toolsCatalog = [
     {
         name: "srsUE",
         slug: "srsue",
-        category: "lte",
+        category: "4g",
         status: "ready",
         desc: "Software-defined LTE UE (User Equipment) that connects to real or simulated eNodeBs. Used for protocol testing, attach procedures, and downlink captures.",
         path: "System-wide",
@@ -281,7 +281,7 @@ export const toolsCatalog = [
     {
         name: "srsGUI",
         slug: "srsgui",
-        category: "lte",
+        category: "4g",
         status: "ready",
         desc: "Real-time visualization GUI for srsRAN metrics: constellation diagrams, spectrum, BER counters, and RLC/PDCP throughput graphs.",
         path: "srsgui",
@@ -290,7 +290,7 @@ export const toolsCatalog = [
     {
         name: "LTE-CellScanner",
         slug: "lte-cellscanner",
-        category: "lte",
+        category: "4g",
         status: "ready",
         desc: "Open-source LTE cell searcher and MIB/SIB decoder. Scans a frequency range and decodes cell IDs, bandwidth, and system information blocks.",
         path: "/opt/telcosec/lte-cellscanner/",
@@ -299,7 +299,7 @@ export const toolsCatalog = [
     {
         name: "LTESniffer",
         slug: "ltesniffer",
-        category: "lte",
+        category: "4g",
         status: "ready",
         desc: "Open-source LTE downlink and uplink sniffer. Decodes physical layer frames and logs RRC, NAS, and user-plane traffic to PCAP.",
         path: "/opt/telcosec/ltesniffer/",
@@ -308,7 +308,7 @@ export const toolsCatalog = [
     {
         name: "SCAT",
         slug: "scat",
-        category: "lte",
+        category: "4g",
         status: "ready",
         desc: "DIAG protocol parser for Qualcomm and Samsung modems. Decodes OTA messages from USB-connected phones to PCAP with full NAS/RRC content.",
         path: "System-wide (pip: scat)",
@@ -317,7 +317,7 @@ export const toolsCatalog = [
     {
         name: "Modmobmap",
         slug: "modmobmap",
-        category: "lte",
+        category: "4g",
         status: "ready",
         desc: "Maps 2G/3G/4G cells visible to a USB modem by issuing AT commands. Generates cell-tower geolocation data and signal reports.",
         path: "/opt/telcosec/modmobmap/",
@@ -353,7 +353,7 @@ export const toolsCatalog = [
     {
         name: "Heimdall (Samsung)",
         slug: "heimdall-samsung",
-        category: "device",
+        category: "baseband",
         status: "ready",
         desc: "Open-source, cross-platform Samsung Odin replacement for flashing firmware on Samsung devices in Download Mode.",
         path: "System-wide",
@@ -362,7 +362,7 @@ export const toolsCatalog = [
     {
         name: "ADB & Fastboot",
         slug: "adb-fastboot",
-        category: "device",
+        category: "baseband",
         status: "ready",
         desc: "Android Debug Bridge and Fastboot tools for communicating with Android devices in normal, recovery, and bootloader modes.",
         path: "System-wide",
@@ -371,7 +371,7 @@ export const toolsCatalog = [
     {
         name: "EDL (Qualcomm Emergency Download)",
         slug: "edl-qualcomm-emergency-download",
-        category: "device",
+        category: "baseband",
         status: "ready",
         desc: "Comprehensive Qualcomm EDL/9008 mode toolkit for reading, writing, and erasing partitions on Snapdragon devices via Sahara/Firehose protocols.",
         path: "System-wide (pip: edl)",
@@ -380,7 +380,7 @@ export const toolsCatalog = [
     {
         name: "SIMTester",
         slug: "simtester",
-        category: "device",
+        category: "baseband",
         status: "ready",
         desc: "Java-based SIM card security audit tool from SRLabs. Tests for roaming, OTA update vulnerabilities, and SIM application exploits.",
         path: "/opt/telcosec/simtester/ (/usr/local/bin/simtester)",
@@ -389,7 +389,7 @@ export const toolsCatalog = [
     {
         name: "AT Command Console",
         slug: "at-command-console",
-        category: "device",
+        category: "baseband",
         status: "ready",
         desc: "Interactive AT command terminal (minicom) pre-configured for modem control. Supports querying IMEI, network registration, signal strength, and USSD.",
         path: "/usr/local/bin/at-console",
@@ -398,7 +398,7 @@ export const toolsCatalog = [
     {
         name: "Gammu",
         slug: "gammu",
-        category: "device",
+        category: "baseband",
         status: "ready",
         desc: "Universal mobile device manager supporting SMS sending/receiving, USSD queries, call management, and phonebook access via AT commands.",
         path: "System-wide",
@@ -407,7 +407,7 @@ export const toolsCatalog = [
     {
         name: "Kismet",
         slug: "kismet",
-        category: "network",
+        category: "core",
         status: "ready",
         desc: "Wireless network detector, sniffer, and intrusion detection system. Captures raw 802.11 frames on mon0 and logs device fingerprints.",
         path: "System-wide",
@@ -416,7 +416,7 @@ export const toolsCatalog = [
     {
         name: "tcpdump",
         slug: "tcpdump",
-        category: "network",
+        category: "core",
         status: "ready",
         desc: "CLI packet capture tool. Used in TelcoSec scripts to capture raw traffic on the monitoring interface and pipe to Wireshark.",
         path: "System-wide",
@@ -443,7 +443,7 @@ export const toolsCatalog = [
     {
         name: "atinout",
         slug: "atinout",
-        category: "device",
+        category: "baseband",
         status: "ready",
         desc: "Quick command-line tool to send AT commands to a modem and capture the output. Excellent for scripting USSD or SMS tasks.",
         path: "/usr/local/bin/atinout",
@@ -452,7 +452,7 @@ export const toolsCatalog = [
     {
         name: "ModemManager GUI",
         slug: "modem-manager-gui",
-        category: "device",
+        category: "baseband",
         status: "ready",
         desc: "Graphical frontend for ModemManager, dbus, and NetworkManager. Allows sending SMS, USSD, and reading SIM contacts directly from the desktop.",
         path: "System application",
@@ -461,7 +461,7 @@ export const toolsCatalog = [
     {
         name: "SP Flash Tool (Helper)",
         slug: "sp-flash-tool",
-        category: "device",
+        category: "baseband",
         status: "setup",
         desc: "Proprietary flash tool for MediaTek devices. The pre-installed helper script provides download links and extraction instructions.",
         path: "/usr/local/bin/spflashtool-install",
@@ -479,7 +479,7 @@ export const toolsCatalog = [
     {
         name: "Nokia NetAct CLI",
         slug: "nokia-netact-cli",
-        category: "sys",
+        category: "mw",
         status: "ready",
         desc: "Wrapper for connecting to Nokia NetAct OSS systems using standard telecom administrative protocols.",
         path: "/usr/local/bin/nokia-netact-cli",
@@ -488,7 +488,7 @@ export const toolsCatalog = [
     {
         name: "Ericsson ENM CLI",
         slug: "ericsson-enm-cli",
-        category: "sys",
+        category: "mw",
         status: "ready",
         desc: "Wrapper for connecting to Ericsson Network Manager (ENM) infrastructure via SSH.",
         path: "/usr/local/bin/ericsson-enm-cli",
@@ -497,7 +497,7 @@ export const toolsCatalog = [
     {
         name: "Huawei U2000 CLI",
         slug: "huawei-u2000-cli",
-        category: "sys",
+        category: "mw",
         status: "ready",
         desc: "Wrapper for accessing Huawei U2000 management interfaces using telnet or SSH fallback.",
         path: "/usr/local/bin/huawei-u2000-cli",
@@ -514,7 +514,7 @@ export const toolsCatalog = [
     {
         name: "MobileInsight",
         slug: "mobileinsight",
-        category: "ue",
+        category: "baseband",
         status: "ready",
         desc: "A mobile network diagnostic analysis framework that extracts, parses, and analyzes 3G/4G/5G baseband messages.",
         path: "System-wide",
@@ -537,5 +537,95 @@ export const toolsCatalog = [
         desc: "A modular, command-line based SIP user agent with audio and video support, ideal for scriptable VoIP and PBX testing.",
         path: "System-wide",
         cmd: "baresip"
+    },
+    {
+        name: "Macchanger",
+        slug: "macchanger",
+        category: "adsl",
+        status: "ready",
+        desc: "Utility for viewing/manipulating the MAC address of network interfaces to bypass sticky-MAC port security.",
+        path: "System-wide",
+        cmd: "macchanger --help"
+    },
+    {
+        name: "VLAN (vconfig)",
+        slug: "vconfig",
+        category: "adsl",
+        status: "ready",
+        desc: "VLAN hopping and manipulation tool for executing attacks against DSLAM and Open vSwitch configurations.",
+        path: "System-wide",
+        cmd: "vconfig"
+    },
+    {
+        name: "Asleap",
+        slug: "asleap",
+        category: "adsl",
+        status: "ready",
+        desc: "Performs offline dictionary attacks against captured PPPoE MS-CHAPv2 challenge/response hashes.",
+        path: "System-wide",
+        cmd: "asleap -h"
+    },
+    {
+        name: "FreeRADIUS Utils",
+        slug: "freeradius-utils",
+        category: "adsl",
+        status: "ready",
+        desc: "Includes radtest and radclient to craft malicious RADIUS Access-Request packets or test dictionary attacks.",
+        path: "System-wide",
+        cmd: "radtest -h"
+    },
+    {
+        name: "Hashcat",
+        slug: "hashcat",
+        category: "adsl",
+        status: "ready",
+        desc: "Advanced password recovery utility supporting multiple algorithms including RADIUS shared secrets and MS-CHAPv2.",
+        path: "System-wide",
+        cmd: "hashcat -h"
+    },
+    {
+        name: "John the Ripper",
+        slug: "john",
+        category: "adsl",
+        status: "ready",
+        desc: "Fast password cracker, useful for intercepted RADIUS shared secrets or MS-CHAPv2 hashes.",
+        path: "System-wide",
+        cmd: "john"
+    },
+    {
+        name: "PPPoE Tools",
+        slug: "pppoe",
+        category: "adsl",
+        status: "ready",
+        desc: "Includes ppp and pppoe tools to establish rogue PPPoE sessions, acting as a rogue CPE.",
+        path: "System-wide",
+        cmd: "pppoe-setup"
+    },
+    {
+        name: "Nikto",
+        slug: "nikto",
+        category: "adsl",
+        status: "ready",
+        desc: "Web server scanner which performs comprehensive tests against web servers for multiple items, including CPE local Web UIs.",
+        path: "System-wide",
+        cmd: "nikto -H"
+    },
+    {
+        name: "Gobuster",
+        slug: "gobuster",
+        category: "adsl",
+        status: "ready",
+        desc: "Directory/File, DNS and VHost busting tool written in Go, for directory enumeration on CPE or GenieACS dashboards.",
+        path: "System-wide",
+        cmd: "gobuster help"
+    },
+    {
+        name: "SNMP Check",
+        slug: "snmpcheck",
+        category: "adsl",
+        status: "ready",
+        desc: "Tool to automate the process of gathering information via SNMP protocols, exploiting intentionally weak community strings.",
+        path: "System-wide",
+        cmd: "snmpcheck -h"
     }
 ]

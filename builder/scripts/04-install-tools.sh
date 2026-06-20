@@ -9,6 +9,7 @@ if [ ! -f /tmp/.packages-installed ]; then
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
     wireshark tshark \
     nmap \
+    macchanger vlan asleap freeradius-utils hashcat john pppoe nikto gobuster snmpcheck \
     lksctp-tools libsctp-dev libglib2.0-dev \
     sipsak \
     python3-pip python3-venv \

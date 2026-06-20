@@ -166,6 +166,7 @@ apt-get install -y \
   `# === Security tools (04-install-tools.sh) ===` \
   wireshark tshark \
   nmap \
+  macchanger vlan asleap freeradius-utils hashcat john pppoe nikto gobuster snmpcheck \
   libglib2.0-dev libsctp-dev \
   sipsak \
   python3-pip python3-venv \
