@@ -116,6 +116,7 @@ import { driversMetadata } from '~/utils/driverMetadata.js'
 
 const route = useRoute()
 const sidebarOpen = ref(false)
+const { gtag } = useGtag()
 
 // Lookup driver
 const driver = driversCatalog.find(d => d.slug === route.params.slug)
@@ -205,6 +206,18 @@ function toggleTheme() {
 
 onMounted(() => {
   if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme')
+
+  if (driver) {
+    gtag('event', 'view_item', {
+      currency: 'USD',
+      value: 0,
+      items: [{
+        item_id: driver.slug,
+        item_name: driver.name,
+        item_category: driver.category
+      }]
+    })
+  }
 })
 
 function tagLabel(cat) {

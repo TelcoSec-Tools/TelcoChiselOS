@@ -114,6 +114,7 @@ import { featuresMetadata } from '~/utils/featuresMetadata.js'
 
 const route = useRoute()
 const sidebarOpen = ref(false)
+const { gtag } = useGtag()
 
 // Lookup feature
 const feature = featuresCatalog.find(f => f.slug === route.params.slug)
@@ -216,6 +217,18 @@ function toggleTheme() {
 
 onMounted(() => {
   if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme')
+
+  if (feature) {
+    gtag('event', 'view_item', {
+      currency: 'USD',
+      value: 0,
+      items: [{
+        item_id: feature.slug,
+        item_name: feature.name,
+        item_category: feature.category
+      }]
+    })
+  }
 })
 
 // Category tag helpers

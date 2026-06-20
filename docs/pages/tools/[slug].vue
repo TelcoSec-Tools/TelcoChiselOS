@@ -112,6 +112,7 @@ import { getToolMetadata } from '~/utils/toolMetadata.js'
 
 const route = useRoute()
 const sidebarOpen = ref(false)
+const { gtag } = useGtag()
 
 // Lookup tool
 const rawTool = toolsCatalog.find(t => t.slug === route.params.slug)
@@ -146,6 +147,18 @@ function toggleTheme() {
 
 onMounted(() => {
   if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme')
+  
+  if (tool) {
+    gtag('event', 'view_item', {
+      currency: 'USD',
+      value: 0,
+      items: [{
+        item_id: tool.slug,
+        item_name: tool.name,
+        item_category: tool.category
+      }]
+    })
+  }
 })
 
 // Tag helper functions
