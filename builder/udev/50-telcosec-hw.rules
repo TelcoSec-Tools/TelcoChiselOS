@@ -2,54 +2,54 @@
 # This allows members of the plugdev and dialout groups to access radio interfaces without root privileges.
 
 # HackRF One & Great Scott Gadgets
-ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6089", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
-ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="cc15", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6089", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="cc15", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # BladeRF (Nuand)
-ATTRS{idVendor}=="2cf0", ATTRS{idProduct}=="5250", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+ATTRS{idVendor}=="2cf0", ATTRS{idProduct}=="5250", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # LimeSDR
-ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6108", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6108", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # RTL-SDR Dongles
-ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2832", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
-ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2838", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2832", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2838", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # USRP UHD (Ettus Research / National Instruments)
-ATTRS{idVendor}=="2514", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1"
+ATTRS{idVendor}=="2514", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # Osmocom SIMtrace 2 (Sniffer & Card Emulators)
-ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6076", MODE="0660", GROUP="plugdev"
-ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6085", MODE="0660", GROUP="plugdev"
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6076", MODE="0660", GROUP="plugdev", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6085", MODE="0660", GROUP="plugdev", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # ── Samsung Device Rules ───────────────────────────────────────────────────────
 # Samsung ADB mode
-ATTRS{idVendor}=="04e8", MODE="0660", GROUP="plugdev"
+ATTRS{idVendor}=="04e8", MODE="0660", GROUP="plugdev", ENV{ID_MM_DEVICE_IGNORE}="1"
 # Samsung Download Mode (Odin/Heimdall)
-ATTRS{idVendor}=="04e8", ATTRS{idProduct}=="6601", MODE="0660", GROUP="plugdev", SYMLINK+="samsung_download"
+ATTRS{idVendor}=="04e8", ATTRS{idProduct}=="6601", MODE="0660", GROUP="plugdev", SYMLINK+="samsung_download", ENV{ID_MM_DEVICE_IGNORE}="1"
 # Samsung Diagnostic Mode
-ATTRS{idVendor}=="04e8", ATTRS{idProduct}=="685d", MODE="0660", GROUP="plugdev", SYMLINK+="samsung_diag"
+ATTRS{idVendor}=="04e8", ATTRS{idProduct}=="685d", MODE="0660", GROUP="plugdev", SYMLINK+="samsung_diag", ENV{ID_MM_DEVICE_IGNORE}="1"
 # Samsung MTP
-ATTRS{idVendor}=="04e8", ATTRS{idProduct}=="685c", MODE="0660", GROUP="plugdev"
+ATTRS{idVendor}=="04e8", ATTRS{idProduct}=="685c", MODE="0660", GROUP="plugdev", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # ── MediaTek Device Rules ─────────────────────────────────────────────────────
 # MediaTek PreLoader (BROM — before flashing)
-ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="0003", MODE="0660", GROUP="plugdev", SYMLINK+="mtk_preloader"
+ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="0003", MODE="0660", GROUP="plugdev", SYMLINK+="mtk_preloader", ENV{ID_MM_DEVICE_IGNORE}="1"
 # MediaTek BROM (alternative product ID)
-ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="2000", MODE="0660", GROUP="plugdev", SYMLINK+="mtk_brom"
+ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="2000", MODE="0660", GROUP="plugdev", SYMLINK+="mtk_brom", ENV{ID_MM_DEVICE_IGNORE}="1"
 # MediaTek DA (Download Agent, during flash)
-ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="2001", MODE="0660", GROUP="plugdev"
+ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="2001", MODE="0660", GROUP="plugdev", ENV{ID_MM_DEVICE_IGNORE}="1"
 # MediaTek ADB / CDC ACM
-ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="2005", MODE="0660", GROUP="plugdev"
+ATTRS{idVendor}=="0e8d", ATTRS{idProduct}=="2005", MODE="0660", GROUP="plugdev", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # ── Qualcomm Device Rules ─────────────────────────────────────────────────────
 # Qualcomm EDL (Emergency Download — 9008 mode)
-ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9008", MODE="0660", GROUP="plugdev", SYMLINK+="qc_edl"
+ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9008", MODE="0660", GROUP="plugdev", SYMLINK+="qc_edl", ENV{ID_MM_DEVICE_IGNORE}="1"
 # Qualcomm DIAG (diagnostic interface)
-ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9001", MODE="0660", GROUP="plugdev", SYMLINK+="qc_diag"
+ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9001", MODE="0660", GROUP="plugdev", SYMLINK+="qc_diag", ENV{ID_MM_DEVICE_IGNORE}="1"
 # Qualcomm ADB
-ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9025", MODE="0660", GROUP="plugdev"
-ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9091", MODE="0660", GROUP="plugdev"
+ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9025", MODE="0660", GROUP="plugdev", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9091", MODE="0660", GROUP="plugdev", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # ── Modem & USB Dongle Rules ──────────────────────────────────────────────────
 # Huawei modems (various)
@@ -62,3 +62,13 @@ ATTRS{idVendor}=="1199", MODE="0660", GROUP="dialout"
 ATTRS{idVendor}=="0af0", MODE="0660", GROUP="dialout"
 # Novatel Wireless
 ATTRS{idVendor}=="1410", MODE="0660", GROUP="dialout"
+
+# ── Disable USB Autosuspend for SDRs ──────────────────────────────────────────
+# Prevents hotplugged SDR devices from entering power-saving mode and dropping samples
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="1d50", ATTR{idProduct}=="6089", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="1d50", ATTR{idProduct}=="cc15", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2cf0", ATTR{idProduct}=="5250", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="1d50", ATTR{idProduct}=="6108", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0bda", ATTR{idProduct}=="2832", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0bda", ATTR{idProduct}=="2838", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2514", ATTR{power/control}="on"

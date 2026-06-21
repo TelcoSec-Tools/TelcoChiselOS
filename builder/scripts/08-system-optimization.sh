@@ -212,6 +212,20 @@ if command -v ufw &> /dev/null; then
   echo "  UFW firewall enabled with secure defaults (deny incoming, allow outgoing)"
 fi
 
+# 8.5. NetworkManager Cellular Interfaces Override
+echo "Configuring NetworkManager to ignore virtual cellular interfaces..."
+sudo mkdir -p /etc/NetworkManager/conf.d/
+cat << 'EOF' | sudo tee /etc/NetworkManager/conf.d/99-telcosec-unmanaged.conf
+[keyfile]
+# Ignore cellular network virtual interfaces to prevent DHCP/MTU hijacking
+unmanaged-devices=interface-name:ogstun*;interface-name:srs*;interface-name:uesimtun*;interface-name:oaitun*;interface-name:tun_srsue
+
+[device]
+# Disable MAC randomization during Wi-Fi scans to prevent testbed connectivity issues
+wifi.scan-rand-mac-address=no
+EOF
+
+
 # 9. Bluetooth: Off by Default
 echo "Disabling Bluetooth by default..."
 rfkill block bluetooth 2>/dev/null || true
