@@ -278,7 +278,7 @@ apt-get install -y \
   libliquid-dev \
   libtalloc2 libtalloc-dev \
   libqwt-qt5-dev librtlsdr-dev libboost-all-dev libitpp-dev libfftw3-dev \
-  libncurses5-dev cargo libxcrypt-dev libqt5charts5-dev libsqlite3-dev
+  libncurses-dev cargo libcrypt-dev libqt5charts5-dev libsqlite3-dev
 
 # ─── 5. Remove chroot service suppression ────────────────────────────────────
 rm -f /usr/sbin/policy-rc.d /usr/local/sbin/udevadm
