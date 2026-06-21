@@ -184,8 +184,6 @@ apt-get install -y \
   sipsak \
   python3-pip python3-venv \
   wireguard \
-
-  \
   `# === UE analysis & baseband deps (06-install-ue-analysis.sh) ===` \
   pcscd pcsc-tools libpcsclite-dev libccid \
   python3-pyscard python3-dev \
@@ -265,14 +263,14 @@ apt-get install -y \
   heimdall-flash adb fastboot \
   \
   `# === DOCSIS & HFC Tools ===` \
-  docsis tftpd-hpa tftp-hpa isc-dhcp-server yersinia ettercap-text-only \
+  tftpd-hpa tftp-hpa isc-dhcp-server yersinia ettercap-text-only \
   \
   `# === VoIP & SIP tools (11-install-device-tools.sh / 04) ===` \
   linphone-desktop twinkle baresip \
   ppp wvdial \
   \
   `# === SNMP / BSS management ===` \
-  snmp snmp-mibs-downloader snmpd \
+  snmp snmp-mibs-downloader snmpd libsnmp-dev \
   \
   `# === Telecom tool build dependencies (10-install-telecom-advanced.sh) ===` \
   linux-headers-generic \
