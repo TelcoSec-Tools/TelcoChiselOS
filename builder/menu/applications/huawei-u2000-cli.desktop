@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=Huawei U2000 CLI
 Comment=Connect to Huawei iMaster U2000 OSS/NMS (requires server access)
-Exec=gnome-terminal --title "Huawei U2000 CLI" -- bash -c "echo 'Huawei iMaster U2000 NMS'; echo ''; echo 'NBI/CORBA interface: iiop://<u2000-host>:9991'; echo 'CLI access: telnet <u2000-host> 8080'; echo 'SNMP: snmpwalk -v2c -c public <u2000-host>'; echo ''; read -p 'Press Enter to exit...'"
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "Huawei U2000 CLI" -- bash -c "echo 'Huawei iMaster U2000 NMS'; echo ''; echo 'NBI/CORBA interface: iiop://<u2000-host>:9991'; echo 'CLI access: telnet <u2000-host> 8080'; echo 'SNMP: snmpwalk -v2c -c public <u2000-host>'; echo ''; read -p 'Press Enter to exit...'"
 Icon=network-server
 Terminal=false
 Categories=TelcoSec-Core;

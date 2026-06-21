@@ -57,6 +57,7 @@ mkdir -p /opt/telcosec/src
 [ -d /opt/telcosec/src/hackrf ] || (git clone --depth 1 https://github.com/greatscottgadgets/hackrf.git /opt/telcosec/src/hackrf) &
 [ -d /opt/telcosec/src/uhd ] || (git clone --depth 1 https://github.com/EttusResearch/uhd.git /opt/telcosec/src/uhd) &
 [ -d /opt/telcosec/src/kalibrate-rtl ] || (git clone --depth 1 https://github.com/steve-m/kalibrate-rtl.git /opt/telcosec/src/kalibrate-rtl) &
+[ -d /opt/telcosec/src/LimeSuite ] || (git clone --depth 1 https://github.com/myriadrf/LimeSuite.git /opt/telcosec/src/LimeSuite) &
 wait
 echo "All SDR repos checked/cloned."
 
@@ -68,9 +69,27 @@ cmake -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX ..
 make -j$(nproc)
 make install
 
+# 4.5 Compile SoapyBladeRF plugin
+echo "Compiling SoapyBladeRF..."
+git clone --depth 1 https://github.com/pothosware/SoapyBladeRF.git /opt/telcosec/src/SoapyBladeRF 2>/dev/null || true
+if [ -d /opt/telcosec/src/SoapyBladeRF ]; then
+  cd /opt/telcosec/src/SoapyBladeRF
+  rm -rf build && mkdir build && cd build
+  cmake -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX ..
+  make -j$(nproc)
+  make install
+fi
 # 5. Compile HackRF from Source
 echo "Compiling HackRF..."
 cd /opt/telcosec/src/hackrf/host
+rm -rf build && mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX ..
+make -j$(nproc)
+make install
+
+# 5.5 Compile LimeSuite from Source
+echo "Compiling LimeSuite..."
+cd /opt/telcosec/src/LimeSuite
 rm -rf build && mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX ..
 make -j$(nproc)

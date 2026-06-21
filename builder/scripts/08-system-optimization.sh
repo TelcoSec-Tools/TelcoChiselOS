@@ -116,6 +116,12 @@ ShowDelay=0
 DeviceTimeout=8
 EOF
 
+# Register and set the theme via update-alternatives
+if [ -f /usr/share/plymouth/themes/telcosec/telcosec.plymouth ]; then
+  sudo update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/telcosec/telcosec.plymouth 100
+  sudo update-alternatives --set default.plymouth /usr/share/plymouth/themes/telcosec/telcosec.plymouth
+fi
+
 # 6. SCTP Stack Optimizations
 echo "Deploying SCTP module loading and sysctl tuning..."
 # Enable auto-loading of the sctp kernel module at boot
@@ -145,60 +151,56 @@ if command -v sysctl &> /dev/null; then
 fi
 
 # 7. Real-time & Low-latency Tuning for 5G NR / 5Ghoul
-# OAI requires tight timing budgets (~1 ms TTI); stock kernel + USB latency
-# settings are the two biggest sources of timing jitter on bare metal.
-echo "Deploying real-time and low-latency kernel tuning..."
+# OAI requires tight timing budgets (~1 ms TTI). We use 'tuned' to manage
+# CPU governors, IRQ affinity, hugepages, and USB latency in one profile.
+echo "Deploying real-time and low-latency tuned profile..."
 
-# GRUB: disable CPU mitigations (Spectre/Meltdown retpoline adds ~5-10% overhead)
-# and set clocksource to tsc for consistent timestamps.
-# CPU isolation (isolcpus) is left as a comment; the exact core range depends on
-# the target hardware. Users should add e.g. isolcpus=2-5,nohz_full=2-5,rcu_nocbs=2-5
-# to /etc/default/grub GRUB_CMDLINE_LINUX_DEFAULT for dedicated OAI cores.
-cat << 'EOF' | sudo tee /etc/default/grub.d/99-telcosec-rt.cfg
-# TelcoSec real-time tuning for 5G NR signal processing
-# Add isolcpus=<cores> nohz_full=<cores> rcu_nocbs=<cores> manually for your CPU topology
-GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT mitigations=off clocksource=tsc tsc=reliable intel_idle.max_cstate=1 processor.max_cstate=1"
-EOF
+sudo mkdir -p /etc/tuned/telcosec-sdr
 
-# USB latency: reduce polling interval for USRP B210 (default 5 ms → 1 ms)
-# Affects all USB devices on boot; safe for desktop use
-cat << 'EOF' | sudo tee /etc/udev/rules.d/51-usb-latency.rules
-# Reduce USB autosuspend latency for SDR devices (USRP B210 requires low-latency USB)
-ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2514", ATTR{power/autosuspend_delay_ms}="0"
-ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2514", ATTR{power/control}="on"
-# HackRF
-ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1d50", ATTR{power/control}="on"
-EOF
+cat << 'EOF' | sudo tee /etc/tuned/telcosec-sdr/tuned.conf
+[main]
+summary=Optimize for SDR and 5G Fuzzing (Low Latency, High Performance)
+include=network-latency
 
-# Hugepages for DPDK-based OAI fronthaul (2 MB pages, 512 = 1 GB reserved)
-cat << 'EOF' | sudo tee /etc/sysctl.d/99-hugepages.conf
+[cpu]
+governor=performance
+energy_perf_bias=performance
+min_perf_pct=100
+
+[sysctl]
+vm.swappiness=10
+kernel.sched_min_granularity_ns=10000000
+kernel.sched_wakeup_granularity_ns=15000000
 vm.nr_hugepages=512
 vm.hugetlb_shm_group=0
+
+[bootloader]
+cmdline=mitigations=off clocksource=tsc tsc=reliable intel_idle.max_cstate=1 processor.max_cstate=1
+
+[script]
+script=tuned-sdr.sh
 EOF
 
-# IRQ affinity script: pins all IRQs away from isolated CPUs at boot.
-# Users call this after setting isolcpus in GRUB; harmless if no cores are isolated.
-cat << 'IRQSCRIPT' | sudo tee /usr/local/bin/set-irq-affinity
+cat << 'EOF' | sudo tee /etc/tuned/telcosec-sdr/tuned-sdr.sh
 #!/bin/bash
-# Pin all IRQs to CPU 0-1, freeing other cores for OAI real-time threads.
-# Adjust HOUSEKEEPING_CPUS to match your isolcpus setting.
-HOUSEKEEPING_CPUS="0,1"
-MASK=$(python3 -c "
-cpus='$HOUSEKEEPING_CPUS'.split(',')
-m=0
-for c in cpus:
-    if '-' in c:
-        a,b=map(int,c.split('-'))
-        for i in range(a,b+1): m|=(1<<i)
-    else:
-        m|=(1<<int(c))
-print(hex(m)[2:])")
-for irq in /proc/irq/*/smp_affinity; do
-  echo "$MASK" > "$irq" 2>/dev/null || true
-done
-echo "IRQ affinity set to CPUs $HOUSEKEEPING_CPUS (mask 0x$MASK)"
-IRQSCRIPT
-sudo chmod +x /usr/local/bin/set-irq-affinity
+
+# USB latency: reduce polling interval for SDR hardware
+if [ "$1" = "start" ]; then
+    # Disable autosuspend for generic USB hubs to prevent SDR disconnects
+    for dev in /sys/bus/usb/devices/*/power/autosuspend_delay_ms; do
+        echo 0 > "$dev" 2>/dev/null || true
+    done
+    for control in /sys/bus/usb/devices/*/power/control; do
+        echo on > "$control" 2>/dev/null || true
+    done
+fi
+EOF
+sudo chmod +x /etc/tuned/telcosec-sdr/tuned-sdr.sh
+
+# Enable the profile in the chroot. It will apply on boot.
+if command -v tuned-adm &> /dev/null; then
+  sudo tuned-adm profile telcosec-sdr 2>/dev/null || true
+fi
 
 # 8. Firewall Hardening
 echo "Configuring default firewall policies..."
@@ -259,6 +261,52 @@ if [ -f /usr/local/share/ca-certificates/cloudflare_origin_rsa.crt ]; then
 fi
 
 sudo update-ca-certificates || true
+
+# 12.5. Terminal Aliases & Tool Shortcuts
+echo "Deploying global terminal aliases..."
+cat << 'EOF' | sudo tee /etc/profile.d/telcosec-aliases.sh
+#!/bin/sh
+# TelcoSec Professional Terminal Aliases
+
+# Open5GS
+alias open5gs-start="sudo systemctl start open5gs-*"
+alias open5gs-stop="sudo systemctl stop open5gs-*"
+alias open5gs-logs="sudo journalctl -u open5gs-* -f"
+
+# YateBTS
+alias yate-logs="tail -f /var/log/yate.log"
+
+# SDR & Firmware
+alias update-sdr="sudo uhd_images_downloader && sudo limeUtil --update"
+
+# Networking & Utils
+alias ports="sudo netstat -tulpn"
+EOF
+sudo chmod 644 /etc/profile.d/telcosec-aliases.sh
+
+echo "Deploying global tool PATH environment..."
+cat << 'EOF' | sudo tee /etc/profile.d/telcosec-env.sh
+#!/bin/sh
+# TelcoSec Professional Tool Paths
+# This ensures that tools installed in /opt/telcosec are executable globally.
+
+if [ -d "/opt/telcosec" ]; then
+    for tool_dir in /opt/telcosec/*; do
+        if [ -d "$tool_dir" ]; then
+            # If the tool directory itself contains executables, add it to PATH
+            PATH="$PATH:$tool_dir"
+            
+            # If the tool directory has a bin folder, add it to PATH
+            if [ -d "$tool_dir/bin" ]; then
+                PATH="$PATH:$tool_dir/bin"
+            fi
+        fi
+    done
+    export PATH
+fi
+EOF
+sudo chmod 644 /etc/profile.d/telcosec-env.sh
+
 
 # 13. SSH Host Keys Cleanup
 # Deletes any build-time SSH keys to ensure that OpenSSH regenerates unique,

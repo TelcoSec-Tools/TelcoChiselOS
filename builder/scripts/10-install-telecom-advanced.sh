@@ -28,6 +28,7 @@ git clone --depth 1 https://github.com/srsran/srsgui            "${TELCOSEC_OPT}
 git clone --depth 1 https://github.com/Evrytania/LTE-Cell-Scanner "${TELCOSEC_OPT}/lte-cellscanner" 2>/dev/null || true &
 git clone --depth 1 https://github.com/SysSec-KAIST/LTESniffer  "${TELCOSEC_OPT}/ltesniffer"      2>/dev/null || true &
 git clone --depth 1 https://github.com/free5gc/gtp5g            "${TELCOSEC_OPT}/gtp5g"           2>/dev/null || true &
+git clone --depth 1 https://github.com/TelcoSec-Tools/RDNSx     "${TELCOSEC_OPT}/rdnsx"           2>/dev/null || true &
 wait
 echo "  Parallel clone complete."
 
@@ -47,25 +48,31 @@ EOF
 
 # ─── A. UERANSIM (5G UE/gNB simulator) ─────────────────────────────────────
 echo "  Installing UERANSIM..."
-if [ -d "${TELCOSEC_OPT}/ueransim" ]; then
-  cd "${TELCOSEC_OPT}/ueransim"
-  cmake -DCMAKE_BUILD_TYPE=Release . 2>&1 | tail -3
-  make -j"$(nproc)" 2>&1 | tail -5
-  ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-gnb" /usr/local/bin/nr-gnb
-  ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-ue"  /usr/local/bin/nr-ue
-  ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-cli" /usr/local/bin/nr-cli
+if dpkg-query -W ueransim 2>/dev/null; then
+  echo "    UERANSIM already installed via APT."
+elif apt-cache show ueransim >/dev/null 2>&1; then
+  apt-get install -y ueransim
+else
+  if [ -d "${TELCOSEC_OPT}/ueransim" ]; then
+    cd "${TELCOSEC_OPT}/ueransim"
+    cmake -DCMAKE_BUILD_TYPE=Release . 2>&1 | tail -3
+    make -j"$(nproc)" 2>&1 | tail -5
+    ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-gnb" /usr/local/bin/nr-gnb
+    ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-ue"  /usr/local/bin/nr-ue
+    ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-cli" /usr/local/bin/nr-cli
 
-  # Deploy test PLMN config templates
-  mkdir -p /etc/telcosec/ueransim
-  cp config/open5gs-gnb.yaml /etc/telcosec/ueransim/gnb.yaml   2>/dev/null || true
-  cp config/open5gs-ue.yaml  /etc/telcosec/ueransim/ue.yaml    2>/dev/null || true
-  # Patch MCC/MNC into configs
-  sed -i "s/mcc: '999'/mcc: '${MCC}'/g; s/mcc: 999/mcc: ${MCC}/g" \
-    /etc/telcosec/ueransim/*.yaml 2>/dev/null || true
-  sed -i "s/mnc: '70'/mnc: '${MNC}'/g;  s/mnc: 70/mnc: ${MNC}/g" \
-    /etc/telcosec/ueransim/*.yaml 2>/dev/null || true
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/ueransim" /etc/telcosec/ueransim
-  cd /
+    # Deploy test PLMN config templates
+    mkdir -p /etc/telcosec/ueransim
+    cp config/open5gs-gnb.yaml /etc/telcosec/ueransim/gnb.yaml   2>/dev/null || true
+    cp config/open5gs-ue.yaml  /etc/telcosec/ueransim/ue.yaml    2>/dev/null || true
+    # Patch MCC/MNC into configs
+    sed -i "s/mcc: '999'/mcc: '${MCC}'/g; s/mcc: 999/mcc: ${MCC}/g" \
+      /etc/telcosec/ueransim/*.yaml 2>/dev/null || true
+    sed -i "s/mnc: '70'/mnc: '${MNC}'/g;  s/mnc: 70/mnc: ${MNC}/g" \
+      /etc/telcosec/ueransim/*.yaml 2>/dev/null || true
+    chown -R telcosec:telcosec "${TELCOSEC_OPT}/ueransim" /etc/telcosec/ueransim
+    cd /
+  fi
 fi
 
 # ─── B. SCAT (Diag protocol / Samsung/Qualcomm log decoder) ─────────────────
@@ -168,11 +175,19 @@ fi
 cd /opt/telcosec/yatebts
 ./autogen.sh && ./configure && make -j$(nproc) && make install
 
-# BladeRF config
+# BladeRF / LimeSDR configs
 mkdir -p /etc/yate
 cat > /etc/yate/ybladerf.conf << EOF
 [general]
 ; BladeRF A4 configuration for YateBTS
+rx_latency=3
+tx_latency=3
+threads=2
+loopback=none
+EOF
+cat > /etc/yate/ylms.conf << EOF
+[general]
+; LimeSDR Mini configuration for YateBTS
 rx_latency=3
 tx_latency=3
 threads=2
@@ -283,7 +298,8 @@ echo "=== OpenAirInterface UE Install ==="
 git clone --depth 1 https://gitlab.eurecom.fr/oai/openairinterface5g.git /opt/telcosec/oai
 cd /opt/telcosec/oai
 source oaienv
-./cmake_targets/build_oai.sh -I --ue 2>&1 | tee /tmp/oai-build.log
+# Note: User can modify this script locally to use -w LMSSDR for LimeSDR.
+./cmake_targets/build_oai.sh -I --ue -w BLADERF 2>&1 | tee /tmp/oai-build.log
 echo "OAI UE installed. Binaries in targets/bin/"
 SCRIPT
 chmod +x /usr/local/bin/oai-install
@@ -348,5 +364,67 @@ for CFG in /etc/srsran/*.conf; do
     -e "s/^mnc\s*=.*/mnc = ${MNC}/" \
     "$CFG" 2>/dev/null || true
 done
+
+# ─── R. RDNSx (Rapid DNS Reverse Resolver) ──────────────────────────────────
+echo "  Installing RDNSx..."
+if dpkg-query -W rdnsx 2>/dev/null; then
+  echo "    RDNSx already installed via APT."
+elif apt-cache show rdnsx >/dev/null 2>&1; then
+  apt-get install -y rdnsx
+else
+  if [ -d "${TELCOSEC_OPT}/rdnsx" ]; then
+    cd "${TELCOSEC_OPT}/rdnsx"
+    export CARGO_HOME=/usr/local/cargo
+    export PATH="${CARGO_HOME}/bin:$PATH"
+    if command -v cargo &>/dev/null; then
+      cargo build --release 2>&1 | tail -5
+      [ -f target/release/rdnsx ] && ln -sf "${TELCOSEC_OPT}/rdnsx/target/release/rdnsx" /usr/local/bin/rdnsx || true
+    else
+      echo "    WARNING: cargo not found. Skipping RDNSx compilation."
+    fi
+    chown -R telcosec:telcosec "${TELCOSEC_OPT}/rdnsx"
+    cd /
+  fi
+fi
+
+# ─── S. Broadband & ADSL Exploitation Tools ─────────────────────────────────
+echo "  Installing Broadband & ADSL Exploitation Tools..."
+
+# 1. Asleap (PPPoE / MS-CHAPv2 offline cracker)
+if [ ! -d "${TELCOSEC_OPT}/asleap" ]; then
+  git clone --depth 1 https://github.com/joswr1ght/asleap "${TELCOSEC_OPT}/asleap" 2>/dev/null || true
+fi
+if [ -d "${TELCOSEC_OPT}/asleap" ]; then
+  cd "${TELCOSEC_OPT}/asleap"
+  make -j"$(nproc)" 2>&1 | tail -5 || true
+  [ -f asleap ] && ln -sf "${TELCOSEC_OPT}/asleap/asleap" /usr/local/bin/asleap || true
+  [ -f genkeys ] && ln -sf "${TELCOSEC_OPT}/asleap/genkeys" /usr/local/bin/genkeys || true
+  chown -R telcosec:telcosec "${TELCOSEC_OPT}/asleap"
+  cd /
+fi
+
+# 2. snmp-check (Kali Linux native SNMP enumerator)
+if [ ! -f /usr/local/bin/snmp-check ]; then
+  wget -q https://gitlab.com/kalilinux/packages/snmpcheck/-/raw/kali/master/snmpcheck-1.9.rb -O /usr/local/bin/snmp-check || true
+  if [ -s /usr/local/bin/snmp-check ]; then
+    chmod +x /usr/local/bin/snmp-check
+  fi
+fi
+
+# 3. RouterSploit (Embedded device exploitation framework)
+if [ ! -d "${TELCOSEC_OPT}/routersploit" ]; then
+  git clone --depth 1 https://github.com/threat9/routersploit "${TELCOSEC_OPT}/routersploit" 2>/dev/null || true
+fi
+if [ -d "${TELCOSEC_OPT}/routersploit" ]; then
+  cd "${TELCOSEC_OPT}/routersploit"
+  pip3 install -r requirements.txt --break-system-packages 2>/dev/null || true
+  cat > /usr/local/bin/routersploit << 'SCRIPT'
+#!/bin/bash
+python3 /opt/telcosec/routersploit/rsf.py "$@"
+SCRIPT
+  chmod +x /usr/local/bin/routersploit
+  chown -R telcosec:telcosec "${TELCOSEC_OPT}/routersploit"
+  cd /
+fi
 
 echo "=== Advanced Telecom Tools installation complete ==="

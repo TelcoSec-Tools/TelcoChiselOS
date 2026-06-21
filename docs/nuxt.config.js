@@ -36,7 +36,9 @@ export default defineNuxtConfig({
   ],
 
   aiReady: {
-    indexNow: true
+    indexNow: {
+      key: '8f6412f9b8c24d9f8e45c7b3f9a2b7f3'
+    }
   },
 
   gtag: {
@@ -57,6 +59,11 @@ export default defineNuxtConfig({
       url: 'https://www.telco-sec.com/',
       logo: 'https://cdn.telco-sec.com/logo.png'
     }
+  },
+
+  sitemap: {
+    zeroRuntime: true,
+    urls: dynamicRoutes
   },
 
   nitro: {

@@ -140,68 +140,55 @@ function splitCodeBlocks(step) {
   })
 }
 
-// SEO Head
-useHead({
+// SEO and Schema.org
+useSeoMeta({
   title: `${feature.name} — TelcoChisel OS Configuration Guide by TelcoSec`,
-  meta: [
-    { name: 'description', content: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}` },
-    { name: 'keywords', content: [...metadata.keywords, feature.name, 'TelcoSec', 'TelcoChisel', 'Telecom Security', 'OS tuning'].join(', ') },
-    { name: 'robots', content: 'index, follow' },
-    { property: 'og:title', content: `${feature.name} — TelcoChisel OS Configuration Guide by TelcoSec` },
-    { property: 'og:description', content: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}` },
-    { property: 'og:type', content: 'article' },
-    { property: 'og:url', content: `https://tschisel.telcosec.net/features/${feature.slug}` },
-    { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png' },
-    { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: `${feature.name} — TelcoChisel OS Configuration Guide by TelcoSec` },
-    { name: 'twitter:description', content: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}` }
-  ],
-  link: [
-    { rel: 'canonical', href: `https://tschisel.telcosec.net/features/${feature.slug}` }
-  ],
-  script: [
-    {
-      type: 'application/ld+json',
-      children: JSON.stringify([
-        {
-          "@context": "https://schema.org",
-          "@type": "TechArticle",
-          "headline": `${feature.name} — TelcoChisel OS Configuration`,
-          "description": feature.desc,
-          "url": `https://tschisel.telcosec.net/features/${feature.slug}`,
-          "keywords": metadata.keywords.join(', '),
-          "author": {
-            "@type": "Organization",
-            "name": "TelcoSec",
-            "url": "https://telcosec.cloud/"
-          },
-          "publisher": {
-            "@type": "Organization",
-            "name": "TelcoSec",
-            "url": "https://telcosec.cloud/"
-          },
-          "isPartOf": {
-            "@type": "SoftwareApplication",
-            "name": "TelcoChisel",
-            "url": "https://tschisel.telcosec.net/"
-          }
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": (metadata.faq || []).map(f => ({
-            "@type": "Question",
-            "name": f.q,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": f.a
-            }
-          }))
-        }
-      ])
-    }
-  ]
+  description: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}`,
+  keywords: [...metadata.keywords, feature.name, 'TelcoSec', 'TelcoChisel', 'Telecom Security', 'OS tuning'].join(', '),
+  ogTitle: `${feature.name} — TelcoChisel OS Configuration Guide by TelcoSec`,
+  ogDescription: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}`,
+  ogType: 'article',
+  ogUrl: `https://tschisel.telcosec.net/features/${feature.slug}`,
+  ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
+  twitterCard: 'summary_large_image',
+  twitterTitle: `${feature.name} — TelcoChisel OS Configuration Guide by TelcoSec`,
+  twitterDescription: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}`
 })
+
+const schemas = [
+  defineArticle({
+    '@type': 'TechArticle',
+    headline: `${feature.name} — TelcoChisel OS Configuration`,
+    description: feature.desc,
+    url: `https://tschisel.telcosec.net/features/${feature.slug}`,
+    keywords: metadata.keywords.join(', '),
+    author: {
+      name: 'TelcoSec',
+      url: 'https://telcosec.cloud/'
+    },
+    isPartOf: {
+      '@id': 'https://tschisel.telcosec.net/#software'
+    }
+  })
+]
+
+if (metadata.faq && metadata.faq.length > 0) {
+  schemas.push(
+    defineWebPage({
+      '@type': 'FAQPage',
+      mainEntity: metadata.faq.map(f => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: f.a
+        }
+      }))
+    })
+  )
+}
+
+useSchemaOrg(schemas)
 
 // Navigation
 function navigateHome(section) {

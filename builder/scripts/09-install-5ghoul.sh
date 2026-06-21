@@ -3,7 +3,7 @@ set -e
 
 echo "=== Installing 5Ghoul 5G NR Attack Framework Dependencies ==="
 # 5Ghoul (https://github.com/asset-group/5ghoul-5g-nr-attacks) uses OpenAirInterface
-# as the rogue gNB. Supported radios: USRP B210 (primary) and BladeRF A4 (20 MHz NR max).
+# as the rogue gNB. Supported radios: USRP B210 (primary), BladeRF A4, and LimeSDR Mini.
 # All system deps are installed here during ISO build; the repo clone + compilation is
 # deferred to first-run to keep ISO build time reasonable. No VM support.
 
@@ -203,6 +203,69 @@ echo "BladeRF patch complete."
 PATCHSCRIPT
 sudo chmod +x /usr/local/bin/5ghoul-bladerf-patch
 
+# ── LimeSDR Mini config patcher ───────────────────────────────────────────────
+cat << 'PATCHSCRIPT' | sudo tee /usr/local/bin/5ghoul-limesdr-patch
+#!/bin/bash
+set -e
+INSTALL_DIR="${1:-/opt/telcosec/5ghoul}"
+
+echo "Patching OAI gNB configs for LimeSDR Mini (Portuguese local testing optimization)..."
+
+patch_conf() {
+  local src="$1" dst="$2"
+  cp "$src" "$dst"
+  sed -i \
+    -e 's|sdr_addrs\s*=\s*"type=b200[^"]*"|sdr_addrs = "driver=lime"|g' \
+    -e 's|sdr_addrs\s*=\s*"addr=[^"]*"|sdr_addrs = "driver=lime"|g' \
+    "$dst"
+  sed -i \
+    -e 's|max_rxgain\s*=\s*[0-9][0-9]*|max_rxgain = 50|g' \
+    -e 's|max_txgain\s*=\s*[0-9][0-9]*|max_txgain = 40|g' \
+    "$dst"
+  sed -i \
+    -e 's|^\(\s*N_RB_DL\s*=\s*21[0-9]\)|# LimeSDR: max 106 PRBs (20 MHz)\n# \1|g' \
+    -e 's|^\(\s*N_RB_DL\s*=\s*16[0-9]\)|# LimeSDR: max 106 PRBs (20 MHz)\n# \1|g' \
+    "$dst"
+  echo "  Created: $dst"
+}
+
+found=0
+while IFS= read -r -d '' usrp_conf; do
+  limesdr_conf=$(echo "$usrp_conf" | sed \
+    -e 's/usrpb210/limesdr/g' \
+    -e 's/usrp\.b210/limesdr/g' \
+    -e 's/\.usrp\b/.limesdr/g' \
+    -e 's/usrp/limesdr/g' \
+    -e 's/b210/limesdr/g')
+  if [ "$limesdr_conf" != "$usrp_conf" ]; then
+    patch_conf "$usrp_conf" "$limesdr_conf"
+    found=$((found + 1))
+  fi
+done < <(find "$INSTALL_DIR" \( -name "*usrpb210*" -o -name "*usrp.b210*" -o -name "*.usrp.*" \) -name "*.conf" -print0 2>/dev/null)
+
+while IFS= read -r -d '' conf; do
+  if [[ "$conf" != *limesdr* && "$conf" != *bladerf* ]]; then
+    limesdr_conf="${conf%.conf}.limesdr.conf"
+    patch_conf "$conf" "$limesdr_conf"
+    found=$((found + 1))
+  fi
+done < <(grep -rlZ 'type=b200\|sdr_addrs.*b200' "$INSTALL_DIR" --include='*.conf' 2>/dev/null || true)
+
+for build_script in "$INSTALL_DIR/build.sh" "$INSTALL_DIR"/build*.sh; do
+  [ -f "$build_script" ] || continue
+  if grep -q '\-w USRP' "$build_script" 2>/dev/null; then
+    sed -i 's/-w USRP\b/-w LMSSDR/g' "$build_script"
+  fi
+done
+
+find "$INSTALL_DIR" -name "*.sh" -not -path '*/.git/*' -exec grep -lq '\-w USRP' {} \; 2>/dev/null | while read -r f; do
+  sed -i 's/-w USRP\b/-w LMSSDR/g' "$f"
+done
+
+echo "LimeSDR patch complete."
+PATCHSCRIPT
+sudo chmod +x /usr/local/bin/5ghoul-limesdr-patch
+
 # ── First-run installer (clones repo + compiles on live system) ──────────────
 # Usage: sudo 5ghoul-install [--radio USRP|BLADERF]
 cat << 'INSTALLSCRIPT' | sudo tee /usr/local/bin/5ghoul-install
@@ -221,8 +284,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$RADIO" in
-  USRP|BLADERF) ;;
-  *) echo "Unknown --radio value: $RADIO. Options: USRP, BLADERF"; exit 1 ;;
+  USRP|BLADERF|LIMESDR) ;;
+  *) echo "Unknown --radio value: $RADIO. Options: USRP, BLADERF, LIMESDR"; exit 1 ;;
 esac
 
 echo "╔══════════════════════════════════════════════════════╗"
@@ -234,6 +297,9 @@ echo "Radio backend : $RADIO"
 if [ "$RADIO" = "BLADERF" ]; then
   echo "Hardware      : BladeRF A4 (BladeRF 2.0 micro xA4) via USB 3.0"
   echo "Max bandwidth : 20 MHz NR (106 PRBs) — 40 MHz causes RX overruns on BladeRF"
+elif [ "$RADIO" = "LIMESDR" ]; then
+  echo "Hardware      : LimeSDR Mini"
+  echo "Optimization  : Portuguese local testing limits applied (RX: 50, TX: 40)"
 else
   echo "Hardware      : USRP B210 via USB 3.0"
 fi
@@ -257,6 +323,13 @@ if [ "$RADIO" = "BLADERF" ]; then
     echo "  BladeRF CLI: $bladerf_info"
   fi
 fi
+if [ "$RADIO" = "LIMESDR" ]; then
+  if ! dpkg -l limesuite 2>/dev/null | grep -q '^ii'; then
+    echo "WARNING: limesuite not found in apt. Assuming it was built via conda/source."
+  else
+    echo "  limesuite found."
+  fi
+fi
 
 # [1/5] Clone
 if [ ! -d "$INSTALL_DIR/.git" ]; then
@@ -277,6 +350,10 @@ if [ "$RADIO" = "BLADERF" ]; then
   /usr/local/bin/5ghoul-bladerf-patch "$INSTALL_DIR"
   # Record which radio this build targets so 5ghoul-run can auto-select configs
   echo "BLADERF" > "$INSTALL_DIR/.radio-backend"
+elif [ "$RADIO" = "LIMESDR" ]; then
+  echo "[2/5] Applying LimeSDR patches to OAI config and build scripts..."
+  /usr/local/bin/5ghoul-limesdr-patch "$INSTALL_DIR"
+  echo "LIMESDR" > "$INSTALL_DIR/.radio-backend"
 else
   echo "[2/5] USRP backend selected — no patching required."
   echo "USRP" > "$INSTALL_DIR/.radio-backend"
@@ -387,9 +464,14 @@ echo ""
 echo "Quick start:"
 echo "  1. sudo 5ghoul-add-subscriber      # register test UE in Open5GS"
 echo "  2. sudo open5gs-start              # start 5G SA core"
-if [ "$RADIO" = "BLADERF" ]; then
-  BCONF=$(find "$INSTALL_DIR" -name '*bladerf*' -name '*.conf' 2>/dev/null | head -1)
-  echo "  3. Connect BladeRF A4 via USB 3.0"
+if [ "$RADIO" = "BLADERF" ] || [ "$RADIO" = "LIMESDR" ]; then
+  if [ "$RADIO" = "BLADERF" ]; then
+    BCONF=$(find "$INSTALL_DIR" -name '*bladerf*' -name '*.conf' 2>/dev/null | head -1)
+    echo "  3. Connect BladeRF A4 via USB 3.0"
+  else
+    BCONF=$(find "$INSTALL_DIR" -name '*limesdr*' -name '*.conf' 2>/dev/null | head -1)
+    echo "  3. Connect LimeSDR Mini via USB"
+  fi
   echo "  4. cd $INSTALL_DIR"
   if [ -n "$BCONF" ]; then
     echo "  5. sudo ./build/5g_fuzzer --gnb.conf $BCONF --Attack.Name=NAS_5GS_Fuzz --UE.IMSI=001011234567890"
@@ -415,12 +497,13 @@ FUZZER="$INSTALL_DIR/build/5g_fuzzer"
 
 if [ ! -f "$FUZZER" ]; then
   echo "5Ghoul not yet built."
-  echo "  For USRP B210:   sudo 5ghoul-install"
-  echo "  For BladeRF A4:  sudo 5ghoul-install --radio BLADERF"
+  echo "  For USRP B210:     sudo 5ghoul-install"
+  echo "  For BladeRF A4:    sudo 5ghoul-install --radio BLADERF"
+  echo "  For LimeSDR Mini:  sudo 5ghoul-install --radio LIMESDR"
   if command -v xterm &>/dev/null; then
     xterm -fa 'Monospace' -fs 11 -T '5Ghoul — choose radio' \
-      -e 'echo "Build for USRP B210 or BladeRF A4?"; \
-          PS3="Select: "; select r in USRP BLADERF; do \
+      -e 'echo "Build for USRP B210, BladeRF A4, or LimeSDR Mini?"; \
+          PS3="Select: "; select r in USRP BLADERF LIMESDR; do \
             sudo 5ghoul-install --radio "$r" && break; done; \
           read -rp "Press Enter to close..."'
   fi
@@ -434,10 +517,11 @@ RADIO_BACKEND="USRP"
 [ -f "$INSTALL_DIR/.radio-backend" ] && RADIO_BACKEND=$(cat "$INSTALL_DIR/.radio-backend")
 
 EXTRA_ARGS=()
-if [ "$RADIO_BACKEND" = "BLADERF" ] && ! printf '%s\n' "$@" | grep -q -- '--gnb.conf'; then
-  BCONF=$(find "$INSTALL_DIR" -name '*bladerf*' -name '*.conf' 2>/dev/null | head -1)
+if [[ "$RADIO_BACKEND" =~ ^(BLADERF|LIMESDR)$ ]] && ! printf '%s\n' "$@" | grep -q -- '--gnb.conf'; then
+  SEARCH_TERM=$(echo "$RADIO_BACKEND" | tr '[:upper:]' '[:lower:]')
+  BCONF=$(find "$INSTALL_DIR" -name "*${SEARCH_TERM}*" -name '*.conf' 2>/dev/null | head -1)
   if [ -n "$BCONF" ]; then
-    echo "Auto-selected BladeRF gNB config: $BCONF"
+    echo "Auto-selected $RADIO_BACKEND gNB config: $BCONF"
     EXTRA_ARGS=(--gnb.conf "$BCONF")
   fi
 fi
@@ -449,29 +533,26 @@ sudo chmod +x /usr/local/bin/5ghoul-run
 # ── Open5GS start/stop helpers ───────────────────────────────────────────────
 cat << 'EOF' | sudo tee /usr/local/bin/open5gs-start
 #!/bin/bash
-if ! dpkg -l open5gs &>/dev/null 2>&1; then
+if [ ! -d "/opt/telcosec/open5gs/docker_open5gs" ]; then
   echo "Open5GS is not installed. Run: sudo open5gs-install"
   exit 1
 fi
-echo "Starting Open5GS 5G SA core network functions..."
-for svc in open5gs-nrfd open5gs-ausfd open5gs-udmd open5gs-udrd \
-           open5gs-bsfd open5gs-pcfd open5gs-nssfd open5gs-amfd \
-           open5gs-smfd open5gs-upfd; do
-  sudo systemctl start "$svc" 2>/dev/null && echo "  started $svc" || echo "  failed  $svc"
-done
-echo "Done. Check status: systemctl status 'open5gs-*'"
+echo "Starting Open5GS 5G SA core network functions via Docker Compose..."
+cd /opt/telcosec/open5gs/docker_open5gs
+sudo docker compose up -d || sudo docker-compose up -d
+echo "Done. Check status: sudo docker compose ps"
 EOF
 sudo chmod +x /usr/local/bin/open5gs-start
 
 cat << 'EOF' | sudo tee /usr/local/bin/open5gs-stop
 #!/bin/bash
-if ! dpkg -l open5gs &>/dev/null 2>&1; then
+if [ ! -d "/opt/telcosec/open5gs/docker_open5gs" ]; then
   echo "Open5GS is not installed."
   exit 1
 fi
 echo "Stopping Open5GS..."
-sudo systemctl stop open5gs-amfd open5gs-smfd open5gs-upfd open5gs-nrfd \
-  open5gs-ausfd open5gs-udmd open5gs-pcfd open5gs-nssfd open5gs-bsfd open5gs-udrd 2>/dev/null || true
+cd /opt/telcosec/open5gs/docker_open5gs
+sudo docker compose down || sudo docker-compose down
 echo "Done."
 EOF
 sudo chmod +x /usr/local/bin/open5gs-stop

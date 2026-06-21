@@ -2,7 +2,7 @@
 Type=Application
 Name=LTE Cell Scanner
 Comment=Scan for LTE base stations using SDR
-Exec=gnome-terminal -- bash -c "LTE-CellSearch --help"
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 -- bash -c "LTE-CellSearch --help"
 Icon=network-wired
 Categories=TelcoSec-LTE;
 Terminal=false

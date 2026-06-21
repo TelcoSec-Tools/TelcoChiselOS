@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=APN Permutator
 Comment=Generate APN name permutations for carrier network enumeration
-Exec=gnome-terminal --title "APN Permutator" -- bash -c 'telcosec-apn-permutator --help; echo; read -rp "Press Enter to close..."'
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "APN Permutator" -- bash -c 'telcosec-apn-permutator --help; echo; read -rp "Press Enter to close..."'
 Icon=system-run
 Terminal=false
 Categories=TelcoSec-Tools;

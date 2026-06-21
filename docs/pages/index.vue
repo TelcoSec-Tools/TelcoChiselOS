@@ -24,7 +24,7 @@
           </div>
 
           <p>
-            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution developed by <strong>TelcoSec</strong>, purpose-built for advanced <strong>Telecom Security</strong> research. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong>, it ships with 50+ pre-configured tools for Software Defined Radio (SDR) engineering, baseband auditing, and cellular network penetration testing — ready to use without installation.
+            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution developed by <strong>TelcoSec</strong>, purpose-built for advanced <strong>Telecom Security</strong> research. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong>, it ships with 60+ pre-configured tools for Software Defined Radio (SDR) engineering, baseband auditing, and cellular network penetration testing — ready to use without installation.
           </p>
 
           <!-- Download CTA -->
@@ -98,6 +98,10 @@
             </div>
           </div>
 
+          <h3 style="margin-top: 40px;">Architecture & Tool Topology</h3>
+          <p>This diagram visualizes how the OS layers interact with the included telecom analysis tools and external RF hardware:</p>
+          <MermaidDiagram :chart="architectureChart" />
+
           <!-- FAQ -->
           <h2>Frequently Asked Questions</h2>
           <div class="faq-list">
@@ -105,7 +109,7 @@
             <details class="faq-item">
               <summary class="faq-question">What is TelcoChisel?</summary>
               <div class="faq-answer">
-                TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with a GNOME desktop, purpose-built for telecommunications security research. It includes 50+ pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing — no installation required.
+                TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with a lightweight XFCE desktop, purpose-built for telecommunications security research. It includes 60+ pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing — no installation required.
               </div>
             </details>
 
@@ -172,6 +176,52 @@
           <p>
             TelcoChisel is distributed as a bootable ISO image. For optimal performance with SDR hardware and the lowest latency, we recommend running TelcoChisel on bare metal from a live USB stick rather than inside a Virtual Machine.
           </p>
+
+          <h3>Hardware Requirements & SDR Compatibility</h3>
+          <p>Depending on your research goals, the hardware demands range from a lightweight laptop to a high-performance workstation.</p>
+
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.95rem;">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                <th style="padding: 12px; color: #ffffff;">Workload / Scenario</th>
+                <th style="padding: 12px; color: #ffffff;">CPU Cores</th>
+                <th style="padding: 12px; color: #ffffff;">RAM</th>
+                <th style="padding: 12px; color: #ffffff;">USB Controller</th>
+                <th style="padding: 12px; color: #ffffff;">Supported SDR Hardware</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">General Protocol Auditing & Baseband</td>
+                <td style="padding: 12px; color: var(--text-secondary);">2 Cores</td>
+                <td style="padding: 12px; color: var(--text-secondary);">8 GB</td>
+                <td style="padding: 12px; color: var(--text-secondary);">Any</td>
+                <td style="padding: 12px; color: var(--text-secondary);">N/A (Wireshark, QEMU, QCSuper)</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">Passive SDR Analysis (RTL-SDR / 2G)</td>
+                <td style="padding: 12px; color: var(--text-secondary);">4 Cores</td>
+                <td style="padding: 12px; color: var(--text-secondary);">8 GB</td>
+                <td style="padding: 12px; color: var(--text-secondary);">USB 2.0 / 3.0</td>
+                <td style="padding: 12px; color: var(--text-secondary);">RTL-SDR, HackRF One</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">Active 4G/5G Simulation (srsRAN)</td>
+                <td style="padding: 12px; color: var(--text-secondary);">8 Cores (AVX2)</td>
+                <td style="padding: 12px; color: var(--text-secondary);">16 GB</td>
+                <td style="padding: 12px; color: var(--text-secondary);">Native USB 3.0 (xHCI)</td>
+                <td style="padding: 12px; color: var(--text-secondary);">USRP B210, BladeRF xA4, LimeSDR</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">5Ghoul Baseband Fuzzing (Bare Metal Only)</td>
+                <td style="padding: 12px; color: var(--text-secondary);">8+ Cores (AVX2)</td>
+                <td style="padding: 12px; color: var(--text-secondary);">16 GB</td>
+                <td style="padding: 12px; color: var(--text-secondary);">Intel/AMD Native xHCI (No Hubs)</td>
+                <td style="padding: 12px; color: var(--text-secondary);">USRP B210 (Preferred), BladeRF</td>
+              </tr>
+            </tbody>
+          </table>
+
           <h3>1. Download the ISO</h3>
           <p>
             Download the latest TelcoChisel ISO image from our official <a href="https://sourceforge.net/projects/telcochisel/" target="_blank">SourceForge repository</a>. The ISO is approximately 4.5 GB in size.
@@ -278,8 +328,8 @@
 
         <!-- SECTION: TOOLS -->
         <section id="tools" class="content-section" :class="{ active: activeSection === 'tools' }" v-show="activeSection === 'tools'">
-          <div class="section-header" data-label="// Tool Catalog :: 50+ Instruments">
-            <h2>Tools Directory — 50+ Pre-installed Telecom Security Tools</h2>
+          <div class="section-header" data-label="// Tool Catalog :: 60+ Instruments">
+            <h2>Tools Directory — 60+ Pre-installed Telecom Security Tools</h2>
             <p class="subtitle">Complete catalog of SDR, baseband, SIM, RAN, and signaling tools pre-installed in TelcoChisel</p>
           </div>
 
@@ -467,7 +517,7 @@
           </div>
 
           <p>
-            TelcoChisel uses an automated bash orchestration build chain to bootstrap, configure, and output bootable GNOME live desktop images.
+            TelcoChisel uses an automated bash orchestration build chain to bootstrap, configure, and output bootable XFCE live desktop images.
           </p>
 
           <h3>1. Setup Compilation Host</h3>
@@ -500,7 +550,7 @@
               </tr>
               <tr style="border-bottom: 1px solid var(--border-color);">
                 <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">01-install-base.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Installs GNOME Shell, GDM3, Firefox, base compilers, and sets the live boot user.</td>
+                <td style="padding: 12px; color: var(--text-secondary);">Installs XFCE, LightDM, Firefox, base compilers, and sets the live boot user.</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--border-color);">
                 <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">02-install-sdr.sh</td>
@@ -586,7 +636,7 @@ usb.autoConnect.device1 = "vid:072f pid:2200"  # ACS ACR122U`' /></p>
 
           <h3>2. Input Device Freeze — systemd-udevd Initialization Bug</h3>
           <AppCallout type="info" title="Known Issue: Keyboard &amp; Mouse Freeze on Boot">
-            On some VMware and VirtualBox configurations, the keyboard and mouse may become completely unresponsive after the GNOME desktop loads. This is caused by a <strong>race condition between <code class="inline-code">systemd-udevd</code> and the virtual HID drivers</strong> during early boot. The udevd daemon re-initializes USB input devices before the virtual bus controller is fully settled, causing the kernel to unbind the HID driver.
+            On some VMware and VirtualBox configurations, the keyboard and mouse may become completely unresponsive after the XFCE desktop loads. This is caused by a <strong>race condition between <code class="inline-code">systemd-udevd</code> and the virtual HID drivers</strong> during early boot. The udevd daemon re-initializes USB input devices before the virtual bus controller is fully settled, causing the kernel to unbind the HID driver.
           </AppCallout>
 
           <h4>Root Cause</h4>
@@ -724,7 +774,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
                 <span class="tag tag-sys">Shell / Config</span>
               </div>
               <p class="card-desc" style="margin-bottom: 15px;">
-                The official build ecosystem for compiling this custom GNOME Debian/Ubuntu live ISO. Contains baseband configurations, customized system-wide Wireshark columns, real-time udev configs, and kernel tuners.
+                The official build ecosystem for compiling this custom XFCE Debian/Ubuntu live ISO. Contains baseband configurations, customized system-wide Wireshark columns, real-time udev configs, and kernel tuners.
               </p>
               <div style="font-size: 0.85rem; color: var(--text-muted);">
                 <strong>Repository:</strong> <a href="https://github.com/TelcoSec-Tools/TelcoChiselOS" target="_blank">github.com/TelcoSec-Tools/TelcoChiselOS</a>
@@ -922,7 +972,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
             <div class="dl-modal-status">
               <div class="dl-modal-status-dot"></div>
               <div class="dl-modal-status-text">
-                <strong>OS: Stable.</strong> The Ubuntu 24.04 GNOME desktop, boot sequence, and core system are production-ready.<br>
+                <strong>OS: Stable.</strong> The Ubuntu 24.04 XFCE desktop, boot sequence, and core system are production-ready.<br>
                 <strong>Tools:</strong> Integration ongoing — some launchers may need a rebuild to reflect the latest fixes.
               </div>
             </div>
@@ -954,7 +1004,12 @@ import { featuresCatalog } from '~/data/features.js'
 const { gtag } = useGtag()
 
 function trackDownload() {
-  gtag('event', 'download_iso_intent', { event_category: 'engagement', event_label: 'TelcoChisel_ISO' })
+  gtag('event', 'file_download', { 
+    file_extension: 'iso',
+    file_name: 'TelcoChiselOS.iso',
+    link_text: 'Download TelcoChisel ISO',
+    link_url: 'https://sourceforge.net/projects/telcochisel/'
+  })
   downloadModalOpen.value = true
 }
 
@@ -962,33 +1017,63 @@ function trackAcademy() {
   gtag('event', 'outbound_academy', { event_category: 'outbound', event_label: 'TelcoSec_Academy' })
 }
 
-// SEO metadata
-useHead({
+useSeoMeta({
   title: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec',
-  meta: [
-    { name: 'description', content: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.' },
-    { name: 'keywords', content: 'TelcoSec, TelcoChisel, Telecom Security, 5G security research, 4G LTE penetration testing, SDR security, baseband analysis, FirmWire, GNU Radio, srsRAN, Open5GS' },
-    { name: 'author', content: 'TelcoSec' },
-    { name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
-    { name: 'theme-color', content: '#00ffd5' },
-    { property: 'og:type', content: 'website' },
-    { property: 'og:site_name', content: 'TelcoSec' },
-    { property: 'og:url', content: 'https://tschisel.telcosec.net/' },
-    { property: 'og:title', content: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec' },
-    { property: 'og:description', content: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.' },
-    { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png' },
-    { property: 'og:image:width', content: '1280' },
-    { property: 'og:image:height', content: '640' },
-    { property: 'og:image:alt', content: 'TelcoChisel — Telecom Security Linux Distribution' },
-    { property: 'og:locale', content: 'en_US' },
-    { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:site', content: '@TelcoSec' },
-    { name: 'twitter:creator', content: '@TelcoSec' },
-    { name: 'twitter:url', content: 'https://tschisel.telcosec.net/' },
-    { name: 'twitter:title', content: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec' },
-    { name: 'twitter:description', content: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.' },
-    { name: 'twitter:image', content: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png' }
-  ],
+  description: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.',
+  keywords: 'TelcoSec, TelcoChisel, Telecom Security, 5G security research, 4G LTE penetration testing, SDR security, baseband analysis, FirmWire, GNU Radio, srsRAN, Open5GS',
+  author: 'TelcoSec',
+  themeColor: '#00ffd5',
+  ogType: 'website',
+  ogSiteName: 'TelcoSec',
+  ogUrl: 'https://tschisel.telcosec.net/',
+  ogTitle: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec',
+  ogDescription: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.',
+  ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
+  ogImageWidth: 1280,
+  ogImageHeight: 640,
+  twitterCard: 'summary_large_image',
+  twitterSite: '@telcosec',
+  twitterTitle: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec',
+  twitterDescription: 'The ultimate bootable live OS for Telecom Security, 5G/4G research, and SDR analysis',
+  twitterImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
+})
+
+// Schema.org AEO Integration
+useSchemaOrg([
+  defineWebSite({
+    name: 'TelcoChisel',
+    url: 'https://tschisel.telcosec.net',
+    description: 'Advanced Telecom Security Operating System',
+    publisher: {
+      '@type': 'Organization',
+      name: 'TelcoSec',
+      url: 'https://www.telco-sec.com/'
+    }
+  }),
+  defineSoftwareApp({
+    name: 'TelcoChiselOS',
+    operatingSystem: 'Linux',
+    applicationCategory: 'SecurityApplication',
+    description: 'Bootable Live USB OS for 5G, 4G, and GSM telecommunication security audits.',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD'
+    }
+  }),
+  defineWebPage({
+    '@type': 'FAQPage',
+    mainEntity: [
+      { '@type': 'Question', name: 'What is TelcoChisel?', acceptedAnswer: { '@type': 'Answer', text: 'TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with a lightweight XFCE desktop, purpose-built for telecommunications security research.' } },
+      { '@type': 'Question', name: 'What SDR hardware does TelcoChisel support?', acceptedAnswer: { '@type': 'Answer', text: 'Drivers compiled from source for the Ettus Research USRP B210, Great Scott Gadgets HackRF One, Nuand BladeRF 2.0 micro xA4, LimeSDR, and RTL-SDR dongles.' } },
+      { '@type': 'Question', name: 'Can I run TelcoChisel in a virtual machine?', acceptedAnswer: { '@type': 'Answer', text: 'Most analysis tools work in a VM, but 5Ghoul and high-bandwidth SDR tools require bare metal installation with native USB 3.0 passthrough.' } },
+      { '@type': 'Question', name: 'How do I install 5Ghoul for 5G NR fuzzing?', acceptedAnswer: { '@type': 'Answer', text: 'All build dependencies are pre-installed. Run sudo 5ghoul-install for a USRP B210, or sudo 5ghoul-install --radio BLADERF for a BladeRF A4.' } },
+      { '@type': 'Question', name: 'What telecom protocol tools are included?', acceptedAnswer: { '@type': 'Answer', text: 'Included tools: sctpscan, SIPVicious, SigPloit, Diafuzzer, Wireshark with GSMTAP, Scapy, Open5GS, and srsRAN.' } }
+    ]
+  })
+])
+
+useHead({
   link: [
     { rel: 'canonical', href: 'https://tschisel.telcosec.net/' },
     { rel: 'icon', type: 'image/svg+xml', href: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ffd5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3Cpath d='M12 8v4'/%3E%3Cpath d='M12 16h.01'/%3E%3C/svg%3E" }
@@ -1067,7 +1152,7 @@ useHead({
               "name": "What is TelcoChisel?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with a GNOME desktop, purpose-built for telecommunications security research. It includes 50+ pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
+                "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 50+ pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
               }
             },
             {
@@ -1287,4 +1372,68 @@ function featureCatLabel(cat) {
     environment: 'Dev Environment'
   }[cat] || cat
 }
+
+// Mermaid Architecture Diagram
+const architectureChart = ref(`
+flowchart TD
+    %% Base OS Layer
+    subgraph OS[TelcoChisel OS Layer - Ubuntu 24.04]
+        Kernel[Low-Latency Kernel Tuned for SCTP/USB]
+        Conda[telcosec-sdr Conda Sandbox]
+        Udev[Non-root plugdev udev rules]
+    end
+
+    %% Hardware
+    subgraph HW[External Hardware Interfaces]
+        SDR_HW(USRP / HackRF / BladeRF)
+        SIM_HW(Smartcard Reader / SIMtrace)
+        UE_HW(Diagnostic Android USB)
+    end
+
+    %% Software Abstraction
+    subgraph Drivers[Hardware Drivers]
+        UHD[UHD / SoapySDR / gr-osmosdr]
+        PCSC[pcscd daemon]
+        QC[Qualcomm DIAG protocol]
+    end
+
+    %% Applications
+    subgraph Apps[Telecom Security Applications]
+        RAN[srsRAN / OAI / OpenBTS]
+        Core[Open5GS / OsmoCore]
+        Analysis[Wireshark GSMTAP / Scapy]
+        Attack[5Ghoul / SigPloit / Diafuzzer]
+        Device[FirmWire QEMU / QCSuper]
+    end
+
+    %% Connections
+    SDR_HW <-->|Native USB 3.0| Udev
+    SIM_HW <-->|USB CCID| Udev
+    UE_HW <-->|USB Serial| Udev
+
+    Udev --> Kernel
+    
+    Kernel --> UHD
+    Kernel --> PCSC
+    Kernel --> QC
+
+    UHD -->|Conda Virtual Env| Conda
+    Conda --> RAN
+    Conda --> Attack
+
+    PCSC --> Analysis
+    QC --> Device
+    
+    RAN <--> Core
+    Core <--> Analysis
+    RAN <--> Attack
+    
+    classDef hardware fill:#0f172a,stroke:#3b82f6,stroke-width:2px;
+    classDef drivers fill:#1e1e1e,stroke:#059669,stroke-width:2px;
+    classDef apps fill:#1c1917,stroke:#f59e0b,stroke-width:2px;
+    
+    class SDR_HW,SIM_HW,UE_HW hardware;
+    class UHD,PCSC,QC drivers;
+    class RAN,Core,Analysis,Attack,Device apps;
+`)
 </script>

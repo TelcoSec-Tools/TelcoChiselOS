@@ -2,7 +2,7 @@
 Type=Application
 Name=SIPp
 Comment=SIP protocol performance tester and traffic generator
-Exec=gnome-terminal -- bash -c "sipp -h"
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 -- bash -c "sipp -h"
 Icon=utilities-terminal
 Categories=TelcoSec-VoIP;
 Terminal=false

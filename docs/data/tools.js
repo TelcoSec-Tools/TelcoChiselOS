@@ -177,7 +177,7 @@ export const toolsCatalog = [
         status: "ready",
         desc: "Signaling exploitation framework targeting SS7, Diameter, and GTP protocols to audit core telecom networks for routing vulnerabilities.",
         path: "/opt/telcosec/sigploit/",
-        cmd: "/opt/telcosec/python2/bin/python2.7 /opt/telcosec/sigploit/sigploit.py"
+        cmd: "sudo sigploit"
     },
     {
         name: "Diafuzzer",
@@ -213,7 +213,7 @@ export const toolsCatalog = [
         status: "setup",
         desc: "A complete open-source implementation of 4G EPC and 5G Core Network functions (AMF, SMF, UPF, UDM, HSS) built with high performance in C.",
         path: "/usr/local/bin/open5gs-install",
-        cmd: "sudo open5gs-install"
+        cmd: "cd /opt/telcosec/open5gs/docker_open5gs && sudo docker compose up -d"
     },
     {
         name: "Docker & Docker Compose",
@@ -385,6 +385,15 @@ export const toolsCatalog = [
         desc: "Java-based SIM card security audit tool from SRLabs. Tests for roaming, OTA update vulnerabilities, and SIM application exploits.",
         path: "/opt/telcosec/simtester/ (/usr/local/bin/simtester)",
         cmd: "simtester"
+    },
+    {
+        name: "RDNSx",
+        slug: "rdnsx",
+        category: "baseband",
+        status: "ready",
+        desc: "Rapid DNS Reverse Resolver for fast network enumeration and reconnaissance.",
+        path: "/usr/local/bin/rdnsx",
+        cmd: "rdnsx"
     },
     {
         name: "AT Command Console",
@@ -627,5 +636,59 @@ export const toolsCatalog = [
         desc: "Tool to automate the process of gathering information via SNMP protocols, exploiting intentionally weak community strings.",
         path: "System-wide",
         cmd: "snmpcheck -h"
+    },
+    {
+        name: "RouterSploit",
+        slug: "routersploit",
+        category: "adsl",
+        status: "ready",
+        desc: "Exploitation framework tailored for embedded devices like CPE routers and cable modems.",
+        path: "/usr/local/bin/routersploit",
+        cmd: "routersploit"
+    },
+    {
+        name: "docsis",
+        slug: "docsis",
+        category: "adsl",
+        status: "ready",
+        desc: "Utility to compile and decompile DOCSIS binary configuration files to uncover hidden SNMP settings.",
+        path: "/usr/bin/docsis",
+        cmd: "docsis"
+    },
+    {
+        name: "tftpd-hpa",
+        slug: "tftpd-hpa",
+        category: "adsl",
+        status: "ready",
+        desc: "Highly configurable TFTP server and client for intercepting or spoofing cable modem provisioning downloads.",
+        path: "System Service",
+        cmd: "systemctl status tftpd-hpa"
+    },
+    {
+        name: "isc-dhcp-server",
+        slug: "isc-dhcp-server",
+        category: "adsl",
+        status: "ready",
+        desc: "Used to set up a rogue DHCP server injecting custom DOCSIS DHCP options (like Option 122 or 54) to direct modems.",
+        path: "System Service",
+        cmd: "systemctl status isc-dhcp-server"
+    },
+    {
+        name: "yersinia",
+        slug: "yersinia",
+        category: "adsl",
+        status: "ready",
+        desc: "Powerful framework for exploiting Layer 2 protocols (DHCP exhaustion, STP/CDP/VTP manipulation) against the switching infrastructure.",
+        path: "/usr/bin/yersinia",
+        cmd: "yersinia"
+    },
+    {
+        name: "ettercap",
+        slug: "ettercap",
+        category: "adsl",
+        status: "ready",
+        desc: "Comprehensive suite for man-in-the-middle attacks on LAN (e.g. ARP spoofing) to intercept unencrypted TFTP configuration downloads.",
+        path: "System-wide",
+        cmd: "ettercap-text-only"
     }
 ]

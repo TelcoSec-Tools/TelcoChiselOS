@@ -2,7 +2,7 @@
 Type=Application
 Name=ADB Shell
 Comment=Android Debug Bridge shell
-Exec=gnome-terminal -- bash -c "adb shell"
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 -- bash -c "adb shell"
 Icon=utilities-terminal
 Categories=TelcoSec-Device;
 Terminal=false

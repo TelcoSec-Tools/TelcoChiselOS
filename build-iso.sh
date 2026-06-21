@@ -314,6 +314,7 @@ if ! $PACK_ONLY; then
   _phase  9 "09 · 5Ghoul helpers"                  chroot_run 09-install-5ghoul.sh
   _phase 10 "10 · Advanced telecom tools"          chroot_run 10-install-telecom-advanced.sh
   _phase 11 "11 · Device flash tools"              chroot_run 11-install-device-tools.sh
+  _phase 12 "12 · Install Dashboard"               chroot_run 12-install-dashboard.sh
 
   # Remove chroot service suppression
   rm -f "$ROOTFS/usr/sbin/policy-rc.d" "$ROOTFS/usr/local/sbin/udevadm"

@@ -119,6 +119,7 @@ Radio drivers are isolated in a dedicated Conda environment (`telcosec-sdr`) to 
 | **SIPVicious** | `Ready` | Security testing toolkit for SIP and VoIP endpoints |
 | **Scapy** | `Ready` | Packet crafting utility with MAP, TCAP, and Diameter protocol support |
 | **SIPp** | `Ready` | SIP traffic generator and performance testing tool |
+| **RDNSx** | `Ready` | Rapid DNS Reverse Resolver for fast network enumeration |
 
 ---
 
@@ -134,6 +135,21 @@ Radio drivers are isolated in a dedicated Conda environment (`telcosec-sdr`) to 
 | **ModMobMap** | `Ready` | Cellular network mapping and logging tool |
 | **LTESniffer** | `Ready` | Passive LTE downlink sniffer and PCAP decoder |
 | **LTE-Cell-Scanner** | `Ready` | LTE frequency band scanner and local oscillator calibrator |
+
+---
+
+### Broadband, ADSL, and DOCSIS / HFC Security
+
+| Tool | Status | Purpose |
+| :--- | :---: | :--- |
+| **RouterSploit** | `Ready` | Exploitation framework for embedded devices (CPE routers/modems) |
+| **asleap** | `Ready` | PPPoE MS-CHAPv2 dictionary attack and offline cracking tool |
+| **snmp-check** | `Ready` | SNMP enumerator for mapping routing tables via weak community strings |
+| **docsis** | `Ready` | Compile and decompile DOCSIS binary configuration files |
+| **tftpd-hpa / isc-dhcp-server** | `Ready` | Rogue DHCP and TFTP servers for provisioning attacks |
+| **yersinia / ettercap** | `Ready` | Layer 2 shared medium attacks (DHCP, STP, ARP spoofing) |
+
+*For complete methodologies and attack guides, please refer to [ADSL_Tools.md](ADSL_Tools.md) and [DOCSIS_Tools.md](DOCSIS_Tools.md).*
 
 ---
 

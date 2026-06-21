@@ -232,14 +232,14 @@ const specificMetadata = {
     keywords: ["SS7 network vulnerability scanner SigPloit", "SigPloit telecom exploit framework", "SS7 Diameter GTP attack tool", "sigploit.py python execution"],
     overview: "SigPloit is a telecom signaling exploitation framework. It is designed to audit mobile core networks (SS7, Diameter, GTP) for vulnerabilities such as subscriber location tracking, call interception, and SMS routing manipulation.",
     config: [
-      "Launch the framework in python 2.7 environment: python2 /opt/telcosec/sigploit/sigploit.py",
+      "Launch the framework: `sudo sigploit`",
       "Select the signaling protocol (e.g. SS7, Diameter, GTP).",
       "Configure the remote signaling gateway (STP/DEA) and run the attack module."
     ],
     troubleshooting: "SigPloit requires a direct connection to a signaling gateway (e.g. via SIGTRAN client config). It cannot audit networks over standard IP routes without gateway routing.",
     faq: [
       { q: "What attacks are supported?", a: "Location tracking (AnyTimeInterrogation), voice interception (SendRoutingInfoForSM), and profile modifications." },
-      { q: "Which Python version is required?", a: "SigPloit relies on Python 2.7, which is isolated in TelcoChisel at /opt/telcosec/python2." }
+      { q: "Which Python version is required?", a: "SigPloit relies on Python 2.7, which is now containerized seamlessly using Docker." }
     ]
   },
   "diafuzzer": {
@@ -274,7 +274,7 @@ const specificMetadata = {
     overview: "Open5GS is an open-source C-language implementation of 4G EPC and 5G Core Network functions. It includes AMF, SMF, UPF, UDM, HSS, and PCRF nodes, allowing researchers to simulate a complete standalone cellular core network.",
     config: [
       "Verify the Open5GS installation: open5gs-install",
-      "Start all 5G SA core network elements: sudo systemctl start open5gs-amfd open5gs-smfd open5gs-upfd",
+      "Start all 5G SA core network elements: `sudo open5gs-start` (which uses docker compose under the hood)",
       "Access the web administration UI at http://localhost:3000 to manage subscribers."
     ],
     troubleshooting: "If services fail to start, check that MongoDB is active, as Open5GS uses MongoDB as its primary database for subscriber storage.",

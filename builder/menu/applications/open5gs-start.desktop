@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=Open5GS Start (5G SA Core)
 Comment=Start all Open5GS 5G SA network functions (AMF, SMF, UPF, NRF, etc.)
-Exec=gnome-terminal --title "Open5GS" -- bash -c 'sudo open5gs-start; read -rp "Press Enter to close..."'
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "Open5GS" -- bash -c 'sudo open5gs-start; read -rp "Press Enter to close..."'
 Icon=utilities-terminal
 Terminal=false
 Categories=TelcoSec-5GNR;

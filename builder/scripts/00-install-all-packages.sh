@@ -88,6 +88,20 @@ else
   rm -f "$KISMET_KEY" /etc/apt/sources.list.d/kismet.list
 fi
 
+# TelcoSec Custom APT Repository (hosted on GitHub Pages)
+# Contains pre-compiled tools (UERANSIM, SCAT, OpenBTS, etc.) to replace source builds.
+TELCOSEC_KEY=/usr/share/keyrings/telcosec-archive-keyring.gpg
+TELCOSEC_LIST=/etc/apt/sources.list.d/telcosec.list
+TELCOSEC_URL="https://telcosec.github.io/apt"
+if wget -qO- "${TELCOSEC_URL}/Release.key" 2>/dev/null | \
+     gpg --dearmor --yes -o "$TELCOSEC_KEY" 2>/dev/null && [ -s "$TELCOSEC_KEY" ]; then
+  echo "deb [signed-by=${TELCOSEC_KEY}] ${TELCOSEC_URL}/ noble main" > "$TELCOSEC_LIST"
+  echo "  TelcoSec custom APT repo added."
+else
+  echo "  WARNING: TelcoSec custom APT repo not available yet — advanced tools will build from source."
+  rm -f "$TELCOSEC_KEY" "$TELCOSEC_LIST"
+fi
+
 # ─── 2. Single apt-get update ───────────────────────────────────────────────
 
 echo "  Updating package index (single pass)..."
@@ -117,26 +131,23 @@ apt-get install -y \
   terminator firefox \
   open-vm-tools open-vm-tools-desktop \
   \
-  `# === GNOME shell, display manager, and core apps ===` \
-  gnome-shell gnome-session gnome-control-center \
-  gdm3 nautilus gnome-tweaks dconf-cli dconf-editor \
-  gnome-terminal \
+  `# === XFCE desktop, display manager, and core apps ===` \
+  xfce4 xfce4-goodies \
+  lightdm thunar \
+  xfce4-terminal xfce4-taskmanager \
   \
-  `# === GNOME themes and icon sets ===` \
-  yaru-theme-gtk yaru-theme-gnome-shell yaru-theme-icon \
+  `# === Themes and icon sets ===` \
+  yaru-theme-gtk yaru-theme-icon \
   papirus-icon-theme \
-  \
-  `# === GNOME Shell extensions ===` \
-  gnome-shell-extensions \
-  gnome-shell-extension-appindicator \
-  gnome-extensions-app \
   \
   `# === Core system tools (01-install-base.sh) ===` \
   git vim nano htop fzf \
   build-essential cmake pkg-config \
   ufw openssh-server \
+  openvpn network-manager-openvpn network-manager-openvpn-gnome \
+  wireguard wireguard-tools resolvconf \
   docker.io docker-compose-v2 \
-  sudo \
+  sudo tuned \
   \
   `# === SDR build deps (02-install-sdr.sh) ===` \
   wget libusb-1.0-0-dev \
@@ -145,6 +156,7 @@ apt-get install -y \
   gnuradio gnuradio-dev \
   libfftw3-double3 libfftw3-dev libfftw3-bin \
   autoconf automake libtool \
+  libsqlite3-dev libwxgtk3.2-dev freeglut3-dev \
   \
   `# === Core network build deps (03-install-core-network.sh) ===` \
   cmake ninja-build \
@@ -166,16 +178,16 @@ apt-get install -y \
   `# === Security tools (04-install-tools.sh) ===` \
   wireshark tshark \
   nmap \
-  macchanger vlan asleap freeradius-utils hashcat john pppoe nikto gobuster snmpcheck \
+  macchanger vlan freeradius-utils hashcat john pppoe nikto gobuster \
   libglib2.0-dev libsctp-dev \
+  ruby ruby-snmp \
   sipsak \
   python3-pip python3-venv \
   wireguard \
-  `# Python 2.7 from-source build deps (for SigPloit, a Python 2-only framework)` \
-  libbz2-dev libreadline-dev libncursesw5-dev libgdbm-dev uuid-dev \
+
   \
   `# === UE analysis & baseband deps (06-install-ue-analysis.sh) ===` \
-  pcscd pcsc-tools libpcsclite-dev \
+  pcscd pcsc-tools libpcsclite-dev libccid \
   python3-pyscard python3-dev \
   libosmocore-dev libmd-dev librocksdb-dev \
   unzip \
@@ -242,7 +254,8 @@ apt-get install -y \
   tmux \
   \
   `# === Modem & AT command tools (11-install-device-tools.sh) ===` \
-  minicom gammu modem-manager-gui screen \
+  minicom gammu modem-manager-gui screen picocom python3-serial \
+  modemmanager libqmi-utils libmbim-utils \
   usb-modeswitch usb-modeswitch-data \
   \
   `# === Network analysis & wireless tools ===` \
@@ -250,6 +263,9 @@ apt-get install -y \
   \
   `# === Device flashing tools (11-install-device-tools.sh) ===` \
   heimdall-flash adb fastboot \
+  \
+  `# === DOCSIS & HFC Tools ===` \
+  docsis tftpd-hpa tftp-hpa isc-dhcp-server yersinia ettercap-text-only \
   \
   `# === VoIP & SIP tools (11-install-device-tools.sh / 04) ===` \
   linphone-desktop twinkle baresip \

@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=Diafuzzer (Diameter Fuzzer)
 Comment=Diameter Protocol Fuzzer by Orange OpenSource
-Exec=gnome-terminal --title "Diafuzzer" -- bash -c "python3 /opt/telcosec/diafuzzer/diafuzzer.py --help || python3 /opt/telcosec/diafuzzer/diameter_fuzzer.py --help; read -p 'Press enter to exit...'"
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "Diafuzzer" -- bash -c "python3 /opt/telcosec/diafuzzer/diafuzzer.py --help || python3 /opt/telcosec/diafuzzer/diameter_fuzzer.py --help; read -p 'Press enter to exit...'"
 Icon=utilities-terminal
 Terminal=false
 Categories=TelcoSec-Core;

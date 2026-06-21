@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=SigPloit Signaling Framework
 Comment=SS7, Diameter, and GTP Signaling Exploitation Framework
-Exec=gnome-terminal --title "SigPloit" -- bash -c "cd /opt/telcosec/sigploit && PYTHONPATH=/opt/telcosec/sigploit:/opt/telcosec/sigploit/gtp /opt/telcosec/python2/bin/python2.7 sigploit.py; read -p 'Press enter to exit...'"
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "SigPloit" -- bash -c "cd /opt/telcosec/sigploit && PYTHONPATH=/opt/telcosec/sigploit:/opt/telcosec/sigploit/gtp /opt/telcosec/python2/bin/python2.7 sigploit.py; read -p 'Press enter to exit...'"
 Icon=utilities-terminal
 Terminal=false
 Categories=TelcoSec-Core;

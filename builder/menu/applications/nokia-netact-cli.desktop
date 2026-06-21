@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=Nokia NetAct CLI
 Comment=Connect to Nokia NetAct OSS/BSS via SSH (requires NetAct server access)
-Exec=gnome-terminal --title "Nokia NetAct CLI" -- bash -c "echo 'Nokia NetAct CLI'; echo ''; echo 'Usage: ssh <user>@<netact-host>'; echo 'Or use the NetAct web portal at https://<netact-host>/netact/'; echo ''; read -p 'Press Enter to exit...'"
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "Nokia NetAct CLI" -- bash -c "echo 'Nokia NetAct CLI'; echo ''; echo 'Usage: ssh <user>@<netact-host>'; echo 'Or use the NetAct web portal at https://<netact-host>/netact/'; echo ''; read -p 'Press Enter to exit...'"
 Icon=network-server
 Terminal=false
 Categories=TelcoSec-Core;

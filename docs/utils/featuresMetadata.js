@@ -153,7 +153,7 @@ export const featuresMetadata = {
       "Linux umask 027 security profile",
       "Bluetooth disable rfkill Linux security"
     ],
-    overview: "TelcoChisel applies multiple layers of network and system security hardening beyond kernel sysctl parameters. UFW is configured to block all incoming connections by default (allowing only SSH), Bluetooth is disabled via rfkill, LLMNR and mDNS are disabled in systemd-resolved to prevent unintended network announcements, unnecessary GNOME daemons (colord, gnome-remote-desktop, avahi-daemon) are masked, and a restrictive umask of 027 is set for all user sessions.",
+    overview: "TelcoChisel applies multiple layers of network and system security hardening beyond kernel sysctl parameters. UFW is configured to block all incoming connections by default (allowing only SSH), Bluetooth is disabled via rfkill, LLMNR and mDNS are disabled in systemd-resolved to prevent unintended network announcements, unnecessary daemons are masked, and a restrictive umask of 027 is set for all user sessions.",
     config: [
       "UFW firewall default policy: `sudo ufw default deny incoming && sudo ufw default allow outgoing && sudo ufw allow ssh && sudo ufw enable`",
       "Verify UFW status and active rules: `sudo ufw status verbose`",
@@ -162,7 +162,7 @@ export const featuresMetadata = {
       "Apply resolved changes: `sudo systemctl restart systemd-resolved`",
       "Verify resolved settings: `systemd-resolve --status | grep -E 'LLMNR|MulticastDNS'`",
       "Restrictive umask (027) is set in `/etc/profile.d/telcosec_umask.sh` — verify with `umask` in a new shell",
-      "Masked daemons: `systemctl is-enabled avahi-daemon colord gnome-remote-desktop` should return `masked` or `disabled`"
+      "Masked daemons: `systemctl is-enabled avahi-daemon` should return `masked` or `disabled`"
     ],
     troubleshooting: "If UFW blocks a required tool connection (e.g., Open5GS AMF port or srsRAN S1/NG interface), add specific rules: `sudo ufw allow from 127.0.0.1` for loopback-only tools, or `sudo ufw allow <port>/sctp` for SCTP-based core interfaces. Avahi/mDNS being masked may affect some network discovery tools — re-enable if required: `sudo systemctl unmask avahi-daemon`.",
     faq: [
