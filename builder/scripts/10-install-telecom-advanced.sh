@@ -30,6 +30,8 @@ git clone --depth 1 https://github.com/SysSec-KAIST/LTESniffer  "${TELCOSEC_OPT}
 git clone --depth 1 https://github.com/free5gc/gtp5g            "${TELCOSEC_OPT}/gtp5g"           2>/dev/null || true &
 git clone --depth 1 https://github.com/TelcoSec-Tools/RDNSx     "${TELCOSEC_OPT}/rdnsx"           2>/dev/null || true &
 git clone --depth 1 https://github.com/rlaager/docsis           "${TELCOSEC_OPT}/docsis"          2>/dev/null || true &
+git clone --depth 1 https://github.com/fkie-cad/falcon          "${TELCOSEC_OPT}/falcon"          2>/dev/null || true &
+git clone --depth 1 https://github.com/TelcoSec-Tools/TelcoSec-ChiselControl-Dashboard "${TELCOSEC_OPT}/dashboard" 2>/dev/null || true &
 wait
 echo "  Parallel clone complete."
 
@@ -125,25 +127,17 @@ fi
 
 # ─── F. SIMTester (Java SIM card security testing) ──────────────────────────
 echo "  Installing SIMTester..."
-if [ -d "${TELCOSEC_OPT}/simtester" ] && command -v mvn &>/dev/null; then
-  # srlabs/SIMtester has the Java project nested under a SIMtester/ subdirectory,
-  # not at the repo root. Find the pom.xml rather than assuming the layout.
-  SIMTESTER_POM=$(find "${TELCOSEC_OPT}/simtester" -name "pom.xml" -maxdepth 3 2>/dev/null | head -1)
-  if [ -n "$SIMTESTER_POM" ]; then
-    SIMTESTER_BUILD=$(dirname "$SIMTESTER_POM")
-    cd "$SIMTESTER_BUILD"
-    mvn package -DskipTests -q 2>&1 | tail -5 || true
-    JAR=$(find "$SIMTESTER_BUILD" -name "SIMtester*.jar" -not -path "*/original*" 2>/dev/null | head -1)
-    if [ -n "$JAR" ]; then
-      cat > /usr/local/bin/simtester << EOF
+if [ -d "${TELCOSEC_OPT}/simtester" ]; then
+  # The srlabs/SIMtester repo provides pre-compiled binaries instead of Maven source.
+  JAR=$(find "${TELCOSEC_OPT}/simtester/binaries" -name "SIMTester.jar" | sort -V | tail -n 1)
+  if [ -n "$JAR" ]; then
+    cat > /usr/local/bin/simtester << EOF
 #!/bin/bash
 exec java -jar ${JAR} "\$@"
 EOF
-      chmod +x /usr/local/bin/simtester
-    fi
-    cd /
+    chmod +x /usr/local/bin/simtester
   else
-    echo "  WARNING: SIMtester pom.xml not found — skipping Maven build"
+    echo "  WARNING: SIMTester.jar not found in binaries folder."
   fi
   chown -R telcosec:telcosec "${TELCOSEC_OPT}/simtester"
 fi
@@ -252,6 +246,8 @@ echo "  Installing LTESniffer..."
 if [ -d "${TELCOSEC_OPT}/ltesniffer" ]; then
   cd "${TELCOSEC_OPT}/ltesniffer"
   mkdir -p build && cd build
+  export CFLAGS="-Wno-error"
+  export CXXFLAGS="-Wno-error"
   cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -3
   make -j"$(nproc)" 2>&1 | tail -5 || true
   SNIFFER_BIN=$(find . -name "ltesniffer" -type f 2>/dev/null | head -1)
@@ -435,6 +431,24 @@ if [ -d "${TELCOSEC_OPT}/docsis" ]; then
   make install || true
   chown -R telcosec:telcosec "${TELCOSEC_OPT}/docsis"
   cd /
+fi
+
+# ─── T. Falcon GUI (LTE Network Analyzer) ──────────────────────────────────
+echo "  Installing Falcon GUI..."
+if [ -d "${TELCOSEC_OPT}/falcon" ]; then
+  cd "${TELCOSEC_OPT}/falcon"
+  mkdir -p build && cd build
+  cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -3
+  make -j"$(nproc)" 2>&1 | tail -5 || true
+  [ -f falcon ] && ln -sf "${TELCOSEC_OPT}/falcon/build/falcon" /usr/local/bin/falcon || true
+  chown -R telcosec:telcosec "${TELCOSEC_OPT}/falcon"
+  cd /
+fi
+
+# ─── U. TelcoSec ChiselControl Dashboard ──────────────────────────────────────
+echo "  Configuring ChiselControl Dashboard..."
+if [ -d "${TELCOSEC_OPT}/dashboard" ]; then
+  chown -R telcosec:telcosec "${TELCOSEC_OPT}/dashboard"
 fi
 
 echo "=== Advanced Telecom Tools installation complete ==="

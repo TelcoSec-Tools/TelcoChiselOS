@@ -86,15 +86,19 @@ if ! getent group wireshark >/dev/null; then
 fi
 sudo usermod -a -G wireshark telcosec || true
 
-# Install telecom-specific wordlists (vendored from TelcoSec-Tools/TelcoSec-Wordlists)
+# Install telecom-specific wordlists
 echo "Installing TelcoSec wordlists..."
 sudo mkdir -p /usr/share/wordlists/telecom
-sudo cp -r /tmp/wordlists/. /usr/share/wordlists/telecom/
-sudo find /usr/share/wordlists/telecom -type f -exec chmod 644 {} +
-sudo find /usr/share/wordlists/telecom -type d -exec chmod 755 {} +
-echo "Wordlists installed: $(find /usr/share/wordlists/telecom -type f | wc -l) files"
+if [ -d "/tmp/wordlists" ] && [ "$(ls -A /tmp/wordlists 2>/dev/null)" ]; then
+  sudo cp -r /tmp/wordlists/. /usr/share/wordlists/telecom/
+else
+  sudo git clone --depth 1 https://github.com/TelcoSec-Tools/TelcoSec-Wordlists /usr/share/wordlists/telecom/ 2>/dev/null || true
+fi
+sudo find /usr/share/wordlists/telecom -type f -exec chmod 644 {} + 2>/dev/null || true
+sudo find /usr/share/wordlists/telecom -type d -exec chmod 755 {} + 2>/dev/null || true
+echo "Wordlists installed: $(find /usr/share/wordlists/telecom -type f 2>/dev/null | wc -l) files"
 
 # Install wordlist helper scripts as system tools
 echo "Installing wordlist helper scripts..."
-sudo install -m 755 /tmp/wordlists/scripts/apn_permutator.py  /usr/local/bin/telcosec-apn-permutator
-sudo install -m 755 /tmp/wordlists/scripts/imsi_generator.py  /usr/local/bin/telcosec-imsi-generator
+[ -f /usr/share/wordlists/telecom/scripts/apn_permutator.py ] && sudo install -m 755 /usr/share/wordlists/telecom/scripts/apn_permutator.py  /usr/local/bin/telcosec-apn-permutator || true
+[ -f /usr/share/wordlists/telecom/scripts/imsi_generator.py ] && sudo install -m 755 /usr/share/wordlists/telecom/scripts/imsi_generator.py  /usr/local/bin/telcosec-imsi-generator || true
