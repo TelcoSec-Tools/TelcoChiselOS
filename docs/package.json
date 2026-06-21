@@ -16,5 +16,9 @@
   },
   "overrides": {
     "@unhead/vue": "^2.1.15"
+  },
+  "dependencies": {
+    "fuse.js": "^7.4.2",
+    "mermaid": "^11.15.0"
   }
 }

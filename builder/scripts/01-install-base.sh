@@ -22,7 +22,7 @@ EOF
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
     linux-image-generic
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    gnome-shell gnome-session gdm3 \
+    xfce4 xfce4-goodies lightdm \
     xserver-xorg xserver-xorg-input-all \
     network-manager-gnome \
     terminator firefox \
@@ -41,7 +41,7 @@ fi
 
 echo "=== Configuring NetworkManager ==="
 sudo systemctl enable NetworkManager
-sudo systemctl enable gdm3
+sudo systemctl enable lightdm
 
 echo "=== Creating Default User ==="
 # Pre-create telcosec group and user (UID/GID 1000) for build compatibility

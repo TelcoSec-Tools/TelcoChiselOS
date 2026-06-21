@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=FirmWire Baseband Emulator
 Comment=Baseband Firmware Emulation and Fuzzing Platform
-Exec=gnome-terminal --title "FirmWire" -- bash -c "source /opt/telcosec/firmwire/venv/bin/activate && python3 /opt/telcosec/firmwire/firmwire.py --help; read -p 'Press enter to exit...'"
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "FirmWire" -- bash -c "source /opt/telcosec/firmwire/venv/bin/activate && python3 /opt/telcosec/firmwire/firmwire.py --help; read -p 'Press enter to exit...'"
 Icon=system-run
 Terminal=false
 Categories=TelcoSec-Baseband;

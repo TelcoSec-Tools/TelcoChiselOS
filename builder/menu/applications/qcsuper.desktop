@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=QCSuper Qualcomm Capturer
 Comment=Passive Qualcomm DIAG port capture and dissector injector
-Exec=gnome-terminal --title "QCSuper" -- bash -c "qcsuper --help; read -p 'Press enter to exit...'"
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "QCSuper" -- bash -c "qcsuper --help; read -p 'Press enter to exit...'"
 Icon=system-run
 Terminal=false
 Categories=TelcoSec-Baseband;

@@ -49,7 +49,7 @@ fi
 cd "$INSTALL_DIR"
 mkdir -p build && cd build
 echo "[2/3] Configuring with cmake..."
-cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
+cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON -DENABLE_BLADERF=ON -DENABLE_LIMESDR=ON
 echo "[3/3] Compiling (this takes 10-20 min)..."
 make -j$(nproc)
 make install
@@ -58,15 +58,14 @@ echo "✓ srsRAN installed. Run: srsgnb --help"
 SRSRAN_SCRIPT
 sudo chmod +x /usr/local/bin/srsran-install
 
-# Open5GS — not installed at build time to keep ISO lean.
-# Users run: sudo open5gs-install
+# Open5GS — Dockerized deployment to keep the host OS clean and prevent dependency conflicts
 echo "Creating Open5GS first-run install script..."
 cat << 'OPEN5GS_SCRIPT' | sudo tee /usr/local/bin/open5gs-install
 #!/bin/bash
 set -e
 echo "╔══════════════════════════════════════════════╗"
-echo "║   Open5GS 5G SA Core Installer             ║"
-echo "║   https://open5gs.org                       ║"
+echo "║   Open5GS 5G SA Core Docker Installer      ║"
+echo "║   https://open5gs.org                        ║"
 echo "╚══════════════════════════════════════════════╝"
 echo ""
 if [ "$(id -u)" -ne 0 ]; then
@@ -74,47 +73,36 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
-# Add Open5GS PPA
-add-apt-repository -y ppa:open5gs/latest
+echo "Setting up Open5GS Docker environment..."
+mkdir -p /opt/telcosec/open5gs
+cd /opt/telcosec/open5gs
 
-# Add MongoDB repo (required by Open5GS)
-mkdir -p /usr/share/keyrings
-wget -qO- https://pgp.mongodb.com/server-8.0.asc | gpg --dearmor > /usr/share/keyrings/mongodb-server-8.0.gpg
-echo "deb [signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" \
-  > /etc/apt/sources.list.d/mongodb-org-8.0.list
-
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb-org open5gs
-
-# Disable auto-start — core functions are started manually during testing
-for svc in open5gs-amfd open5gs-smfd open5gs-upfd open5gs-nrfd \
-           open5gs-ausfd open5gs-udmd open5gs-pcfd open5gs-nssfd \
-           open5gs-bsfd open5gs-udrd; do
-  systemctl disable "$svc" 2>/dev/null || true
-done
-
-# Patch PLMN to 5Ghoul default test PLMN (MCC 001, MNC 01)
-if [ -d /etc/open5gs ]; then
-  find /etc/open5gs -name "*.yaml" -exec \
-    sed -i \
-      -e 's/mcc: 999/mcc: 001/g' \
-      -e 's/mnc: 70/mnc: 01/g' \
-      -e 's/mcc: 901/mcc: 001/g' \
-    {} \;
-  echo "PLMN patched to MCC=001, MNC=01"
+if [ ! -d "/opt/telcosec/open5gs/docker_open5gs/.git" ]; then
+  git clone https://github.com/herlesupreeth/docker_open5gs
 fi
 
-# Enable IP forwarding for UPF data plane
+cd docker_open5gs
+echo "Pulling Open5GS Docker images..."
+docker compose pull || docker-compose pull
+
+echo "Patching PLMN to 5Ghoul default test PLMN (MCC 001, MNC 01)..."
+if [ -f .env ]; then
+  sed -i 's/MCC=.*/MCC=001/g' .env
+  sed -i 's/MNC=.*/MNC=01/g' .env
+fi
+
+echo "Enable IP forwarding for UPF data plane..."
 cat > /etc/sysctl.d/99-open5gs.conf << 'SYSCTL'
 net.ipv4.ip_forward=1
 net.ipv6.conf.all.forwarding=1
 SYSCTL
-sysctl -p /etc/sysctl.d/99-open5gs.conf
+sysctl -p /etc/sysctl.d/99-open5gs.conf || true
 
 echo ""
-echo "✓ Open5GS installed."
+echo "✓ Open5GS Dockerized environment installed."
 echo "  Start:  sudo open5gs-start"
-echo "  Add UE: sudo 5ghoul-add-subscriber"
+echo "  Stop:   sudo open5gs-stop"
+echo "  Add UE: sudo 5ghoul-add-subscriber (or use the webui on http://localhost:3000)"
 OPEN5GS_SCRIPT
 sudo chmod +x /usr/local/bin/open5gs-install
 

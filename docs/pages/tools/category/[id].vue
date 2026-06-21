@@ -93,10 +93,52 @@ if (filteredTools.value.length === 0) {
   throw createError({ statusCode: 404, statusMessage: 'Category not found' })
 }
 
-useHead({
+useSeoMeta({
   title: `${categoryLabel.value} Tools - TelcoChiselOS`,
-  meta: [
-    { name: 'description', content: `List of telecom security tools for ${categoryLabel.value} in TelcoChiselOS.` }
+  description: `List of telecom security tools for ${categoryLabel.value} in TelcoChiselOS.`,
+  ogTitle: `${categoryLabel.value} Tools - TelcoChiselOS`,
+  ogDescription: `List of telecom security tools for ${categoryLabel.value} in TelcoChiselOS.`,
+  ogType: 'website',
+  ogUrl: `https://tschisel.telcosec.net/tools/category/${categoryId}`,
+  ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
+  twitterCard: 'summary_large_image',
+  twitterTitle: `${categoryLabel.value} Tools - TelcoChiselOS`,
+  twitterDescription: `List of telecom security tools for ${categoryLabel.value} in TelcoChiselOS.`
+})
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify([
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": `${categoryLabel.value} Tools Directory`,
+          "description": `A curated list of telecom security tools for ${categoryLabel.value} in TelcoChiselOS.`,
+          "url": `https://tschisel.telcosec.net/tools/category/${categoryId}`,
+          "isPartOf": {
+            "@id": "https://tschisel.telcosec.net/#tools"
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": `${categoryLabel.value} Tools`,
+          "itemListElement": filteredTools.value.map((t, index) => ({
+            "@type": "ListItem",
+            "position": index + 1,
+            "item": {
+              "@type": "SoftwareApplication",
+              "name": t.name,
+              "description": t.desc,
+              "url": `https://tschisel.telcosec.net/tools/${t.slug}`,
+              "applicationCategory": "SecurityApplication"
+            }
+          }))
+        }
+      ])
+    }
   ]
 })
 

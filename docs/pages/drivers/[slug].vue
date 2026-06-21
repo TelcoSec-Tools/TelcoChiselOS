@@ -132,65 +132,58 @@ if (!driver) {
   throw createError({ statusCode: 404, statusMessage: 'Driver not found' })
 }
 
-// SEO Head setup
-useHead({
+// SEO and Schema.org setup
+useSeoMeta({
   title: `${driver.name} Setup Guide — Telecom Security Hardware by TelcoSec`,
-  meta: [
-    { name: 'description', content: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.` },
-    { name: 'keywords', content: [...metadata.keywords, driver.name, 'TelcoSec', 'TelcoChisel', 'Telecom Security', 'udev rules', 'SDR hardware'].join(', ') },
-    { name: 'robots', content: 'index, follow' },
-    { property: 'og:title', content: `${driver.name} Setup Guide — Telecom Security Hardware by TelcoSec` },
-    { property: 'og:description', content: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.` },
-    { property: 'og:type', content: 'article' },
-    { property: 'og:url', content: `https://tschisel.telcosec.net/drivers/${driver.slug}` },
-    { property: 'og:image', content: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png' },
-    { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: `${driver.name} Setup Guide — Telecom Security Hardware by TelcoSec` },
-    { name: 'twitter:description', content: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.` }
-  ],
-  link: [
-    { rel: 'canonical', href: `https://tschisel.telcosec.net/drivers/${driver.slug}` }
-  ],
-  script: [
-    {
-      type: 'application/ld+json',
-      children: JSON.stringify([
-        {
-          "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
-          "name": `${driver.name} Driver`,
-          "applicationCategory": "SecurityApplication",
-          "applicationSubCategory": "Telecommunications Security, Hardware Drivers",
-          "operatingSystem": "Linux (Ubuntu 24.04 LTS / TelcoChisel)",
-          "description": driver.desc,
-          "url": `https://tschisel.telcosec.net/drivers/${driver.slug}`,
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-          },
-          "publisher": {
-            "@type": "Organization",
-            "name": "TelcoSec",
-            "url": "https://telcosec.cloud/"
-          }
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": (metadata.faq || []).map(f => ({
-            "@type": "Question",
-            "name": f.q,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": f.a
-            }
-          }))
-        }
-      ])
-    }
-  ]
+  description: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.`,
+  keywords: [...metadata.keywords, driver.name, 'TelcoSec', 'TelcoChisel', 'Telecom Security', 'udev rules', 'SDR hardware'].join(', '),
+  ogTitle: `${driver.name} Setup Guide — Telecom Security Hardware by TelcoSec`,
+  ogDescription: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.`,
+  ogType: 'article',
+  ogUrl: `https://tschisel.telcosec.net/drivers/${driver.slug}`,
+  ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
+  twitterCard: 'summary_large_image',
+  twitterTitle: `${driver.name} Setup Guide — Telecom Security Hardware by TelcoSec`,
+  twitterDescription: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.`
 })
+
+const schemas = [
+  defineSoftwareApp({
+    name: `${driver.name} Driver`,
+    applicationCategory: 'SecurityApplication',
+    operatingSystem: 'Linux (Ubuntu 24.04 LTS / TelcoChisel)',
+    description: driver.desc,
+    url: `https://tschisel.telcosec.net/drivers/${driver.slug}`,
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD'
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'TelcoSec',
+      url: 'https://telcosec.cloud/'
+    }
+  })
+]
+
+if (metadata.faq && metadata.faq.length > 0) {
+  schemas.push(
+    defineWebPage({
+      '@type': 'FAQPage',
+      mainEntity: metadata.faq.map(f => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: f.a
+        }
+      }))
+    })
+  )
+}
+
+useSchemaOrg(schemas)
 
 // Navigation home helper
 function navigateHome(section) {

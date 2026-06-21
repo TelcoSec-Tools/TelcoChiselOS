@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=5Ghoul NR Fuzzer
 Comment=5G NR modem vulnerability fuzzer targeting Qualcomm and MediaTek chipsets
-Exec=gnome-terminal --title "5Ghoul Fuzzer" -- bash -c 'sudo 5ghoul-run; read -rp "Press Enter to close..."'
+Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "5Ghoul Fuzzer" -- bash -c 'sudo 5ghoul-run; read -rp "Press Enter to close..."'
 Icon=utilities-terminal
 Terminal=false
 Categories=TelcoSec-5GNR;
