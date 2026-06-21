@@ -29,6 +29,7 @@ git clone --depth 1 https://github.com/Evrytania/LTE-Cell-Scanner "${TELCOSEC_OP
 git clone --depth 1 https://github.com/SysSec-KAIST/LTESniffer  "${TELCOSEC_OPT}/ltesniffer"      2>/dev/null || true &
 git clone --depth 1 https://github.com/free5gc/gtp5g            "${TELCOSEC_OPT}/gtp5g"           2>/dev/null || true &
 git clone --depth 1 https://github.com/TelcoSec-Tools/RDNSx     "${TELCOSEC_OPT}/rdnsx"           2>/dev/null || true &
+git clone --depth 1 https://github.com/rlaager/docsis           "${TELCOSEC_OPT}/docsis"          2>/dev/null || true &
 wait
 echo "  Parallel clone complete."
 
@@ -424,6 +425,15 @@ python3 /opt/telcosec/routersploit/rsf.py "$@"
 SCRIPT
   chmod +x /usr/local/bin/routersploit
   chown -R telcosec:telcosec "${TELCOSEC_OPT}/routersploit"
+  cd /
+fi
+
+# 4. DOCSIS config tool
+if [ -d "${TELCOSEC_OPT}/docsis" ]; then
+  cd "${TELCOSEC_OPT}/docsis"
+  ./autogen.sh && ./configure && make -j"$(nproc)" 2>&1 | tail -5 || true
+  make install || true
+  chown -R telcosec:telcosec "${TELCOSEC_OPT}/docsis"
   cd /
 fi
 
