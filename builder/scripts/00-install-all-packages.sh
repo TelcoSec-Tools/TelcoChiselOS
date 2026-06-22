@@ -31,16 +31,24 @@ exit 101
 POLICY
 chmod +x /usr/sbin/policy-rc.d
 
-# Use dpkg-divert to intercept absolute-path /usr/bin/udevadm calls from postinstalls.
+# Use dpkg-divert to intercept absolute-path udevadm calls from postinstalls.
 dpkg-divert --local --rename --add /usr/bin/udevadm 2>/dev/null || true
+dpkg-divert --local --rename --add /sbin/udevadm 2>/dev/null || true
+dpkg-divert --local --rename --add /bin/udevadm 2>/dev/null || true
 cat > /usr/bin/udevadm << 'UDEVADM'
 #!/bin/sh
 exit 0
 UDEVADM
 chmod +x /usr/bin/udevadm
+cp /usr/bin/udevadm /sbin/udevadm 2>/dev/null || true
+cp /usr/bin/udevadm /bin/udevadm 2>/dev/null || true
 mkdir -p /usr/local/sbin
 cp /usr/bin/udevadm /usr/local/sbin/udevadm
 export PATH="/usr/local/sbin:$PATH"
+
+# ─── 0.5. Recover from broken apt state (crucial for --resume) ──────────────
+apt-get --fix-broken install -y -o Dpkg::Options::="--force-overwrite" || true
+
 
 # ─── 1. Add all third-party repositories first ──────────────────────────────
 
@@ -117,7 +125,7 @@ apt-get upgrade -y
 
 echo "  Installing all packages (single transaction)..."
 
-apt-get install -y \
+apt-get install -y -o Dpkg::Options::="--force-overwrite" \
   \
   `# === Live boot infrastructure (must precede kernel) ===` \
   casper initramfs-tools \
@@ -281,10 +289,15 @@ apt-get install -y \
   libncurses-dev cargo libcrypt-dev libqt5charts5-dev libsqlite3-dev
 
 # ─── 5. Remove chroot service suppression ────────────────────────────────────
-rm -f /usr/sbin/policy-rc.d /usr/local/sbin/udevadm
+rm -f /usr/sbin/policy-rc.d /usr/local/sbin/udevadm /usr/bin/udevadm /sbin/udevadm /bin/udevadm
 if dpkg-divert --list /usr/bin/udevadm | grep -q "diversion of"; then
-  rm -f /usr/bin/udevadm
   dpkg-divert --local --rename --remove /usr/bin/udevadm 2>/dev/null || true
+fi
+if dpkg-divert --list /sbin/udevadm | grep -q "diversion of"; then
+  dpkg-divert --local --rename --remove /sbin/udevadm 2>/dev/null || true
+fi
+if dpkg-divert --list /bin/udevadm | grep -q "diversion of"; then
+  dpkg-divert --local --rename --remove /bin/udevadm 2>/dev/null || true
 fi
 
 # ─── 6. Wireshark non-interactive config ─────────────────────────────────────
