@@ -13,6 +13,11 @@ echo "=== [Phase 0] Consolidated Package Installation ==="
 
 export DEBIAN_FRONTEND=noninteractive
 
+# Source the shared package arrays (single source of truth for per-script sets)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/packages.sh
+source "${SCRIPT_DIR}/lib/packages.sh"
+
 # Speed up apt downloads: parallel host-based queue, pipelining, auto-retry
 cat > /etc/apt/apt.conf.d/99fast-dl << 'APT_FAST'
 Acquire::Queue-Mode "host";
@@ -125,168 +130,24 @@ apt-get upgrade -y
 
 echo "  Installing all packages (single transaction)..."
 
+# Install the union of all package arrays (sourced from lib/packages.sh)
+# plus any packages that don't belong to a downstream-script group.
+# shellcheck disable=SC2086
 apt-get install -y -o Dpkg::Options::="--force-overwrite" \
+  "${PKGS_BASE[@]}" \
+  "${PKGS_SDR[@]}" \
+  "${PKGS_CORE_NETWORK[@]}" \
+  "${PKGS_TOOLS[@]}" \
+  "${PKGS_UE_ANALYSIS[@]}" \
+  "${PKGS_5GHOUL_BUILD[@]}" \
+  "${PKGS_5GHOUL_RUNTIME[@]}" \
+  "${PKGS_5GHOUL_REQS[@]}" \
+  "${PKGS_ADVANCED[@]}" \
   \
-  `# === Live boot infrastructure (must precede kernel) ===` \
-  casper initramfs-tools \
-  \
-  `# === Kernel ===` \
-  linux-image-generic \
-  \
-  `# === Desktop environment (01-install-base.sh) ===` \
-  xserver-xorg xserver-xorg-input-all \
-  network-manager-gnome \
-  terminator firefox \
-  open-vm-tools open-vm-tools-desktop \
-  \
-  `# === XFCE desktop, display manager, and core apps ===` \
-  xfce4 xfce4-goodies \
-  lightdm thunar \
-  xfce4-terminal xfce4-taskmanager \
-  \
-  `# === Themes and icon sets ===` \
-  yaru-theme-gtk yaru-theme-icon \
-  papirus-icon-theme \
-  \
-  `# === Core system tools (01-install-base.sh) ===` \
-  git vim nano htop fzf \
-  build-essential cmake pkg-config \
-  ufw openssh-server \
-  openvpn network-manager-openvpn network-manager-openvpn-gnome \
-  wireguard wireguard-tools resolvconf \
-  docker.io docker-compose-v2 \
-  sudo tuned \
-  \
-  `# === SDR build deps (02-install-sdr.sh) ===` \
-  wget libusb-1.0-0-dev \
-  \
-  `# === SDR global packages (02-install-sdr.sh) ===` \
-  gnuradio gnuradio-dev \
-  libfftw3-double3 libfftw3-dev libfftw3-bin \
-  autoconf automake libtool \
-  libsqlite3-dev libwxgtk3.2-dev freeglut3-dev \
-  \
-  `# === Core network build deps (03-install-core-network.sh) ===` \
-  cmake ninja-build \
-  clang-15 lld-15 lldb-15 \
-  libfftw3-dev liblapacke-dev libblas-dev liblapack-dev \
-  libsctp-dev lksctp-tools \
-  libzmq3-dev libczmq-dev \
-  libjson-c-dev \
-  libglib2.0-dev \
-  libconfig-dev \
-  libyaml-cpp-dev \
-  libboost-all-dev \
-  libssl-dev \
-  libmbedtls-dev \
-  libnuma-dev \
-  python3-yaml \
-  libbladerf2 libbladerf-dev bladerf \
-  \
-  `# === Security tools (04-install-tools.sh) ===` \
-  wireshark tshark \
-  nmap \
-  macchanger vlan freeradius-utils hashcat john pppoe nikto gobuster \
-  libglib2.0-dev libsctp-dev \
-  ruby ruby-snmp \
-  sipsak \
-  python3-pip python3-venv \
-  wireguard \
-  `# === UE analysis & baseband deps (06-install-ue-analysis.sh) ===` \
-  pcscd pcsc-tools libpcsclite-dev libccid \
-  python3-pyscard python3-dev \
-  libosmocore-dev libmd-dev librocksdb-dev \
-  unzip \
-  qemu-system-arm qemu-system-mips qemu-system-x86 qemu-utils \
-  bison flex libpcap-dev libgcrypt20-dev libpugixml-dev libgtest-dev \
-  qtbase5-dev qttools5-dev qtmultimedia5-dev libqt5svg5-dev libc-ares-dev \
-  libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-2.0-0 \
-  libcurl4-openssl-dev \
-  libelf-dev libffi-dev libdwarf-dev libwiretap-dev wireshark-dev python3-pycparser \
-  protobuf-compiler protobuf-c-compiler libprotoc-dev libprotobuf-dev libprotobuf-c-dev libjsoncpp-dev \
-  gdb-multiarch libcapstone-dev gcc-mipsel-linux-gnu gcc-arm-none-eabi \
-  scons g++ make \
-  dfu-util autoconf-archive \
-  libtalloc-dev libgnutls28-dev liburing-dev \
-  `# osmo-simtrace2 — not available as pre-built deb; compiled from source in 06-install-ue-analysis.sh` \
-  \
-  `# === Calamares installer (07-install-installer.sh) ===` \
-  calamares \
-  qml-module-qtquick-controls qml-module-qtquick-controls2 \
-  qml-module-qtquick-dialogs qml-module-qtquick-layouts \
-  qml-module-qtquick-window2 \
-  upower os-prober python3-jsonschema \
-  \
-  `# === 5Ghoul build toolchain (09-install-5ghoul.sh) ===` \
-  git-lfs \
-  meson ccache \
-  python3-numpy python3-pandas python3-scapy \
-  nodejs npm \
-  libqt5websockets5-dev \
-  \
-  `# === 5Ghoul fuzzer runtime (09-install-5ghoul.sh) ===` \
-  libsnappy-dev \
-  liblua5.2-dev \
-  libnl-3-dev libnl-route-3-dev libnl-genl-3-dev \
-  libnghttp2-dev \
-  libnss3-dev \
-  libtbb-dev \
-  libdouble-conversion-dev \
-  libdwarf-dev libelf-dev libiberty-dev \
-  libunwind-dev \
-  libgflags-dev \
-  libevent-dev \
-  libfmt-dev \
-  libasan6 libubsan1 \
-  \
-  `# === 5Ghoul requirements.sh deps (Ubuntu 24.04/Noble universe) ===` \
-  `# These are pulled by the upstream requirements.sh on first-run.` \
-  `# Pre-installing here avoids live-system apt errors during 5ghoul-install.` \
-  bc swig graphviz libgraphviz-dev \
-  libspandsp-dev \
-  libsbc-dev libspeexdsp-dev \
-  libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
-  libmaxminddb-dev \
-  libfreetype-dev \
-  libgl-dev \
-  libpcre2-dev \
-  libxss1 \
-  sshpass \
-  libgoogle-glog-dev libzstd-dev \
-  \
-  `# === Developer tools & language runtimes (10/11) ===` \
-  openjdk-17-jdk maven \
-  ccache \
-  tmux \
-  \
-  `# === Modem & AT command tools (11-install-device-tools.sh) ===` \
-  minicom gammu modem-manager-gui screen picocom python3-serial \
-  modemmanager libqmi-utils libmbim-utils \
-  usb-modeswitch usb-modeswitch-data \
-  \
-  `# === Network analysis & wireless tools ===` \
-  tcpdump iw aircrack-ng \
-  \
-  `# === Device flashing tools (11-install-device-tools.sh) ===` \
-  heimdall-flash adb fastboot \
-  \
-  `# === DOCSIS & HFC Tools ===` \
-  tftpd-hpa tftp-hpa isc-dhcp-server yersinia ettercap-text-only \
-  \
-  `# === VoIP & SIP tools (11-install-device-tools.sh / 04) ===` \
-  linphone-desktop twinkle baresip \
-  ppp wvdial \
-  \
-  `# === SNMP / BSS management ===` \
-  snmp snmp-mibs-downloader snmpd libsnmp-dev \
-  \
-  `# === Telecom tool build dependencies (10-install-telecom-advanced.sh) ===` \
-  linux-headers-generic \
-  libconfig++-dev \
-  libliquid-dev \
-  libtalloc2 libtalloc-dev \
-  libqwt-qt5-dev librtlsdr-dev libboost-all-dev libitpp-dev libfftw3-dev \
-  libncurses-dev cargo libcrypt-dev libqt5charts5-dev libsqlite3-dev
+  `# Extra packages not belonging to any per-script group` \
+  libsqlite3-dev \
+  liblapacke-dev libblas-dev liblapack-dev \
+  `# osmo-simtrace2 compiled from source in 06; only its build deps are above`
 
 # ─── 5. Remove chroot service suppression ────────────────────────────────────
 rm -f /usr/sbin/policy-rc.d /usr/local/sbin/udevadm /usr/bin/udevadm /sbin/udevadm /bin/udevadm

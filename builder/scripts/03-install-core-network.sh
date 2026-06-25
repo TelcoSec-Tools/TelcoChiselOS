@@ -6,17 +6,11 @@ echo "=== Configuring Core Network Stack (srsRAN + Open5GS first-run helpers) ==
 # Skip apt operations — handled by 00-install-all-packages.sh
 if [ ! -f /tmp/.packages-installed ]; then
   echo "WARNING: Running standalone (packages not pre-installed)"
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  # shellcheck source=lib/packages.sh
+  source "${SCRIPT_DIR}/lib/packages.sh"
   sudo apt-get update
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    cmake ninja-build \
-    clang-15 lld-15 lldb-15 \
-    libfftw3-dev liblapacke-dev libblas-dev liblapack-dev \
-    libsctp-dev lksctp-tools \
-    libzmq3-dev libczmq-dev \
-    libjson-c-dev libglib2.0-dev libconfig-dev \
-    libyaml-cpp-dev libboost-all-dev libssl-dev libmbedtls-dev \
-    python3-yaml \
-    libbladerf2 libbladerf-dev bladerf
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${PKGS_CORE_NETWORK[@]}"
   sudo update-alternatives --install /usr/bin/clang   clang   /usr/bin/clang-15   100 || true
   sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100 || true
   sudo update-alternatives --install /usr/bin/lld     lld     /usr/bin/lld-15     100 || true

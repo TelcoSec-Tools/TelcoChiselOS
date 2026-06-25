@@ -13,7 +13,7 @@
     <div class="sidebar-search" @click="openSearch" style="display:flex; align-items:center; margin: 0 20px 20px; padding: 10px 14px; background:var(--bg-hover); border:1px solid var(--border-color); border-radius:6px; cursor:pointer; color:var(--text-muted); font-size:0.85rem;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       <span style="flex:1;">Search docs...</span>
-      <kbd style="background:var(--bg-body); border:1px solid var(--border-color); padding:2px 6px; border-radius:4px; font-family:monospace; font-size:0.75rem;">⌘K</kbd>
+      <kbd style="background:var(--bg-body); border:1px solid var(--border-color); padding:2px 6px; border-radius:4px; font-family:monospace; font-size:0.75rem;">Ctrl K</kbd>
     </div>
 
     <nav>

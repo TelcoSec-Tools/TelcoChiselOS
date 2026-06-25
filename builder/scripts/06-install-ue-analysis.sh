@@ -6,22 +6,11 @@ echo "=== Installing UE Analysis, Baseband & SIMtrace Tools ==="
 # Skip apt operations — handled by 00-install-all-packages.sh
 if [ ! -f /tmp/.packages-installed ]; then
   echo "WARNING: Running standalone (packages not pre-installed)"
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  # shellcheck source=lib/packages.sh
+  source "${SCRIPT_DIR}/lib/packages.sh"
   sudo apt-get update
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    pcscd pcsc-tools libpcsclite-dev \
-    python3-pyscard python3-pip python3-venv python3-dev \
-    libosmocore-dev libmd-dev librocksdb-dev \
-    git wget unzip cmake pkg-config build-essential gnupg autoconf automake libtool \
-    qemu-system-arm qemu-system-mips qemu-system-x86 qemu-utils \
-    libglib2.0-dev bison flex libpcap-dev libgcrypt20-dev \
-    qtbase5-dev qttools5-dev qtmultimedia5-dev libqt5svg5-dev libc-ares-dev \
-    libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-2.0-0 \
-    libcurl4-openssl-dev \
-    libelf-dev libffi-dev libdwarf-dev libwiretap-dev wireshark-dev python3-pycparser \
-    protobuf-compiler protobuf-c-compiler libprotoc-dev libprotobuf-dev libprotobuf-c-dev libjsoncpp-dev \
-    gdb-multiarch libcapstone-dev gcc-mipsel-linux-gnu gcc-arm-none-eabi \
-    scons g++ make dfu-util autoconf-archive \
-    libtalloc-dev libgnutls28-dev liburing-dev
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${PKGS_UE_ANALYSIS[@]}"
 fi
 
 # pip_retry: shell-level retry wrapper for pip installs that download large wheels.

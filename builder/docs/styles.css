@@ -784,6 +784,44 @@ span.tag {
     background: rgba(196, 181, 253, 0.06);
     border-color: rgba(196, 181, 253, 0.25);
 }
+
+/* New taxonomy aliases (replaces gsm/lte/ue/ran/device/network/sys) */
+.tag-2g {
+    color: #80c8e0;
+    background: rgba(128, 200, 224, 0.06);
+    border-color: rgba(128, 200, 224, 0.25);
+}
+
+.tag-4g {
+    color: #6ee7b7;
+    background: rgba(110, 231, 183, 0.06);
+    border-color: rgba(110, 231, 183, 0.25);
+}
+
+.tag-baseband {
+    color: #a080d8;
+    background: rgba(160, 128, 216, 0.06);
+    border-color: rgba(160, 128, 216, 0.25);
+}
+
+.tag-core {
+    color: var(--yellow);
+    background: rgba(232, 195, 26, 0.06);
+    border-color: rgba(232, 195, 26, 0.25);
+}
+
+.tag-mw {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.06);
+    border-color: rgba(251, 191, 36, 0.25);
+}
+
+.tag-adsl {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.06);
+    border-color: rgba(74, 222, 128, 0.25);
+}
+
 .status-ready {
     color: var(--accent-teal);
     background: rgba(0, 212, 180, 0.06);

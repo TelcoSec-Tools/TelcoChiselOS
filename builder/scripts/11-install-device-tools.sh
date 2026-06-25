@@ -10,6 +10,10 @@ git config --global credential.helper ''
 TELCOSEC_OPT=/opt/telcosec
 mkdir -p "$TELCOSEC_OPT"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/record-tool.sh
+source "${SCRIPT_DIR}/lib/record-tool.sh"
+
 # ─── A. Samsung tools ────────────────────────────────────────────────────────
 echo "  Samsung tools (heimdall already installed via apt)..."
 # heimdall-flash installed in 00-install-all-packages.sh
@@ -63,6 +67,7 @@ pip3 install edl --break-system-packages 2>/dev/null || {
     pip3 install -e "${TELCOSEC_OPT}/edl" --break-system-packages 2>/dev/null || true
   fi
 }
+record_tool "EDL (Qualcomm)" "$(command -v edl 2>/dev/null || echo '/usr/local/bin/edl')" "baseband"
 
 # Qualcomm DIAG/AT helper
 cat > /usr/local/bin/qc-diag << 'SCRIPT'
@@ -104,6 +109,7 @@ if ! command -v atinout &>/dev/null; then
     cd "${TELCOSEC_OPT}/atinout" && make && cp atinout /usr/local/bin/ && cd /
   fi
 fi
+record_tool "atinout" "/usr/local/bin/atinout" "baseband"
 
 # Interactive AT console launcher
 cat > /usr/local/bin/at-console << 'SCRIPT'

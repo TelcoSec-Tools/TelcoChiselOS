@@ -14,6 +14,10 @@ git config --global credential.helper ''
 TELCOSEC_OPT=/opt/telcosec
 mkdir -p "$TELCOSEC_OPT"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/record-tool.sh
+source "${SCRIPT_DIR}/lib/record-tool.sh"
+
 # ─── Pre-clone all repos in parallel before starting any builds ──────────────
 echo "  Cloning repositories in parallel..."
 mkdir -p "$TELCOSEC_OPT"
@@ -73,10 +77,11 @@ else
       /etc/telcosec/ueransim/*.yaml 2>/dev/null || true
     sed -i "s/mnc: '70'/mnc: '${MNC}'/g;  s/mnc: 70/mnc: ${MNC}/g" \
       /etc/telcosec/ueransim/*.yaml 2>/dev/null || true
-    chown -R telcosec:telcosec "${TELCOSEC_OPT}/ueransim" /etc/telcosec/ueransim
+    chown -R telcosec:telcosec /etc/telcosec/ueransim
     cd /
   fi
 fi
+record_tool "UERANSIM" "/usr/local/bin/nr-ue" "5g"
 
 # ─── B. SCAT (Diag protocol / Samsung/Qualcomm log decoder) ─────────────────
 echo "  Installing SCAT..."
@@ -84,6 +89,7 @@ pip3 install scat --break-system-packages 2>/dev/null || true
 if [ -d "${TELCOSEC_OPT}/scat" ]; then
   pip3 install -e "${TELCOSEC_OPT}/scat" --break-system-packages 2>/dev/null || true
 fi
+record_tool "SCAT" "$(command -v scat 2>/dev/null || echo '/usr/local/bin/scat')" "baseband"
 
 # ─── C. Osmocom tools (GSM/2G BTS stack) ────────────────────────────────────
 echo "  Installing Osmocom tools..."
@@ -108,9 +114,9 @@ if [ -d "${TELCOSEC_OPT}/kalibrate-gsm" ]; then
   ./bootstrap.sh 2>/dev/null || autoreconf -fi
   ./configure && make -j"$(nproc)"
   cp src/kal /usr/local/bin/kal-gsm 2>/dev/null || true
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/kalibrate-gsm"
   cd /
 fi
+record_tool "kalibrate-gsm" "/usr/local/bin/kal-gsm" "2g"
 
 # ─── E. Modmobmap (cell mapping via AT commands) ────────────────────────────
 echo "  Installing Modmobmap..."
@@ -122,8 +128,8 @@ if [ -d "${TELCOSEC_OPT}/modmobmap" ]; then
 python3 /opt/telcosec/modmobmap/modmobmap.py "$@"
 SCRIPT
   chmod +x /usr/local/bin/modmobmap
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/modmobmap"
 fi
+record_tool "Modmobmap" "/usr/local/bin/modmobmap" "2g"
 
 # ─── F. SIMTester (Java SIM card security testing) ──────────────────────────
 echo "  Installing SIMTester..."
@@ -139,8 +145,8 @@ EOF
   else
     echo "  WARNING: SIMTester.jar not found in binaries folder."
   fi
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/simtester"
 fi
+record_tool "SIMTester" "/usr/local/bin/simtester" "sim"
 
 # ─── G. YateBTS + Yate (GSM/UMTS BTS with BladeRF support) ─────────────────
 echo "  Installing YateBTS (deferred compile — providing installer helper)..."
@@ -191,7 +197,6 @@ EOF
 echo "YateBTS installed. Start with: sudo yate -s -l /var/log/yate.log"
 SCRIPT
 chmod +x /usr/local/bin/yatebts-install
-chown -R telcosec:telcosec "${TELCOSEC_OPT}/yatebts" 2>/dev/null || true
 
 # ─── H. OpenBTS (GSM BTS, deferred compile) ─────────────────────────────────
 echo "  Installing OpenBTS helper..."
@@ -211,7 +216,6 @@ apt-get install -y libosip2-dev libexosip2-dev
 echo "OpenBTS installed. Configure: /etc/OpenBTS/OpenBTS.conf"
 SCRIPT
 chmod +x /usr/local/bin/openbts-install
-chown -R telcosec:telcosec "${TELCOSEC_OPT}/openbts" 2>/dev/null || true
 
 # ─── I. srsGUI (visualization for srsRAN metrics) ───────────────────────────
 echo "  Installing srsGUI..."
@@ -224,9 +228,9 @@ if [ -d "${TELCOSEC_OPT}/srsgui" ]; then
   make -j"$(nproc)" srsgui 2>&1 | tail -5 || \
     make -j"$(nproc)" 2>&1 | tail -5 || true
   [ -f srsgui ] && ln -sf "${TELCOSEC_OPT}/srsgui/build/srsgui" /usr/local/bin/srsgui || true
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/srsgui"
   cd /
 fi
+record_tool "srsGUI" "/usr/local/bin/srsgui" "core"
 
 # ─── J. LTE-CellScanner ──────────────────────────────────────────────────────
 echo "  Installing LTE-CellScanner..."
@@ -237,9 +241,9 @@ if [ -d "${TELCOSEC_OPT}/lte-cellscanner" ]; then
   make -j"$(nproc)" 2>&1 | tail -5 || true
   [ -f src/CellSearch ] && ln -sf "${TELCOSEC_OPT}/lte-cellscanner/build/src/CellSearch" \
     /usr/local/bin/LTE-CellSearch || true
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/lte-cellscanner"
   cd /
 fi
+record_tool "LTE-CellScanner" "/usr/local/bin/LTE-CellSearch" "4g"
 
 # ─── K. LTESniffer ───────────────────────────────────────────────────────────
 echo "  Installing LTESniffer..."
@@ -250,12 +254,15 @@ if [ -d "${TELCOSEC_OPT}/ltesniffer" ]; then
   export CXXFLAGS="-Wno-error"
   cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -3
   make -j"$(nproc)" 2>&1 | tail -5 || true
-  SNIFFER_BIN=$(find . -name "ltesniffer" -type f 2>/dev/null | head -1)
-  [ -n "$SNIFFER_BIN" ] && \
-    ln -sf "${TELCOSEC_OPT}/ltesniffer/build/${SNIFFER_BIN}" /usr/local/bin/ltesniffer || true
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/ltesniffer"
+  # Use explicit expected output path (cmake project puts binary at src/LTESniffer)
+  if [ -f src/LTESniffer ]; then
+    ln -sf "${TELCOSEC_OPT}/ltesniffer/build/src/LTESniffer" /usr/local/bin/ltesniffer
+  else
+    echo "  WARNING: LTESniffer binary not found at expected path src/LTESniffer"
+  fi
   cd /
 fi
+record_tool "LTESniffer" "/usr/local/bin/ltesniffer" "4g"
 
 # ─── L. 5G GTP kernel module (gtp5g) ─────────────────────────────────────────
 echo "  Installing gtp5g kernel module..."
@@ -277,9 +284,6 @@ modprobe gtp5g
 echo "gtp5g module loaded: $(lsmod | grep gtp5g)"
 GSCRIPT
 chmod +x /usr/local/bin/gtp5g-load
-if [ -d "${TELCOSEC_OPT}/gtp5g" ]; then
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/gtp5g"
-fi
 
 # ─── M. GTP Python toolkit ───────────────────────────────────────────────────
 echo "  Installing GTP Python tools..."
@@ -334,7 +338,6 @@ SCRIPT
 chmod +x /usr/local/bin/nokia-netact-cli \
          /usr/local/bin/ericsson-enm-cli \
          /usr/local/bin/huawei-u2000-cli
-chown -R telcosec:telcosec "${TELCOSEC_OPT}/bss-tools"
 
 # ─── P. Open5GS test PLMN patch (only if installed) ─────────────────────────
 if [ -d /etc/open5gs ]; then
@@ -379,10 +382,10 @@ else
     else
       echo "    WARNING: cargo not found. Skipping RDNSx compilation."
     fi
-    chown -R telcosec:telcosec "${TELCOSEC_OPT}/rdnsx"
     cd /
   fi
 fi
+record_tool "RDNSx" "/usr/local/bin/rdnsx" "adsl"
 
 # ─── S. Broadband & ADSL Exploitation Tools ─────────────────────────────────
 echo "  Installing Broadband & ADSL Exploitation Tools..."
@@ -396,9 +399,9 @@ if [ -d "${TELCOSEC_OPT}/asleap" ]; then
   make -j"$(nproc)" 2>&1 | tail -5 || true
   [ -f asleap ] && ln -sf "${TELCOSEC_OPT}/asleap/asleap" /usr/local/bin/asleap || true
   [ -f genkeys ] && ln -sf "${TELCOSEC_OPT}/asleap/genkeys" /usr/local/bin/genkeys || true
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/asleap"
   cd /
 fi
+record_tool "Asleap" "/usr/local/bin/asleap" "adsl"
 
 # 2. snmp-check (Kali Linux native SNMP enumerator)
 if [ ! -f /usr/local/bin/snmp-check ]; then
@@ -420,18 +423,18 @@ if [ -d "${TELCOSEC_OPT}/routersploit" ]; then
 python3 /opt/telcosec/routersploit/rsf.py "$@"
 SCRIPT
   chmod +x /usr/local/bin/routersploit
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/routersploit"
   cd /
 fi
+record_tool "RouterSploit" "/usr/local/bin/routersploit" "adsl"
 
 # 4. DOCSIS config tool
 if [ -d "${TELCOSEC_OPT}/docsis" ]; then
   cd "${TELCOSEC_OPT}/docsis"
   ./autogen.sh && ./configure && make -j"$(nproc)" 2>&1 | tail -5 || true
   make install || true
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/docsis"
   cd /
 fi
+record_tool "docsis" "/usr/local/bin/docsis" "adsl"
 
 # ─── T. Falcon GUI (LTE Network Analyzer) ──────────────────────────────────
 echo "  Installing Falcon GUI..."
@@ -441,14 +444,14 @@ if [ -d "${TELCOSEC_OPT}/falcon" ]; then
   cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -3
   make -j"$(nproc)" 2>&1 | tail -5 || true
   [ -f falcon ] && ln -sf "${TELCOSEC_OPT}/falcon/build/falcon" /usr/local/bin/falcon || true
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/falcon"
   cd /
 fi
+record_tool "Falcon" "/usr/local/bin/falcon" "4g"
 
 # ─── U. TelcoSec ChiselControl Dashboard ──────────────────────────────────────
 echo "  Configuring ChiselControl Dashboard..."
-if [ -d "${TELCOSEC_OPT}/dashboard" ]; then
-  chown -R telcosec:telcosec "${TELCOSEC_OPT}/dashboard"
-fi
+
+# ─── Final ownership (single pass, replaces per-tool chowns) ─────────────────
+chown -R telcosec:telcosec "${TELCOSEC_OPT}"
 
 echo "=== Advanced Telecom Tools installation complete ==="

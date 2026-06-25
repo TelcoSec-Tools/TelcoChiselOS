@@ -164,33 +164,33 @@ onMounted(() => {
 // Tag helper functions
 function tagClass(cat) {
   return {
-    sdr:     'tag-sdr',
-    gsm:     'tag-gsm',
-    lte:     'tag-lte',
-    '5g':    'tag-5g',
-    ue:      'tag-ue',
-    sim:     'tag-sim',
-    ran:     'tag-ran',
-    device:  'tag-device',
-    network: 'tag-network',
-    voip:    'tag-voip',
-    sys:     'tag-sys'
+    adsl:     'tag-network',
+    sim:      'tag-sim',
+    '2g':     'tag-gsm',
+    '3g':     'tag-lte',
+    '4g':     'tag-lte',
+    '5g':     'tag-5g',
+    mw:       'tag-sys',
+    voip:     'tag-voip',
+    core:     'tag-ran',
+    baseband: 'tag-ue',
+    sdr:      'tag-sdr'
   }[cat] || ''
 }
 
 function tagLabel(cat) {
   return {
-    sdr:     'SDR',
-    gsm:     'GSM / 2G',
-    lte:     'LTE / 4G',
-    '5g':    '5G NR',
-    ue:      'UE & Baseband',
-    sim:     'SIM / Smartcard',
-    ran:     'RAN & Signaling',
-    device:  'Device Tools',
-    network: 'Network',
-    voip:    'VoIP',
-    sys:     'System'
+    adsl:     'ADSL & Broadband',
+    sim:      'SIM Cards & Smartcards',
+    '2g':     'Mobile (2G / GSM)',
+    '3g':     'Mobile (3G / UMTS)',
+    '4g':     'Mobile (4G / LTE)',
+    '5g':     'Mobile (5G / NR)',
+    mw:       'Microwave (MW) & Transport',
+    voip:     'VoIP & PBX',
+    core:     'Core Network & Signaling',
+    baseband: 'Baseband & UE Devices',
+    sdr:      'SDR & RF Hardware'
   }[cat] || cat
 }
 </script>

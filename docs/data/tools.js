@@ -510,6 +510,7 @@ export const toolsCatalog = [
         status: "ready",
         desc: "Wrapper for accessing Huawei U2000 management interfaces using telnet or SSH fallback.",
         path: "/usr/local/bin/huawei-u2000-cli",
+        cmd: "huawei-u2000-cli <host>"
     },
     {
         name: "GQRX",
@@ -519,15 +520,6 @@ export const toolsCatalog = [
         desc: "An open source software defined radio (SDR) receiver GUI and spectrum analyzer powered by GNU Radio and Qt.",
         path: "Conda env (telcosec-sdr)",
         cmd: "gqrx"
-    },
-    {
-        name: "MobileInsight",
-        slug: "mobileinsight",
-        category: "baseband",
-        status: "ready",
-        desc: "A mobile network diagnostic analysis framework that extracts, parses, and analyzes 3G/4G/5G baseband messages.",
-        path: "System-wide",
-        cmd: "mobileinsight --help"
     },
     {
         name: "Twinkle",

@@ -262,19 +262,40 @@ if [ -f /tmp/security/telcosec-ca.crt ]; then
   sudo chmod 644 /usr/local/share/ca-certificates/telcosec-ca.crt
 fi
 
-# Download and install Cloudflare Origin CA root certificates (needed for domains using Cloudflare Origin Certificates)
-echo "Downloading and installing Cloudflare Origin CA certificates..."
-sudo wget -qO /usr/local/share/ca-certificates/cloudflare_origin_ecc.crt https://developers.cloudflare.com/ssl/static/origin_ca_ecc_root.pem || true
-sudo wget -qO /usr/local/share/ca-certificates/cloudflare_origin_rsa.crt https://developers.cloudflare.com/ssl/static/origin_ca_rsa_root.pem || true
+# Download and install Cloudflare Origin CA root certificates
+# (needed for domains using Cloudflare Origin Certificates)
+echo "Downloading Cloudflare Origin CA certificates..."
+_CF_ECC=/usr/local/share/ca-certificates/cloudflare_origin_ecc.crt
+_CF_RSA=/usr/local/share/ca-certificates/cloudflare_origin_rsa.crt
+_CF_FAIL=0
 
-if [ -f /usr/local/share/ca-certificates/cloudflare_origin_ecc.crt ]; then
-  sudo chmod 644 /usr/local/share/ca-certificates/cloudflare_origin_ecc.crt
+sudo mkdir -p /usr/local/share/ca-certificates
+if sudo wget -qO "$_CF_ECC" \
+    https://developers.cloudflare.com/ssl/static/origin_ca_ecc_root.pem 2>/dev/null && \
+    [ -s "$_CF_ECC" ]; then
+  sudo chmod 644 "$_CF_ECC"
+  echo "  Cloudflare ECC CA: OK"
+else
+  echo "  WARNING: Cloudflare ECC CA download failed — Cloudflare-origin certs may not be trusted"
+  sudo rm -f "$_CF_ECC"
+  _CF_FAIL=1
 fi
-if [ -f /usr/local/share/ca-certificates/cloudflare_origin_rsa.crt ]; then
-  sudo chmod 644 /usr/local/share/ca-certificates/cloudflare_origin_rsa.crt
+
+if sudo wget -qO "$_CF_RSA" \
+    https://developers.cloudflare.com/ssl/static/origin_ca_rsa_root.pem 2>/dev/null && \
+    [ -s "$_CF_RSA" ]; then
+  sudo chmod 644 "$_CF_RSA"
+  echo "  Cloudflare RSA CA: OK"
+else
+  echo "  WARNING: Cloudflare RSA CA download failed — Cloudflare-origin certs may not be trusted"
+  sudo rm -f "$_CF_RSA"
+  _CF_FAIL=1
 fi
 
 sudo update-ca-certificates || true
+if [ "$_CF_FAIL" = "1" ]; then
+  echo "  !! BUILD WARNING: Cloudflare CA fetch failed — live image may reject Cloudflare-origin TLS certs" >&2
+fi
 
 # 12.5. Terminal Aliases & Tool Shortcuts
 echo "Deploying global terminal aliases..."
