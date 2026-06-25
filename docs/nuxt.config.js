@@ -48,7 +48,7 @@ export default defineNuxtConfig({
   site: {
     url: 'https://tschisel.telcosec.net',
     name: 'TelcoChisel',
-    description: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 50+ tools for SDR analysis and cellular penetration testing.',
+    description: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 75+ tools for SDR analysis and cellular penetration testing.',
     defaultLocale: 'en',
   },
 

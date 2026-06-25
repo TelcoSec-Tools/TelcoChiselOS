@@ -160,6 +160,23 @@ jobs:
 
           echo "ISO: $SIZE | SHA256: $SHA256"
 
+      # ── Artifact retention (safety net before publish steps) ─────────────────
+      # Retains the ISO and sha256 for 7 days in case SourceForge/GH publish fails.
+      # ISO is chunked at 1.9 GB to stay under GH's artifact file size limit.
+      - name: Split ISO for artifact upload
+        run: |
+          mkdir -p /tmp/iso-chunks
+          split -b 1900M "$ISO" /tmp/iso-chunks/TelcoChisel-live.iso.part
+          cp "${ISO}.sha256" /tmp/iso-chunks/
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TelcoChisel-${{ steps.version.outputs.version }}
+          path: /tmp/iso-chunks/
+          retention-days: 7
+          if-no-files-found: error
+
       # ── GitHub Actions step summary ──────────────────────────────────────────
       - name: Build Summary
         run: |

@@ -10,34 +10,13 @@ echo "=== Installing 5Ghoul 5G NR Attack Framework Dependencies ==="
 # Skip apt operations — handled by 00-install-all-packages.sh
 if [ ! -f /tmp/.packages-installed ]; then
   echo "WARNING: Running standalone (packages not pre-installed)"
-  # ── Build toolchain ──────────────────────────────────────────────────────────
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  # shellcheck source=lib/packages.sh
+  source "${SCRIPT_DIR}/lib/packages.sh"
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    git git-lfs \
-    cmake ninja-build meson \
-    ccache \
-    python3-pip python3-dev python3-numpy python3-pandas python3-scapy \
-    nodejs npm \
-    wireshark-dev \
-    libqt5websockets5-dev
-
-  # ── 5Ghoul fuzzer runtime deps ───────────────────────────────────────────────
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    libglib2.0-dev \
-    libsnappy-dev \
-    liblua5.2-dev \
-    libc-ares-dev \
-    libnl-3-dev libnl-route-3-dev libnl-genl-3-dev \
-    libnghttp2-dev \
-    libnss3-dev \
-    libtbb-dev \
-    libdouble-conversion-dev \
-    libdwarf-dev libelf-dev libiberty-dev \
-    libunwind-dev \
-    libgflags-dev \
-    libevent-dev \
-    libfmt-dev \
-    libpcap-dev \
-    libasan6 libubsan1
+    "${PKGS_5GHOUL_BUILD[@]}" \
+    "${PKGS_5GHOUL_RUNTIME[@]}" \
+    "${PKGS_5GHOUL_REQS[@]}"
 fi
 
 # ── Python tooling ───────────────────────────────────────────────────────
@@ -466,10 +445,14 @@ echo "  1. sudo 5ghoul-add-subscriber      # register test UE in Open5GS"
 echo "  2. sudo open5gs-start              # start 5G SA core"
 if [ "$RADIO" = "BLADERF" ] || [ "$RADIO" = "LIMESDR" ]; then
   if [ "$RADIO" = "BLADERF" ]; then
-    BCONF=$(find "$INSTALL_DIR" -name '*bladerf*' -name '*.conf' 2>/dev/null | head -1)
+    # Try known path first (5Ghoul repo: conf/gnb_bladerf.conf), fall back to find
+    BCONF="${INSTALL_DIR}/conf/gnb_bladerf.conf"
+    [ -f "$BCONF" ] || BCONF=$(find "$INSTALL_DIR" -name '*bladerf*' -name '*.conf' 2>/dev/null | head -1)
     echo "  3. Connect BladeRF A4 via USB 3.0"
   else
-    BCONF=$(find "$INSTALL_DIR" -name '*limesdr*' -name '*.conf' 2>/dev/null | head -1)
+    # Try known path first (5Ghoul repo: conf/gnb_limesdr.conf), fall back to find
+    BCONF="${INSTALL_DIR}/conf/gnb_limesdr.conf"
+    [ -f "$BCONF" ] || BCONF=$(find "$INSTALL_DIR" -name '*limesdr*' -name '*.conf' 2>/dev/null | head -1)
     echo "  3. Connect LimeSDR Mini via USB"
   fi
   echo "  4. cd $INSTALL_DIR"
@@ -519,8 +502,10 @@ RADIO_BACKEND="USRP"
 EXTRA_ARGS=()
 if [[ "$RADIO_BACKEND" =~ ^(BLADERF|LIMESDR)$ ]] && ! printf '%s\n' "$@" | grep -q -- '--gnb.conf'; then
   SEARCH_TERM=$(echo "$RADIO_BACKEND" | tr '[:upper:]' '[:lower:]')
-  BCONF=$(find "$INSTALL_DIR" -name "*${SEARCH_TERM}*" -name '*.conf' 2>/dev/null | head -1)
-  if [ -n "$BCONF" ]; then
+  # Try known conf path first (5Ghoul repo: conf/gnb_<radio>.conf), fall back to find
+  BCONF="${INSTALL_DIR}/conf/gnb_${SEARCH_TERM}.conf"
+  [ -f "$BCONF" ] || BCONF=$(find "$INSTALL_DIR" -name "*${SEARCH_TERM}*" -name '*.conf' 2>/dev/null | head -1)
+  if [ -n "$BCONF" ] && [ -f "$BCONF" ]; then
     echo "Auto-selected $RADIO_BACKEND gNB config: $BCONF"
     EXTRA_ARGS=(--gnb.conf "$BCONF")
   fi

@@ -316,6 +316,22 @@ if ! $PACK_ONLY; then
   _phase 11 "11 · Device flash tools"              chroot_run 11-install-device-tools.sh
   _phase 12 "12 · Install Dashboard"               chroot_run 12-install-dashboard.sh
 
+  # ── Tool build manifest summary ─────────────────────────────────────────────
+  # Print PASS/FAIL results for every tool instrumented with record_tool().
+  # Source the helper into the host shell so record_tool_summary() is available.
+  SCRIPT_DIR_HOST="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/builder/scripts"
+  # shellcheck source=builder/scripts/lib/record-tool.sh
+  source "${SCRIPT_DIR_HOST}/lib/record-tool.sh"
+  # Copy the manifest out of the chroot for the summary (the log lives inside rootfs)
+  if [ -f "${ROOTFS}/usr/share/telcosec/tool-manifest.txt" ]; then
+    cp "${ROOTFS}/usr/share/telcosec/tool-manifest.txt" /tmp/tool-manifest.txt
+    # Override manifest path for summary
+    _TELCOSEC_MANIFEST=/tmp/tool-manifest.txt
+    record_tool_summary
+  else
+    echo "  (no tool manifest found — record_tool may not have run)"
+  fi
+
   # Remove chroot service suppression
   rm -f "$ROOTFS/usr/sbin/policy-rc.d" "$ROOTFS/usr/local/sbin/udevadm"
   if chroot "$ROOTFS" dpkg-divert --list /usr/bin/udevadm 2>/dev/null | grep -q "diversion of"; then
@@ -502,11 +518,22 @@ trap - EXIT
 
 # ─── Squashfs ─────────────────────────────────────────────────────────────────
 mkdir -p "$WORKDIR/image/casper"
-echo "--> Packing filesystem into squashfs (zstd-${SQUASHFS_LEVEL})..."
+# Derive CPU and memory limits from the host at pack time.
+# Cap processors to avoid thrashing on shared CI runners.
+_SQUASHFS_PROCS=$(nproc)
+[ "$_SQUASHFS_PROCS" -gt 8 ] && _SQUASHFS_PROCS=8
+# Derive per-processor memory budget (mksquashfs -mem is per-processor).
+# Use ~60% of available RAM divided across processors; floor at 512M, cap at 4G.
+_AVAIL_KB=$(awk '/MemAvailable/{print $2}' /proc/meminfo 2>/dev/null || echo 4194304)
+_MEM_MB=$(( (_AVAIL_KB / 1024) * 60 / 100 / _SQUASHFS_PROCS ))
+[ "$_MEM_MB" -lt 512 ]  && _MEM_MB=512
+[ "$_MEM_MB" -gt 4096 ] && _MEM_MB=4096
+
+echo "--> Packing filesystem into squashfs (zstd-${SQUASHFS_LEVEL}, procs=${_SQUASHFS_PROCS}, mem-per-proc=${_MEM_MB}M)..."
 mksquashfs "$ROOTFS" "$WORKDIR/image/casper/filesystem.squashfs" \
   -comp zstd -Xcompression-level "${SQUASHFS_LEVEL}" \
   -b 1M \
-  -processors 4 -mem 4G \
+  -processors "${_SQUASHFS_PROCS}" -mem "${_MEM_MB}M" \
   -no-exports \
   -noappend
 

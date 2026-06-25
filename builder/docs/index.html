@@ -8,7 +8,7 @@
 
     <!-- Primary SEO -->
     <meta name="description"
-        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 50+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
+        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 75+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
     <meta name="keywords"
         content="telecom security linux, 5G security research, 4G LTE penetration testing, SDR security, baseband analysis, FirmWire, GNU Radio, srsRAN, Open5GS, SIMtrace, HackRF, USRP, BladeRF, TelcoChisel">
     <meta name="author" content="TelcoSec">
@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://tschisel.telcosec.net/">
     <meta property="og:title" content="TelcoChisel — 5G/4G Telecom Security Linux Distribution">
     <meta property="og:description"
-        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 50+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
+        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 75+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
     <meta property="og:image"
         content="https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png">
     <meta property="og:image:width" content="1280">
@@ -37,7 +37,7 @@
     <meta name="twitter:url" content="https://tschisel.telcosec.net/">
     <meta name="twitter:title" content="TelcoChisel — 5G/4G Telecom Security Linux Distribution">
     <meta name="twitter:description"
-        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 50+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
+        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 75+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
     <meta name="twitter:image"
         content="https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png">
 
@@ -68,7 +68,7 @@
         "applicationCategory": "SecurityApplication",
         "applicationSubCategory": "Telecommunications Security, Software Defined Radio, Baseband Analysis",
         "operatingSystem": "Linux (Ubuntu 24.04 LTS)",
-        "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 50+ pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
+        "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 75+ pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
         "url": "https://tschisel.telcosec.net/",
         "downloadUrl": "https://github.com/TelcoSec-Tools/TelcoChiselOS/releases",
         "softwareVersion": "1.1.0",
@@ -130,7 +130,7 @@
             "name": "What is TelcoChisel?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with a GNOME desktop, purpose-built for telecommunications security research. It includes 50+ pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
+              "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with a GNOME desktop, purpose-built for telecommunications security research. It includes 75+ pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
             }
           },
           {
@@ -351,7 +351,7 @@
                     <strong>TelcoChisel</strong> is a free, bootable live Linux distribution purpose-built for
                     cellular security researchers, Software Defined Radio (SDR) engineers, and hardware pentesters.
                     Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong> with a GNOME Shell desktop, it ships with
-                    50+ pre-configured tools covering SDR drivers, 5G core simulation, baseband emulation, SIM auditing,
+                    75+ pre-configured tools covering SDR drivers, 5G core simulation, baseband emulation, SIM auditing,
                     and telecom protocol fuzzing — ready to use without installation.
                 </p>
 
@@ -655,9 +655,9 @@ ACTION==&quot;add&quot;, SUBSYSTEM==&quot;usb&quot;, ATTR{idVendor}==&quot;1d50&
 
             <!-- SECTION: TOOLS -->
             <section id="tools" class="content-section">
-                <div class="section-header" data-label="// Tool Catalog :: 50+ Instruments">
-                    <h2>Tools Directory — 50+ Pre-installed Telecom Security Tools</h2>
-                    <p class="subtitle">Complete catalog of SDR, baseband, SIM, RAN, and signaling tools pre-installed
+                <div class="section-header" data-label="// Tool Catalog :: 75+ Instruments">
+                    <h2>Tools Directory — 75+ Pre-installed Telecom Security Tools</h2>
+                    <p class="subtitle">Complete catalog of SDR, baseband, SIM, core network, ADSL, VoIP, and signaling tools pre-installed
                         in TelcoChisel</p>
                 </div>
 
@@ -685,16 +685,15 @@ ACTION==&quot;add&quot;, SUBSYSTEM==&quot;usb&quot;, ATTR{idVendor}==&quot;1d50&
                     <div class="filter-tags">
                         <button class="filter-btn active" data-filter="all" id="filterBtnAll">All Tools</button>
                         <button class="filter-btn" data-filter="sdr" id="filterBtnSdr">SDR</button>
-                        <button class="filter-btn" data-filter="gsm" id="filterBtnGsm">GSM/2G</button>
-                        <button class="filter-btn" data-filter="lte" id="filterBtnLte">LTE/4G</button>
+                        <button class="filter-btn" data-filter="2g" id="filterBtn2g">2G / GSM</button>
+                        <button class="filter-btn" data-filter="4g" id="filterBtn4g">LTE / 4G</button>
                         <button class="filter-btn" data-filter="5g" id="filterBtn5g">5G NR</button>
-                        <button class="filter-btn" data-filter="ue" id="filterBtnUe">Baseband & UE</button>
-                        <button class="filter-btn" data-filter="sim" id="filterBtnSim">SIM/eSIM</button>
-                        <button class="filter-btn" data-filter="ran" id="filterBtnRan">RAN & Signaling</button>
-                        <button class="filter-btn" data-filter="device" id="filterBtnDevice">Device</button>
-                        <button class="filter-btn" data-filter="network" id="filterBtnNetwork">Network</button>
+                        <button class="filter-btn" data-filter="baseband" id="filterBtnBaseband">Baseband & UE</button>
+                        <button class="filter-btn" data-filter="sim" id="filterBtnSim">SIM / eSIM</button>
+                        <button class="filter-btn" data-filter="core" id="filterBtnCore">Core & Signaling</button>
                         <button class="filter-btn" data-filter="voip" id="filterBtnVoip">VoIP</button>
-                        <button class="filter-btn" data-filter="sys" id="filterBtnSys">System Docs</button>
+                        <button class="filter-btn" data-filter="mw" id="filterBtnMw">MW / Vendor CLI</button>
+                        <button class="filter-btn" data-filter="adsl" id="filterBtnAdsl">ADSL / Broadband</button>
                     </div>
                 </div>
 

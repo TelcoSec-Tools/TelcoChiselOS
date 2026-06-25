@@ -1,10 +1,16 @@
 #!/bin/bash
 set -eo pipefail
 
-echo "Installing Nginx, PHP 8.3, and SQLite extensions..."
+echo "Installing Nginx, PHP-FPM, and SQLite extensions..."
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get install -y nginx php-fpm php-sqlite3 sqlite3 sudo unzip git
+
+# Derive installed PHP version (e.g. "8.3") so the nginx config doesn't break
+# when Ubuntu ships a newer default PHP. Falls back to "8.3" if detection fails.
+PHP_VER=$(php --version 2>/dev/null | grep -oP '^\S+\s+\K\d+\.\d+' | head -1)
+PHP_VER="${PHP_VER:-8.3}"
+echo "  PHP version detected: ${PHP_VER}"
 
 echo "Deploying Dashboard..."
 mkdir -p /var/www/html
@@ -25,8 +31,9 @@ else
     echo "Skipping dashboard UI deployment. Nginx and PHP are installed and ready."
 fi
 
-# Configure Nginx for PHP
-cat > /etc/nginx/sites-available/default << 'EOF'
+# Configure Nginx for PHP — use unquoted heredoc so $PHP_VER expands.
+# nginx's own $ variables (like $uri) are escaped with \$ below.
+cat > /etc/nginx/sites-available/default << EOF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -37,12 +44,12 @@ server {
     server_name _;
 
     location / {
-        try_files $uri $uri/ =404;
+        try_files \$uri \$uri/ =404;
     }
 
-    location ~ \.php$ {
+    location ~ \.php\$ {
         include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+        fastcgi_pass unix:/var/run/php/php${PHP_VER}-fpm.sock;
     }
 
     location ~ /\.ht {
@@ -53,7 +60,7 @@ EOF
 
 # Ensure PHP-FPM is configured correctly
 systemctl enable nginx || true
-systemctl enable php8.3-fpm || true
+systemctl enable "php${PHP_VER}-fpm" || true
 
 # Setup sudoers for www-data to execute systemctl and other commands as telcosec
 echo "Configuring sudoers for www-data..."

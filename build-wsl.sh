@@ -8,7 +8,7 @@
 #   ./build-wsl.sh --pack-only           # repack squashfs → ISO only
 #
 # Environment overrides:
-#   SQUASHFS_LEVEL=3 ./build-wsl.sh     # compression level 1-15 (default: 6)
+#   SQUASHFS_LEVEL=3 ./build-wsl.sh     # zstd compression level 1-19 (default: 6 here; CI uses 3; release uses 19)
 #   USE_CCACHE=1     ./build-wsl.sh     # bind-mount ccache into chroot
 
 set -euo pipefail

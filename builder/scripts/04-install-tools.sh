@@ -6,14 +6,10 @@ echo "=== Installing Security Tools ==="
 # Skip apt operations — handled by 00-install-all-packages.sh
 if [ ! -f /tmp/.packages-installed ]; then
   echo "WARNING: Running standalone (packages not pre-installed)"
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    wireshark tshark \
-    nmap \
-    macchanger vlan freeradius-utils hashcat john pppoe nikto gobuster \
-    lksctp-tools libsctp-dev libglib2.0-dev \
-    sipsak \
-    python3-pip python3-venv \
-    wireguard twinkle baresip
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  # shellcheck source=lib/packages.sh
+  source "${SCRIPT_DIR}/lib/packages.sh"
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${PKGS_TOOLS[@]}"
 fi
 
 # Install SIPVicious and Scapy

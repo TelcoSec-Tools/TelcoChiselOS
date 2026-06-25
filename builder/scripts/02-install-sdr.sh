@@ -61,47 +61,83 @@ mkdir -p /opt/telcosec/src
 wait
 echo "All SDR repos checked/cloned."
 
-# 4. Compile SoapySDR from Source
-echo "Compiling SoapySDR..."
-cd /opt/telcosec/src/SoapySDR
-rm -rf build && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX ..
-make -j$(nproc)
-make install
+# ── SDR build helper ─────────────────────────────────────────────────────────
+# Runs cmake + make -j$(nproc) inside a subshell (background-safe).
+# Logs to /tmp/sdr-build-<name>.log. Returns make's exit code.
+# Does NOT run make install — installs are serialized after all builds finish.
+_sdr_cmake_make() {
+  local name="$1" src_dir="$2"; shift 2
+  local log="/tmp/sdr-build-${name}.log"
+  printf "  [%-16s] building...\n" "$name"
+  (
+    set -e
+    rm -rf "${src_dir}/build"
+    mkdir -p "${src_dir}/build"
+    cd "${src_dir}/build"
+    cmake "$@"
+    make -j"$(nproc)"
+  ) >"$log" 2>&1
+  local rc=$?
+  if [ "$rc" -eq 0 ]; then
+    printf "  [%-16s] build OK\n" "$name"
+  else
+    printf "  [%-16s] build FAILED (rc=%d) — see %s\n" "$name" "$rc" "$log" >&2
+    tail -20 "$log" >&2
+  fi
+  return "$rc"
+}
 
-# 4.5 Compile SoapyBladeRF plugin
-echo "Compiling SoapyBladeRF..."
-git clone --depth 1 https://github.com/pothosware/SoapyBladeRF.git /opt/telcosec/src/SoapyBladeRF 2>/dev/null || true
+# 4. SoapySDR — must install before Soapy plugins (they need its headers/cmake)
+echo "Compiling SoapySDR (serial, required by plugins)..."
+_sdr_cmake_make "SoapySDR" /opt/telcosec/src/SoapySDR \
+  -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" ..
+(cd /opt/telcosec/src/SoapySDR/build && make install)
+
+# SoapyBladeRF clone (depends on SoapySDR being installed above)
+echo "Cloning SoapyBladeRF..."
+git clone --depth 1 https://github.com/pothosware/SoapyBladeRF.git \
+  /opt/telcosec/src/SoapyBladeRF 2>/dev/null || true
+
+# 5–6. Build UHD, LimeSuite, HackRF + SoapyBladeRF in parallel.
+# UHD is the longest (15-20 min); parallelizing with the others saves ~10 min.
+# Each _sdr_cmake_make call runs in its own background subshell.
+echo "Compiling UHD, LimeSuite, HackRF, SoapyBladeRF in parallel..."
+
+_sdr_cmake_make "UHD" /opt/telcosec/src/uhd/host \
+  -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" \
+  -DENABLE_TESTS=OFF -DENABLE_EXAMPLES=OFF .. &
+_UHD_PID=$!
+
+_sdr_cmake_make "LimeSuite" /opt/telcosec/src/LimeSuite \
+  -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" .. &
+_LIME_PID=$!
+
+_sdr_cmake_make "HackRF" /opt/telcosec/src/hackrf/host \
+  -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" .. &
+_HACKRF_PID=$!
+
 if [ -d /opt/telcosec/src/SoapyBladeRF ]; then
-  cd /opt/telcosec/src/SoapyBladeRF
-  rm -rf build && mkdir build && cd build
-  cmake -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX ..
-  make -j$(nproc)
-  make install
+  _sdr_cmake_make "SoapyBladeRF" /opt/telcosec/src/SoapyBladeRF \
+    -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" .. &
+  _BLADERF_PID=$!
 fi
-# 5. Compile HackRF from Source
-echo "Compiling HackRF..."
-cd /opt/telcosec/src/hackrf/host
-rm -rf build && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX ..
-make -j$(nproc)
-make install
 
-# 5.5 Compile LimeSuite from Source
-echo "Compiling LimeSuite..."
-cd /opt/telcosec/src/LimeSuite
-rm -rf build && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX ..
-make -j$(nproc)
-make install
+# Wait for all parallel builds; don't abort on individual failure
+echo "  Waiting for parallel SDR builds..."
+wait "$_UHD_PID"    && _UHD_OK=1    || { _UHD_OK=0;    echo "  WARNING: UHD build failed"; }
+wait "$_LIME_PID"   && _LIME_OK=1   || { _LIME_OK=0;   echo "  WARNING: LimeSuite build failed"; }
+wait "$_HACKRF_PID" && _HACKRF_OK=1 || { _HACKRF_OK=0; echo "  WARNING: HackRF build failed"; }
+if [ -n "${_BLADERF_PID:-}" ]; then
+  wait "$_BLADERF_PID" && _BLADERF_OK=1 || { _BLADERF_OK=0; echo "  WARNING: SoapyBladeRF build failed"; }
+fi
 
-# 6. Compile UHD (USRP) from Source
-echo "Compiling UHD..."
-cd /opt/telcosec/src/uhd/host
-rm -rf build && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DENABLE_TESTS=OFF -DENABLE_EXAMPLES=OFF ..
-make -j$(nproc)
-make install
+# Serialize installs to avoid write races on $CONDA_PREFIX
+echo "  Installing SDR libraries (serial)..."
+[ "${_UHD_OK:-0}"    = "1" ] && (cd /opt/telcosec/src/uhd/host/build       && make install) || true
+[ "${_LIME_OK:-0}"   = "1" ] && (cd /opt/telcosec/src/LimeSuite/build      && make install) || true
+[ "${_HACKRF_OK:-0}" = "1" ] && (cd /opt/telcosec/src/hackrf/host/build    && make install) || true
+[ "${_BLADERF_OK:-0}" = "1" ] && [ -d /opt/telcosec/src/SoapyBladeRF/build ] && \
+  (cd /opt/telcosec/src/SoapyBladeRF/build && make install) || true
 
 # Defer uhd_images_downloader to first-run (saves ~1.5 GB ISO space and ~10 min)
 echo "Creating UHD images first-run downloader..."
