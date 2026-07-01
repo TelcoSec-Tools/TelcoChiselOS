@@ -13,6 +13,8 @@ mkdir -p "$TELCOSEC_OPT"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/record-tool.sh
 source "${SCRIPT_DIR}/lib/record-tool.sh"
+# shellcheck source=lib/pip-retry.sh
+source "${SCRIPT_DIR}/lib/pip-retry.sh"
 
 # ─── A. Samsung tools ────────────────────────────────────────────────────────
 echo "  Samsung tools (heimdall already installed via apt)..."
@@ -61,10 +63,14 @@ chmod +x /usr/local/bin/spflashtool-install
 # ─── B. Qualcomm tools ───────────────────────────────────────────────────────
 echo "  Installing Qualcomm EDL tools..."
 # Try pip install first, fall back to source
+# NOTE: intentionally NOT using pip_retry here — pip_retry always returns 0
+# (it's designed for simple non-fatal installs), which would silently defeat
+# the `|| { fallback }` below. This line needs the real pip3 exit code so a
+# failed PyPI install actually triggers the source-build fallback.
 pip3 install edl --break-system-packages 2>/dev/null || {
   git clone --depth 1 https://github.com/bkerler/edl "${TELCOSEC_OPT}/edl" 2>/dev/null || true
   if [ -d "${TELCOSEC_OPT}/edl" ]; then
-    pip3 install -e "${TELCOSEC_OPT}/edl" --break-system-packages 2>/dev/null || true
+    pip_retry install -e "${TELCOSEC_OPT}/edl" --break-system-packages
   fi
 }
 record_tool "EDL (Qualcomm)" "$(command -v edl 2>/dev/null || echo '/usr/local/bin/edl')" "baseband"
@@ -100,7 +106,7 @@ chmod +x /usr/local/bin/mtk-auth-bypass
 echo "  Configuring AT command tools..."
 
 # Quick AT command sender (atinout)
-pip3 install atinout 2>/dev/null || true
+pip_retry install atinout
 # If not available via pip, install from source
 if ! command -v atinout &>/dev/null; then
   git clone --depth 1 https://github.com/da-luce/atinout "${TELCOSEC_OPT}/atinout" \

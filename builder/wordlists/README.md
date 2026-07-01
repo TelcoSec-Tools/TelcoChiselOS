@@ -37,39 +37,44 @@ The central gathering place for mobile security researchers. Connect, collaborat
 
 ### Wordlist Reference Table
 
+> On a booted TelcoChisel live/installed system, these files are installed at
+> `/usr/share/wordlists/telecom/` (see `04-install-tools.sh` and the Thunar
+> "Telecom Wordlists" bookmark). The links below are relative to this
+> directory in the repository, for browsing on GitHub or locally.
+
 | Category | File Path | Description | Audit Focus |
 | :--- | :--- | :--- | :--- |
-| Access Point Names | [apns/apn-global-common.txt](file:///m:/TelcoSec-Wordlists/apns/apn-global-common.txt) | List of generic and default APNs used globally. | Mobile data routing discovery |
-| Access Point Names | [apns/apn-operators.txt](file:///m:/TelcoSec-Wordlists/apns/apn-operators.txt) | Operator-specific APN domain naming conventions. | Mobile carrier APN mapping |
-| Access Point Names | [apns/apn-iot-m2m.txt](file:///m:/TelcoSec-Wordlists/apns/apn-iot-m2m.txt) | APNs dedicated to cellular IoT and industrial M2M devices. | Cellular IoT infrastructure auditing |
-| Default Credentials | [credentials/core-network.txt](file:///m:/TelcoSec-Wordlists/credentials/core-network.txt) | Default credentials for 5G/4G core elements and network functions. | Core network access control checks |
-| Default Credentials | [credentials/ran-elements.txt](file:///m:/TelcoSec-Wordlists/credentials/ran-elements.txt) | Base station and RAN controller default login combinations. | Radio Access Network auditing |
-| Default Credentials | [credentials/voip-sip.txt](file:///m:/TelcoSec-Wordlists/credentials/voip-sip.txt) | Administrative logins for SIP Proxies, gateways, and PBXs. | VoIP infrastructure auditing |
-| Default Credentials | [credentials/telco-hardware.csv](file:///m:/TelcoSec-Wordlists/credentials/telco-hardware.csv) | Structured default credentials database for vendor hardware. | Telecom hardware hardware audit |
-| Default Credentials | [credentials/sim/sim-ota-test-keys.txt](file:///m:/TelcoSec-Wordlists/credentials/sim/sim-ota-test-keys.txt) | Default cryptokeys used in test SIM/eSIM cards and OTA servers. | SIM/eSIM OTA security testing |
-| Protocol Brute-Force | [protocols/sip-extensions.txt](file:///m:/TelcoSec-Wordlists/protocols/sip-extensions.txt) | Common phone extension layouts for SIP scanning. | SIP extension brute-forcing |
-| Protocol Brute-Force | [protocols/sip-usernames.txt](file:///m:/TelcoSec-Wordlists/protocols/sip-usernames.txt) | Standard SIP service and system usernames. | SIP account brute-forcing |
-| Protocol Brute-Force | [protocols/sip/sip-passwords.txt](file:///m:/TelcoSec-Wordlists/protocols/sip/sip-passwords.txt) | Dictionary of common SIP/VoIP passwords extracted from defaults. | SIP password brute-forcing |
-| Protocol Brute-Force | [protocols/sip/sip-headers.txt](file:///m:/TelcoSec-Wordlists/protocols/sip/sip-headers.txt) | Standard and custom SIP protocol headers. | SIP header parsing audits |
-| Protocol Brute-Force | [protocols/sip/sip-methods.txt](file:///m:/TelcoSec-Wordlists/protocols/sip/sip-methods.txt) | Standard and custom SIP protocol request methods. | SIP method scanner audits |
-| Protocol Brute-Force | [protocols/sip/sip-payloads.txt](file:///m:/TelcoSec-Wordlists/protocols/sip/sip-payloads.txt) | Input validation and injection payloads for SIP parsing. | SIP protocol injection audits |
-| Protocol Brute-Force | [protocols/sip/sdp-attributes.txt](file:///m:/TelcoSec-Wordlists/protocols/sip/sdp-attributes.txt) | Session Description Protocol (SDP) attributes and fuzz inputs. | SDP body robustness checks |
-| Protocol Brute-Force | [protocols/fuzz-generic.txt](file:///m:/TelcoSec-Wordlists/protocols/fuzz-generic.txt) | Generic fuzzing and boundary payloads (SQLi, command injection). | Generic parser boundary checks |
-| Protocol Brute-Force | [protocols/ussd-shortcodes.txt](file:///m:/TelcoSec-Wordlists/protocols/ussd-shortcodes.txt) | Common carrier and device diagnostics shortcodes. | USSD diagnostic menu discovery |
-| GTP Auditing | [protocols/gtp/gtp-ie-fuzzing.txt](file:///m:/TelcoSec-Wordlists/protocols/gtp/gtp-ie-fuzzing.txt) | Information Element fuzzing payloads for GTP-C packets. | PGW/GGSN parser robustness checks |
-| GTP Auditing | [protocols/gtp/gtp-teid-bruteforce.txt](file:///m:/TelcoSec-Wordlists/protocols/gtp/gtp-teid-bruteforce.txt) | Sequential, boundary, and repeating hex values for TEIDs. | User plane hijacking audits |
-| Signaling Auditing | [protocols/signaling/diameter-avps.txt](file:///m:/TelcoSec-Wordlists/protocols/signaling/diameter-avps.txt) | Commands, realms, and AVP lists for Diameter interface auditing. | Diameter edge/routing agent tests |
-| Signaling Auditing | [protocols/signaling/diameter-avps-fuzzing.txt](file:///m:/TelcoSec-Wordlists/protocols/signaling/diameter-avps-fuzzing.txt) | AVP name-number mappings and boundary fuzz strings. | Diameter interface AVP fuzzing |
-| Signaling Auditing | [protocols/signaling/ss7-global-titles.txt](file:///m:/TelcoSec-Wordlists/protocols/signaling/ss7-global-titles.txt) | Global Title formats and prefixes for routing audits. | SS7 MAP/CAP routing audits |
-| Signaling Auditing | [protocols/signaling/ss7-point-codes.txt](file:///m:/TelcoSec-Wordlists/protocols/signaling/ss7-point-codes.txt) | Point codes in Zone-Area-Member and decimal formats. | SS7 network routing emulation |
-| SMS Auditing | [protocols/sms/smpp-system-ids.txt](file:///m:/TelcoSec-Wordlists/protocols/sms/smpp-system-ids.txt) | Default system logins and system types for SMPP connections. | SMS gateway access control audits |
-| SMS Auditing | [protocols/sms/sms-pdu-payloads.txt](file:///m:/TelcoSec-Wordlists/protocols/sms/sms-pdu-payloads.txt) | PDU payloads including Silent SMS, Flash SMS, and WAP Push. | SMS PDU processing checks |
-| Roaming Identifiers | [plmns/mcc-mnc-list.txt](file:///m:/TelcoSec-Wordlists/plmns/mcc-mnc-list.txt) | Mobile Country Code and Network Code combinations. | PLMN ID validation and simulation |
-| Roaming Identifiers | [plmns/imsi-prefixes.txt](file:///m:/TelcoSec-Wordlists/plmns/imsi-prefixes.txt) | Top operator IMSI prefixes for subscriber routing audits. | HSS lookup routing validation |
-| 5G Core Auditing | [protocols/5g/sba-api-endpoints.txt](file:///m:/TelcoSec-Wordlists/protocols/5g/sba-api-endpoints.txt) | 5G Service-Based Architecture REST API paths. | Core NF endpoint discovery |
-| 5G Core Auditing | [protocols/5g/network-slices.txt](file:///m:/TelcoSec-Wordlists/protocols/5g/network-slices.txt) | S-NSSAI identifiers (Slice Service Type and Slice Differentiator). | Slice boundary isolation audits |
-| 5G Core Auditing | [protocols/5g/suci-routing-indicators.txt](file:///m:/TelcoSec-Wordlists/protocols/5g/suci-routing-indicators.txt) | Home Network Routing Indicator (HNRI) parameter combinations. | Subscriber routing and SEPP validation |
-| 5G Core Auditing | [protocols/5g/nas-message-types.txt](file:///m:/TelcoSec-Wordlists/protocols/5g/nas-message-types.txt) | Hex codes for 5G Non-Access Stratum Mobility & Session Management. | Unauthenticated signaling checks |
+| Access Point Names | [apns/apn-global-common.txt](./apns/apn-global-common.txt) | List of generic and default APNs used globally. | Mobile data routing discovery |
+| Access Point Names | [apns/apn-operators.txt](./apns/apn-operators.txt) | Operator-specific APN domain naming conventions. | Mobile carrier APN mapping |
+| Access Point Names | [apns/apn-iot-m2m.txt](./apns/apn-iot-m2m.txt) | APNs dedicated to cellular IoT and industrial M2M devices. | Cellular IoT infrastructure auditing |
+| Default Credentials | [credentials/core-network.txt](./credentials/core-network.txt) | Default credentials for 5G/4G core elements and network functions. | Core network access control checks |
+| Default Credentials | [credentials/ran-elements.txt](./credentials/ran-elements.txt) | Base station and RAN controller default login combinations. | Radio Access Network auditing |
+| Default Credentials | [credentials/voip-sip.txt](./credentials/voip-sip.txt) | Administrative logins for SIP Proxies, gateways, and PBXs. | VoIP infrastructure auditing |
+| Default Credentials | [credentials/telco-hardware.csv](./credentials/telco-hardware.csv) | Structured default credentials database for vendor hardware. | Telecom hardware hardware audit |
+| Default Credentials | [credentials/sim/sim-ota-test-keys.txt](./credentials/sim/sim-ota-test-keys.txt) | Default cryptokeys used in test SIM/eSIM cards and OTA servers. | SIM/eSIM OTA security testing |
+| Protocol Brute-Force | [protocols/sip-extensions.txt](./protocols/sip-extensions.txt) | Common phone extension layouts for SIP scanning. | SIP extension brute-forcing |
+| Protocol Brute-Force | [protocols/sip-usernames.txt](./protocols/sip-usernames.txt) | Standard SIP service and system usernames. | SIP account brute-forcing |
+| Protocol Brute-Force | [protocols/sip/sip-passwords.txt](./protocols/sip/sip-passwords.txt) | Dictionary of common SIP/VoIP passwords extracted from defaults. | SIP password brute-forcing |
+| Protocol Brute-Force | [protocols/sip/sip-headers.txt](./protocols/sip/sip-headers.txt) | Standard and custom SIP protocol headers. | SIP header parsing audits |
+| Protocol Brute-Force | [protocols/sip/sip-methods.txt](./protocols/sip/sip-methods.txt) | Standard and custom SIP protocol request methods. | SIP method scanner audits |
+| Protocol Brute-Force | [protocols/sip/sip-payloads.txt](./protocols/sip/sip-payloads.txt) | Input validation and injection payloads for SIP parsing. | SIP protocol injection audits |
+| Protocol Brute-Force | [protocols/sip/sdp-attributes.txt](./protocols/sip/sdp-attributes.txt) | Session Description Protocol (SDP) attributes and fuzz inputs. | SDP body robustness checks |
+| Protocol Brute-Force | [protocols/fuzz-generic.txt](./protocols/fuzz-generic.txt) | Generic fuzzing and boundary payloads (SQLi, command injection). | Generic parser boundary checks |
+| Protocol Brute-Force | [protocols/ussd-shortcodes.txt](./protocols/ussd-shortcodes.txt) | Common carrier and device diagnostics shortcodes. | USSD diagnostic menu discovery |
+| GTP Auditing | [protocols/gtp/gtp-ie-fuzzing.txt](./protocols/gtp/gtp-ie-fuzzing.txt) | Information Element fuzzing payloads for GTP-C packets. | PGW/GGSN parser robustness checks |
+| GTP Auditing | [protocols/gtp/gtp-teid-bruteforce.txt](./protocols/gtp/gtp-teid-bruteforce.txt) | Sequential, boundary, and repeating hex values for TEIDs. | User plane hijacking audits |
+| Signaling Auditing | [protocols/signaling/diameter-avps.txt](./protocols/signaling/diameter-avps.txt) | Commands, realms, and AVP lists for Diameter interface auditing. | Diameter edge/routing agent tests |
+| Signaling Auditing | [protocols/signaling/diameter-avps-fuzzing.txt](./protocols/signaling/diameter-avps-fuzzing.txt) | AVP name-number mappings and boundary fuzz strings. | Diameter interface AVP fuzzing |
+| Signaling Auditing | [protocols/signaling/ss7-global-titles.txt](./protocols/signaling/ss7-global-titles.txt) | Global Title formats and prefixes for routing audits. | SS7 MAP/CAP routing audits |
+| Signaling Auditing | [protocols/signaling/ss7-point-codes.txt](./protocols/signaling/ss7-point-codes.txt) | Point codes in Zone-Area-Member and decimal formats. | SS7 network routing emulation |
+| SMS Auditing | [protocols/sms/smpp-system-ids.txt](./protocols/sms/smpp-system-ids.txt) | Default system logins and system types for SMPP connections. | SMS gateway access control audits |
+| SMS Auditing | [protocols/sms/sms-pdu-payloads.txt](./protocols/sms/sms-pdu-payloads.txt) | PDU payloads including Silent SMS, Flash SMS, and WAP Push. | SMS PDU processing checks |
+| Roaming Identifiers | [plmns/mcc-mnc-list.txt](./plmns/mcc-mnc-list.txt) | Mobile Country Code and Network Code combinations. | PLMN ID validation and simulation |
+| Roaming Identifiers | [plmns/imsi-prefixes.txt](./plmns/imsi-prefixes.txt) | Top operator IMSI prefixes for subscriber routing audits. | HSS lookup routing validation |
+| 5G Core Auditing | [protocols/5g/sba-api-endpoints.txt](./protocols/5g/sba-api-endpoints.txt) | 5G Service-Based Architecture REST API paths. | Core NF endpoint discovery |
+| 5G Core Auditing | [protocols/5g/network-slices.txt](./protocols/5g/network-slices.txt) | S-NSSAI identifiers (Slice Service Type and Slice Differentiator). | Slice boundary isolation audits |
+| 5G Core Auditing | [protocols/5g/suci-routing-indicators.txt](./protocols/5g/suci-routing-indicators.txt) | Home Network Routing Indicator (HNRI) parameter combinations. | Subscriber routing and SEPP validation |
+| 5G Core Auditing | [protocols/5g/nas-message-types.txt](./protocols/5g/nas-message-types.txt) | Hex codes for 5G Non-Access Stratum Mobility & Session Management. | Unauthenticated signaling checks |
 
 ---
 

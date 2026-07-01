@@ -88,6 +88,17 @@ if [ ${#MISSING[@]} -gt 0 ]; then
   exit 1
 fi
 
+# Secure Boot support is optional at the tool-check level (the ISO still boots
+# fine on non-Secure-Boot UEFI and legacy BIOS without it) but recommended —
+# without shim-signed + grub-efi-amd64-signed on the HOST, modern UEFI machines
+# with Secure Boot enabled will refuse to boot this ISO. See the retrofit step
+# after grub-mkrescue below.
+if ! dpkg -s shim-signed >/dev/null 2>&1 || ! dpkg -s grub-efi-amd64-signed >/dev/null 2>&1; then
+  echo "  WARNING: shim-signed / grub-efi-amd64-signed not installed on this host —"
+  echo "  the built ISO will NOT boot on Secure-Boot-enabled UEFI machines."
+  echo "  Install with: apt-get install shim-signed grub-efi-amd64-signed"
+fi
+
 # ─── Work directory ───────────────────────────────────────────────────────────
 # 9p/drvfs/NTFS mounts don't support POSIX special files needed by debootstrap.
 FS_TYPE=$(df -T . | awk 'NR==2 {print $2}')
@@ -386,9 +397,22 @@ MODULES_EOF
 
   # Reinstall casper to ensure initramfs hooks are fully present after all the
   # provisioning apt transactions (some transactions may have left hooks stale).
+  # This is load-bearing for boot — a stale/incomplete set of casper hooks
+  # produces a live image that fails at boot with "Unable to find a medium".
+  # NOTE: the previous `| tail -3 || true` checked tail's exit code (always 0),
+  # not apt-get's, so a failure here was never actually detected or surfaced —
+  # capture and check the real exit status instead.
   echo "--> Reinstalling casper to refresh initramfs hooks..."
-  chroot "$ROOTFS" env DEBIAN_FRONTEND=noninteractive \
-    apt-get install -y --reinstall casper 2>&1 | tail -3 || true
+  CASPER_REINSTALL_LOG=$(mktemp)
+  if ! chroot "$ROOTFS" env DEBIAN_FRONTEND=noninteractive \
+      apt-get install -y --reinstall casper > "$CASPER_REINSTALL_LOG" 2>&1; then
+    echo "ERROR: casper reinstall failed — initramfs hooks may be incomplete, producing a non-booting live image."
+    tail -20 "$CASPER_REINSTALL_LOG"
+    rm -f "$CASPER_REINSTALL_LOG"
+    exit 1
+  fi
+  tail -3 "$CASPER_REINSTALL_LOG"
+  rm -f "$CASPER_REINSTALL_LOG"
 
   # Add blkid to the initramfs explicitly. casper's get_fstype() calls blkid to
   # identify block device filesystems; if blkid is absent the scan silently
@@ -516,6 +540,24 @@ fi
 cleanup
 trap - EXIT
 
+# From here on (squashfs pack, grub-mkrescue, Secure Boot retrofit, ISO
+# integrity check), install a lighter trap covering ONLY the packing phase's
+# own temp resources. Previously the trap was disabled entirely at this
+# point, so a failure anywhere in this phase leaked /tmp/xorriso-wrap and,
+# worse, a stale loop mount from the integrity check below (loop devices
+# don't clean themselves up and can block a later `losetup -f`/retry).
+# $ROOTFS is already unmounted above, so the original cleanup() no longer
+# applies here — this is a separate, narrower function.
+_PACKING_LOOP_MOUNT=""
+cleanup_packing() {
+  if [ -n "$_PACKING_LOOP_MOUNT" ]; then
+    umount -lf "$_PACKING_LOOP_MOUNT" 2>/dev/null || true
+    rmdir "$_PACKING_LOOP_MOUNT" 2>/dev/null || true
+  fi
+  rm -rf /tmp/xorriso-wrap "${SB_TMP:-}" 2>/dev/null || true
+}
+trap cleanup_packing EXIT
+
 # ─── Squashfs ─────────────────────────────────────────────────────────────────
 mkdir -p "$WORKDIR/image/casper"
 # Derive CPU and memory limits from the host at pack time.
@@ -552,11 +594,21 @@ echo "TelcoChisel Live CD" > "$WORKDIR/image/.disk/info"
 touch "$WORKDIR/image/.disk/base_installable"
 
 # ─── Kernel + initrd ──────────────────────────────────────────────────────────
+# Pick the kernel version ONCE from vmlinuz-*, then derive the initrd path from
+# that same version string — never pick vmlinuz and initrd independently. Two
+# separate `sort -V | tail -1` picks over vmlinuz-* and initrd.img-* can select
+# mismatched versions if more than one kernel is present (e.g. a leftover HWE
+# kernel), which boots to a kernel panic (initrd built for a different kernel).
 echo "--> Copying kernel and initrd..."
-vmlinuz=$(find "$ROOTFS/boot/" -name "vmlinuz-*"   -type f | sort -V | tail -1)
-initrd=$(find  "$ROOTFS/boot/" -name "initrd.img-*" -type f | sort -V | tail -1)
-if [ -z "$vmlinuz" ] || [ -z "$initrd" ]; then
-  echo "ERROR: kernel or initrd not found in $ROOTFS/boot/"
+vmlinuz=$(find "$ROOTFS/boot/" -name "vmlinuz-*" -type f | sort -V | tail -1)
+if [ -z "$vmlinuz" ]; then
+  echo "ERROR: kernel (vmlinuz-*) not found in $ROOTFS/boot/"
+  exit 1
+fi
+kver="${vmlinuz##*/vmlinuz-}"
+initrd="$ROOTFS/boot/initrd.img-${kver}"
+if [ ! -f "$initrd" ]; then
+  echo "ERROR: initrd.img-${kver} not found in $ROOTFS/boot/ (mismatched with vmlinuz-${kver})"
   exit 1
 fi
 cp "$vmlinuz" "$WORKDIR/image/casper/vmlinuz"
@@ -593,28 +645,33 @@ fi
 # noeject/noprompt: suppress casper's "remove disc and press enter" prompts.
 # Do NOT include: live-media-path (default /casper is correct),
 #   cdrom-detect/try-usb (debian-installer only), user-fullname (space issues).
+# Do NOT include: live-media=/dev/sr0 — that pins the medium to the optical
+#   drive and defeats casper's own auto-scan, so a USB stick (/dev/sdX) or a
+#   VM's virtio disk (/dev/vdX) fails with "Unable to find a medium". Casper's
+#   blkid-based scan (see the initramfs hooks above) finds the medium on its
+#   own across optical, USB, and virtio without this parameter.
 
 menuentry "TelcoChisel Live (Try without installing)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel live-media=/dev/sr0 live-media-path=/casper quiet splash ---
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash ---
     initrd /casper/initrd
 }
 
 menuentry "TelcoChisel Live (Install)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel live-media=/dev/sr0 live-media-path=/casper only-ubiquity quiet splash ---
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel only-ubiquity quiet splash ---
     initrd /casper/initrd
 }
 
 menuentry "TelcoChisel Live (Safe Graphics)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel live-media=/dev/sr0 live-media-path=/casper nomodeset ---
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel nomodeset ---
     initrd /casper/initrd
 }
 
 menuentry "TelcoChisel Live (Debug — verbose boot)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel live-media=/dev/sr0 live-media-path=/casper debug systemd.log_level=debug
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel debug systemd.log_level=debug ---
     initrd /casper/initrd
 }
 GRUB
@@ -640,27 +697,88 @@ XWRAP
 chmod +x /tmp/xorriso-wrap/xorriso
 PATH="/tmp/xorriso-wrap:$PATH" grub-mkrescue -o "$IMAGE_NAME" "$WORKDIR/image/"
 
+# ─── Secure Boot retrofit (best-effort) ───────────────────────────────────────
+# grub-mkrescue's own EFI image is unsigned, so Secure-Boot-enabled UEFI
+# firmware refuses to boot it. If shim-signed + grub-efi-amd64-signed are
+# installed on this host, patch the ISO's embedded EFI system partition
+# in place: replace BOOTX64.EFI with the signed shim (the Secure Boot chain
+# root) and add a signed grubx64.efi for shim to chainload. Everything here
+# is best-effort and non-fatal — if any step fails (path differs across grub
+# versions, mtools error, etc.) the original unsigned-but-working ISO from
+# grub-mkrescue above is left untouched, so BIOS and non-Secure-Boot UEFI
+# boot are never put at risk by this step.
+echo "--> Attempting Secure Boot retrofit (signed shim + grub)..."
+SHIM_SRC=$(dpkg -L shim-signed 2>/dev/null | grep -E 'shimx64\.efi\.signed(\.latest)?$' | head -1 || true)
+GRUB_SIGNED_SRC=$(dpkg -L grub-efi-amd64-signed 2>/dev/null | grep -E 'grubx64\.efi\.signed$' | head -1 || true)
+
+if [ -z "$SHIM_SRC" ] || [ -z "$GRUB_SIGNED_SRC" ]; then
+  echo "  SKIPPED: shim-signed / grub-efi-amd64-signed not installed on this host —"
+  echo "  ISO will boot via legacy BIOS and non-Secure-Boot UEFI only."
+else
+  SB_TMP=$(mktemp -d)
+  EFI_IMG_ISO_PATH="boot/grub/efi.img"
+  if xorriso -indev "$IMAGE_NAME" -osirrox on -extract "/$EFI_IMG_ISO_PATH" "$SB_TMP/efi.img" 2>/dev/null \
+      && [ -s "$SB_TMP/efi.img" ]; then
+    if mcopy -i "$SB_TMP/efi.img" -o "$SHIM_SRC"        ::EFI/BOOT/BOOTX64.EFI 2>/dev/null \
+        && mcopy -i "$SB_TMP/efi.img" -o "$GRUB_SIGNED_SRC" ::EFI/BOOT/grubx64.efi 2>/dev/null; then
+      if xorriso -indev "$IMAGE_NAME" -outdev "$IMAGE_NAME" -boot_image any replay \
+           -update "$SB_TMP/efi.img" "/$EFI_IMG_ISO_PATH" -commit 2>/dev/null; then
+        echo "  Secure Boot retrofit OK — signed shim + grub embedded in $EFI_IMG_ISO_PATH"
+      else
+        echo "  WARNING: failed to write patched efi.img back into the ISO — Secure Boot NOT enabled (ISO still boots via BIOS/non-SB UEFI, unaffected)"
+      fi
+    else
+      echo "  WARNING: mtools could not inject signed shim/grub into efi.img — Secure Boot NOT enabled (ISO unaffected)"
+    fi
+  else
+    echo "  WARNING: could not locate/extract $EFI_IMG_ISO_PATH inside the ISO (grub version may use a different path) — Secure Boot NOT enabled (ISO unaffected)"
+  fi
+  rm -rf "$SB_TMP"
+fi
+
 # ─── ISO integrity check ──────────────────────────────────────────────────────
 # Verify that filesystem.squashfs is accessible inside the ISO (not just present
 # in the source tree). If the ISO was built without Level 3 support, the
 # squashfs directory entry would be truncated and casper would fail at boot.
+#
+# A failed check here now FAILS THE BUILD (exit 1). Previously this printed
+# "ERROR:" but let the script continue to print "Build complete" — a broken,
+# unbootable ISO was indistinguishable from a good one in the build log.
 echo "--> Verifying ISO integrity (squashfs accessible inside ISO)..."
 ISO_CHECK_DIR=$(mktemp -d)
 if mount -o loop,ro "$IMAGE_NAME" "$ISO_CHECK_DIR" 2>/dev/null; then
+  _PACKING_LOOP_MOUNT="$ISO_CHECK_DIR"
   SQUASHFS_SIZE=$(stat -c '%s' "$ISO_CHECK_DIR/casper/filesystem.squashfs" 2>/dev/null || echo 0)
   if [ "$SQUASHFS_SIZE" -gt 0 ]; then
     printf '    filesystem.squashfs visible inside ISO: %s bytes ✓\n' "$SQUASHFS_SIZE"
   else
     echo "    ERROR: filesystem.squashfs NOT accessible inside ISO — Level 3 may have failed!"
+    umount "$ISO_CHECK_DIR" 2>/dev/null || true
+    _PACKING_LOOP_MOUNT=""
+    rmdir "$ISO_CHECK_DIR" 2>/dev/null || true
+    echo "ERROR: ISO integrity check failed — squashfs is not readable inside the built ISO. Aborting build."
+    exit 1
   fi
-  # Verify casper init scripts are in the initrd
+  # Verify casper init scripts are in the initrd — an invalid/missing initrd
+  # is just as unbootable as a missing squashfs, so this is fatal too.
   INITRD_FILE="$ISO_CHECK_DIR/casper/initrd"
   if file "$INITRD_FILE" 2>/dev/null | grep -q "gzip\|cpio\|Zstandard"; then
     echo "    initrd present and appears valid ✓"
+  else
+    echo "    ERROR: initrd missing or not a valid archive inside the ISO!"
+    umount "$ISO_CHECK_DIR" 2>/dev/null || true
+    _PACKING_LOOP_MOUNT=""
+    rmdir "$ISO_CHECK_DIR" 2>/dev/null || true
+    echo "ERROR: ISO integrity check failed — initrd is invalid. Aborting build."
+    exit 1
   fi
   umount "$ISO_CHECK_DIR" 2>/dev/null || true
+  _PACKING_LOOP_MOUNT=""
 else
-  echo "    WARNING: Could not loop-mount ISO to verify (non-fatal)"
+  # Loop-mount itself may be unavailable in some restricted build
+  # environments (not every host/container permits it) — treat that
+  # specific case as non-fatal rather than assuming the ISO is broken.
+  echo "    WARNING: Could not loop-mount ISO to verify (non-fatal — loop mount unavailable in this environment)"
 fi
 rmdir "$ISO_CHECK_DIR" 2>/dev/null || true
 

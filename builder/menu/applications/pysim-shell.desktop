@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=pySim Shell
 Comment=SIM/USIM smartcard programming and profile management shell
-Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "pySim Shell" -- bash -c "pySim-shell --help; read -p 'Press enter to exit...'"
+Exec=xfce4-terminal --hold --title="pySim Shell" -x bash -c "pySim-shell --help; read -p 'Press enter to exit...'"
 Icon=smartcard
 Terminal=false
 Categories=TelcoSec-SIM;

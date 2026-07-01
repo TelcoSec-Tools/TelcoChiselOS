@@ -3,6 +3,10 @@ set -e
 
 echo "=== Installing Conda & Compiling SDR Drivers from Source ==="
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/record-tool.sh
+source "${SCRIPT_DIR}/lib/record-tool.sh"
+
 # Skip apt operations — handled by 00-install-all-packages.sh
 if [ ! -f /tmp/.packages-installed ]; then
   echo "WARNING: Running standalone (packages not pre-installed)"
@@ -92,6 +96,7 @@ echo "Compiling SoapySDR (serial, required by plugins)..."
 _sdr_cmake_make "SoapySDR" /opt/telcosec/src/SoapySDR \
   -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" ..
 (cd /opt/telcosec/src/SoapySDR/build && make install)
+record_tool "SoapySDR" "${CONDA_PREFIX}/bin/SoapySDRUtil" "sdr"
 
 # SoapyBladeRF clone (depends on SoapySDR being installed above)
 echo "Cloning SoapyBladeRF..."
@@ -139,6 +144,15 @@ echo "  Installing SDR libraries (serial)..."
 [ "${_BLADERF_OK:-0}" = "1" ] && [ -d /opt/telcosec/src/SoapyBladeRF/build ] && \
   (cd /opt/telcosec/src/SoapyBladeRF/build && make install) || true
 
+record_tool "UHD" "${CONDA_PREFIX}/bin/uhd_usrp_probe" "sdr"
+record_tool "LimeSuite" "${CONDA_PREFIX}/bin/LimeUtil" "sdr"
+record_tool "HackRF" "${CONDA_PREFIX}/bin/hackrf_info" "sdr"
+# SoapyBladeRF installs as a runtime-loaded SoapySDR module, not a top-level
+# binary — its install path includes a SoapySDR ABI version directory
+# (e.g. modules0.8) so we search for it rather than hardcoding the path.
+SOAPYBLADERF_MOD=$(find "${CONDA_PREFIX}/lib" -iname '*bladerf*' -path '*SoapySDR*' 2>/dev/null | head -1)
+record_tool "SoapyBladeRF" "$SOAPYBLADERF_MOD" "sdr"
+
 # Defer uhd_images_downloader to first-run (saves ~1.5 GB ISO space and ~10 min)
 echo "Creating UHD images first-run downloader..."
 cat << 'FIRSTRUN' | sudo tee /usr/local/bin/uhd-download-images
@@ -177,6 +191,7 @@ if [ ! -f "${CONDA_PREFIX}/include/rtl-sdr.h" ]; then
       echo "  librtlsdr source build complete — rtl-sdr.h now available"
   fi
 fi
+record_tool "librtlsdr" "${CONDA_PREFIX}/include/rtl-sdr.h" "sdr"
 
 # gnuradio and gqrx — large; non-fatal if solver fails.
 conda install -y --override-channels -c conda-forge gnuradio gqrx 2>/dev/null || \
@@ -194,8 +209,16 @@ if [ -d /opt/telcosec/src/gr-gsm ]; then
     -DCMAKE_MODULE_PATH="$CONDA_PREFIX/lib/cmake/gnuradio" >/dev/null 2>&1 || true
   make -C /opt/telcosec/src/gr-gsm/build -j"$(nproc)" >/dev/null 2>&1 || true
   make -C /opt/telcosec/src/gr-gsm/build install >/dev/null 2>&1 || true
-  echo "  gr-gsm installed."
+  # Only report success if the CLI tools actually landed — the cmake/make
+  # steps above are all best-effort (`|| true`), so a failed build must not
+  # be reported as "installed."
+  if [ -f "${CONDA_PREFIX}/bin/grgsm_scanner" ]; then
+    echo "  gr-gsm installed."
+  else
+    echo "  WARNING: gr-gsm build did not produce grgsm_scanner — treating as failed"
+  fi
 fi
+record_tool "gr-gsm" "${CONDA_PREFIX}/bin/grgsm_scanner" "2g"
 
 # 8. Compile and Install Kalibrate-RTL from Source
 echo "Compiling and installing Kalibrate-RTL..."
@@ -220,6 +243,7 @@ else
   sudo make install
   cd -
 fi
+record_tool "kalibrate-rtl" "/usr/local/bin/kal" "2g"
 
 # GUI desktop launchers (.desktop Exec=) run outside any login shell so the
 # conda env is never activated. For ELF binaries (gqrx, gnuradio-companion)
@@ -233,15 +257,25 @@ for bin in gqrx gnuradio-companion; do
   [ -f "${CONDA_PREFIX}/bin/${bin}" ] && \
     sudo ln -sf "${CONDA_PREFIX}/bin/${bin}" "/usr/local/bin/${bin}"
 done
+record_tool "gqrx" "${CONDA_PREFIX}/bin/gqrx" "sdr"
 
+# Only write the grgsm_* wrappers if the underlying conda binaries actually
+# exist — the gr-gsm build above is entirely best-effort (`|| true`), so
+# writing these unconditionally would ship a launcher that always errors
+# when the build failed. Users would have no way to tell "not built" apart
+# from "broken."
 for bin in grgsm_livemon grgsm_scanner; do
-  sudo tee "/usr/local/bin/${bin}" > /dev/null << WRAPPER
+  if [ -f "${CONDA_PREFIX}/bin/${bin}" ]; then
+    sudo tee "/usr/local/bin/${bin}" > /dev/null << WRAPPER
 #!/bin/bash
 source /opt/telcosec/miniconda/etc/profile.d/conda.sh
 conda activate telcosec-sdr 2>/dev/null
 exec "${CONDA_PREFIX}/bin/${bin}" "\$@"
 WRAPPER
-  sudo chmod +x "/usr/local/bin/${bin}"
+    sudo chmod +x "/usr/local/bin/${bin}"
+  else
+    echo "  WARNING: ${bin} not found in conda env — skipping wrapper (gr-gsm build likely failed)"
+  fi
 done
 
 # Set permissions

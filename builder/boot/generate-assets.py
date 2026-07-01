@@ -7,7 +7,7 @@ Generates (relative to repo root):
   builder/boot/plymouth/progress_dot_on.png   – lit progress dot (Plymouth)
   builder/boot/plymouth/progress_dot_off.png  – dim progress dot (Plymouth)
   builder/boot/grub_background.png            – GRUB splash (1920×1080)
-  builder/boot/wallpaper.png                  – desktop wallpaper (1920×1080)
+  builder/boot/wallpaper.jpg                  – desktop wallpaper (1920×1080)
 
 Requires: Pillow  (pip install Pillow)
 """
@@ -265,7 +265,7 @@ yr_w, _  = text_size(tw, yr_text, font_small)
 tw.text((W - 88 - yr_w, line_y + 10), yr_text,
         fill=(100, 120, 140, 100), font=font_small)
 
-wall.convert("RGB").save(os.path.join(boot_dir, "wallpaper.png"))
-print("  → wallpaper.png")
+wall.convert("RGB").save(os.path.join(boot_dir, "wallpaper.jpg"))
+print("  → wallpaper.jpg")
 
 print("\nAll assets generated successfully.")

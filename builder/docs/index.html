@@ -96,7 +96,7 @@
         "publisher": {
           "@type": "Organization",
           "name": "TelcoSec",
-          "url": "https://telcosec.cloud/",
+          "url": "https://telcosec.net/",
           "sameAs": [
             "https://github.com/TelcoSec",
             "https://www.linkedin.com/company/telco-sec",
@@ -113,7 +113,7 @@
         "publisher": {
           "@type": "Organization",
           "name": "TelcoSec",
-          "url": "https://telcosec.cloud/"
+          "url": "https://telcosec.net/"
         },
         "potentialAction": {
           "@type": "SearchAction",
@@ -130,7 +130,7 @@
             "name": "What is TelcoChisel?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with a GNOME desktop, purpose-built for telecommunications security research. It includes 75+ pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
+              "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 76 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
             }
           },
           {
@@ -350,8 +350,8 @@
                 <p>
                     <strong>TelcoChisel</strong> is a free, bootable live Linux distribution purpose-built for
                     cellular security researchers, Software Defined Radio (SDR) engineers, and hardware pentesters.
-                    Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong> with a GNOME Shell desktop, it ships with
-                    75+ pre-configured tools covering SDR drivers, 5G core simulation, baseband emulation, SIM auditing,
+                    Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong> with an XFCE desktop, it ships with
+                    76 pre-configured tools covering SDR drivers, 5G core simulation, baseband emulation, SIM auditing,
                     and telecom protocol fuzzing — ready to use without installation.
                 </p>
 
@@ -380,7 +380,7 @@
                             Standalone core network hacking, simulate baseband firmware fuzzing, and earn the Certified
                             Telecom Security Practitioner (CTSP) credential.</p>
                         <a href="https://app.telcosec.net/" class="academy-btn" target="_blank">Access Live Labs at
-                            app.telcosec.cloud &rarr;</a>
+                            app.telcosec.net &rarr;</a>
                     </div>
                     <div class="academy-banner-icon">
                         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -469,8 +469,8 @@
                     <details class="faq-item">
                         <summary class="faq-question">What is TelcoChisel?</summary>
                         <div class="faq-answer">
-                            TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with a
-                            GNOME desktop, purpose-built for telecommunications security research. It includes 50+
+                            TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with an
+                            XFCE desktop, purpose-built for telecommunications security research. It includes 76
                             pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing,
                             SIM and eSIM inspection, and 5G/4G core network penetration testing — no installation
                             required.
@@ -534,7 +534,7 @@
 
                 <h2>Quick Links</h2>
                 <div class="grid-3" style="margin-top: 10px;">
-                    <a href="https://community.telcosec.cloud/" class="card highlight-teal" target="_blank">
+                    <a href="https://community.telcosec.net/" class="card highlight-teal" target="_blank">
                         <div class="card-title" style="color: var(--accent-teal);">Community Hub</div>
                         <p class="card-desc" style="font-size: 0.85rem;">Discuss protocols, SDR designs, and share
                             telemetry audits with other security analysts.</p>
@@ -544,7 +544,7 @@
                         <p class="card-desc" style="font-size: 0.85rem;">Master telecom penetration testing from basic
                             GSM up to 5G Standalone core exploits.</p>
                     </a>
-                    <a href="https://blog.telcosec.cloud/" class="card highlight-teal" target="_blank">
+                    <a href="https://blog.telcosec.net/" class="card highlight-teal" target="_blank">
                         <div class="card-title" style="color: var(--accent-teal);">Research Blog</div>
                         <p class="card-desc" style="font-size: 0.85rem;">In-depth writeups on baseband vulnerabilities,
                             IMS fuzzing, and rogue gNB simulations.</p>
@@ -655,8 +655,8 @@ ACTION==&quot;add&quot;, SUBSYSTEM==&quot;usb&quot;, ATTR{idVendor}==&quot;1d50&
 
             <!-- SECTION: TOOLS -->
             <section id="tools" class="content-section">
-                <div class="section-header" data-label="// Tool Catalog :: 75+ Instruments">
-                    <h2>Tools Directory — 75+ Pre-installed Telecom Security Tools</h2>
+                <div class="section-header" data-label="// Tool Catalog :: 76 Instruments">
+                    <h2>Tools Directory — 76 Pre-installed Telecom Security Tools</h2>
                     <p class="subtitle">Complete catalog of SDR, baseband, SIM, core network, ADSL, VoIP, and signaling tools pre-installed
                         in TelcoChisel</p>
                 </div>
@@ -920,7 +920,7 @@ sudo 5ghoul-run --Attack.Name=NAS_5GS_Fuzz --UE.IMSI=001011234567890</code></pre
 
                 <p>
                     TelcoChisel uses an automated bash orchestration build chain to bootstrap, configure, and output
-                    bootable GNOME live desktop images.
+                    bootable XFCE live desktop images.
                 </p>
 
                 <h3>1. Setup Compilation Host</h3>
@@ -984,7 +984,7 @@ sudo ./build-iso.sh</code></pre>
                         <tr style="border-bottom: 1px solid var(--border-color);">
                             <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
                                 01-install-base.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Installs GNOME Shell, GDM3,
+                            <td style="padding: 12px; color: var(--text-secondary);">Installs XFCE, LightDM,
                                 Firefox, base compilers, and sets the live boot user.</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border-color);">
@@ -1090,7 +1090,7 @@ sudo ./build-iso.sh</code></pre>
                             <span class="tag tag-sys">Shell / Config</span>
                         </div>
                         <p class="card-desc" style="margin-bottom: 15px;">
-                            The official build ecosystem for compiling this custom GNOME Debian/Ubuntu live ISO.
+                            The official build ecosystem for compiling this custom XFCE Debian/Ubuntu live ISO.
                             Contains baseband configurations, customized system-wide Wireshark columns, real-time udev
                             configs, and kernel tuners.
                         </p>
@@ -1162,8 +1162,8 @@ sudo ./build-iso.sh</code></pre>
                             signaling bypasses, and air interface flaws in production equipment.
                         </p>
                         <div style="font-size: 0.85rem; color: var(--text-muted);">
-                            <strong>Platform:</strong> <a href="https://vulndb.telcosec.cloud/"
-                                target="_blank">vulndb.telcosec.cloud</a>
+                            <strong>Platform:</strong> <a href="https://vulndb.telcosec.net/"
+                                target="_blank">vulndb.telcosec.net</a>
                         </div>
                     </div>
 
@@ -1177,8 +1177,8 @@ sudo ./build-iso.sh</code></pre>
                             ARFCN/EARFCN/NR-ARFCN, IMSI check-digits, diameter AVPs, and network planning.
                         </p>
                         <div style="font-size: 0.85rem; color: var(--text-muted);">
-                            <strong>Platform:</strong> <a href="https://calculators.telcosec.cloud/"
-                                target="_blank">calculators.telcosec.cloud</a>
+                            <strong>Platform:</strong> <a href="https://calculators.telcosec.net/"
+                                target="_blank">calculators.telcosec.net</a>
                         </div>
                     </div>
 
@@ -1192,8 +1192,8 @@ sudo ./build-iso.sh</code></pre>
                             baseband firmware decompilation, and GSM air capture decoding.
                         </p>
                         <div style="font-size: 0.85rem; color: var(--text-muted);">
-                            <strong>Platform:</strong> <a href="https://ctf.telcosec.cloud/"
-                                target="_blank">ctf.telcosec.cloud</a>
+                            <strong>Platform:</strong> <a href="https://ctf.telcosec.net/"
+                                target="_blank">ctf.telcosec.net</a>
                         </div>
                     </div>
 
@@ -1207,8 +1207,8 @@ sudo ./build-iso.sh</code></pre>
                             releases 15 to 18 of the 3GPP standards body.
                         </p>
                         <div style="font-size: 0.85rem; color: var(--text-muted);">
-                            <strong>Platform:</strong> <a href="https://3gpp.telcosec.cloud/"
-                                target="_blank">3gpp.telcosec.cloud</a>
+                            <strong>Platform:</strong> <a href="https://3gpp.telcosec.net/"
+                                target="_blank">3gpp.telcosec.net</a>
                         </div>
                     </div>
 
@@ -1222,8 +1222,8 @@ sudo ./build-iso.sh</code></pre>
                             technical specifications for telecom consultants.
                         </p>
                         <div style="font-size: 0.85rem; color: var(--text-muted);">
-                            <strong>Platform:</strong> <a href="https://library.telcosec.cloud/"
-                                target="_blank">library.telcosec.cloud</a>
+                            <strong>Platform:</strong> <a href="https://library.telcosec.net/"
+                                target="_blank">library.telcosec.net</a>
                         </div>
                     </div>
 
@@ -1237,8 +1237,8 @@ sudo ./build-iso.sh</code></pre>
                             portable SDR-based base stations and over-the-air test labs.
                         </p>
                         <div style="font-size: 0.85rem; color: var(--text-muted);">
-                            <strong>Platform:</strong> <a href="https://portable-bts.telcosec.cloud/"
-                                target="_blank">portable-bts.telcosec.cloud</a>
+                            <strong>Platform:</strong> <a href="https://portable-bts.telcosec.net/"
+                                target="_blank">portable-bts.telcosec.net</a>
                         </div>
                     </div>
 
@@ -1297,7 +1297,7 @@ sudo ./build-iso.sh</code></pre>
                 <div class="dl-modal-status">
                     <div class="dl-modal-status-dot"></div>
                     <div class="dl-modal-status-text">
-                        <strong>OS: Stable.</strong> The Ubuntu 24.04 GNOME desktop, boot sequence, and core system are production-ready.<br>
+                        <strong>OS: Stable.</strong> The Ubuntu 24.04 XFCE desktop, boot sequence, and core system are production-ready.<br>
                         <strong>Tools:</strong> Integration ongoing — some launchers may need a rebuild to reflect the latest fixes.
                     </div>
                 </div>

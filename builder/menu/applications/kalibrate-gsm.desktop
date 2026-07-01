@@ -2,7 +2,7 @@
 Type=Application
 Name=Kalibrate GSM
 Comment=GSM frequency calibration (BladeRF/RTL-SDR)
-Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 -- bash -c "kal-gsm -h"
+Exec=xfce4-terminal --hold -x bash -c "kal-gsm -h"
 Icon=utilities-system-monitor
 Categories=TelcoSec-GSM;
 Terminal=false

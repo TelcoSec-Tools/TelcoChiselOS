@@ -15,16 +15,21 @@ autologin-user-timeout=0
 user-session=xfce
 EOF
 
-# Tell casper which user is the live session user.
-cat << 'EOF' | sudo tee /etc/casper.conf
-export USERNAME=telcosec
-export USERFULLNAME="TelcoSec Researcher"
-export HOST=TelcoChisel
-export BUILD_SYSTEM=Ubuntu
-export FLAVOUR=ubuntu
-EOF
+# NOTE: /etc/casper.conf is NOT written here. build-iso.sh writes it once,
+# after all provisioning scripts run, as the single source of truth (it used
+# to be written in both places, with build-iso.sh's copy silently winning
+# since it runs last — that duplicate authority has been removed).
 
 # 2. XFCE defaults (Themes, Fonts, Wallpaper, Keybindings)
+# Theme is Yaru-bark-dark — the previous "Yaru-teal-dark" does not exist in
+# Ubuntu 24.04's yaru-theme-gtk package at all (verified against the real
+# noble package file listing: only bark/blue/magenta/olive/prussiangreen/
+# purple/red/sage/viridian variants ship, each with a -dark suffix — no
+# "teal"). GTK/xfwm4/lightdm-gtk-greeter would have silently fallen back to
+# plain Yaru/Adwaita instead of the intended branded look. Yaru doesn't ship
+# an amber/orange variant; "bark" (warm brown/tan) is the closest available
+# match to the brand's amber accent (#e8921e), completing the harmonization
+# already done for Calamares/tmux/docs.
 echo "Writing XFCE default configurations..."
 sudo mkdir -p /etc/xdg/xfce4/xfconf/xfce-perchannel-xml
 
@@ -32,7 +37,7 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xsettings" version="1.0">
   <property name="Net" type="empty">
-    <property name="ThemeName" type="string" value="Yaru-teal-dark"/>
+    <property name="ThemeName" type="string" value="Yaru-bark-dark"/>
     <property name="IconThemeName" type="string" value="Papirus-Dark"/>
   </property>
   <property name="Gtk" type="empty">
@@ -62,7 +67,7 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfwm4" version="1.0">
   <property name="general" type="empty">
-    <property name="theme" type="string" value="Yaru-teal-dark"/>
+    <property name="theme" type="string" value="Yaru-bark-dark"/>
     <property name="button_layout" type="string" value="O|HMC"/>
     <property name="workspace_count" type="int" value="4"/>
   </property>
@@ -84,6 +89,113 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-ma
   </property>
 </channel>
 EOF
+
+# Panel, keyboard shortcuts, and notification daemon configs are per-user
+# xfconf state, not system-wide defaults like the ones above — XFCE reads
+# these from ~/.config/xfce4/xfce4-panel.xml etc, not /etc/xdg/xfce4/. Deploy
+# via /etc/skel/ (new users, and Calamares-installed users via users.conf's
+# skel copy) and directly into the live session's home, matching the pattern
+# already used below for .tmux.conf and mimeapps.list.
+sudo mkdir -p /etc/skel/.config/xfce4/xfce4-perchannel-xml
+
+# Single top panel: Whisker Menu (searches the categorized tool menu built in
+# builder/menu/) on the left, window list filling the middle, workspace
+# switcher + system tray + clock on the right. No second panel, no desktop
+# icons — kept to one deliberate row so the 76-tool catalog is one click away
+# without adding visual clutter.
+cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-panel.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfce4-panel" version="1.0">
+  <property name="configver" type="int" value="2"/>
+  <property name="panels" type="array">
+    <value type="int" value="1"/>
+    <property name="panel-1" type="empty">
+      <property name="position" type="string" value="p=6;x=0;y=0"/>
+      <property name="length" type="uint" value="100"/>
+      <property name="length-adjust" type="bool" value="true"/>
+      <property name="position-locked" type="bool" value="true"/>
+      <property name="size" type="uint" value="30"/>
+      <property name="plugin-ids" type="array">
+        <value type="int" value="1"/>
+        <value type="int" value="2"/>
+        <value type="int" value="3"/>
+        <value type="int" value="4"/>
+        <value type="int" value="5"/>
+      </property>
+    </property>
+  </property>
+  <property name="plugins" type="empty">
+    <property name="plugin-1" type="string" value="whiskermenu">
+      <property name="button-title" type="string" value="TelcoSec"/>
+      <property name="button-icon" type="string" value="utilities-terminal"/>
+      <property name="show-button-title" type="bool" value="true"/>
+    </property>
+    <property name="plugin-2" type="string" value="tasklist">
+      <property name="expand" type="bool" value="true"/>
+      <property name="grouping" type="uint" value="1"/>
+    </property>
+    <property name="plugin-3" type="string" value="pager">
+      <property name="rows" type="uint" value="1"/>
+    </property>
+    <property name="plugin-4" type="string" value="systray"/>
+    <property name="plugin-5" type="string" value="clock">
+      <property name="digital-layout" type="uint" value="2"/>
+      <property name="digital-time-format" type="string" value="%H:%M"/>
+      <property name="digital-date-format" type="string" value="%d %b"/>
+    </property>
+  </property>
+</channel>
+EOF
+
+# Keyboard shortcuts: only additions beyond XFCE's own stock defaults (which
+# already cover Alt+Tab, Ctrl+Alt+Left/Right workspace switching, etc.) —
+# Super key for one-key Whisker Menu access, and Super+Arrow for basic
+# window tiling, neither of which XFCE binds out of the box.
+cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-keyboard-shortcuts.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfce4-keyboard-shortcuts" version="1.0">
+  <property name="commands" type="empty">
+    <property name="custom" type="empty">
+      <property name="Super_L" type="string" value="xfce4-popup-whiskermenu"/>
+      <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="xfce4-terminal"/>
+    </property>
+  </property>
+  <property name="xfwm4" type="empty">
+    <property name="custom" type="empty">
+      <property name="&lt;Primary&gt;&lt;Alt&gt;Left" type="string" value="left_workspace_key"/>
+      <property name="&lt;Primary&gt;&lt;Alt&gt;Right" type="string" value="right_workspace_key"/>
+      <property name="&lt;Super&gt;Left" type="string" value="tile_left_key"/>
+      <property name="&lt;Super&gt;Right" type="string" value="tile_right_key"/>
+      <property name="&lt;Super&gt;Up" type="string" value="tile_up_key"/>
+      <property name="&lt;Super&gt;Down" type="string" value="tile_down_key"/>
+    </property>
+  </property>
+</channel>
+EOF
+
+# Notification daemon: quiet defaults for a research workstation — short
+# display time, top-right position (below the panel), no persistent history
+# clutter.
+cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-notifyd.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfce4-notifyd" version="1.0">
+  <property name="theme" type="string" value="Default"/>
+  <property name="notify-location" type="int" value="2"/>
+  <property name="expire-timeout" type="int" value="4"/>
+  <property name="do-fadeout" type="bool" value="true"/>
+  <property name="do-slideout" type="bool" value="true"/>
+  <property name="log-level" type="int" value="0"/>
+</channel>
+EOF
+
+if [ -d /home/telcosec ]; then
+  sudo mkdir -p /home/telcosec/.config/xfce4/xfce4-perchannel-xml
+  sudo cp /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-panel.xml \
+          /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-keyboard-shortcuts.xml \
+          /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-notifyd.xml \
+          /home/telcosec/.config/xfce4/xfce4-perchannel-xml/
+  sudo chown -R telcosec:telcosec /home/telcosec/.config/xfce4
+fi
 
 # 2. Message of the Day (MOTD)
 echo "Configuring MOTD..."
@@ -326,6 +438,9 @@ sudo systemctl mask apport 2>/dev/null || true
 sudo rm -f /etc/apport/crashdb.conf 2>/dev/null || true
 
 # 7. tmux configuration
+# Status bar accent uses the brand's amber phosphor color (#e8921e, matching
+# docs/assets/main.css --amber) rather than the previous cyan/teal (#00FFD5),
+# to stay consistent with the rest of the TelcoSec visual identity.
 echo "Configuring tmux status and defaults..."
 cat << 'EOF' | sudo tee /etc/skel/.tmux.conf
 set -g default-terminal "screen-256color"
@@ -351,15 +466,15 @@ bind -r K resize-pane -U 5
 bind -r L resize-pane -R 5
 set -g status-style bg='#0D1117',fg='#C9D1D9'
 set -g status-left-length 20
-set -g status-left '#[bg=#00FFD5,fg=#0D1117,bold] ⚡ #S #[bg=default,fg=default] '
-set -g status-right '#[fg=#00FFD5,bold] @#h #[fg=#ABB2BF] %Y-%m-%d %H:%M '
+set -g status-left '#[bg=#e8921e,fg=#0D1117,bold] ⚡ #S #[bg=default,fg=default] '
+set -g status-right '#[fg=#e8921e,bold] @#h #[fg=#ABB2BF] %Y-%m-%d %H:%M '
 set -g status-justify left
-setw -g window-status-current-style bg='#00FFD5',fg='#0D1117',bold
+setw -g window-status-current-style bg='#e8921e',fg='#0D1117',bold
 setw -g window-status-current-format ' #I:#W '
 setw -g window-status-style bg=default,fg='#8B949E'
 setw -g window-status-format ' #I:#W '
 set -g pane-border-style fg='#30363D'
-set -g pane-active-border-style fg='#00FFD5'
+set -g pane-active-border-style fg='#e8921e'
 set -g bell-action none
 set -g visual-bell off
 EOF
@@ -375,7 +490,7 @@ sudo mkdir -p /etc/lightdm
 cat << 'EOF' | sudo tee /etc/lightdm/lightdm-gtk-greeter.conf
 [greeter]
 background=/usr/share/backgrounds/telcosec/wallpaper.jpg
-theme-name=Yaru-teal-dark
+theme-name=Yaru-bark-dark
 icon-theme-name=Papirus-Dark
 font-name=Ubuntu 11
 xft-antialias=true

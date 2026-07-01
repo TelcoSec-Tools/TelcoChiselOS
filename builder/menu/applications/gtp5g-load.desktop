@@ -2,7 +2,7 @@
 Type=Application
 Name=Load GTP5G Module
 Comment=Compile and load 5G GTP kernel module
-Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 -- bash -c "sudo gtp5g-load"
+Exec=xfce4-terminal --hold -x bash -c "sudo gtp5g-load"
 Icon=applications-system
 Categories=TelcoSec-5GNR;
 Terminal=false

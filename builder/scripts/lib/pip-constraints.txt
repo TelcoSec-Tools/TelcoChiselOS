@@ -1,0 +1,32 @@
+# =============================================================================
+# lib/pip-constraints.txt — cross-script pip version pins
+#
+# Multiple provisioning scripts (04, 06, 09, 10, 11) install into the SAME
+# system Python via `pip3 install --break-system-packages` (as opposed to an
+# isolated venv or the telcosec-sdr conda env). Because pip resolves each
+# `pip install` call independently, a later script can silently downgrade or
+# upgrade a package a previous script depended on, with no error — the build
+# just produces a system where "it worked when 06 ran, then 10 broke it."
+#
+# This file is applied automatically by every `pip_retry`/`sudo_pip_retry`
+# call (see lib/pip-retry.sh) via `pip install -c pip-constraints.txt`, so a
+# constraint declared here holds across ALL scripts without each one having
+# to duplicate a workaround.
+#
+# When you discover a real cross-script conflict (e.g. script A needs
+# package==X but script B's install silently pulled in package==Y and broke
+# A), add a line here with a comment explaining which scripts are involved —
+# don't guess/pre-pin package versions that haven't caused an observed
+# conflict; an incorrect pin can force an incompatible version onto a
+# dependency that would otherwise resolve correctly on its own.
+#
+# Format: standard pip constraints file (one requirement per line, no
+# transitive installs — see https://pip.pypa.io/en/stable/user_guide/#constraints-files)
+# =============================================================================
+
+# typing-extensions: Ubuntu 24.04 installs this via apt with no pip RECORD
+# file. 00-install-all-packages.sh already force-reinstalls it via pip early
+# in the build (giving it a proper RECORD file) specifically so later pip
+# installs across 04/06/09/10/11 can upgrade it freely without hitting
+# "Cannot uninstall … RECORD file not found". No constraint needed here as
+# long as that force-reinstall step runs before any of these scripts.

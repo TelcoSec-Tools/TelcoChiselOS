@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=srsRAN Build & Install
 Comment=Compile and install srsRAN 4G/5G from source
-Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "srsRAN Install" -- bash -c "sudo srsran-install; read -p 'Press Enter to exit...'"
+Exec=xfce4-terminal --hold --title="srsRAN Install" -x bash -c "sudo srsran-install; read -p 'Press Enter to exit...'"
 Icon=network-cellular
 Terminal=false
 Categories=TelcoSec-LTE;TelcoSec-5GNR;

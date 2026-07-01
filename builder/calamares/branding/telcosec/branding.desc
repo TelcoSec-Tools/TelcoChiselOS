@@ -12,21 +12,29 @@ strings:
     versionedName:       TelcoChisel 1.0
     shortVersionedName:  TelcoSec 1.0
     bootloaderEntryName: TelcoSec
-    productUrl:          https://www.telcosec.cloud/
-    supportUrl:          https://community.telcosec.cloud/
+    productUrl:          https://www.telcosec.net/
+    supportUrl:          https://community.telcosec.net/
     knownIssuesUrl:      https://github.com/TelcoSec-Tools/TelcoChiselOS/issues
     releaseNotesUrl:     https://github.com/TelcoSec-Tools/TelcoChiselOS/releases
 
 images:
     productLogo:     "logo.png"
     productIcon:     "logo.png"
-    productWelcome:  "languages.png"
+    # productWelcome previously referenced "languages.png", which was never
+    # added to this directory (the welcome screen's image would fail to
+    # load). Reusing the existing brand logo here is the lowest-risk fix —
+    # it guarantees this key always resolves to a real, valid image file
+    # without needing new artwork designed for the language-selector screen.
+    productWelcome:  "logo.png"
 
 slideshow:  "show.qml"
 slideshowAPI:  2
 
 style:
+    # Amber phosphor accent, matching the docs portal's design system
+    # (docs/assets/main.css --amber / --amber-hi). Previously teal (#00d1b2),
+    # a leftover from before the brand's color identity settled on amber.
     sidebarBackground:    "#181a1b"
     sidebarText:          "#e8e6e3"
-    sidebarTextSelect:    "#00d1b2"
-    sidebarTextHighlight: "#00d1b2"
+    sidebarTextSelect:    "#e8921e"
+    sidebarTextHighlight: "#f5aa35"

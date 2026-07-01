@@ -30,13 +30,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: docs
-        run: |
-          # Remove Windows-generated lock file so npm resolves
-          # platform-specific optional native bindings for Linux x64.
-          # Fixes: Cannot find module '@oxc-parser/binding-linux-x64-gnu'
-          # See: https://github.com/npm/cli/issues/4828
-          rm -f package-lock.json
-          npm install
+        run: npm ci
 
       - name: Generate static site
         working-directory: docs

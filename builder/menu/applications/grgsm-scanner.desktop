@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=gr-gsm Scanner
 Comment=GSM frequency scanner command-line tool
-Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "gr-gsm Scanner" -- bash -c "grgsm_scanner --help; echo ''; read -p 'Press Enter to exit...'"
+Exec=xfce4-terminal --hold --title="gr-gsm Scanner" -x bash -c "grgsm_scanner --help; echo ''; read -p 'Press Enter to exit...'"
 Icon=utilities-terminal
 Terminal=false
 Categories=TelcoSec-SDR;
