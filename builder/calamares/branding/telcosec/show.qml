@@ -2,6 +2,9 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
+// Accent color is amber (#e8921e), matching branding.desc's sidebar and the
+// docs portal's design system (docs/assets/main.css --amber). Previously
+// teal (#00d1b2), a leftover from before the brand settled on amber.
 Rectangle {
     id: root
     color: "#181a1b"
@@ -14,7 +17,7 @@ Rectangle {
         opacity: 0.07
         onPaint: {
             var ctx = getContext("2d");
-            ctx.strokeStyle = "#00d1b2";
+            ctx.strokeStyle = "#e8921e";
             ctx.lineWidth = 0.5;
             var step = 40;
             for (var x = 0; x < width; x += step) {
@@ -35,7 +38,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: -30
         color: "transparent"
-        border.color: "#00d1b2"
+        border.color: "#e8921e"
         border.width: 1
         opacity: 0.15
 
@@ -56,7 +59,7 @@ Rectangle {
         Text {
             Layout.alignment: Qt.AlignHCenter
             text: "TelcoSec"
-            color: "#00d1b2"
+            color: "#e8921e"
             font.pixelSize: 52
             font.bold: true
             font.letterSpacing: 4
@@ -74,7 +77,7 @@ Rectangle {
         // Separator line
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
-            width: 200; height: 1; color: "#00d1b2"; opacity: 0.5
+            width: 200; height: 1; color: "#e8921e"; opacity: 0.5
         }
 
         Item { height: 16 }
@@ -95,7 +98,7 @@ Rectangle {
             Layout.alignment: Qt.AlignHCenter
             anchors.bottomMargin: 30
             text: "Setting up your secure environment..."
-            color: "#00d1b2"
+            color: "#e8921e"
             font.pixelSize: 13
             opacity: 0.8
             SequentialAnimation on opacity {

@@ -56,7 +56,15 @@ jobs:
             VERSION="nightly-$(git rev-parse --short HEAD)"
             IS_NIGHTLY=true
           else
-            # Auto-bump the latest semver tag
+            # Auto-bump the latest semver tag.
+            # NOTE: the tag is NOT created/pushed here — only the version
+            # string is computed. Creating the tag this early meant a build
+            # failure later left a dangling tag in the repo, and a re-run
+            # would auto-bump AGAIN (skipping a version). The tag is created
+            # by softprops/action-gh-release in the "Publish Versioned
+            # GitHub Release" step below, which only runs after a successful
+            # build — and that action creates the tag itself as part of
+            # publishing, atomically, only on success.
             LATEST=$(git tag --list 'v*.*.*' --sort=-version:refname | head -1)
             [[ -z "$LATEST" ]] && LATEST="v0.0.0"
             MAJOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f1)
@@ -67,10 +75,6 @@ jobs:
               minor) VERSION="v${MAJOR}.$((MINOR+1)).0" ;;
               patch) VERSION="v${MAJOR}.${MINOR}.$((PATCH+1))" ;;
             esac
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git config user.name  "github-actions[bot]"
-            git tag -a "$VERSION" -m "Release $VERSION"
-            git push origin "$VERSION"
             IS_NIGHTLY=false
           fi
           echo "version=$VERSION"         >> "$GITHUB_OUTPUT"
@@ -93,6 +97,7 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install -y \
             debootstrap squashfs-tools grub-pc-bin grub-efi-amd64-bin \
+            shim-signed grub-efi-amd64-signed \
             xorriso mtools zstd apt-cacher-ng ccache rsync
           sudo ccache --max-size=4G
 
@@ -102,12 +107,20 @@ jobs:
             /etc/apt-cacher-ng/acng.conf || true
           sudo systemctl restart apt-cacher-ng
 
+      # Cache keys include github.run_id so the SAVE key is unique every run —
+      # actions/cache keys are immutable, so a fixed content-hash key means
+      # the first cache saved for that hash is never updated again (every
+      # later "hit" restores the same stale cache and silently skips saving
+      # a fresh one). restore-keys still lets us restore the most recent
+      # cache matching the content-hash prefix, so growth is preserved.
       - name: Restore apt-cacher-ng cache
         uses: actions/cache@v4
         with:
           path: /var/cache/apt-cacher-ng
-          key: acng-noble-${{ hashFiles('builder/scripts/00-install-all-packages.sh') }}
-          restore-keys: acng-noble-
+          key: acng-noble-${{ hashFiles('builder/scripts/00-install-all-packages.sh') }}-${{ github.run_id }}
+          restore-keys: |
+            acng-noble-${{ hashFiles('builder/scripts/00-install-all-packages.sh') }}-
+            acng-noble-
 
       - name: Set apt-cacher-ng ownership
         run: |
@@ -118,8 +131,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /root/.ccache
-          key: ccache-${{ hashFiles('builder/scripts/*.sh') }}
-          restore-keys: ccache-
+          key: ccache-${{ hashFiles('builder/scripts/*.sh') }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-${{ hashFiles('builder/scripts/*.sh') }}-
+            ccache-
 
       # ── Build ────────────────────────────────────────────────────────────────
       - name: Build ISO
@@ -228,6 +243,18 @@ jobs:
           EOF
 
       # ── SourceForge FRS ──────────────────────────────────────────────────────
+      # SourceForge is presented to users as the primary download host (see the
+      # release notes below). If SF_SSH_KEY is absent every SF step below is
+      # silently skipped (`if: env.SF_SSH_KEY != ''`) and the job still goes
+      # green — surface that clearly in the job summary instead of a quiet no-op.
+      - name: Warn if SourceForge publish will be skipped
+        if: env.SF_SSH_KEY == ''
+        run: |
+          echo "### ⚠️ SourceForge publish SKIPPED" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`SF_SSH_KEY\` secret is not set — this run will publish to GitHub Releases only. The release notes link to SourceForge as the primary download; that link will 404 for this build." >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning::SF_SSH_KEY secret is absent — SourceForge publish skipped for this run"
+
       - name: Setup SSH for SourceForge
         if: env.SF_SSH_KEY != ''
         env:
@@ -238,6 +265,49 @@ jobs:
           chmod 600 ~/.ssh/sf_deploy
           ssh-keyscan -H "$SF_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
+      # Orientation README at the Files root — someone landing on the SF
+      # "Files" page via a bookmark or search result (not the direct-download
+      # link) otherwise sees a bare folder listing (nightly/, v1.0.0/, ...)
+      # with no explanation. Refreshed every run; a plain rsync overwrite is
+      # fine here (unlike the multi-GB ISO, a brief inconsistency in a few
+      # hundred bytes of text is harmless).
+      - name: Generate & Upload SourceForge Files-root README
+        if: env.SF_SSH_KEY != ''
+        env:
+          SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+        run: |
+          SF_ROOT="/home/frs/project/$SF_PROJECT"
+          SF_SSH="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR"
+
+          cat << 'EOF' > sf-root-README.md
+          # TelcoChisel
+
+          Advanced Telecom Security OS by TelcoSec — a live Linux ISO for 4G/5G
+          mobile network auditing, SDR engineering, and cellular baseband research.
+
+          ### Folder guide
+          - **`nightly/`** — rolling pre-release build, updated weekly. May be less
+            stable; intended for testing the latest fixes.
+          - **`vX.Y.Z/`** — stable tagged releases. Pick the highest version number
+            for the latest stable ISO.
+
+          ### Quick links
+          - **Direct download (always the current stable release):**
+            https://sourceforge.net/projects/telcochisel/files/latest/download
+          - **Documentation:** https://tschisel.telcosec.net
+          - **Source code & issues:** https://github.com/TelcoSec-Tools/TelcoChiselOS
+
+          > **Live boot credentials:** `telcosec:telcosec`
+          EOF
+
+          echo "-mkdir $SF_ROOT" > sftp_root_batch
+          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_root_batch "$SF_USER@$SF_HOST"
+
+          rsync -av -e "$SF_SSH" \
+            sf-root-README.md \
+            "$SF_USER@$SF_HOST:$SF_ROOT/README.md"
+          echo "✓ SF root README → https://sourceforge.net/projects/$SF_PROJECT/files/"
+
       - name: Deploy to SourceForge — Nightly
         if: env.SF_SSH_KEY != '' && steps.version.outputs.is_nightly == 'true'
         env:
@@ -245,17 +315,41 @@ jobs:
           VERSION:    ${{ steps.version.outputs.version }}
         run: |
           SF_DIR="/home/frs/project/$SF_PROJECT/nightly"
+          SF_TMP="$SF_DIR/.upload-tmp"
           SF_SSH="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR"
-          
+
           # SourceForge's restricted shell blocks arbitrary SSH commands like 'mkdir',
           # but allows 'mkdir' via sftp. Create the directory via an sftp batch script.
           echo "-mkdir $SF_DIR" > sftp_batch
+          echo "-mkdir $SF_TMP" >> sftp_batch
           sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_batch "$SF_USER@$SF_HOST"
-          
+
+          # Upload into a private staging subdir first — a network blip or
+          # runner timeout mid-transfer never touches the public path, so
+          # nobody can download a partial/corrupt ISO mid-upload.
           rsync -avP --partial \
             -e "$SF_SSH" \
             "$ISO" "${ISO}.sha256" "README.md" \
-            "$SF_USER@$SF_HOST:$SF_DIR/"
+            "$SF_USER@$SF_HOST:$SF_TMP/"
+
+          # Publish: back up whatever's currently public (non-fatal — nothing
+          # to back up on the very first upload), promote the newly uploaded
+          # files into place, then clean up. If promotion fails partway, the
+          # ".old" backups let a human manually restore the previous good
+          # files instead of the public path serving nothing.
+          cat > sftp_publish << SFTPEOF
+          -rename $SF_DIR/$ISO $SF_DIR/$ISO.old
+          -rename $SF_DIR/${ISO}.sha256 $SF_DIR/${ISO}.sha256.old
+          -rename $SF_DIR/README.md $SF_DIR/README.md.old
+          rename $SF_TMP/$ISO $SF_DIR/$ISO
+          rename $SF_TMP/${ISO}.sha256 $SF_DIR/${ISO}.sha256
+          rename $SF_TMP/README.md $SF_DIR/README.md
+          -rm $SF_DIR/$ISO.old
+          -rm $SF_DIR/${ISO}.sha256.old
+          -rm $SF_DIR/README.md.old
+          -rmdir $SF_TMP
+          SFTPEOF
+          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_publish "$SF_USER@$SF_HOST"
           echo "✓ SF nightly → https://sourceforge.net/projects/$SF_PROJECT/files/nightly/"
 
       - name: Deploy to SourceForge — Versioned Release
@@ -265,17 +359,41 @@ jobs:
           VERSION:    ${{ steps.version.outputs.version }}
         run: |
           SF_DIR="/home/frs/project/$SF_PROJECT/$VERSION"
+          SF_TMP="$SF_DIR/.upload-tmp"
           SF_SSH="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR"
-          
+
           # SourceForge's restricted shell blocks arbitrary SSH commands like 'mkdir',
           # but allows 'mkdir' via sftp. Create the directory via an sftp batch script.
           echo "-mkdir $SF_DIR" > sftp_batch
+          echo "-mkdir $SF_TMP" >> sftp_batch
           sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_batch "$SF_USER@$SF_HOST"
-          
+
+          # Upload into a private staging subdir first — a network blip or
+          # runner timeout mid-transfer never touches the public path, so
+          # nobody can download a partial/corrupt ISO mid-upload.
           rsync -avP --partial \
             -e "$SF_SSH" \
             "$ISO" "${ISO}.sha256" "README.md" \
-            "$SF_USER@$SF_HOST:$SF_DIR/"
+            "$SF_USER@$SF_HOST:$SF_TMP/"
+
+          # Publish: back up whatever's currently public (non-fatal — nothing
+          # to back up on the very first upload of this version), promote the
+          # newly uploaded files into place, then clean up. If promotion fails
+          # partway, the ".old" backups let a human manually restore the
+          # previous good files instead of the public path serving nothing.
+          cat > sftp_publish << SFTPEOF
+          -rename $SF_DIR/$ISO $SF_DIR/$ISO.old
+          -rename $SF_DIR/${ISO}.sha256 $SF_DIR/${ISO}.sha256.old
+          -rename $SF_DIR/README.md $SF_DIR/README.md.old
+          rename $SF_TMP/$ISO $SF_DIR/$ISO
+          rename $SF_TMP/${ISO}.sha256 $SF_DIR/${ISO}.sha256
+          rename $SF_TMP/README.md $SF_DIR/README.md
+          -rm $SF_DIR/$ISO.old
+          -rm $SF_DIR/${ISO}.sha256.old
+          -rm $SF_DIR/README.md.old
+          -rmdir $SF_TMP
+          SFTPEOF
+          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_publish "$SF_USER@$SF_HOST"
           echo "✓ SF versioned → https://sourceforge.net/projects/$SF_PROJECT/files/$VERSION/"
 
       # ── GitHub Releases ──────────────────────────────────────────────────────
@@ -323,13 +441,32 @@ jobs:
           > **Live boot credentials:** \`telcosec:telcosec\`
           EOF
           )
-          gh release delete nightly --yes 2>/dev/null || true
-          git push origin :refs/tags/nightly 2>/dev/null || true
-          gh release create nightly \
-            ${ISO}.part-* "${ISO}.sha256" \
-            --prerelease \
-            --title "Nightly — ${DATE}" \
-            --notes "$NOTES"
+          # Never delete-then-create: if `create` failed after a `delete`,
+          # there would be NO nightly release at all until the next run.
+          # Instead: force-move the "nightly" tag to the current commit (a
+          # single atomic ref update — the tag is never briefly absent),
+          # then edit-in-place if the release exists, or create it only if
+          # it doesn't. At every point in time a valid nightly release exists.
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+          git tag -f nightly
+          git push origin nightly --force
+
+          if gh release view nightly >/dev/null 2>&1; then
+            gh release edit nightly \
+              --prerelease \
+              --title "Nightly — ${DATE}" \
+              --notes "$NOTES"
+            gh release upload nightly \
+              ${ISO}.part-* "${ISO}.sha256" \
+              --clobber
+          else
+            gh release create nightly \
+              ${ISO}.part-* "${ISO}.sha256" \
+              --prerelease \
+              --title "Nightly — ${DATE}" \
+              --notes "$NOTES"
+          fi
 
       - name: Publish Versioned GitHub Release
         if: steps.version.outputs.is_nightly == 'false'

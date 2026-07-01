@@ -2,7 +2,7 @@
 Type=Application
 Name=SCAT Decoder
 Comment=Qualcomm/Samsung DIAG protocol log decoder
-Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 -- bash -c "scat -t qc -d /dev/ttyUSB0"
+Exec=xfce4-terminal --hold -x bash -c "scat -t qc -d /dev/ttyUSB0"
 Icon=utilities-terminal
 Categories=TelcoSec-LTE;TelcoSec-Device;
 Terminal=false

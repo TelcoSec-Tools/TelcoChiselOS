@@ -1,7 +1,7 @@
 <div align="center">
   <br/>
   <a href="https://tschisel.telcosec.net">
-    <img src="assets/logo.png" alt="TelcoChisel Logo" width="140" height="140" style="border-radius: 20px; box-shadow: 0px 8px 30px rgba(0, 212, 230, 0.35);">
+    <img src="assets/logo.png" alt="TelcoChisel Logo" width="140" height="140" style="border-radius: 20px; box-shadow: 0px 8px 30px rgba(232, 146, 30, 0.35);">
   </a>
   <br/><br/>
 
@@ -13,9 +13,9 @@
   [![Docs](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/deploy-docs.yml/badge.svg)](https://tschisel.telcosec.net)
   [![Ubuntu 24.04](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com)
   [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-00ffd5.svg)](LICENSE)
-  [![Download](https://img.shields.io/sourceforge/dt/telcochisel?logo=sourceforge&label=Downloads)](https://sourceforge.net/projects/telcochisel/)
+  [![Download](https://img.shields.io/sourceforge/dt/telcochisel?logo=sourceforge&label=Downloads)](https://sourceforge.net/projects/telcochisel/files/latest/download)
 
-  [**Official Docs**](https://tschisel.telcosec.net) • [**Download ISO**](https://sourceforge.net/projects/telcochisel/) • [**TelcoSec Academy**](https://app.telcosec.net) • [**Community Hub**](https://community.telcosec.cloud) • [**Discord Chat**](https://discord.gg/RykzXTQFXF)
+  [**Official Docs**](https://tschisel.telcosec.net) • [**Download ISO**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**TelcoSec Academy**](https://app.telcosec.net) • [**Community Hub**](https://community.telcosec.net) • [**Discord Chat**](https://discord.gg/RykzXTQFXF)
 
   ---
 
@@ -28,7 +28,7 @@
 
 **TelcoChisel** is a bootable live Linux environment configured for telecommunications security auditing, radio frequency analysis, and baseband research. 
 
-Based on **Ubuntu 24.04 LTS (Noble Numbat)** with a GNOME Shell desktop environment, it includes over **50 pre-configured tools** for Software Defined Radio (SDR) operation, cellular RAN simulation (4G EPC & 5G SA), baseband firmware analysis, SIM/eSIM auditing, signaling protocol analysis, and VoIP security testing.
+Based on **Ubuntu 24.04 LTS (Noble Numbat)** with an XFCE desktop environment, it includes over **76 pre-configured tools** for Software Defined Radio (SDR) operation, cellular RAN simulation (4G EPC & 5G SA), baseband firmware analysis, SIM/eSIM auditing, signaling protocol analysis, and VoIP security testing.
 
 > [!NOTE]
 > TelcoChisel boots directly from a USB flash drive or virtual machine, providing a pre-configured workspace without modifying the host operating system.
@@ -91,7 +91,6 @@ Radio drivers are isolated in a dedicated Conda environment (`telcosec-sdr`) to 
 | **SCAT** | `Ready` | Samsung and Qualcomm diagnostic parser with NAS/RRC decoding to PCAP |
 | **MTKClient** | `Ready` | BROM exploit tool, flasher, and partition editor for MediaTek devices |
 | **Balong-Flash** | `Ready` | Firmware writing and flashing utility for Huawei Balong modems |
-| **MobileInsight** | `Ready` | Mobile network diagnostic analysis framework |
 
 ---
 
@@ -119,7 +118,6 @@ Radio drivers are isolated in a dedicated Conda environment (`telcosec-sdr`) to 
 | **SIPVicious** | `Ready` | Security testing toolkit for SIP and VoIP endpoints |
 | **Scapy** | `Ready` | Packet crafting utility with MAP, TCAP, and Diameter protocol support |
 | **SIPp** | `Ready` | SIP traffic generator and performance testing tool |
-| **RDNSx** | `Ready` | Rapid DNS Reverse Resolver for fast network enumeration |
 
 ---
 
@@ -143,13 +141,14 @@ Radio drivers are isolated in a dedicated Conda environment (`telcosec-sdr`) to 
 | Tool | Status | Purpose |
 | :--- | :---: | :--- |
 | **RouterSploit** | `Ready` | Exploitation framework for embedded devices (CPE routers/modems) |
+| **RDNSx** | `Ready` | Rapid DNS Reverse Resolver for fast network enumeration |
 | **asleap** | `Ready` | PPPoE MS-CHAPv2 dictionary attack and offline cracking tool |
 | **snmp-check** | `Ready` | SNMP enumerator for mapping routing tables via weak community strings |
 | **docsis** | `Ready` | Compile and decompile DOCSIS binary configuration files |
 | **tftpd-hpa / isc-dhcp-server** | `Ready` | Rogue DHCP and TFTP servers for provisioning attacks |
 | **yersinia / ettercap** | `Ready` | Layer 2 shared medium attacks (DHCP, STP, ARP spoofing) |
 
-*For complete methodologies and attack guides, please refer to [ADSL_Tools.md](ADSL_Tools.md) and [DOCSIS_Tools.md](DOCSIS_Tools.md).*
+*For complete methodologies and attack guides, see the [Tools Directory](https://tschisel.telcosec.net) on the documentation portal.*
 
 ---
 
@@ -216,7 +215,7 @@ The TelcoSec platform is integrated across three primary domains:
 
 * **[telco-sec.com](https://telco-sec.com):** Corporate presence, consulting services, corporate training, and partnerships.
 * **[telcosec.net](https://telcosec.net):** Public community projects focusing on telecommunications security, including the **[TelcoSec Academy](https://app.telcosec.net)**.
-* **[telcosec.cloud](https://telcosec.cloud):** TelcoSec Labs infrastructure supporting virtualized environments and research.
+* **[telcosec.net](https://telcosec.net):** TelcoSec Labs infrastructure supporting virtualized environments and research.
 
 ---
 
@@ -228,8 +227,8 @@ Resources for documentation, training, and community discussion:
 | :--- | :--- |
 | **Documentation Portal** | [tschisel.telcosec.net](https://tschisel.telcosec.net) |
 | **Academy Learning Portal** | [app.telcosec.net](https://app.telcosec.net) |
-| **Research & Advisory Blog** | [blog.telcosec.cloud](https://blog.telcosec.cloud) |
-| **Community Discussion Forum** | [community.telcosec.cloud](https://community.telcosec.cloud) |
+| **Research & Advisory Blog** | [blog.telcosec.net](https://blog.telcosec.net) |
+| **Community Discussion Forum** | [community.telcosec.net](https://community.telcosec.net) |
 | **Official Discord Server** | [discord.gg/RykzXTQFXF](https://discord.gg/RykzXTQFXF) |
 
 ---

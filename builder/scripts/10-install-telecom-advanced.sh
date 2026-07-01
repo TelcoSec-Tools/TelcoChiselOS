@@ -17,6 +17,8 @@ mkdir -p "$TELCOSEC_OPT"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/record-tool.sh
 source "${SCRIPT_DIR}/lib/record-tool.sh"
+# shellcheck source=lib/pip-retry.sh
+source "${SCRIPT_DIR}/lib/pip-retry.sh"
 
 # ─── Pre-clone all repos in parallel before starting any builds ──────────────
 echo "  Cloning repositories in parallel..."
@@ -85,9 +87,9 @@ record_tool "UERANSIM" "/usr/local/bin/nr-ue" "5g"
 
 # ─── B. SCAT (Diag protocol / Samsung/Qualcomm log decoder) ─────────────────
 echo "  Installing SCAT..."
-pip3 install scat --break-system-packages 2>/dev/null || true
+pip_retry install scat --break-system-packages
 if [ -d "${TELCOSEC_OPT}/scat" ]; then
-  pip3 install -e "${TELCOSEC_OPT}/scat" --break-system-packages 2>/dev/null || true
+  pip_retry install -e "${TELCOSEC_OPT}/scat" --break-system-packages
 fi
 record_tool "SCAT" "$(command -v scat 2>/dev/null || echo '/usr/local/bin/scat')" "baseband"
 
@@ -121,8 +123,8 @@ record_tool "kalibrate-gsm" "/usr/local/bin/kal-gsm" "2g"
 # ─── E. Modmobmap (cell mapping via AT commands) ────────────────────────────
 echo "  Installing Modmobmap..."
 if [ -d "${TELCOSEC_OPT}/modmobmap" ]; then
-  pip3 install -r "${TELCOSEC_OPT}/modmobmap/requirements.txt" \
-    --break-system-packages 2>/dev/null || true
+  pip_retry install -r "${TELCOSEC_OPT}/modmobmap/requirements.txt" \
+    --break-system-packages
   cat > /usr/local/bin/modmobmap << 'SCRIPT'
 #!/bin/bash
 python3 /opt/telcosec/modmobmap/modmobmap.py "$@"
@@ -287,8 +289,8 @@ chmod +x /usr/local/bin/gtp5g-load
 
 # ─── M. GTP Python toolkit ───────────────────────────────────────────────────
 echo "  Installing GTP Python tools..."
-pip3 install gtplib --break-system-packages 2>/dev/null || true
-pip3 install python-messaging --break-system-packages 2>/dev/null || true
+pip_retry install gtplib --break-system-packages
+pip_retry install python-messaging --break-system-packages
 
 # ─── N. OAI UE installer helper ──────────────────────────────────────────────
 echo "  Installing OAI-UE helper script..."
@@ -296,11 +298,35 @@ cat > /usr/local/bin/oai-install << 'SCRIPT'
 #!/bin/bash
 set -e
 echo "=== OpenAirInterface UE Install ==="
-git clone --depth 1 https://gitlab.eurecom.fr/oai/openairinterface5g.git /opt/telcosec/oai
+
+# Radio backend, passed straight through to build_oai.sh's -w flag — same
+# --radio argument style as 5ghoul-install, defaulting to BLADERF. Previously
+# hardcoded with a comment telling the user to hand-edit this file for
+# USRP/LimeSDR; matches OAI's own -w value naming (LMSSDR, not LIMESDR).
+RADIO="BLADERF"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --radio)   RADIO="${2^^}"; shift 2 ;;
+    --radio=*) RADIO="${1#*=}"; RADIO="${RADIO^^}"; shift ;;
+    *)         shift ;;
+  esac
+done
+case "$RADIO" in
+  USRP|BLADERF|LMSSDR) ;;
+  *) echo "Unknown --radio value: $RADIO. Options: USRP, BLADERF, LMSSDR"; exit 1 ;;
+esac
+
+# Clone-if-missing guard (matches every other first-run helper: srsran-install,
+# yatebts-install, openbts-install, gtp5g-load, 5ghoul-install). Without it,
+# re-running this script after a partial/failed first attempt aborts
+# immediately with "destination path already exists" under set -e.
+if [ ! -d /opt/telcosec/oai ]; then
+  git clone --depth 1 https://gitlab.eurecom.fr/oai/openairinterface5g.git /opt/telcosec/oai
+fi
 cd /opt/telcosec/oai
 source oaienv
-# Note: User can modify this script locally to use -w LMSSDR for LimeSDR.
-./cmake_targets/build_oai.sh -I --ue -w BLADERF 2>&1 | tee /tmp/oai-build.log
+echo "Building OAI UE for radio backend: $RADIO"
+./cmake_targets/build_oai.sh -I --ue -w "$RADIO" 2>&1 | tee /tmp/oai-build.log
 echo "OAI UE installed. Binaries in targets/bin/"
 SCRIPT
 chmod +x /usr/local/bin/oai-install
@@ -417,7 +443,7 @@ if [ ! -d "${TELCOSEC_OPT}/routersploit" ]; then
 fi
 if [ -d "${TELCOSEC_OPT}/routersploit" ]; then
   cd "${TELCOSEC_OPT}/routersploit"
-  pip3 install -r requirements.txt --break-system-packages 2>/dev/null || true
+  pip_retry install -r requirements.txt --break-system-packages
   cat > /usr/local/bin/routersploit << 'SCRIPT'
 #!/bin/bash
 python3 /opt/telcosec/routersploit/rsf.py "$@"
@@ -449,7 +475,11 @@ fi
 record_tool "Falcon" "/usr/local/bin/falcon" "4g"
 
 # ─── U. TelcoSec ChiselControl Dashboard ──────────────────────────────────────
-echo "  Configuring ChiselControl Dashboard..."
+# This section only clones the dashboard source (see the parallel clone block
+# near the top of this script) into /opt/telcosec/dashboard. The actual
+# nginx/PHP-FPM deployment — serving it, sudoers setup, data directories — is
+# done later by 12-install-dashboard.sh, which reads from that same clone.
+echo "  ChiselControl Dashboard source cloned to ${TELCOSEC_OPT}/dashboard (deployed by 12-install-dashboard.sh)"
 
 # ─── Final ownership (single pass, replaces per-tool chowns) ─────────────────
 chown -R telcosec:telcosec "${TELCOSEC_OPT}"

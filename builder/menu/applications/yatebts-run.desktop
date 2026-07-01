@@ -2,7 +2,7 @@
 Type=Application
 Name=YateBTS Run
 Comment=Start Yate with YateBTS modules
-Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 -- bash -c "sudo yate -s -l /var/log/yate.log"
+Exec=xfce4-terminal --hold -x bash -c "sudo yate -s -l /var/log/yate.log"
 Icon=network-wireless
 Categories=TelcoSec-GSM;
 Terminal=false

@@ -7,10 +7,13 @@ echo "=== Installing 5Ghoul 5G NR Attack Framework Dependencies ==="
 # All system deps are installed here during ISO build; the repo clone + compilation is
 # deferred to first-run to keep ISO build time reasonable. No VM support.
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/pip-retry.sh
+source "${SCRIPT_DIR}/lib/pip-retry.sh"
+
 # Skip apt operations — handled by 00-install-all-packages.sh
 if [ ! -f /tmp/.packages-installed ]; then
   echo "WARNING: Running standalone (packages not pre-installed)"
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   # shellcheck source=lib/packages.sh
   source "${SCRIPT_DIR}/lib/packages.sh"
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -20,12 +23,12 @@ if [ ! -f /tmp/.packages-installed ]; then
 fi
 
 # ── Python tooling ───────────────────────────────────────────────────────
-sudo pip3 install --break-system-packages \
+sudo_pip_retry install --break-system-packages \
   colorlog \
   pyzmq \
   pycryptodome \
   construct \
-  pyshark || true
+  pyshark
 
 # ── Open5GS TUN interface (ogstun) for UPF user-plane traffic ────────────────
 cat << 'EOF' | sudo tee /etc/systemd/network/99-ogstun.netdev

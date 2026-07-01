@@ -22,6 +22,16 @@ PKGS_BASE=(
   casper initramfs-tools
   # Kernel
   linux-image-generic
+  # Bootloader — needed INSIDE the chroot/squashfs, not just on the build
+  # host. build-iso.sh's own prereq check requires these on the HOST to
+  # build/sign the live ISO's own boot media, but that's a separate concern
+  # from what ships in the installed system. Without these here, Calamares'
+  # `bootloader` module (which chroots into the freshly-installed target and
+  # runs grub-install) finds no grub-install/update-grub binary at all —
+  # BIOS or UEFI, Secure Boot or not. grub-efi-amd64-signed + shim-signed
+  # additionally let Ubuntu's patched grub-install auto-install the signed
+  # shim so the installed system also boots under Secure Boot.
+  grub-pc-bin grub-efi-amd64-bin shim-signed grub-efi-amd64-signed
   # Desktop (XFCE + LightDM)
   xfce4 xfce4-goodies lightdm thunar
   xfce4-terminal xfce4-taskmanager

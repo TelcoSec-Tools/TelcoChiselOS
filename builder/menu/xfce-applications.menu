@@ -25,16 +25,7 @@
       </Include>
     </Menu>
 
-    <!-- 03. UMTS / 3G -->
-    <Menu>
-      <Name>UMTS / 3G</Name>
-      <Directory>telcosec-umts.directory</Directory>
-      <Include>
-        <Category>TelcoSec-UMTS</Category>
-      </Include>
-    </Menu>
-
-    <!-- 04. LTE / 4G -->
+    <!-- 03. LTE / 4G -->
     <Menu>
       <Name>LTE / 4G</Name>
       <Directory>telcosec-lte.directory</Directory>
@@ -43,7 +34,7 @@
       </Include>
     </Menu>
 
-    <!-- 05. 5G NR -->
+    <!-- 04. 5G NR -->
     <Menu>
       <Name>5G NR</Name>
       <Directory>telcosec-5gnr.directory</Directory>
@@ -52,7 +43,7 @@
       </Include>
     </Menu>
 
-    <!-- 06. Baseband & Firmware -->
+    <!-- 05. Baseband & Firmware -->
     <Menu>
       <Name>Baseband &amp; Firmware</Name>
       <Directory>telcosec-baseband.directory</Directory>
@@ -61,7 +52,7 @@
       </Include>
     </Menu>
 
-    <!-- 07. SIM & eSIM -->
+    <!-- 06. SIM & eSIM -->
     <Menu>
       <Name>SIM &amp; eSIM</Name>
       <Directory>telcosec-sim.directory</Directory>
@@ -70,7 +61,7 @@
       </Include>
     </Menu>
 
-    <!-- 08. Core Signaling -->
+    <!-- 07. Core Signaling -->
     <Menu>
       <Name>Core Signaling</Name>
       <Directory>telcosec-core.directory</Directory>
@@ -79,7 +70,7 @@
       </Include>
     </Menu>
 
-    <!-- 09. Device Tools -->
+    <!-- 08. Device Tools -->
     <Menu>
       <Name>Device Tools</Name>
       <Directory>telcosec-device.directory</Directory>
@@ -88,7 +79,7 @@
       </Include>
     </Menu>
 
-    <!-- 10. Network Analysis -->
+    <!-- 09. Network Analysis -->
     <Menu>
       <Name>Network Analysis</Name>
       <Directory>telcosec-network.directory</Directory>
@@ -97,7 +88,7 @@
       </Include>
     </Menu>
 
-    <!-- 11. VoIP & Messaging -->
+    <!-- 10. VoIP & Messaging -->
     <Menu>
       <Name>VoIP &amp; Messaging</Name>
       <Directory>telcosec-voip.directory</Directory>
@@ -106,10 +97,10 @@
       </Include>
     </Menu>
 
-    <!-- 12. Wordlist Tools -->
+    <!-- 11. Wordlist Tools -->
     <Menu>
       <Name>Wordlist Tools</Name>
-      <Directory>TelcoChisel.directory</Directory>
+      <Directory>telcosec-chisel.directory</Directory>
       <Include>
         <Category>TelcoSec-Tools</Category>
       </Include>

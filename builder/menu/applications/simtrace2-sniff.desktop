@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=SIMtrace 2 Sniffer
 Comment=Sniff phone-to-SIM ISO 7816 smartcard transactions
-Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "SIMtrace 2 Sniffer" -- bash -c "simtrace2-sniff --help; read -p 'Press enter to exit...'"
+Exec=xfce4-terminal --hold --title="SIMtrace 2 Sniffer" -x bash -c "simtrace2-sniff --help; read -p 'Press enter to exit...'"
 Icon=smartcard
 Terminal=false
 Categories=TelcoSec-SIM;

@@ -162,7 +162,7 @@ const schemas = [
     publisher: {
       '@type': 'Organization',
       name: 'TelcoSec',
-      url: 'https://telcosec.cloud/'
+      url: 'https://telcosec.net/'
     }
   })
 ]

@@ -164,7 +164,7 @@ const schemas = [
     keywords: metadata.keywords.join(', '),
     author: {
       name: 'TelcoSec',
-      url: 'https://telcosec.cloud/'
+      url: 'https://telcosec.net/'
     },
     isPartOf: {
       '@id': 'https://tschisel.telcosec.net/#software'

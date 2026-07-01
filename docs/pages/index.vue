@@ -152,7 +152,7 @@
 
           <h2>Quick Links</h2>
           <div class="grid-3" style="margin-top: 10px;">
-            <a href="https://community.telcosec.cloud/" class="card highlight-teal" target="_blank">
+            <a href="https://community.telcosec.net/" class="card highlight-teal" target="_blank">
               <div class="card-title" style="color: var(--accent-teal);">Community Hub</div>
               <p class="card-desc" style="font-size: 0.85rem;">Discuss protocols, SDR designs, and share telemetry audits with other security analysts.</p>
             </a>
@@ -160,7 +160,7 @@
               <div class="card-title" style="color: var(--accent-teal);">Academy</div>
               <p class="card-desc" style="font-size: 0.85rem;">Master telecom penetration testing from basic GSM up to 5G Standalone core exploits.</p>
             </a>
-            <a href="https://blog.telcosec.cloud/" class="card highlight-teal" target="_blank">
+            <a href="https://blog.telcosec.net/" class="card highlight-teal" target="_blank">
               <div class="card-title" style="color: var(--accent-teal);">Research Blog</div>
               <p class="card-desc" style="font-size: 0.85rem;">In-depth writeups on baseband vulnerabilities, IMS fuzzing, and rogue gNB simulations.</p>
             </a>
@@ -224,7 +224,7 @@
 
           <h3>1. Download the ISO</h3>
           <p>
-            Download the latest TelcoChisel ISO image from our official <a href="https://sourceforge.net/projects/telcochisel/" target="_blank">SourceForge repository</a>. The ISO is approximately 4.5 GB in size.
+            Download the latest TelcoChisel ISO image from our official <a href="https://sourceforge.net/projects/telcochisel/files/latest/download" target="_blank">SourceForge repository</a>. The ISO is approximately 4.5 GB in size.
           </p>
           <h3>2. Flash to a USB Drive</h3>
           <p>
@@ -832,7 +832,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
                 A curated CVE and hardware vulnerability database tracking baseband memory leaks, IMS signaling bypasses, and air interface flaws in production equipment.
               </p>
               <div style="font-size: 0.85rem; color: var(--text-muted);">
-                <strong>Platform:</strong> <a href="https://vulndb.telcosec.cloud/" target="_blank">vulndb.telcosec.cloud</a>
+                <strong>Platform:</strong> <a href="https://vulndb.telcosec.net/" target="_blank">vulndb.telcosec.net</a>
               </div>
             </div>
 
@@ -845,7 +845,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
                 Web-based engineering calculators for telecom protocols, enabling calculations for ARFCN/EARFCN/NR-ARFCN, IMSI check-digits, diameter AVPs, and network planning.
               </p>
               <div style="font-size: 0.85rem; color: var(--text-muted);">
-                <strong>Platform:</strong> <a href="https://calculators.telcosec.cloud/" target="_blank">calculators.telcosec.cloud</a>
+                <strong>Platform:</strong> <a href="https://calculators.telcosec.net/" target="_blank">calculators.telcosec.net</a>
               </div>
             </div>
 
@@ -858,7 +858,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
                 Structured security challenges focusing on mobile networking, SIGTRAN packet analysis, baseband firmware decompilation, and GSM air capture decoding.
               </p>
               <div style="font-size: 0.85rem; color: var(--text-muted);">
-                <strong>Platform:</strong> <a href="https://ctf.telcosec.cloud/" target="_blank">ctf.telcosec.cloud</a>
+                <strong>Platform:</strong> <a href="https://ctf.telcosec.net/" target="_blank">ctf.telcosec.net</a>
               </div>
             </div>
 
@@ -871,7 +871,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
                 A tracker mapping standards modifications, security releases, and technical reports across releases 15 to 18 of the 3GPP standards body.
               </p>
               <div style="font-size: 0.85rem; color: var(--text-muted);">
-                <strong>Platform:</strong> <a href="https://3gpp.telcosec.cloud/" target="_blank">3gpp.telcosec.cloud</a>
+                <strong>Platform:</strong> <a href="https://3gpp.telcosec.net/" target="_blank">3gpp.telcosec.net</a>
               </div>
             </div>
 
@@ -884,7 +884,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
                 A curated collection of baseband security research papers, RAN exploit walkthroughs, and technical specifications for telecom consultants.
               </p>
               <div style="font-size: 0.85rem; color: var(--text-muted);">
-                <strong>Platform:</strong> <a href="https://library.telcosec.cloud/" target="_blank">library.telcosec.cloud</a>
+                <strong>Platform:</strong> <a href="https://library.telcosec.net/" target="_blank">library.telcosec.net</a>
               </div>
             </div>
 
@@ -897,7 +897,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
                 Blueprints, hardware bill of materials (BOM), and software setup instructions for deploying portable SDR-based base stations and over-the-air test labs.
               </p>
               <div style="font-size: 0.85rem; color: var(--text-muted);">
-                <strong>Platform:</strong> <a href="https://portable-bts.telcosec.cloud/" target="_blank">portable-bts.telcosec.cloud</a>
+                <strong>Platform:</strong> <a href="https://portable-bts.telcosec.net/" target="_blank">portable-bts.telcosec.net</a>
               </div>
             </div>
 
@@ -983,7 +983,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
           </div>
 
           <div class="dl-modal-actions">
-            <a href="https://sourceforge.net/projects/telcochisel/" target="_blank" class="btn-download" @click="downloadModalOpen = false">
+            <a href="https://sourceforge.net/projects/telcochisel/files/latest/download" target="_blank" class="btn-download" @click="downloadModalOpen = false">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
@@ -1008,7 +1008,7 @@ function trackDownload() {
     file_extension: 'iso',
     file_name: 'TelcoChiselOS.iso',
     link_text: 'Download TelcoChisel ISO',
-    link_url: 'https://sourceforge.net/projects/telcochisel/'
+    link_url: 'https://sourceforge.net/projects/telcochisel/files/latest/download'
   })
   downloadModalOpen.value = true
 }
@@ -1091,7 +1091,7 @@ useHead({
           "operatingSystem": "Linux (Ubuntu 24.04 LTS)",
           "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 75+ pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
           "url": "https://tschisel.telcosec.net/",
-          "downloadUrl": "https://sourceforge.net/projects/telcochisel/",
+          "downloadUrl": "https://sourceforge.net/projects/telcochisel/files/latest/download",
           "softwareVersion": "1.1.0",
           "releaseNotes": "https://github.com/TelcoSec-Tools/TelcoChiselOS/releases",
           "screenshot": "https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png",
@@ -1117,7 +1117,7 @@ useHead({
           "publisher": {
             "@type": "Organization",
             "name": "TelcoSec",
-            "url": "https://telcosec.cloud/",
+            "url": "https://telcosec.net/",
             "sameAs": [
               "https://github.com/TelcoSec",
               "https://sourceforge.net/projects/telcochisel/",
@@ -1135,7 +1135,7 @@ useHead({
           "publisher": {
             "@type": "Organization",
             "name": "TelcoSec",
-            "url": "https://telcosec.cloud/"
+            "url": "https://telcosec.net/"
           },
           "potentialAction": {
             "@type": "SearchAction",

@@ -236,7 +236,7 @@ const toolsCatalog = [
     },
     {
         name: "RDNSx",
-        category: "baseband",
+        category: "adsl",
         status: "ready",
         desc: "Rapid DNS Reverse Resolver for fast network enumeration and reconnaissance.",
         path: "/usr/local/bin/rdnsx",

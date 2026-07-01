@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=IMSI Generator
 Comment=Generate IMSI numbers from MCC/MNC for reconnaissance and testing
-Exec=gnome-terminal --window-with-profile=e5c6b891-2d4a-4e7f-8c10-b4f3a1e9d027 --title "IMSI Generator" -- bash -c 'telcosec-imsi-generator --help; echo; read -rp "Press Enter to close..."'
+Exec=xfce4-terminal --hold --title="IMSI Generator" -x bash -c 'telcosec-imsi-generator --help; echo; read -rp "Press Enter to close..."'
 Icon=system-run
 Terminal=false
 Categories=TelcoSec-Tools;

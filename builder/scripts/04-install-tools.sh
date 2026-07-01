@@ -3,17 +3,26 @@ set -e
 
 echo "=== Installing Security Tools ==="
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/record-tool.sh
+source "${SCRIPT_DIR}/lib/record-tool.sh"
+# shellcheck source=lib/pip-retry.sh
+source "${SCRIPT_DIR}/lib/pip-retry.sh"
+
 # Skip apt operations — handled by 00-install-all-packages.sh
 if [ ! -f /tmp/.packages-installed ]; then
   echo "WARNING: Running standalone (packages not pre-installed)"
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   # shellcheck source=lib/packages.sh
   source "${SCRIPT_DIR}/lib/packages.sh"
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${PKGS_TOOLS[@]}"
 fi
 
-# Install SIPVicious and Scapy
-pip3 install sipvicious scapy --break-system-packages
+# Install SIPVicious and Scapy.
+# This previously ran as a bare `pip3 install` with no retry under `set -e` —
+# a transient PyPI/SSL failure would abort the rest of this script (sctpscan,
+# and everything after it). Use the shared retry helper instead.
+pip_retry install sipvicious scapy --break-system-packages
+record_tool "SIPVicious" "$(command -v sipvicious 2>/dev/null || command -v svmap 2>/dev/null)" "voip"
 
 # Compile and Install sctpscan
 echo "Compiling and installing sctpscan..."

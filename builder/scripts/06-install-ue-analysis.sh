@@ -3,39 +3,21 @@ set -e
 
 echo "=== Installing UE Analysis, Baseband & SIMtrace Tools ==="
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/record-tool.sh
+source "${SCRIPT_DIR}/lib/record-tool.sh"
+
 # Skip apt operations — handled by 00-install-all-packages.sh
 if [ ! -f /tmp/.packages-installed ]; then
   echo "WARNING: Running standalone (packages not pre-installed)"
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   # shellcheck source=lib/packages.sh
   source "${SCRIPT_DIR}/lib/packages.sh"
   sudo apt-get update
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${PKGS_UE_ANALYSIS[@]}"
 fi
 
-# pip_retry: shell-level retry wrapper for pip installs that download large wheels.
-# pip's built-in --retries does NOT catch SSL DECRYPTION_FAILED errors (urllib3
-# treats them as non-retriable), so we retry at the shell level.
-pip_retry() {
-  local attempt
-  for attempt in 1 2 3; do
-    pip3 "$@" && return 0
-    echo "  pip attempt $attempt/3 failed — retrying in 15s..."
-    sleep 15
-  done
-  echo "  WARNING: pip install failed after 3 attempts (non-fatal)" >&2
-  return 0
-}
-sudo_pip_retry() {
-  local attempt
-  for attempt in 1 2 3; do
-    sudo pip3 "$@" && return 0
-    echo "  pip attempt $attempt/3 failed — retrying in 15s..."
-    sleep 15
-  done
-  echo "  WARNING: pip install failed after 3 attempts (non-fatal)" >&2
-  return 0
-}
+# shellcheck source=lib/pip-retry.sh
+source "${SCRIPT_DIR}/lib/pip-retry.sh"
 
 # Create tools root directory
 sudo mkdir -p /opt/telcosec
@@ -210,19 +192,38 @@ rm -rf /tmp/rocksdb-build
 # after requirements.txt guarantees it survives.
 ./venv/bin/pip install --upgrade setuptools
 
+# The patched python-rocksdb build (the most fragile step in this install —
+# custom Cython patches against whatever RocksDB headers Ubuntu ships) is the
+# best available proxy for "did the whole FirmWire venv actually come together."
+FIRMWIRE_ROCKSDB=$(find /opt/telcosec/firmwire/venv/lib -maxdepth 3 -iname 'rocksdb*' 2>/dev/null | head -1)
+record_tool "FirmWire" "$FIRMWIRE_ROCKSDB" "baseband"
+
 # QCSuper (Qualcomm DIAG port traffic capture and Wireshark dissection)
 # Installed from PyPI — QCSuper no longer ships a requirements.txt in the repo.
+# Use pip_retry (defined above) instead of a bare pip3 call: this is a network
+# install with no retry/guard, so a transient PyPI/SSL failure would abort the
+# rest of the script under `set -e`.
 echo "Installing QCSuper..."
-pip3 install --upgrade qcsuper --break-system-packages
+pip_retry install --upgrade qcsuper --break-system-packages
+record_tool "QCSuper" "$(command -v qcsuper 2>/dev/null)" "baseband"
 
 # Balong-Flash & Balongtool (Huawei Balong modem flashing and engineering)
 # Non-critical: guarded so a Makefile failure doesn't abort the whole script.
+# A successful `make` only produces a binary in the source tree — neither
+# tool was ever symlinked onto PATH, so even a successful build was
+# unreachable as a command. Guard the symlink on the binary actually existing.
 echo "Compiling Huawei Balong Flashing Tools..."
 cd /opt/telcosec/balong-flash
 make || echo "WARNING: balong-flash make failed — tool will be unavailable"
+BALONG_FLASH_BIN=$(find . -maxdepth 1 -type f -executable -iname 'balong-flash*' 2>/dev/null | head -1)
+[ -n "$BALONG_FLASH_BIN" ] && sudo ln -sf "/opt/telcosec/balong-flash/${BALONG_FLASH_BIN#./}" /usr/local/bin/balong-flash
+record_tool "balong-flash" "/usr/local/bin/balong-flash" "baseband"
 
 cd /opt/telcosec/balongtool
 make || echo "WARNING: balongtool make failed — tool will be unavailable"
+BALONGTOOL_BIN=$(find . -maxdepth 1 -type f -executable -iname 'balongtool*' -o -maxdepth 1 -type f -executable -iname 'nvtool*' 2>/dev/null | head -1)
+[ -n "$BALONGTOOL_BIN" ] && sudo ln -sf "/opt/telcosec/balongtool/${BALONGTOOL_BIN#./}" /usr/local/bin/balongtool
+record_tool "balongtool" "/usr/local/bin/balongtool" "baseband"
 
 # MTKClient (MediaTek BootROM bypass, flashing and partitioning)
 echo "Installing MediaTek client (mtkclient)..."
@@ -234,6 +235,7 @@ cd /opt/telcosec/mtkclient
 grep -v '^keystone[[:space:]]*$' requirements.txt > /tmp/mtkclient-req.txt
 sudo_pip_retry install -r /tmp/mtkclient-req.txt --break-system-packages
 sudo_pip_retry install --break-system-packages .
+record_tool "mtkclient" "$(command -v mtk 2>/dev/null)" "baseband"
 
 # pySim (SIM/USIM smartcard programming and operations)
 echo "Installing Osmocom pySim smartcard utility..."
@@ -245,15 +247,22 @@ sudo_pip_retry install --break-system-packages .
 # Symlink it onto PATH so launchers can invoke it as a plain command.
 chmod +x pySim-shell.py pySim-prog.py pySim-read.py 2>/dev/null || true
 ln -sf /opt/telcosec/pysim/pySim-shell.py /usr/local/bin/pySim-shell
+record_tool "pySim" "/usr/local/bin/pySim-shell" "sim"
 
 # lpac (eSIM Local Profile Assistant tool for profile downloads & management)
+# Guarded like its sibling tools above — cmake/make previously ran unguarded
+# under `set -e`, so a build failure here would abort the rest of the script
+# (FirmWire, MTKClient, pySim, simtrace2, SIMurai never run). Non-fatal now.
 echo "Compiling and installing lpac eSIM profile manager..."
 cd /opt/telcosec/lpac
 rm -rf build && mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-make -j$(nproc)
-sudo cp src/lpac /usr/local/bin/lpac
-sudo chmod 755 /usr/local/bin/lpac
+if cmake -DCMAKE_BUILD_TYPE=Release .. && make -j"$(nproc)"; then
+  sudo cp src/lpac /usr/local/bin/lpac
+  sudo chmod 755 /usr/local/bin/lpac
+else
+  echo "WARNING: lpac build failed — tool will be unavailable"
+fi
+record_tool "lpac" "/usr/local/bin/lpac" "sim"
 
 # ─── Build libosmocore from source ──────────────────────────────────────────
 # Ubuntu 24.04 ships libosmocore 1.7.0; simtrace2 host requires >= 1.11.0.
@@ -303,6 +312,7 @@ for lib in libosmocore libosmosim libosmogsm libosmovty; do
     echo "  OK: $lib $VER"
 done
 echo "=== All osmocom libs passed version check ==="
+record_tool "libosmocore" "/usr/lib/x86_64-linux-gnu/pkgconfig/libosmocore.pc" "baseband"
 
 # SIMtrace 2 host software (simtrace2-list, simtrace2-sniff, simtrace2-cardem-pcsc)
 echo "Compiling and installing SIMtrace 2 host utilities..."
@@ -312,6 +322,7 @@ autoreconf -fi
 make -j$(nproc)
 sudo make install
 sudo ldconfig
+record_tool "simtrace2" "$(command -v simtrace2-list 2>/dev/null)" "sim"
 
 # SIMurai — software SIM emulator + virtual PC/SC IFD driver
 # Provides swsim (emulated SIM card that speaks ISO-7816 over TCP/IP) and
@@ -330,6 +341,7 @@ if [ -d /opt/telcosec/simurai/swsim ]; then
 else
     echo "WARNING: simurai clone missing — skipping SIMurai build"
 fi
+record_tool "SIMurai" "/usr/local/bin/simurai" "sim"
 
 # Clean up build objects and update ownership
 cd /opt/telcosec

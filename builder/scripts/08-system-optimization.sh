@@ -23,13 +23,14 @@ sudo groupadd -r realtime || true
 sudo usermod -aG realtime telcosec || true
 
 # 3. Custom Desktop Menu & Tool Categories
-echo "Deploying custom GNOME tool menus and categories..."
+echo "Deploying custom XFCE tool menus and categories..."
 sudo rm -f /etc/xdg/menus/applications-merged/telcosec.menu
-# Deploy GNOME applications menu (read by apps-menu GNOME Shell extension)
-if [ -f /tmp/menu/gnome-applications.menu ]; then
+# Deploy XFCE applications menu (XFCE's menu system reads $XDG_MENU_PREFIX-applications.menu,
+# i.e. xfce-applications.menu, via xfdesktop/xfce4-panel's whiskermenu/applicationsmenu plugins).
+if [ -f /tmp/menu/xfce-applications.menu ]; then
   sudo mkdir -p /etc/xdg/menus
-  sudo cp /tmp/menu/gnome-applications.menu /etc/xdg/menus/gnome-applications.menu
-  sudo chmod 644 /etc/xdg/menus/gnome-applications.menu
+  sudo cp /tmp/menu/xfce-applications.menu /etc/xdg/menus/xfce-applications.menu
+  sudo chmod 644 /etc/xdg/menus/xfce-applications.menu
 fi
 
 sudo mkdir -p /usr/share/desktop-directories/
@@ -262,39 +263,39 @@ if [ -f /tmp/security/telcosec-ca.crt ]; then
   sudo chmod 644 /usr/local/share/ca-certificates/telcosec-ca.crt
 fi
 
-# Download and install Cloudflare Origin CA root certificates
-# (needed for domains using Cloudflare Origin Certificates)
-echo "Downloading Cloudflare Origin CA certificates..."
-_CF_ECC=/usr/local/share/ca-certificates/cloudflare_origin_ecc.crt
-_CF_RSA=/usr/local/share/ca-certificates/cloudflare_origin_rsa.crt
+# Install Cloudflare Origin CA root certificates (needed for domains using
+# Cloudflare Origin Certificates). These are vendored in the repo at
+# builder/security/cloudflare/ with pinned sha256 checksums (SHA256SUMS),
+# rather than fetched over the network at build time — a network fetch here
+# meant the build's TLS trust store depended on reaching
+# developers.cloudflare.com with no integrity check on what came back
+# (trust-on-build), and a network hiccup silently produced an image that
+# rejects Cloudflare-origin certs. Vendoring removes both problems: no
+# network dependency, and a checksum mismatch is caught instead of installed.
+echo "Installing Cloudflare Origin CA certificates..."
+_CF_SRC_DIR=/tmp/security/cloudflare
 _CF_FAIL=0
 
-sudo mkdir -p /usr/local/share/ca-certificates
-if sudo wget -qO "$_CF_ECC" \
-    https://developers.cloudflare.com/ssl/static/origin_ca_ecc_root.pem 2>/dev/null && \
-    [ -s "$_CF_ECC" ]; then
-  sudo chmod 644 "$_CF_ECC"
-  echo "  Cloudflare ECC CA: OK"
+if [ -d "$_CF_SRC_DIR" ] && [ -f "$_CF_SRC_DIR/SHA256SUMS" ]; then
+  sudo mkdir -p /usr/local/share/ca-certificates
+  if (cd "$_CF_SRC_DIR" && sha256sum -c SHA256SUMS --quiet); then
+    for crt in cloudflare_origin_ecc.crt cloudflare_origin_rsa.crt; do
+      sudo cp "$_CF_SRC_DIR/$crt" "/usr/local/share/ca-certificates/$crt"
+      sudo chmod 644 "/usr/local/share/ca-certificates/$crt"
+      echo "  ${crt}: OK (checksum verified)"
+    done
+  else
+    echo "  WARNING: Cloudflare CA checksum verification FAILED — refusing to install (possible tampering or stale vendored file)"
+    _CF_FAIL=1
+  fi
 else
-  echo "  WARNING: Cloudflare ECC CA download failed — Cloudflare-origin certs may not be trusted"
-  sudo rm -f "$_CF_ECC"
-  _CF_FAIL=1
-fi
-
-if sudo wget -qO "$_CF_RSA" \
-    https://developers.cloudflare.com/ssl/static/origin_ca_rsa_root.pem 2>/dev/null && \
-    [ -s "$_CF_RSA" ]; then
-  sudo chmod 644 "$_CF_RSA"
-  echo "  Cloudflare RSA CA: OK"
-else
-  echo "  WARNING: Cloudflare RSA CA download failed — Cloudflare-origin certs may not be trusted"
-  sudo rm -f "$_CF_RSA"
+  echo "  WARNING: vendored Cloudflare CA certs not found at $_CF_SRC_DIR — Cloudflare-origin certs will not be trusted"
   _CF_FAIL=1
 fi
 
 sudo update-ca-certificates || true
 if [ "$_CF_FAIL" = "1" ]; then
-  echo "  !! BUILD WARNING: Cloudflare CA fetch failed — live image may reject Cloudflare-origin TLS certs" >&2
+  echo "  !! BUILD WARNING: Cloudflare CA install failed — live image may reject Cloudflare-origin TLS certs" >&2
 fi
 
 # 12.5. Terminal Aliases & Tool Shortcuts
