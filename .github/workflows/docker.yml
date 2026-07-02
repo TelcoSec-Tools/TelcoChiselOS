@@ -1,0 +1,112 @@
+name: Build and Publish Docker Images
+
+on:
+  workflow_dispatch: {}
+  push:
+    tags: ['v*.*.*']
+
+concurrency:
+  group: docker-release
+  cancel-in-progress: false   # never cancel a running push mid-way
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  # telcochisel-base is built and pushed first — every add-on image is
+  # `FROM ${BASE_IMAGE}` (see docker/*.Dockerfile's ARG BASE_IMAGE), and
+  # buildx's containerized builder doesn't share the local Docker daemon's
+  # image cache, so add-ons resolve the base by PULLING the tag this job
+  # just pushed rather than a same-runner local image.
+  base:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      owner_lc: ${{ steps.meta.outputs.owner_lc }}
+      base_tag: ${{ steps.meta.outputs.base_tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve version and image namespace
+        id: meta
+        run: |
+          OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME}"
+          else
+            VERSION="nightly-$(git rev-parse --short HEAD)"
+          fi
+          echo "owner_lc=${OWNER_LC}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "base_tag=${{ env.REGISTRY }}/${OWNER_LC}/telcochisel-base:${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push telcochisel-base
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/base.Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ steps.meta.outputs.owner_lc }}/telcochisel-base:latest
+            ${{ steps.meta.outputs.base_tag }}
+          cache-from: type=gha,scope=telcochisel-base
+          cache-to: type=gha,mode=max,scope=telcochisel-base
+
+  # SDR, core-network, and device-tools all pull the base pushed above and
+  # build independently — no ordering dependency between them, so they run
+  # as a matrix rather than sequentially.
+  add-ons:
+    needs: base
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [sdr, core-network, device-tools]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push telcochisel-${{ matrix.image }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/${{ matrix.image }}.Dockerfile
+          push: true
+          build-args: |
+            BASE_IMAGE=${{ needs.base.outputs.base_tag }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ needs.base.outputs.owner_lc }}/telcochisel-${{ matrix.image }}:latest
+            ${{ env.REGISTRY }}/${{ needs.base.outputs.owner_lc }}/telcochisel-${{ matrix.image }}:${{ needs.base.outputs.version }}
+          cache-from: type=gha,scope=telcochisel-${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=telcochisel-${{ matrix.image }}
