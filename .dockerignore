@@ -1,0 +1,28 @@
+# Applies to all docker/*.Dockerfile builds — build context is the repo root
+# (docker build -f docker/base.Dockerfile .) so Dockerfiles can COPY
+# builder/scripts/lib/* without duplicating those files under docker/.
+.git
+*.iso
+TelcoChisel-live_*.iso
+
+# ISO-only content — never needed by a container image
+builder/docs/
+builder/calamares/
+builder/boot/
+builder/udev/
+builder/security/
+builder/wireshark/
+builder/menu/
+builder/scripts/00-install-all-packages.sh
+builder/scripts/01-install-base.sh
+builder/scripts/05-desktop-customization.sh
+builder/scripts/07-install-installer.sh
+builder/scripts/08-system-optimization.sh
+builder/scripts/12-install-dashboard.sh
+
+# Docs portal / node
+docs/
+node_modules/
+
+# Anything already built under docker/ from a previous run
+docker/**/*.log

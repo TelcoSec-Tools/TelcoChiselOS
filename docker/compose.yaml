@@ -1,0 +1,76 @@
+# =============================================================================
+# TelcoChisel container images — Docker Compose service definitions.
+#
+# Each service is standalone; run just the one you need:
+#   docker compose -f docker/compose.yaml run --rm base
+#   docker compose -f docker/compose.yaml run --rm sdr
+#   docker compose -f docker/compose.yaml run --rm core-network
+#   docker compose -f docker/compose.yaml run --rm device-tools
+#
+# Build all four locally (build context is the repo root — run compose from
+# there, or pass -f docker/compose.yaml from anywhere):
+#   docker compose -f docker/compose.yaml build
+#
+# See docker/README.md for what each privilege/device flag below is for and
+# which tools need it.
+# =============================================================================
+services:
+  base:
+    image: ghcr.io/telcosec-tools/telcochisel-base:latest
+    build:
+      context: ..
+      dockerfile: docker/base.Dockerfile
+    stdin_open: true
+    tty: true
+
+  sdr:
+    image: ghcr.io/telcosec-tools/telcochisel-sdr:latest
+    build:
+      context: ..
+      dockerfile: docker/sdr.Dockerfile
+    stdin_open: true
+    tty: true
+    # USB SDR passthrough (HackRF/USRP/LimeSDR/BladeRF/RTL-SDR). Swap the
+    # explicit device list for `privileged: true` if your host doesn't
+    # support --device for USB (e.g. Docker Desktop on Windows/Mac).
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    # X11 passthrough for gqrx / gnuradio-companion (Linux host only).
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+
+  core-network:
+    image: ghcr.io/telcosec-tools/telcochisel-core-network:latest
+    build:
+      context: ..
+      dockerfile: docker/core-network.Dockerfile
+    stdin_open: true
+    tty: true
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    # Host networking is the simplest way to get SCTP/GTP-U traffic and the
+    # ogstun interface working end-to-end; see docker/README.md for the
+    # bridge-network alternative if host networking isn't acceptable.
+    network_mode: host
+    # Only needed if you run `open5gs-install` (upstream's docker-compose
+    # flow runs `docker` FROM INSIDE this container). Comment out if unused.
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  device-tools:
+    image: ghcr.io/telcosec-tools/telcochisel-device-tools:latest
+    build:
+      context: ..
+      dockerfile: docker/device-tools.Dockerfile
+    stdin_open: true
+    tty: true
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    # Serial USB modems/flash-mode devices enumerate as /dev/ttyUSB*/ttyACM*
+    # at run time (dynamic — can't be listed here). Prefer:
+    #   docker run --device /dev/ttyUSB0 ... telcochisel-device-tools
+    # or --privileged for exploratory use.
