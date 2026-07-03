@@ -627,7 +627,7 @@ elif [ -f "$ROOTFS/usr/share/backgrounds/telcosec/logo.png" ]; then
 fi
 cat > "$WORKDIR/image/boot/grub/grub.cfg" << 'GRUB'
 set default=0
-set timeout=15
+set timeout=5
 
 insmod all_video
 insmod font
@@ -656,6 +656,12 @@ fi
 menuentry "TelcoChisel Live (Try without installing)" {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash usbcore.usbfs_memory_mb=1000 ---
+    initrd /casper/initrd
+}
+
+menuentry "Try TelcoChisel (load to RAM)" {
+    set gfxpayload=keep
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash usbcore.usbfs_memory_mb=1000 toram ---
     initrd /casper/initrd
 }
 
