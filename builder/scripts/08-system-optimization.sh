@@ -179,7 +179,7 @@ vm.nr_hugepages=512
 vm.hugetlb_shm_group=0
 
 [bootloader]
-cmdline=mitigations=off clocksource=tsc tsc=reliable intel_idle.max_cstate=1 processor.max_cstate=1
+cmdline=mitigations=off clocksource=tsc tsc=reliable intel_idle.max_cstate=1 processor.max_cstate=1 usbcore.usbfs_memory_mb=1000
 
 [script]
 script=tuned-sdr.sh

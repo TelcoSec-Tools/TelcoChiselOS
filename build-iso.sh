@@ -655,25 +655,25 @@ fi
 
 menuentry "TelcoChisel Live (Try without installing)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash ---
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
 menuentry "TelcoChisel Live (Install)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel only-ubiquity quiet splash ---
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel only-ubiquity quiet splash usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
 menuentry "TelcoChisel Live (Safe Graphics)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel nomodeset ---
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel nomodeset usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
 menuentry "TelcoChisel Live (Debug — verbose boot)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel debug systemd.log_level=debug ---
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel debug systemd.log_level=debug usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 GRUB
