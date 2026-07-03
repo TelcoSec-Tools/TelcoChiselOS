@@ -360,17 +360,9 @@ WantedBy=multi-user.target
 EOF
 sudo systemctl enable telcosec-mon.service 2>/dev/null || true
 
-sudo mkdir -p /etc/skel/.config/wireshark
-cat << 'EOF' | sudo tee /etc/skel/.config/wireshark/preferences
-capture.default_interface: mon0
-capture.prom_mode: TRUE
-gui.expert_composite_eyecandy: TRUE
-EOF
-if [ -d /home/telcosec ]; then
-  sudo mkdir -p /home/telcosec/.config/wireshark
-  sudo cp /etc/skel/.config/wireshark/preferences /home/telcosec/.config/wireshark/preferences
-  sudo chown -R telcosec:telcosec /home/telcosec/.config/wireshark
-fi
+# Note: Wireshark preferences (capture.default_interface=mon0, prom_mode, etc.)
+# are written later by 08-system-optimization.sh from the canonical
+# builder/wireshark/preferences file — not duplicated here.
 
 # 6. xfce4-terminal configuration
 echo "Configuring XFCE Terminal..."
