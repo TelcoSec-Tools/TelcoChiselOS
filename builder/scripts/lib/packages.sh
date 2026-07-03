@@ -41,6 +41,8 @@ PKGS_BASE=(
   open-vm-tools open-vm-tools-desktop
   # Themes
   yaru-theme-gtk yaru-theme-icon papirus-icon-theme
+  # Boot splash (telcosec Plymouth theme — see builder/boot/plymouth/)
+  plymouth plymouth-themes
   # Core system tools
   git vim nano htop fzf
   build-essential cmake pkg-config

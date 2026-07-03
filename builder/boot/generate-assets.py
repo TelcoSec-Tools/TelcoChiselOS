@@ -6,6 +6,8 @@ Generates (relative to repo root):
   builder/boot/plymouth/glow.png              – radial cyan glow for Plymouth
   builder/boot/plymouth/progress_dot_on.png   – lit progress dot (Plymouth)
   builder/boot/plymouth/progress_dot_off.png  – dim progress dot (Plymouth)
+  builder/boot/plymouth/password_field.png    – LUKS unlock text field (Plymouth)
+  builder/boot/plymouth/password_dot.png      – LUKS unlock bullet dot (Plymouth)
   builder/boot/grub_background.png            – GRUB splash (1920×1080)
   builder/boot/wallpaper.jpg                  – desktop wallpaper (1920×1080)
 
@@ -111,6 +113,29 @@ dot_off = make_dot(DARK_DOT)
 dot_on.save(os.path.join(ply_dir, "progress_dot_on.png"))
 dot_off.save(os.path.join(ply_dir, "progress_dot_off.png"))
 print("  → progress_dot_on.png, progress_dot_off.png")
+
+
+# ── 2b. Password prompt assets (LUKS unlock dialogue, telcosec.script) ──────
+print("Generating Plymouth password prompt assets …")
+FIELD_W, FIELD_H = 300, 40
+field  = Image.new("RGBA", (FIELD_W, FIELD_H), (0, 0, 0, 0))
+fdraw  = ImageDraw.Draw(field)
+fdraw.rounded_rectangle(
+    (0, 0, FIELD_W - 1, FIELD_H - 1),
+    radius=FIELD_H // 2,
+    fill=(16, 20, 30, 200),
+    outline=(0, 212, 230, 160),
+    width=2,
+)
+field.save(os.path.join(ply_dir, "password_field.png"))
+print("  → password_field.png")
+
+DOT_SIZE = 14
+pdot  = Image.new("RGBA", (DOT_SIZE, DOT_SIZE), (0, 0, 0, 0))
+pdraw = ImageDraw.Draw(pdot)
+pdraw.ellipse((1, 1, DOT_SIZE - 2, DOT_SIZE - 2), fill=(0, 212, 230, 255))
+pdot.save(os.path.join(ply_dir, "password_dot.png"))
+print("  → password_dot.png")
 
 
 # ── Shared: load + mask logo ─────────────────────────────────────────────────
