@@ -16,7 +16,15 @@ ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2832", MODE="0660", GROUP="plugdev",
 ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2838", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # USRP UHD (Ettus Research / National Instruments)
-ATTRS{idVendor}=="2514", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+# B200/B210/B200mini (2500), NI-branded (3923), USRP1 (fffe), un-fused FX3 (04b4)
+ATTRS{idVendor}=="2500", ATTRS{idProduct}=="0020", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="2500", ATTRS{idProduct}=="0021", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="2500", ATTRS{idProduct}=="0022", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="3923", ATTRS{idProduct}=="7813", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="3923", ATTRS{idProduct}=="7814", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="fffe", ATTRS{idProduct}=="0002", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="04b4", ATTRS{idProduct}=="00f0", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="04b4", ATTRS{idProduct}=="00f3", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # Osmocom SIMtrace 2 (Sniffer & Card Emulators)
 ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6076", MODE="0660", GROUP="plugdev", ENV{ID_MM_DEVICE_IGNORE}="1"
@@ -71,4 +79,6 @@ ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2c
 ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="1d50", ATTR{idProduct}=="6108", ATTR{power/control}="on"
 ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0bda", ATTR{idProduct}=="2832", ATTR{power/control}="on"
 ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0bda", ATTR{idProduct}=="2838", ATTR{power/control}="on"
-ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2514", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2500", ATTR{idProduct}=="0020", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2500", ATTR{idProduct}=="0021", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2500", ATTR{idProduct}=="0022", ATTR{power/control}="on"
