@@ -330,7 +330,7 @@ alias open5gs-logs="sudo journalctl -u open5gs-* -f"
 alias yate-logs="tail -f /var/log/yate.log"
 
 # SDR & Firmware
-alias update-sdr="sudo uhd_images_downloader && sudo limeUtil --update"
+alias update-sdr="sudo /usr/local/bin/uhd-download-images && sudo /usr/local/bin/LimeUtil --update"
 
 # Networking & Utils
 alias ports="sudo netstat -tulpn"
