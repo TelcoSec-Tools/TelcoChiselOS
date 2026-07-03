@@ -18,12 +18,37 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/packages.sh
 source "${SCRIPT_DIR}/lib/packages.sh"
 
-# Speed up apt downloads: parallel host-based queue, pipelining, auto-retry
+# Speed up apt downloads: parallel host-based queue, pipelining, auto-retry.
+# Timeouts + generous retries matter for the big packages (linux-firmware
+# ~640 MB, arm-none-eabi newlib ~460 MB) served from the Cloudflare-fronted
+# archive.ubuntu.com, which intermittently times out / resets mid-transfer.
 cat > /etc/apt/apt.conf.d/99fast-dl << 'APT_FAST'
 Acquire::Queue-Mode "host";
 Acquire::http::Pipeline-Depth 5;
-Acquire::Retries 3;
+Acquire::Retries 5;
+Acquire::Retries::Delay::Maximum "30";
+Acquire::http::Timeout "60";
+Acquire::https::Timeout "60";
 APT_FAST
+
+# Shell-level retry around apt-get fetch/install: apt's own Acquire::Retries
+# can still exhaust on a persistently flaky mirror, aborting the whole build
+# under set -e. Re-running apt-get resumes from the debs already in
+# /var/cache/apt/archives, so each attempt fetches strictly less. Mirrors the
+# repo's pip-retry.sh philosophy for the same transient-network failure class.
+apt_get_retry() {
+  local attempt
+  for attempt in 1 2 3 4; do
+    if apt-get "$@"; then
+      return 0
+    fi
+    echo "  WARNING: 'apt-get $1' attempt ${attempt} failed (likely transient fetch error); retrying in 15s..."
+    sleep 15
+    apt-get --fix-missing "$@" && return 0 || true
+  done
+  echo "  ERROR: 'apt-get $1' still failing after retries."
+  return 1
+}
 
 # ─── 0. Chroot service suppression ──────────────────────────────────────────
 # Hardware package postinstalls call udevadm/invoke-rc.d which fail in a
@@ -123,7 +148,7 @@ apt-get update
 # ─── 3. System upgrade ──────────────────────────────────────────────────────
 
 echo "  Upgrading base system..."
-apt-get upgrade -y
+apt_get_retry upgrade -y
 
 # ─── 4. Consolidated package install ────────────────────────────────────────
 # Every package from scripts 01–09, deduplicated and sorted by category.
@@ -133,7 +158,7 @@ echo "  Installing all packages (single transaction)..."
 # Install the union of all package arrays (sourced from lib/packages.sh)
 # plus any packages that don't belong to a downstream-script group.
 # shellcheck disable=SC2086
-apt-get install -y -o Dpkg::Options::="--force-overwrite" \
+apt_get_retry install -y -o Dpkg::Options::="--force-overwrite" \
   "${PKGS_BASE[@]}" \
   "${PKGS_SDR[@]}" \
   "${PKGS_CORE_NETWORK[@]}" \
