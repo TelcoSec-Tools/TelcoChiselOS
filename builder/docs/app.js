@@ -105,14 +105,6 @@ const toolsCatalog = [
         cmd: "srsue /etc/srsran/ue.conf"
     },
     {
-        name: "srsGUI",
-        category: "4g",
-        status: "ready",
-        desc: "Real-time visualization GUI for srsRAN metrics: constellation diagrams, spectrum, BER counters, and RLC/PDCP throughput graphs.",
-        path: "srsgui",
-        cmd: "srsgui"
-    },
-    {
         name: "LTE-CellScanner",
         category: "4g",
         status: "ready",
