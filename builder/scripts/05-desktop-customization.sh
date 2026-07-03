@@ -157,7 +157,7 @@ cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-keybo
   <property name="commands" type="empty">
     <property name="custom" type="empty">
       <property name="Super_L" type="string" value="xfce4-popup-whiskermenu"/>
-      <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="xfce4-terminal"/>
+      <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="gnome-terminal"/>
     </property>
   </property>
   <property name="xfwm4" type="empty">
@@ -409,15 +409,15 @@ ColorPalette=#0D1117;#FF6B6B;#98C379;#E5C07B;#61AFEF;#C678DD;#56B6C2;#ABB2BF;#5C
 EOF
 
 grep -q '^TERMINAL=' /etc/environment 2>/dev/null && \
-  sudo sed -i 's/^TERMINAL=.*/TERMINAL=xfce4-terminal/' /etc/environment || \
-  echo 'TERMINAL=xfce4-terminal' | sudo tee -a /etc/environment
+  sudo sed -i 's/^TERMINAL=.*/TERMINAL=gnome-terminal/' /etc/environment || \
+  echo 'TERMINAL=gnome-terminal' | sudo tee -a /etc/environment
 
-sudo update-alternatives --set x-terminal-emulator /usr/bin/xfce4-terminal 2>/dev/null || true
+sudo update-alternatives --set x-terminal-emulator /usr/bin/gnome-terminal 2>/dev/null || true
 
 sudo mkdir -p /etc/skel/.config
 cat << 'EOF' | sudo tee /etc/skel/.config/mimeapps.list
 [Default Applications]
-x-scheme-handler/terminal=xfce4-terminal.desktop
+x-scheme-handler/terminal=org.gnome.Terminal.desktop
 EOF
 if [ -d /home/telcosec ]; then
   sudo cp /etc/skel/.config/mimeapps.list /home/telcosec/.config/mimeapps.list
@@ -509,7 +509,7 @@ cat << 'EOF' | sudo tee /etc/xdg/autostart/telcosec-terminal.desktop
 Type=Application
 Name=TelcoSec Terminal
 Comment=Open XFCE Terminal with tmux general session on login
-Exec=xfce4-terminal --title "TelcoSec Terminal" -e "bash -c 'tmux new-session -A -s general; exec bash'"
+Exec=gnome-terminal -- bash -c 'tmux new-session -A -s general; exec bash'
 Icon=utilities-terminal
 Terminal=false
 Categories=System;TerminalEmulator;

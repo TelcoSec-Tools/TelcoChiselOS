@@ -2,7 +2,7 @@
 Type=Application
 Name=UERANSIM — UE
 Comment=5G NR User Equipment simulator
-Exec=xfce4-terminal --hold -x bash -c "nr-ue -c /etc/telcosec/ueransim/ue.yaml"
+Exec=gnome-terminal -- bash -c "nr-ue -c /etc/telcosec/ueransim/ue.yaml; exec bash"
 Icon=network-cellular
 Categories=TelcoSec-5GNR;
 Terminal=false

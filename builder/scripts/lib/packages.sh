@@ -34,7 +34,7 @@ PKGS_BASE=(
   grub-pc-bin grub-efi-amd64-bin shim-signed grub-efi-amd64-signed
   # Desktop (XFCE + LightDM)
   xfce4 xfce4-goodies lightdm thunar
-  xfce4-terminal xfce4-taskmanager
+  gnome-terminal xfce4-taskmanager
   xserver-xorg xserver-xorg-input-all
   network-manager-gnome
   terminator firefox

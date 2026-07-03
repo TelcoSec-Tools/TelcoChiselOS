@@ -54,3 +54,20 @@ sudo_pip_retry() {
   echo "  WARNING: pip install failed after 3 attempts (non-fatal): sudo pip3 $*" >&2
   return 0
 }
+
+venv_pip_retry() {
+  local pip_cmd="$1"
+  shift
+  local attempt
+  local extra_args=()
+  if [ "$1" = "install" ] && [ -f "$_PIP_CONSTRAINTS" ]; then
+    extra_args=(-c "$_PIP_CONSTRAINTS")
+  fi
+  for attempt in 1 2 3; do
+    "$pip_cmd" "$@" "${extra_args[@]}" && return 0
+    echo "  pip attempt $attempt/3 failed — retrying in 15s..."
+    sleep 15
+  done
+  echo "  WARNING: pip install failed after 3 attempts (non-fatal): $pip_cmd $*" >&2
+  return 0
+}

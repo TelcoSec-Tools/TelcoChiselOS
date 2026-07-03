@@ -21,7 +21,7 @@ fi
 # This previously ran as a bare `pip3 install` with no retry under `set -e` —
 # a transient PyPI/SSL failure would abort the rest of this script (sctpscan,
 # and everything after it). Use the shared retry helper instead.
-pip_retry install sipvicious scapy --break-system-packages
+pip_retry install git+https://github.com/EnableSecurity/sipvicious.git scapy --break-system-packages
 record_tool "SIPVicious" "$(command -v sipvicious 2>/dev/null || command -v svmap 2>/dev/null)" "voip"
 
 # Compile and Install sctpscan

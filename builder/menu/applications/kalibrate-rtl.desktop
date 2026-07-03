@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=Kalibrate RTL
 Comment=Calculate RTL-SDR frequency offset against GSM base stations
-Exec=xfce4-terminal --hold --title="Kalibrate RTL" -x bash -c "kal -h; echo ''; read -p 'Press Enter to exit...'"
+Exec=gnome-terminal -- bash -c "kal -h; echo ''; read -p 'Press Enter to exit...'"
 Icon=utilities-terminal
 Terminal=false
 Categories=TelcoSec-SDR;

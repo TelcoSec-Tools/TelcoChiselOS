@@ -2,7 +2,7 @@
 Type=Application
 Name=OAI UE Setup
 Comment=Build and install OpenAirInterface UE
-Exec=xfce4-terminal --hold -x bash -c "sudo oai-install"
+Exec=gnome-terminal -- bash -c "sudo oai-install; exec bash"
 Icon=network-cellular
 Categories=TelcoSec-5GNR;
 Terminal=false

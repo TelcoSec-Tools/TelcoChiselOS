@@ -109,7 +109,7 @@ echo "  Configuring AT command tools..."
 pip_retry install atinout
 # If not available via pip, install from source
 if ! command -v atinout &>/dev/null; then
-  git clone --depth 1 https://github.com/da-luce/atinout "${TELCOSEC_OPT}/atinout" \
+  git clone --depth 1 https://github.com/ThisSmartHouse/atinout "${TELCOSEC_OPT}/atinout" \
     2>/dev/null || true
   if [ -d "${TELCOSEC_OPT}/atinout" ]; then
     cd "${TELCOSEC_OPT}/atinout" && make && cp atinout /usr/local/bin/ && cd /

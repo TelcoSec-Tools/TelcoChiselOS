@@ -2,7 +2,7 @@
 Type=Application
 Name=Kismet
 Comment=Wireless network detector and packet sniffer
-Exec=xfce4-terminal --hold -x bash -c "sudo kismet -c mon0"
+Exec=gnome-terminal -- bash -c "sudo kismet -c mon0; exec bash"
 Icon=network-wireless
 Categories=TelcoSec-Network;
 Terminal=false

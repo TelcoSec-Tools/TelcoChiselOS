@@ -2,7 +2,7 @@
 Type=Application
 Name=Gammu SMS/USSD
 Comment=Send SMS and USSD commands via modem
-Exec=xfce4-terminal --hold -x bash -c "gammu-at --help"
+Exec=gnome-terminal -- bash -c "gammu-at --help; exec bash"
 Icon=phone
 Categories=TelcoSec-Device;
 Terminal=false

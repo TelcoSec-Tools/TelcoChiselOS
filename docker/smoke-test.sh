@@ -28,7 +28,10 @@ fi
 check() {
   local image="$1" desc="$2"; shift 2
   printf '  [%-22s] %-14s ... ' "$image" "$desc"
-  if docker run --rm --entrypoint /bin/bash "$image" -c "$*" >/tmp/smoke-"$desc".log 2>&1; then
+  # MSYS_NO_PATHCONV avoids Git-Bash-on-Windows mangling /bin/bash into a
+  # Windows path (C:/Program Files/Git/usr/bin/bash) before Docker sees it;
+  # harmless no-op on Linux/Mac.
+  if MSYS_NO_PATHCONV=1 docker run --rm --entrypoint /bin/bash "$image" -c "$*" >/tmp/smoke-"$desc".log 2>&1; then
     echo "OK"
   else
     echo "FAIL (see /tmp/smoke-$desc.log)"
@@ -43,7 +46,7 @@ check telcochisel-base scapy       "python3 -c 'import scapy; print(scapy.VERSIO
 check telcochisel-base sctpscan    "sctpscan -h || true"
 check telcochisel-base pysim       "pySim-shell --help"
 check telcochisel-base ueransim    "nr-ue --help || true"
-check telcochisel-base sipvicious  "svmap --help || svmap.py --help"
+check telcochisel-base sipvicious  "sipvicious_svmap --help"
 
 echo "=== telcochisel-device-tools ==="
 check telcochisel-device-tools heimdall "heimdall version"

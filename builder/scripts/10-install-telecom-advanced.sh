@@ -25,8 +25,8 @@ echo "  Cloning repositories in parallel..."
 mkdir -p "$TELCOSEC_OPT"
 git clone --depth 1 https://github.com/aligungr/UERANSIM        "${TELCOSEC_OPT}/ueransim"        2>/dev/null || true &
 git clone --depth 1 https://github.com/fgsect/scat              "${TELCOSEC_OPT}/scat"            2>/dev/null || true &
-git clone --depth 1 https://github.com/steve-m/kalibrate-gsm   "${TELCOSEC_OPT}/kalibrate-gsm"   2>/dev/null || true &
-git clone --depth 1 https://github.com/S3cur1ty-fr/modmobmap   "${TELCOSEC_OPT}/modmobmap"       2>/dev/null || true &
+git clone --depth 1 https://github.com/scateu/kalibrate-hackrf "${TELCOSEC_OPT}/kalibrate-gsm"   2>/dev/null || true &
+git clone --depth 1 https://github.com/Synacktiv-contrib/Modmobmap "${TELCOSEC_OPT}/modmobmap"       2>/dev/null || true &
 git clone --depth 1 https://github.com/srlabs/SIMtester         "${TELCOSEC_OPT}/simtester"       2>/dev/null || true &
 git clone --depth 1 https://github.com/yatebts/yatebts          "${TELCOSEC_OPT}/yatebts"         2>/dev/null || true &
 git clone --depth 1 https://github.com/RangeNetworks/openbts    "${TELCOSEC_OPT}/openbts"         2>/dev/null || true &
@@ -36,7 +36,7 @@ git clone --depth 1 https://github.com/SysSec-KAIST/LTESniffer  "${TELCOSEC_OPT}
 git clone --depth 1 https://github.com/free5gc/gtp5g            "${TELCOSEC_OPT}/gtp5g"           2>/dev/null || true &
 git clone --depth 1 https://github.com/TelcoSec-Tools/RDNSx     "${TELCOSEC_OPT}/rdnsx"           2>/dev/null || true &
 git clone --depth 1 https://github.com/rlaager/docsis           "${TELCOSEC_OPT}/docsis"          2>/dev/null || true &
-git clone --depth 1 https://github.com/fkie-cad/falcon          "${TELCOSEC_OPT}/falcon"          2>/dev/null || true &
+git clone --depth 1 https://github.com/fkie-cad/FALCON          "${TELCOSEC_OPT}/falcon"          2>/dev/null || true &
 git clone --depth 1 https://github.com/TelcoSec-Tools/TelcoSec-ChiselControl-Dashboard "${TELCOSEC_OPT}/dashboard" 2>/dev/null || true &
 wait
 echo "  Parallel clone complete."
@@ -229,16 +229,17 @@ if [ -d "${TELCOSEC_OPT}/srsgui" ]; then
   # to avoid test compilation failures (missing Qt test harness).
   make -j"$(nproc)" srsgui 2>&1 | tail -5 || \
     make -j"$(nproc)" 2>&1 | tail -5 || true
-  [ -f srsgui ] && ln -sf "${TELCOSEC_OPT}/srsgui/build/srsgui" /usr/local/bin/srsgui || true
   cd /
 fi
-record_tool "srsGUI" "/usr/local/bin/srsgui" "core"
+record_tool "srsGUI" "$(find ${TELCOSEC_OPT}/srsgui/build -name 'libsrsgui.so' 2>/dev/null | head -1)" "core"
 
 # ─── J. LTE-CellScanner ──────────────────────────────────────────────────────
 echo "  Installing LTE-CellScanner..."
 if [ -d "${TELCOSEC_OPT}/lte-cellscanner" ]; then
   cd "${TELCOSEC_OPT}/lte-cellscanner"
   mkdir -p build && cd build
+  export CFLAGS="-Wno-error -fcommon"
+  export CXXFLAGS="-Wno-error -fcommon"
   cmake .. 2>&1 | tail -3
   make -j"$(nproc)" 2>&1 | tail -5 || true
   [ -f src/CellSearch ] && ln -sf "${TELCOSEC_OPT}/lte-cellscanner/build/src/CellSearch" \
@@ -252,8 +253,8 @@ echo "  Installing LTESniffer..."
 if [ -d "${TELCOSEC_OPT}/ltesniffer" ]; then
   cd "${TELCOSEC_OPT}/ltesniffer"
   mkdir -p build && cd build
-  export CFLAGS="-Wno-error"
-  export CXXFLAGS="-Wno-error"
+  export CFLAGS="-Wno-error -fcommon"
+  export CXXFLAGS="-Wno-error -fcommon"
   cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -3
   make -j"$(nproc)" 2>&1 | tail -5 || true
   # Use explicit expected output path (cmake project puts binary at src/LTESniffer)
@@ -402,9 +403,12 @@ else
     cd "${TELCOSEC_OPT}/rdnsx"
     export CARGO_HOME=/usr/local/cargo
     export PATH="${CARGO_HOME}/bin:$PATH"
+    apt-get install -y cargo 2>/dev/null || true
     if command -v cargo &>/dev/null; then
-      cargo build --release 2>&1 | tail -5
+      cargo build --release 2>&1 | tail -5 || true
       [ -f target/release/rdnsx ] && ln -sf "${TELCOSEC_OPT}/rdnsx/target/release/rdnsx" /usr/local/bin/rdnsx || true
+      apt-get remove -y cargo 2>/dev/null || true
+      apt-get autoremove -y 2>/dev/null || true
     else
       echo "    WARNING: cargo not found. Skipping RDNSx compilation."
     fi
@@ -422,7 +426,7 @@ if [ ! -d "${TELCOSEC_OPT}/asleap" ]; then
 fi
 if [ -d "${TELCOSEC_OPT}/asleap" ]; then
   cd "${TELCOSEC_OPT}/asleap"
-  make -j"$(nproc)" 2>&1 | tail -5 || true
+  make CFLAGS="-O2 -Wno-error -fcommon" -j"$(nproc)" 2>&1 | tail -5 || true
   [ -f asleap ] && ln -sf "${TELCOSEC_OPT}/asleap/asleap" /usr/local/bin/asleap || true
   [ -f genkeys ] && ln -sf "${TELCOSEC_OPT}/asleap/genkeys" /usr/local/bin/genkeys || true
   cd /
