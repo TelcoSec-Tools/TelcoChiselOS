@@ -56,7 +56,7 @@ UDEVADM
 CONTAINER_PKG_BLOCKLIST=(
   casper initramfs-tools linux-image-generic
   grub-pc-bin grub-efi-amd64-bin shim-signed grub-efi-amd64-signed
-  xfce4 xfce4-goodies lightdm thunar xfce4-terminal xfce4-taskmanager
+  xfce4 xfce4-goodies lightdm thunar gnome-terminal xfce4-taskmanager
   xserver-xorg xserver-xorg-input-all network-manager-gnome terminator
   firefox open-vm-tools open-vm-tools-desktop
   yaru-theme-gtk yaru-theme-icon papirus-icon-theme
