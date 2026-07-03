@@ -172,6 +172,7 @@ UDEVADM
   rm -rf "$ROOTFS/tmp/calamares-config" && cp -r builder/calamares "$ROOTFS/tmp/calamares-config"
   rm -rf "$ROOTFS/tmp/docs" && cp -r builder/docs "$ROOTFS/tmp/docs"
   rm -rf "$ROOTFS/tmp/udev" && cp -r builder/udev "$ROOTFS/tmp/udev"
+  rm -rf "$ROOTFS/tmp/modprobe" && cp -r builder/modprobe "$ROOTFS/tmp/modprobe"
   rm -rf "$ROOTFS/tmp/security" && cp -r builder/security "$ROOTFS/tmp/security"
   rm -rf "$ROOTFS/tmp/menu" && cp -r builder/menu "$ROOTFS/tmp/menu"
   rm -rf "$ROOTFS/tmp/wireshark" && cp -r builder/wireshark "$ROOTFS/tmp/wireshark"
@@ -257,6 +258,7 @@ UDEVADM
   cp -r builder/calamares "$ROOTFS/tmp/calamares-config"
   cp -r builder/docs      "$ROOTFS/tmp/docs"
   cp -r builder/udev      "$ROOTFS/tmp/udev"
+  cp -r builder/modprobe  "$ROOTFS/tmp/modprobe"
   cp -r builder/security  "$ROOTFS/tmp/security"
   cp -r builder/menu      "$ROOTFS/tmp/menu"
   cp -r builder/wireshark "$ROOTFS/tmp/wireshark"
@@ -529,7 +531,7 @@ rm -rf /usr/share/groff /usr/share/info 2>/dev/null || true
 find /var/log -type f \( -name '*.log' -o -name '*.gz' \) -delete 2>/dev/null || true
 rm -rf /var/log/journal/* 2>/dev/null || true
 rm -rf /tmp/scripts /tmp/calamares-config /tmp/docs
-rm -rf /tmp/udev /tmp/security /tmp/menu /tmp/wireshark /tmp/boot
+rm -rf /tmp/udev /tmp/modprobe /tmp/security /tmp/menu /tmp/wireshark /tmp/boot
 rm -rf /tmp/wordlists
 rm -f  /tmp/.packages-installed
 rm -rf /tmp/*
