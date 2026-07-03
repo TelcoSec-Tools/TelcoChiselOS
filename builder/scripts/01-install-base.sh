@@ -54,3 +54,5 @@ sudo groupadd -g 1000 telcosec || true
 sudo useradd -m -s /bin/bash -u 1000 -g telcosec telcosec || true
 echo "telcosec:telcosec" | sudo chpasswd
 sudo usermod -aG sudo,dialout,plugdev,audio,video,docker,netdev telcosec || true
+sudo groupadd -f autologin || true
+sudo usermod -aG autologin telcosec || true
