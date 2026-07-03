@@ -11,6 +11,20 @@ ATTRS{idVendor}=="2cf0", ATTRS{idProduct}=="5250", MODE="0660", GROUP="plugdev",
 # LimeSDR
 ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6108", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
 
+# Airspy R2 / Mini
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="60a1", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+# Airspy HF+
+ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="800c", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+# ADALM-Pluto (run) + DFU
+ATTRS{idVendor}=="0456", ATTRS{idProduct}=="b673", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="0456", ATTRS{idProduct}=="b674", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+# LimeSDR Mini (FTDI)
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="601f", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+# BladeRF x40 / x115 (original)
+ATTRS{idVendor}=="2cf0", ATTRS{idProduct}=="5246", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+# HackRF Jawbreaker
+ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="604b", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
+
 # RTL-SDR Dongles
 ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2832", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
 ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2838", MODE="0660", GROUP="plugdev", ENV{ID_SOFTWARE_RADIO}="1", ENV{ID_MM_DEVICE_IGNORE}="1"
@@ -82,3 +96,10 @@ ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0b
 ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2500", ATTR{idProduct}=="0020", ATTR{power/control}="on"
 ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2500", ATTR{idProduct}=="0021", ATTR{power/control}="on"
 ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2500", ATTR{idProduct}=="0022", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="1d50", ATTR{idProduct}=="60a1", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="03eb", ATTR{idProduct}=="800c", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0456", ATTR{idProduct}=="b673", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0456", ATTR{idProduct}=="b674", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0403", ATTR{idProduct}=="601f", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2cf0", ATTR{idProduct}=="5246", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="1d50", ATTR{idProduct}=="604b", ATTR{power/control}="on"
