@@ -197,9 +197,9 @@ record_tool "librtlsdr" "${CONDA_PREFIX}/include/rtl-sdr.h" "sdr"
 conda install -y --override-channels -c conda-forge gnuradio gqrx 2>/dev/null || \
   echo "  WARNING: conda gnuradio/gqrx install failed (non-fatal)"
 
-# gr-osmosdr is not on conda-forge — attempt separately, failure expected.
-conda install -y --override-channels -c conda-forge gr-osmosdr 2>/dev/null || \
-  echo "  INFO: gr-osmosdr not on conda-forge — skipping (gr-gsm built from source below)"
+# gnuradio-osmosdr (osmosdr source/sink blocks) from conda-forge.
+conda install -y --override-channels -c conda-forge gnuradio-osmosdr 2>/dev/null || \
+  echo "  WARNING: gnuradio-osmosdr install failed (non-fatal; gr-gsm still built from source below)"
 
 # Soapy hardware modules so SoapySDRUtil --find sees all radios, not just bladeRF.
 conda install -y --override-channels -c conda-forge \
