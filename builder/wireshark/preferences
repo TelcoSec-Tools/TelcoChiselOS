@@ -10,3 +10,8 @@ console.log.level: 28
 
 # Packet list display
 gui.packet_list_elide_mode: 1
+
+# Capture defaults for telecom monitoring (mon0 promiscuous capture)
+capture.default_interface: mon0
+capture.prom_mode: TRUE
+gui.expert_composite_eyecandy: TRUE
