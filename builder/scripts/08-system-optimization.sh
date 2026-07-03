@@ -248,6 +248,9 @@ sudo systemctl disable gnome-remote-desktop 2>/dev/null || true
 # Disable Avahi mDNS — unwanted network advertisement on a research host
 sudo systemctl disable avahi-daemon 2>/dev/null || true
 sudo systemctl mask avahi-daemon 2>/dev/null || true
+# Nothing on the path to the desktop needs network-online; docker pulls it in
+# and it stalls boot up to 2 min with no carrier. Mask it.
+sudo systemctl mask NetworkManager-wait-online.service || true
 
 # 11b. Systemd-resolved DNS privacy configuration
 echo "Harden systemd-resolved (disable LLMNR and mDNS)..."
