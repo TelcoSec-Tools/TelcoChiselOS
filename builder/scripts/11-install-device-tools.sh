@@ -162,8 +162,9 @@ wget --timeout=30 -q -O /tmp/zoiper5.deb "$ZOIPER_URL" 2>/dev/null && {
 # ─── F. Modem manager GUI config ─────────────────────────────────────────────
 echo "  Configuring ModemManager GUI..."
 # modem-manager-gui installed via apt in 00
-# Ensure ModemManager is enabled
-systemctl enable ModemManager 2>/dev/null || true
+# ModemManager grabs baseband/diag/AT serial ports the flashing tools need,
+# and slows boot by probing every tty. Off by default; start on demand.
+sudo systemctl disable ModemManager.service 2>/dev/null || true
 
 # USB mode switch configuration for common dongles
 cat > /etc/usb_modeswitch.d/12d1:1446 << 'EOF'
