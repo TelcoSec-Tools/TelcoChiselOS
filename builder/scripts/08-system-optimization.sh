@@ -206,6 +206,10 @@ if command -v tuned-adm &> /dev/null; then
   sudo tuned-adm profile telcosec-sdr 2>/dev/null || true
 fi
 
+# Ensure the service actually starts on the installed/live system so the
+# telcosec-sdr profile (governor=performance, hugepages, bootloader cmdline) applies.
+sudo systemctl enable tuned.service 2>/dev/null || true
+
 # 8. Firewall Hardening
 echo "Configuring default firewall policies..."
 if command -v ufw &> /dev/null; then
