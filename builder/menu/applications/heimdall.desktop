@@ -2,7 +2,7 @@
 Type=Application
 Name=Heimdall (Samsung)
 Comment=Samsung device flash tool (Odin alternative)
-Exec=xfce4-terminal --hold -x bash -c "heimdall --help"
+Exec=gnome-terminal -- bash -c "heimdall --help; exec bash"
 Icon=phone
 Categories=TelcoSec-Device;
 Terminal=false

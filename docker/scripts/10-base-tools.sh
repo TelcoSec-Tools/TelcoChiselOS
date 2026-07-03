@@ -42,7 +42,13 @@ apt_retry install -y --no-install-recommends \
   ca-certificates curl wget gnupg git vim nano build-essential cmake \
   pkg-config autoconf automake libtool python3-pip python3-venv python3-dev \
   sudo unzip openjdk-17-jre-headless \
-  libusb-1.0-0-dev libmnl-dev  # libosmocore's configure needs both, even without SDR support
+  libusb-1.0-0-dev libmnl-dev \
+  libssl-dev libncurses-dev
+  # libusb-1.0-0-dev + libmnl-dev: libosmocore's configure needs both.
+  # libssl-dev + libncurses-dev: sipp's cmake needs both. All four come from
+  # the ISO's PKGS_CORE_NETWORK/PKGS_ADVANCED arrays, not PKGS_TOOLS/
+  # PKGS_UE_ANALYSIS — the ISO gets them for free from its one combined apt
+  # transaction; this narrower base image needs them declared explicitly.
 
 mapfile -t FILTERED_PKGS < <(filter_pkgs "${PKGS_TOOLS[@]}" "${PKGS_UE_ANALYSIS[@]}")
 apt_retry install -y --no-install-recommends "${FILTERED_PKGS[@]}"
@@ -338,11 +344,20 @@ pip_retry install scat --break-system-packages
 record_tool "SCAT" "$(command -v scat 2>/dev/null || echo '/usr/local/bin/scat')" "baseband"
 
 # ─── 18. Kalibrate-GSM (from 10-install-telecom-advanced.sh) ───────────────
-git_clone_retry --depth 1 https://github.com/steve-m/kalibrate-gsm "${TELCOSEC_OPT}/kalibrate-gsm"
-cd "${TELCOSEC_OPT}/kalibrate-gsm"
-./bootstrap.sh 2>/dev/null || autoreconf -fi
-./configure && make -j"$(nproc)"
-cp src/kal /usr/local/bin/kal-gsm 2>/dev/null || true
+# Mirrors the ISO's own non-fatal handling: this upstream URL is already
+# broken there too (steve-m/kalibrate-gsm returns 404 — likely never existed
+# under that name; the working repo is steve-m/kalibrate-rtl, already built
+# in step for the sdr image, or upstream ttsou/kalibrate). The ISO script
+# guards this exact clone with `2>/dev/null || true` for the same reason —
+# see builder/scripts/10-install-telecom-advanced.sh.
+git_clone_retry --depth 1 https://github.com/steve-m/kalibrate-gsm "${TELCOSEC_OPT}/kalibrate-gsm" 2>/dev/null || true
+if [ -d "${TELCOSEC_OPT}/kalibrate-gsm" ]; then
+  cd "${TELCOSEC_OPT}/kalibrate-gsm"
+  ./bootstrap.sh 2>/dev/null || autoreconf -fi
+  ./configure && make -j"$(nproc)"
+  cp src/kal /usr/local/bin/kal-gsm 2>/dev/null || true
+  cd "${TELCOSEC_OPT}"
+fi
 record_tool "kalibrate-gsm" "/usr/local/bin/kal-gsm" "2g"
 
 # ─── 19. SIMTester (from 10-install-telecom-advanced.sh) ───────────────────

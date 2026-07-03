@@ -30,7 +30,7 @@ EOF
     xfce4 xfce4-goodies lightdm \
     xserver-xorg xserver-xorg-input-all \
     network-manager-gnome \
-    terminator firefox \
+    gnome-terminal terminator firefox \
     open-vm-tools open-vm-tools-desktop \
     git vim nano htop \
     build-essential cmake pkg-config \

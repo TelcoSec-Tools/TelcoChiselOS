@@ -2,7 +2,7 @@
 Type=Application
 Name=AT Command Console
 Comment=Interactive AT command terminal (minicom)
-Exec=xfce4-terminal --hold -x bash -c "at-console"
+Exec=gnome-terminal -- bash -c "at-console; exec bash"
 Icon=utilities-terminal
 Categories=TelcoSec-Device;
 Terminal=false

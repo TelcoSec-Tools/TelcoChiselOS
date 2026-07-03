@@ -2,7 +2,7 @@
 Type=Application
 Name=tcpdump
 Comment=Command-line packet analyzer
-Exec=xfce4-terminal --hold -x bash -c "sudo tcpdump -i mon0 -v"
+Exec=gnome-terminal -- bash -c "sudo tcpdump -i mon0 -v; exec bash"
 Icon=utilities-terminal
 Categories=TelcoSec-Network;
 Terminal=false

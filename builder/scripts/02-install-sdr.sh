@@ -206,6 +206,7 @@ git clone --depth 1 https://github.com/bkerler/gr-gsm /opt/telcosec/src/gr-gsm 2
 if [ -d /opt/telcosec/src/gr-gsm ]; then
   cmake -S /opt/telcosec/src/gr-gsm -B /opt/telcosec/src/gr-gsm/build \
     -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_CXX_FLAGS="-std=c++17 -Wno-error" -DCMAKE_C_FLAGS="-Wno-error -fcommon" \
     -DCMAKE_MODULE_PATH="$CONDA_PREFIX/lib/cmake/gnuradio" >/dev/null 2>&1 || true
   make -C /opt/telcosec/src/gr-gsm/build -j"$(nproc)" >/dev/null 2>&1 || true
   make -C /opt/telcosec/src/gr-gsm/build install >/dev/null 2>&1 || true

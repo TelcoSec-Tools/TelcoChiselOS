@@ -84,7 +84,7 @@ fi
 echo "=== Downloading and patching python-rocksdb for RocksDB 7+/8+ ==="
 mkdir -p /tmp/rocksdb-build
 cd /tmp/rocksdb-build
-/opt/telcosec/firmwire/venv/bin/pip download --no-binary :all: --no-deps rocksdb
+venv_pip_retry /opt/telcosec/firmwire/venv/bin/pip download --no-binary :all: --no-deps rocksdb
 tar -xzf rocksdb-*.tar.gz
 cd rocksdb-*/
 
@@ -180,17 +180,17 @@ PYEOF
 # to run Cython to regenerate _rocksdb.cpp from our patched _rocksdb.pyx.
 rm -f rocksdb/_rocksdb.cpp
 
-/opt/telcosec/firmwire/venv/bin/pip install --no-build-isolation .
+venv_pip_retry /opt/telcosec/firmwire/venv/bin/pip install --no-build-isolation .
 cd /opt/telcosec/firmwire
 rm -rf /tmp/rocksdb-build
 
-./venv/bin/pip install -r requirements.txt
+venv_pip_retry ./venv/bin/pip install -r requirements.txt
 
 # avatar2 (pulled in by requirements.txt) imports `from pkg_resources import
 # packaging`. pkg_resources lives in setuptools, which pip may remove or
 # downgrade during dependency resolution on Python 3.12 venvs. Reinstalling
 # after requirements.txt guarantees it survives.
-./venv/bin/pip install --upgrade setuptools
+venv_pip_retry ./venv/bin/pip install --upgrade setuptools
 
 # The patched python-rocksdb build (the most fragile step in this install —
 # custom Cython patches against whatever RocksDB headers Ubuntu ships) is the
@@ -214,13 +214,13 @@ record_tool "QCSuper" "$(command -v qcsuper 2>/dev/null)" "baseband"
 # unreachable as a command. Guard the symlink on the binary actually existing.
 echo "Compiling Huawei Balong Flashing Tools..."
 cd /opt/telcosec/balong-flash
-make || echo "WARNING: balong-flash make failed — tool will be unavailable"
+make CFLAGS="-O2 -Wno-error -fcommon" || echo "WARNING: balong-flash make failed — tool will be unavailable"
 BALONG_FLASH_BIN=$(find . -maxdepth 1 -type f -executable -iname 'balong-flash*' 2>/dev/null | head -1)
 [ -n "$BALONG_FLASH_BIN" ] && sudo ln -sf "/opt/telcosec/balong-flash/${BALONG_FLASH_BIN#./}" /usr/local/bin/balong-flash
 record_tool "balong-flash" "/usr/local/bin/balong-flash" "baseband"
 
 cd /opt/telcosec/balongtool
-make || echo "WARNING: balongtool make failed — tool will be unavailable"
+make CFLAGS="-O2 -Wno-error -fcommon" || echo "WARNING: balongtool make failed — tool will be unavailable"
 BALONGTOOL_BIN=$(find . -maxdepth 1 -type f -executable -iname 'balongtool*' -o -maxdepth 1 -type f -executable -iname 'nvtool*' 2>/dev/null | head -1)
 [ -n "$BALONGTOOL_BIN" ] && sudo ln -sf "/opt/telcosec/balongtool/${BALONGTOOL_BIN#./}" /usr/local/bin/balongtool
 record_tool "balongtool" "/usr/local/bin/balongtool" "baseband"
