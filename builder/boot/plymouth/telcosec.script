@@ -131,6 +131,11 @@ password_field_filename = "password_field.png";
 fun password_dialogue_setup(prompt_text) {
     entry_img  = Image(password_field_filename);
     bullet_img = Image(password_dot_filename);
+    # Image() yields no usable object when the file is missing/unreadable —
+    # never call .GetWidth()/etc. on entry_img/bullet_img unless both loaded,
+    # so a missing theme asset degrades to "no visible entry field" instead
+    # of a null-method-call crash that freezes/blackens the whole splash.
+    global.pwd.assets_ok  = (entry_img && bullet_img);
     global.pwd.entry_img  = entry_img;
     global.pwd.bullet_img = bullet_img;
 
@@ -138,13 +143,19 @@ fun password_dialogue_setup(prompt_text) {
     global.pwd.prompt_spr = Sprite(prompt_img);
     global.pwd.prompt_spr.SetPosition(W/2 - prompt_img.GetWidth()/2, H * 0.63, 10);
 
-    global.pwd.entry_spr = Sprite(entry_img);
-    global.pwd.entry_spr.SetPosition(W/2 - entry_img.GetWidth()/2, H * 0.68, 10);
+    if (global.pwd.assets_ok) {
+        global.pwd.entry_spr = Sprite(entry_img);
+        global.pwd.entry_spr.SetPosition(W/2 - entry_img.GetWidth()/2, H * 0.68, 10);
+    }
 }
 
 fun display_password_callback(prompt, bullets) {
     global.prompt_active = 1;
-    if (!global.pwd.entry_spr) password_dialogue_setup(prompt);
+    # Gate one-time setup on prompt_spr (always created) rather than
+    # entry_spr (only created when assets_ok) so a missing-asset theme
+    # doesn't re-run setup — and re-create the prompt sprite — on every call.
+    if (!global.pwd.prompt_spr) password_dialogue_setup(prompt);
+    if (!global.pwd.assets_ok) return;
     bimg     = global.pwd.bullet_img;
     bw       = bimg.GetWidth();
     area_w   = global.pwd.entry_img.GetWidth() - bw * 2;

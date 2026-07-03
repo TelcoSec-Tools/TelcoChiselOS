@@ -99,14 +99,21 @@ fi
 # Deploy custom Plymouth boot theme
 echo "Deploying custom Plymouth boot animation..."
 sudo mkdir -p /usr/share/plymouth/themes/telcosec/
-# Copy the password prompt assets from emerald theme (pre-installed in chroot)
-if [ -d /usr/share/plymouth/themes/emerald ]; then
-  sudo cp /usr/share/plymouth/themes/emerald/password_*.png /usr/share/plymouth/themes/telcosec/ 2>/dev/null || true
-fi
-# Copy our custom Plymouth files
+# Copy our custom Plymouth files (includes the locally-generated
+# password_field.png / password_dot.png used by the LUKS unlock dialogue —
+# see builder/boot/plymouth/telcosec.script). These are staged from the repo,
+# not pulled from a theme that may not exist on this distro/release.
 if [ -d /tmp/boot/plymouth ]; then
   sudo cp -rf /tmp/boot/plymouth/. /usr/share/plymouth/themes/telcosec/
 fi
+# Belt-and-braces: if the repo assets were somehow missing from the staged
+# copy above, guard-copy them individually so a partial checkout doesn't
+# silently ship a theme with no password prompt assets.
+for asset in password_field.png password_dot.png; do
+  if [ ! -f "/usr/share/plymouth/themes/telcosec/${asset}" ] && [ -f "/tmp/boot/plymouth/${asset}" ]; then
+    sudo cp "/tmp/boot/plymouth/${asset}" "/usr/share/plymouth/themes/telcosec/${asset}"
+  fi
+done
 # Set the official TelcoSec logo for the boot splash logo
 if [ -f /usr/share/backgrounds/telcosec/logo.png ]; then
   sudo cp /usr/share/backgrounds/telcosec/logo.png /usr/share/plymouth/themes/telcosec/logo.png
