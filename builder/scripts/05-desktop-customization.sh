@@ -364,42 +364,6 @@ sudo systemctl enable telcosec-mon.service 2>/dev/null || true
 # are written later by 08-system-optimization.sh from the canonical
 # builder/wireshark/preferences file — not duplicated here.
 
-# 6. xfce4-terminal configuration
-echo "Configuring XFCE Terminal..."
-sudo mkdir -p /etc/xdg/xfce4/terminal
-cat << 'EOF' | sudo tee /etc/xdg/xfce4/terminal/terminalrc
-[Configuration]
-FontName=IBM Plex Mono 11
-MiscAlwaysShowTabs=FALSE
-MiscBell=FALSE
-MiscBordersDefault=TRUE
-MiscCursorBlinks=FALSE
-MiscCursorShape=TERMINAL_CURSOR_SHAPE_BLOCK
-MiscDefaultGeometry=80x24
-MiscInheritGeometry=FALSE
-MiscMenubarDefault=FALSE
-MiscMouseAutohide=FALSE
-MiscToolbarDefault=FALSE
-MiscConfirmClose=TRUE
-MiscCycleTabs=TRUE
-MiscTabCloseButtons=TRUE
-MiscTabCloseMiddleClick=TRUE
-MiscTabPosition=GTK_POS_TOP
-MiscHighlightUrls=TRUE
-MiscMiddleClickOpensUri=FALSE
-MiscCopyOnSelect=FALSE
-MiscShowUnsafePasteDialog=TRUE
-MiscSearchDialogOpacity=100
-MiscShowRelaunchDialog=TRUE
-MiscRewrapOnResize=TRUE
-MiscUseShiftArrowsToScroll=FALSE
-ColorForeground=#C9D1D9
-ColorBackground=#0D1117
-ColorCursor=#C9D1D9
-TabActivityColor=#aa0000
-ColorPalette=#0D1117;#FF6B6B;#98C379;#E5C07B;#61AFEF;#C678DD;#56B6C2;#ABB2BF;#5C6370;#FF7B7B;#A8D389;#F5D08B;#71BFFF;#D688E7;#66C6D2;#FFFFFF
-EOF
-
 grep -q '^TERMINAL=' /etc/environment 2>/dev/null && \
   sudo sed -i 's/^TERMINAL=.*/TERMINAL=gnome-terminal/' /etc/environment || \
   echo 'TERMINAL=gnome-terminal' | sudo tee -a /etc/environment
