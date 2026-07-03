@@ -201,6 +201,12 @@ conda install -y --override-channels -c conda-forge gnuradio gqrx 2>/dev/null ||
 conda install -y --override-channels -c conda-forge gr-osmosdr 2>/dev/null || \
   echo "  INFO: gr-osmosdr not on conda-forge — skipping (gr-gsm built from source below)"
 
+# Soapy hardware modules so SoapySDRUtil --find sees all radios, not just bladeRF.
+conda install -y --override-channels -c conda-forge \
+  soapysdr-module-rtlsdr soapysdr-module-hackrf soapysdr-module-uhd \
+  soapysdr-module-lms7 soapysdr-module-remote 2>/dev/null || \
+  echo "  WARNING: some soapysdr-module-* installs failed (non-fatal)"
+
 # gr-gsm is not on conda-forge; build from source against the conda env
 git clone --depth 1 https://github.com/bkerler/gr-gsm /opt/telcosec/src/gr-gsm 2>/dev/null || true
 if [ -d /opt/telcosec/src/gr-gsm ]; then
