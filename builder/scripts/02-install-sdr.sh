@@ -279,5 +279,12 @@ WRAPPER
   fi
 done
 
+# Surface the core SDR CLIs outside the conda env (they carry an embedded rpath).
+for bin in hackrf_info hackrf_transfer uhd_usrp_probe uhd_find_devices \
+           SoapySDRUtil rtl_test rtl_sdr rtl_fm LimeUtil; do
+  [ -f "${CONDA_PREFIX}/bin/${bin}" ] && \
+    sudo ln -sf "${CONDA_PREFIX}/bin/${bin}" "/usr/local/bin/${bin}"
+done
+
 # Set permissions
 sudo chown -R telcosec:telcosec /opt/telcosec
