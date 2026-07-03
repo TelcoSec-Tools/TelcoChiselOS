@@ -12,7 +12,9 @@ if [ -f /tmp/udev/50-telcosec-hw.rules ]; then
 fi
 
 # RTL-SDR: block the DVB-T kernel driver from grabbing the dongle
-sudo cp /tmp/modprobe/blacklist-rtlsdr.conf /etc/modprobe.d/blacklist-rtlsdr.conf
+if [ -f /tmp/modprobe/blacklist-rtlsdr.conf ]; then
+  sudo cp /tmp/modprobe/blacklist-rtlsdr.conf /etc/modprobe.d/blacklist-rtlsdr.conf
+fi
 
 # 2. PAM Real-time Scheduling Priority Limits
 echo "Deploying real-time limits and configuring groups..."
