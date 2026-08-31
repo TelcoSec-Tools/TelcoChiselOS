@@ -17,13 +17,11 @@ concurrency:
   group: "pages"
   cancel-in-progress: true
 
-# Runs on a self-hosted runner (any Linux host with Node 20+).
-# Flip both `runs-on` values back to `ubuntu-latest` to return to
-# GitHub-hosted runners. Requires the runner to have Node 20 available
-# (actions/setup-node still installs/pins it if not).
+# Runs on GitHub-hosted runners (ubuntu-latest).
+# Uses Node 20 to build the static Nuxt 3 site and deploy to GitHub Pages.
 jobs:
   build:
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -55,7 +53,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     needs: build
     steps:
       - name: Deploy to GitHub Pages
