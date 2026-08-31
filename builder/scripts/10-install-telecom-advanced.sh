@@ -128,6 +128,7 @@ fi
 
 # ─── D. Kalibrate-GSM (GSM frequency calibration) ──────────────────────────
 echo "  Installing Kalibrate-GSM..."
+[ -d "${TELCOSEC_OPT}/kalibrate-gsm" ] || clone_if_missing https://github.com/scateu/kalibrate-hackrf "${TELCOSEC_OPT}/kalibrate-gsm" 2>/dev/null || true
 if [ -d "${TELCOSEC_OPT}/kalibrate-gsm" ]; then
   cd "${TELCOSEC_OPT}/kalibrate-gsm"
   ./bootstrap.sh 2>/dev/null || autoreconf -fi
@@ -139,6 +140,7 @@ record_tool "kalibrate-gsm" "/usr/local/bin/kal-gsm" "2g"
 
 # ─── E. Modmobmap (cell mapping via AT commands) ────────────────────────────
 echo "  Installing Modmobmap..."
+[ -d "${TELCOSEC_OPT}/modmobmap" ] || clone_if_missing https://github.com/Synacktiv-contrib/Modmobmap "${TELCOSEC_OPT}/modmobmap" 2>/dev/null || true
 if [ -d "${TELCOSEC_OPT}/modmobmap" ]; then
   pip_retry install -r "${TELCOSEC_OPT}/modmobmap/requirements.txt" \
     --break-system-packages
@@ -272,6 +274,7 @@ chmod +x /usr/local/bin/openbts-install
 
 # ─── I. srsGUI (visualization for srsRAN metrics) ───────────────────────────
 echo "  Installing srsGUI..."
+[ -d "${TELCOSEC_OPT}/srsgui" ] || clone_if_missing https://github.com/srsran/srsgui "${TELCOSEC_OPT}/srsgui" 2>/dev/null || true
 if [ -d "${TELCOSEC_OPT}/srsgui" ]; then
   cd "${TELCOSEC_OPT}/srsgui"
   mkdir -p build && cd build
@@ -286,6 +289,7 @@ record_tool "srsGUI" "$(find ${TELCOSEC_OPT}/srsgui/build -name 'libsrsgui.so' 2
 
 # ─── J. LTE-CellScanner ──────────────────────────────────────────────────────
 echo "  Installing LTE-CellScanner..."
+[ -d "${TELCOSEC_OPT}/lte-cellscanner" ] || clone_if_missing https://github.com/Evrytania/LTE-Cell-Scanner "${TELCOSEC_OPT}/lte-cellscanner" 2>/dev/null || true
 if [ -d "${TELCOSEC_OPT}/lte-cellscanner" ]; then
   cd "${TELCOSEC_OPT}/lte-cellscanner"
   mkdir -p build && cd build
@@ -301,6 +305,7 @@ record_tool "LTE-CellScanner" "/usr/local/bin/LTE-CellSearch" "4g"
 
 # ─── K. LTESniffer ───────────────────────────────────────────────────────────
 echo "  Installing LTESniffer..."
+[ -d "${TELCOSEC_OPT}/ltesniffer" ] || clone_if_missing https://github.com/SysSec-KAIST/LTESniffer "${TELCOSEC_OPT}/ltesniffer" 2>/dev/null || true
 if [ -d "${TELCOSEC_OPT}/ltesniffer" ]; then
   cd "${TELCOSEC_OPT}/ltesniffer"
   mkdir -p build && cd build
@@ -519,6 +524,7 @@ record_tool "docsis" "/usr/local/bin/docsis" "adsl"
 
 # ─── T. Falcon GUI (LTE Network Analyzer) ──────────────────────────────────
 echo "  Installing Falcon GUI..."
+[ -d "${TELCOSEC_OPT}/falcon" ] || clone_if_missing https://github.com/fkie-cad/FALCON "${TELCOSEC_OPT}/falcon" 2>/dev/null || true
 if [ -d "${TELCOSEC_OPT}/falcon" ]; then
   cd "${TELCOSEC_OPT}/falcon"
   mkdir -p build && cd build
