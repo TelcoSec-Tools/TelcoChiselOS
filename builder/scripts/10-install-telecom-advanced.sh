@@ -19,27 +19,35 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/record-tool.sh"
 # shellcheck source=lib/pip-retry.sh
 source "${SCRIPT_DIR}/lib/pip-retry.sh"
+# shellcheck source=lib/build-tool.sh
+source "${SCRIPT_DIR}/lib/build-tool.sh"
 
 # ─── Pre-clone all repos in parallel before starting any builds ──────────────
+# Best-effort prefetch (deferred-installer pattern — first-run helpers
+# re-clone if missing), but failures are reported so a silently missing
+# repo is visible in the build log.
 echo "  Cloning repositories in parallel..."
 mkdir -p "$TELCOSEC_OPT"
-git clone --depth 1 https://github.com/aligungr/UERANSIM        "${TELCOSEC_OPT}/ueransim"        2>/dev/null || true &
-git clone --depth 1 https://github.com/fgsect/scat              "${TELCOSEC_OPT}/scat"            2>/dev/null || true &
-git clone --depth 1 https://github.com/scateu/kalibrate-hackrf "${TELCOSEC_OPT}/kalibrate-gsm"   2>/dev/null || true &
-git clone --depth 1 https://github.com/Synacktiv-contrib/Modmobmap "${TELCOSEC_OPT}/modmobmap"       2>/dev/null || true &
-git clone --depth 1 https://github.com/srlabs/SIMtester         "${TELCOSEC_OPT}/simtester"       2>/dev/null || true &
-git clone --depth 1 https://github.com/yatebts/yatebts          "${TELCOSEC_OPT}/yatebts"         2>/dev/null || true &
-git clone --depth 1 https://github.com/RangeNetworks/openbts    "${TELCOSEC_OPT}/openbts"         2>/dev/null || true &
-git clone --depth 1 https://github.com/srsran/srsgui            "${TELCOSEC_OPT}/srsgui"          2>/dev/null || true &
-git clone --depth 1 https://github.com/Evrytania/LTE-Cell-Scanner "${TELCOSEC_OPT}/lte-cellscanner" 2>/dev/null || true &
-git clone --depth 1 https://github.com/SysSec-KAIST/LTESniffer  "${TELCOSEC_OPT}/ltesniffer"      2>/dev/null || true &
-git clone --depth 1 https://github.com/free5gc/gtp5g            "${TELCOSEC_OPT}/gtp5g"           2>/dev/null || true &
-git clone --depth 1 https://github.com/TelcoSec-Tools/RDNSx     "${TELCOSEC_OPT}/rdnsx"           2>/dev/null || true &
-git clone --depth 1 https://github.com/rlaager/docsis           "${TELCOSEC_OPT}/docsis"          2>/dev/null || true &
-git clone --depth 1 https://github.com/fkie-cad/FALCON          "${TELCOSEC_OPT}/falcon"          2>/dev/null || true &
-git clone --depth 1 https://github.com/TelcoSec-Tools/TelcoSec-ChiselControl-Dashboard "${TELCOSEC_OPT}/dashboard" 2>/dev/null || true &
-wait
-echo "  Parallel clone complete."
+clone_bg https://github.com/aligungr/UERANSIM                     "${TELCOSEC_OPT}/ueransim"
+clone_bg https://github.com/fgsect/scat                           "${TELCOSEC_OPT}/scat"
+clone_bg https://github.com/scateu/kalibrate-hackrf               "${TELCOSEC_OPT}/kalibrate-gsm"
+clone_bg https://github.com/Synacktiv-contrib/Modmobmap           "${TELCOSEC_OPT}/modmobmap"
+clone_bg https://github.com/srlabs/SIMtester                      "${TELCOSEC_OPT}/simtester"
+clone_bg https://github.com/yatebts/yatebts                       "${TELCOSEC_OPT}/yatebts"
+clone_bg https://github.com/RangeNetworks/openbts                 "${TELCOSEC_OPT}/openbts"
+clone_bg https://github.com/srsran/srsgui                         "${TELCOSEC_OPT}/srsgui"
+clone_bg https://github.com/Evrytania/LTE-Cell-Scanner            "${TELCOSEC_OPT}/lte-cellscanner"
+clone_bg https://github.com/SysSec-KAIST/LTESniffer               "${TELCOSEC_OPT}/ltesniffer"
+clone_bg https://github.com/free5gc/gtp5g                         "${TELCOSEC_OPT}/gtp5g"
+clone_bg https://github.com/TelcoSec-Tools/RDNSx                  "${TELCOSEC_OPT}/rdnsx"
+clone_bg https://github.com/rlaager/docsis                        "${TELCOSEC_OPT}/docsis"
+clone_bg https://github.com/fkie-cad/FALCON                       "${TELCOSEC_OPT}/falcon"
+clone_bg https://github.com/TelcoSec-Tools/TelcoSec-ChiselControl-Dashboard "${TELCOSEC_OPT}/dashboard"
+if wait_clones "prefetch"; then
+  echo "  Parallel clone complete."
+else
+  echo "  WARNING: some prefetch clones failed — affected first-run helpers will re-clone on demand." >&2
+fi
 
 # Test PLMN constants (ITU-T standard test network)
 MCC=001
@@ -57,23 +65,32 @@ EOF
 
 # ─── A. UERANSIM (5G UE/gNB simulator) ─────────────────────────────────────
 echo "  Installing UERANSIM..."
+# apt-cache show only proves the TelcoSec repo is listed, not that the
+# install will succeed — if the apt install fails under set -e we'd abort
+# the whole build even though the cloned source build is right there as a
+# fallback. So: try apt, fall through to the source build on failure.
+UERANSIM_APT_OK=0
 if dpkg-query -W ueransim 2>/dev/null; then
   echo "    UERANSIM already installed via APT."
-elif apt-cache show ueransim >/dev/null 2>&1; then
-  apt-get install -y ueransim
-else
+  UERANSIM_APT_OK=1
+elif apt-cache show ueransim >/dev/null 2>&1 && apt-get install -y ueransim; then
+  UERANSIM_APT_OK=1
+fi
+
+if [ "$UERANSIM_APT_OK" != "1" ]; then
   if [ -d "${TELCOSEC_OPT}/ueransim" ]; then
     cd "${TELCOSEC_OPT}/ueransim"
-    cmake -DCMAKE_BUILD_TYPE=Release . 2>&1 | tail -3
-    make -j"$(nproc)" 2>&1 | tail -5
-    ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-gnb" /usr/local/bin/nr-gnb
-    ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-ue"  /usr/local/bin/nr-ue
-    ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-cli" /usr/local/bin/nr-cli
+    mkdir -p build && cd build
+    cmake -DCMAKE_BUILD_TYPE=Release .. >/dev/null 2>&1 || true
+    make -j"$(nproc)" >/dev/null 2>&1 || true
+    [ -f nr-gnb ] && ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-gnb" /usr/local/bin/nr-gnb || true
+    [ -f nr-ue ]  && ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-ue"  /usr/local/bin/nr-ue  || true
+    [ -f nr-cli ] && ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-cli" /usr/local/bin/nr-cli || true
 
     # Deploy test PLMN config templates
     mkdir -p /etc/telcosec/ueransim
-    cp config/open5gs-gnb.yaml /etc/telcosec/ueransim/gnb.yaml   2>/dev/null || true
-    cp config/open5gs-ue.yaml  /etc/telcosec/ueransim/ue.yaml    2>/dev/null || true
+    cp ../config/open5gs-gnb.yaml /etc/telcosec/ueransim/gnb.yaml   2>/dev/null || true
+    cp ../config/open5gs-ue.yaml  /etc/telcosec/ueransim/ue.yaml    2>/dev/null || true
     # Patch MCC/MNC into configs
     sed -i "s/mcc: '999'/mcc: '${MCC}'/g; s/mcc: 999/mcc: ${MCC}/g" \
       /etc/telcosec/ueransim/*.yaml 2>/dev/null || true
@@ -87,9 +104,9 @@ record_tool "UERANSIM" "/usr/local/bin/nr-ue" "5g"
 
 # ─── B. SCAT (Diag protocol / Samsung/Qualcomm log decoder) ─────────────────
 echo "  Installing SCAT..."
-pip_retry install scat --break-system-packages
-if [ -d "${TELCOSEC_OPT}/scat" ]; then
-  pip_retry install -e "${TELCOSEC_OPT}/scat" --break-system-packages
+pip_retry install scat
+if [ -f "${TELCOSEC_OPT}/scat/setup.py" ] || [ -f "${TELCOSEC_OPT}/scat/pyproject.toml" ]; then
+  pip_retry install "${TELCOSEC_OPT}/scat"
 fi
 record_tool "SCAT" "$(command -v scat 2>/dev/null || echo '/usr/local/bin/scat')" "baseband"
 
@@ -196,7 +213,41 @@ tx_latency=3
 threads=2
 loopback=none
 EOF
-echo "YateBTS installed. Start with: sudo yate -s -l /var/log/yate.log"
+
+# Install systemd unit files for Yate and YateBTS service management
+cat << 'EOF' | tee /etc/systemd/system/yate.service
+[Unit]
+Description=Yate Telephony Engine / YateBTS Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/yate -s -l /var/log/yate.log
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat << 'EOF' | tee /etc/systemd/system/yatebts.service
+[Unit]
+Description=YateBTS GSM Base Station Service
+After=network.target yate.service
+Requires=yate.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/yate -s -l /var/log/yatebts.log -c /etc/yate
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload 2>/dev/null || true
+
+echo "YateBTS installed. Start with: sudo systemctl start yatebts (or: sudo yate -s -l /var/log/yate.log)"
 SCRIPT
 chmod +x /usr/local/bin/yatebts-install
 

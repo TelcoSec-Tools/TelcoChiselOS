@@ -80,6 +80,19 @@ if [ -f /opt/telcosec/diafuzzer/requirements.txt ]; then
   pip3 install -r /opt/telcosec/diafuzzer/requirements.txt --break-system-packages || true
 fi
 sudo chown -R telcosec:telcosec /opt/telcosec/diafuzzer
+cat << 'EOF' | sudo tee /usr/local/bin/diafuzzer
+#!/bin/bash
+if [ -f /opt/telcosec/diafuzzer/dia_fuzzer.py ]; then
+  exec python3 /opt/telcosec/diafuzzer/dia_fuzzer.py "$@"
+elif [ -f /opt/telcosec/diafuzzer/diafuzzer.py ]; then
+  exec python3 /opt/telcosec/diafuzzer/diafuzzer.py "$@"
+else
+  echo "Diafuzzer script not found at /opt/telcosec/diafuzzer"
+  exit 1
+fi
+EOF
+sudo chmod +x /usr/local/bin/diafuzzer
+record_tool "Diafuzzer" "/usr/local/bin/diafuzzer" "core"
 
 # Wireshark permissions (dpkg-reconfigure already done in 00-install-all-packages.sh)
 if [ ! -f /tmp/.packages-installed ]; then

@@ -17,6 +17,8 @@ export DEBIAN_FRONTEND=noninteractive
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/packages.sh
 source "${SCRIPT_DIR}/lib/packages.sh"
+# shellcheck source=lib/chroot-suppress.sh
+source "${SCRIPT_DIR}/lib/chroot-suppress.sh"
 
 # Speed up apt downloads: parallel host-based queue, pipelining, auto-retry.
 # Timeouts + generous retries matter for the big packages (linux-firmware
@@ -54,33 +56,33 @@ apt_get_retry() {
 # Hardware package postinstalls call udevadm/invoke-rc.d which fail in a
 # chroot (no udev socket, no running init). Suppress them for the duration
 # of the install phase so dpkg doesn't abort on packages like librtlsdr2,
-# libhackrf0, etc.
-cat > /usr/sbin/policy-rc.d << 'POLICY'
-#!/bin/sh
-exit 101
-POLICY
-chmod +x /usr/sbin/policy-rc.d
-
-# Use dpkg-divert to intercept absolute-path udevadm calls from postinstalls.
-dpkg-divert --local --rename --add /usr/bin/udevadm 2>/dev/null || true
-dpkg-divert --local --rename --add /sbin/udevadm 2>/dev/null || true
-dpkg-divert --local --rename --add /bin/udevadm 2>/dev/null || true
-cat > /usr/bin/udevadm << 'UDEVADM'
-#!/bin/sh
-exit 0
-UDEVADM
-chmod +x /usr/bin/udevadm
-cp /usr/bin/udevadm /sbin/udevadm 2>/dev/null || true
-cp /usr/bin/udevadm /bin/udevadm 2>/dev/null || true
-mkdir -p /usr/local/sbin
-cp /usr/bin/udevadm /usr/local/sbin/udevadm
-export PATH="/usr/local/sbin:$PATH"
+# libhackrf0, etc. (shared logic in lib/chroot-suppress.sh)
+suppress_chroot_services_inplace
 
 # ─── 0.5. Recover from broken apt state (crucial for --resume) ──────────────
 apt-get --fix-broken install -y -o Dpkg::Options::="--force-overwrite" || true
 
 
 # ─── 1. Add all third-party repositories first ──────────────────────────────
+
+# Fingerprint pinning: after dearmoring each fetched key, verify its
+# fingerprint matches the value published by the upstream project before
+# trusting the repo. A mismatch (MITM'd/truncated key) removes the key and
+# repo file rather than installing packages signed by it.
+verify_key_fpr() {  # verify_key_fpr <keyring.gpg> <expected-fpr> <repo-name>
+  local key="$1" expected="$2" name="$3" actual
+  # gpg prints the listing on stderr (not stdout), so merge streams
+  actual=$(gpg --show-keys --with-colons "$key" 2>&1 | awk -F: '$1=="fpr"{print $10; exit}')
+  if [ -z "$actual" ]; then
+    echo "  ERROR: could not read fingerprint from $name key — rejecting" >&2
+    return 1
+  fi
+  if [ "$actual" != "$expected" ]; then
+    echo "  ERROR: $name key fingerprint mismatch (got $actual, want $expected) — rejecting" >&2
+    return 1
+  fi
+  return 0
+}
 
 echo "  Adding third-party repositories..."
 
@@ -104,9 +106,12 @@ EOF
 OSMOCOM_KEY=/usr/share/keyrings/osmocom.gpg
 OSMOCOM_LIST=/etc/apt/sources.list.d/osmocom.list
 OSMOCOM_URL="https://downloads.osmocom.org/packages/osmocom:/latest/xUbuntu_24.04"
+# Fingerprint of the "osmocom OBS Project <osmocom@osmocom>" signing key
+OSMOCOM_FPR="6B2A9F3792D15EB70D4E6A8F86A730B653725973"
 if wget -qO- "${OSMOCOM_URL}/Release.key" 2>/dev/null | \
      gpg --dearmor --yes -o "$OSMOCOM_KEY" 2>/dev/null && \
-   [ -s "$OSMOCOM_KEY" ]; then
+   [ -s "$OSMOCOM_KEY" ] && \
+   verify_key_fpr "$OSMOCOM_KEY" "$OSMOCOM_FPR" "Osmocom"; then
   echo "deb [signed-by=${OSMOCOM_KEY}] ${OSMOCOM_URL}/ ./" > "$OSMOCOM_LIST"
   echo "  Osmocom repo added successfully."
 else
@@ -116,8 +121,11 @@ fi
 
 # Kismet official repo (removed from Ubuntu 24.04 official repos)
 KISMET_KEY=/usr/share/keyrings/kismet-archive-keyring.gpg
+# Fingerprint published at kismetwireless.net (Kismet Wireless Packaging Signature)
+KISMET_FPR="ADA09A0E9B80ACCCE8FE6BB65345B8BF43403B93"
 if wget -qO- https://www.kismetwireless.net/repos/kismet-release.gpg.key 2>/dev/null | \
-     gpg --dearmor --yes -o "$KISMET_KEY" 2>/dev/null && [ -s "$KISMET_KEY" ]; then
+     gpg --dearmor --yes -o "$KISMET_KEY" 2>/dev/null && [ -s "$KISMET_KEY" ] && \
+   verify_key_fpr "$KISMET_KEY" "$KISMET_FPR" "Kismet"; then
   echo "deb [signed-by=${KISMET_KEY}] https://www.kismetwireless.net/repos/apt/release/noble noble main" \
     > /etc/apt/sources.list.d/kismet.list
   echo "  Kismet repo added."
@@ -145,10 +153,18 @@ fi
 echo "  Updating package index (single pass)..."
 apt-get update
 
-# ─── 3. System upgrade ──────────────────────────────────────────────────────
+# ─── 3. System upgrade (opt-in) ─────────────────────────────────────────────
+# The blanket upgrade pulls the entire Noble updates set into every ISO and
+# makes builds non-reproducible. Off by default; opt in with APT_UPGRADE=1
+# (exported by build-iso.sh / build-wsl.sh) for releases that want the
+# freshest point-release base.
 
-echo "  Upgrading base system..."
-apt_get_retry upgrade -y
+if [ "${APT_UPGRADE:-0}" = "1" ]; then
+  echo "  Upgrading base system (APT_UPGRADE=1)..."
+  apt_get_retry upgrade -y
+else
+  echo "  Skipping base system upgrade (set APT_UPGRADE=1 to enable)"
+fi
 
 # ─── 4. Consolidated package install ────────────────────────────────────────
 # Every package from scripts 01–09, deduplicated and sorted by category.
@@ -174,17 +190,18 @@ apt_get_retry install -y -o Dpkg::Options::="--force-overwrite" \
   liblapacke-dev libblas-dev liblapack-dev \
   `# osmo-simtrace2 compiled from source in 06; only its build deps are above`
 
-# ─── 5. Remove chroot service suppression ────────────────────────────────────
-rm -f /usr/sbin/policy-rc.d /usr/local/sbin/udevadm /usr/bin/udevadm /sbin/udevadm /bin/udevadm
-if dpkg-divert --list /usr/bin/udevadm | grep -q "diversion of"; then
-  dpkg-divert --local --rename --remove /usr/bin/udevadm 2>/dev/null || true
-fi
-if dpkg-divert --list /sbin/udevadm | grep -q "diversion of"; then
-  dpkg-divert --local --rename --remove /sbin/udevadm 2>/dev/null || true
-fi
-if dpkg-divert --list /bin/udevadm | grep -q "diversion of"; then
-  dpkg-divert --local --rename --remove /bin/udevadm 2>/dev/null || true
-fi
+# ─── 5. Purge repo-setup-only packages ──────────────────────────────────────
+# software-properties-common (~150 MB with its DBus/gir dependency closure)
+# is only needed for add-apt-repository above. Purge it and its now-orphaned
+# auto-installed dependencies so they don't ship in the ISO. Non-fatal: a
+# purge failure must not abort the build at this late stage.
+echo "  Purging software-properties-common and orphaned dependencies..."
+apt-get purge -y software-properties-common >/dev/null 2>&1 \
+  && apt-get autoremove --purge -y >/dev/null 2>&1 \
+  || echo "  WARNING: purge of software-properties-common failed (non-fatal)"
+
+# ─── 5b. Remove chroot service suppression ───────────────────────────────────
+restore_chroot_services_inplace
 
 # ─── 6. Wireshark non-interactive config ─────────────────────────────────────
 
@@ -281,7 +298,10 @@ if ! command -v sipp >/dev/null 2>&1; then
   fi
 fi
 
-# ─── 12. Mark phase 0 complete ───────────────────────────────────────────────
+# ─── 12. Force-reinstall system python libraries with pip RECORD files ───────
+pip3 install --break-system-packages --ignore-installed typing-extensions rich rich-argparse 2>/dev/null || true
+
+# ─── 13. Mark phase 0 complete ───────────────────────────────────────────────
 
 touch /tmp/.packages-installed
 echo "=== [Phase 0] All packages installed successfully ==="

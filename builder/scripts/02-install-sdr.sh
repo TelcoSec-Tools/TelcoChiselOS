@@ -54,15 +54,37 @@ conda activate telcosec-sdr
 export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 export CMAKE_PREFIX_PATH="$CONDA_PREFIX"
 
-# 3. Clone all SDR source repos in parallel
+# 3. Clone all SDR source repos in parallel (fail loudly if any clone fails)
 echo "Cloning SDR source repositories..."
 mkdir -p /opt/telcosec/src
-[ -d /opt/telcosec/src/SoapySDR ] || (git clone --depth 1 https://github.com/pothosware/SoapySDR.git /opt/telcosec/src/SoapySDR) &
-[ -d /opt/telcosec/src/hackrf ] || (git clone --depth 1 https://github.com/greatscottgadgets/hackrf.git /opt/telcosec/src/hackrf) &
-[ -d /opt/telcosec/src/uhd ] || (git clone --depth 1 https://github.com/EttusResearch/uhd.git /opt/telcosec/src/uhd) &
-[ -d /opt/telcosec/src/kalibrate-rtl ] || (git clone --depth 1 https://github.com/steve-m/kalibrate-rtl.git /opt/telcosec/src/kalibrate-rtl) &
-[ -d /opt/telcosec/src/LimeSuite ] || (git clone --depth 1 https://github.com/myriadrf/LimeSuite.git /opt/telcosec/src/LimeSuite) &
-wait
+declare -A CLONE_PIDS
+_clone() {
+  local dir="$1" url="$2"
+  if [ -d "$dir" ]; then
+    echo "  [clone] $dir already present"
+  else
+    git clone --depth 1 "$url" "$dir" || echo "  [clone] FAILED: $url" >&2
+  fi
+}
+_clone /opt/telcosec/src/SoapySDR      https://github.com/pothosware/SoapySDR.git &
+CLONE_PIDS[SoapySDR]=$!
+_clone /opt/telcosec/src/hackrf        https://github.com/greatscottgadgets/hackrf.git &
+CLONE_PIDS[hackrf]=$!
+_clone /opt/telcosec/src/uhd           https://github.com/EttusResearch/uhd.git &
+CLONE_PIDS[uhd]=$!
+_clone /opt/telcosec/src/kalibrate-rtl https://github.com/steve-m/kalibrate-rtl.git &
+CLONE_PIDS[kalibrate-rtl]=$!
+_clone /opt/telcosec/src/LimeSuite     https://github.com/myriadrf/LimeSuite.git &
+CLONE_PIDS[LimeSuite]=$!
+
+CLONE_FAIL=0
+for name in "${!CLONE_PIDS[@]}"; do
+  if ! wait "${CLONE_PIDS[$name]}"; then
+    echo "SDR repo clone failed: $name" >&2
+    CLONE_FAIL=1
+  fi
+done
+[ "$CLONE_FAIL" -eq 0 ] || { echo "Aborting: one or more SDR repo clones failed" >&2; exit 1; }
 echo "All SDR repos checked/cloned."
 
 # ── SDR build helper ─────────────────────────────────────────────────────────
@@ -171,12 +193,17 @@ sudo chmod +x /usr/local/bin/uhd-download-images
 # between librtlsdr0/soname-0 and librtlsdr2/soname-2 in Ubuntu 24.04 Noble).
 # conda-forge packages resolve their own ABIs cleanly.
 echo "Installing GNU Radio ecosystem into conda env..."
-# Install rtl-sdr alone first — required for kalibrate-rtl headers.
-conda install -y --override-channels -c conda-forge rtl-sdr 2>/dev/null || \
-  echo "  WARNING: rtl-sdr conda install failed — will try source build below"
+# Single transaction — each separate `conda install` re-runs the solver
+# (1–5 min per pass). One solve for the whole ecosystem.
+conda install -y --override-channels -c conda-forge \
+  rtl-sdr gnuradio gqrx gnuradio-osmosdr \
+  soapysdr-module-rtlsdr soapysdr-module-hackrf soapysdr-module-uhd \
+  soapysdr-module-lms7 soapysdr-module-remote 2>/dev/null || \
+  echo "  WARNING: conda GNU Radio ecosystem install failed (non-fatal)"
 
-# If conda install of rtl-sdr failed (headers absent), build librtlsdr from source
-# directly into the conda env. This is the guaranteed fallback that always works.
+# If the conda transaction failed and rtl-sdr headers are absent, build
+# librtlsdr from source directly into the conda env. This is the guaranteed
+# fallback that always works.
 if [ ! -f "${CONDA_PREFIX}/include/rtl-sdr.h" ]; then
   echo "  Building librtlsdr from source into conda env..."
   git clone --depth 1 https://github.com/osmocom/rtl-sdr \
@@ -192,20 +219,6 @@ if [ ! -f "${CONDA_PREFIX}/include/rtl-sdr.h" ]; then
   fi
 fi
 record_tool "librtlsdr" "${CONDA_PREFIX}/include/rtl-sdr.h" "sdr"
-
-# gnuradio and gqrx — large; non-fatal if solver fails.
-conda install -y --override-channels -c conda-forge gnuradio gqrx 2>/dev/null || \
-  echo "  WARNING: conda gnuradio/gqrx install failed (non-fatal)"
-
-# gnuradio-osmosdr (osmosdr source/sink blocks) from conda-forge.
-conda install -y --override-channels -c conda-forge gnuradio-osmosdr 2>/dev/null || \
-  echo "  WARNING: gnuradio-osmosdr install failed (non-fatal; gr-gsm still built from source below)"
-
-# Soapy hardware modules so SoapySDRUtil --find sees all radios, not just bladeRF.
-conda install -y --override-channels -c conda-forge \
-  soapysdr-module-rtlsdr soapysdr-module-hackrf soapysdr-module-uhd \
-  soapysdr-module-lms7 soapysdr-module-remote 2>/dev/null || \
-  echo "  WARNING: some soapysdr-module-* installs failed (non-fatal)"
 
 # gr-gsm is not on conda-forge; build from source against the conda env
 git clone --depth 1 https://github.com/bkerler/gr-gsm /opt/telcosec/src/gr-gsm 2>/dev/null || true
@@ -291,6 +304,41 @@ for bin in hackrf_info hackrf_transfer uhd_usrp_probe uhd_find_devices \
   [ -f "${CONDA_PREFIX}/bin/${bin}" ] && \
     sudo ln -sf "${CONDA_PREFIX}/bin/${bin}" "/usr/local/bin/${bin}"
 done
+
+# Deploy global sdr-info diagnostic helper
+echo "Creating SDR hardware discovery helper (sdr-info)..."
+cat << 'EOF' | sudo tee /usr/local/bin/sdr-info > /dev/null
+#!/bin/bash
+echo "=== TelcoChisel SDR Transceiver Discovery & Driver Status ==="
+echo ""
+echo "--- USB Connected Radio Devices ---"
+lsusb | grep -iE "ettus|usrp|hackrf|bladerf|limesdr|rtl2832|realtek" || echo "No recognized USB SDR devices detected."
+echo ""
+echo "--- SoapySDR Hardware Probe ---"
+if command -v SoapySDRUtil >/dev/null 2>&1; then
+  SoapySDRUtil --find || true
+else
+  echo "SoapySDRUtil not available."
+fi
+echo ""
+echo "--- HackRF Info ---"
+if command -v hackrf_info >/dev/null 2>&1; then
+  hackrf_info 2>&1 | head -n 10 || true
+fi
+echo ""
+echo "--- USRP Device Probe ---"
+if command -v uhd_find_devices >/dev/null 2>&1; then
+  uhd_find_devices 2>&1 | head -n 10 || true
+fi
+echo ""
+echo "--- LimeSDR Device Probe ---"
+if command -v LimeUtil >/dev/null 2>&1; then
+  LimeUtil --find || true
+fi
+EOF
+sudo chmod +x /usr/local/bin/sdr-info
+
+record_tool "sdr-info" "/usr/local/bin/sdr-info" "sdr"
 
 # Set permissions
 sudo chown -R telcosec:telcosec /opt/telcosec

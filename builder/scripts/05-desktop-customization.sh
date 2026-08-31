@@ -57,8 +57,23 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.
           <property name="last-image" type="string" value="/usr/share/backgrounds/telcosec/wallpaper.jpg"/>
           <property name="image-style" type="int" value="5"/>
         </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/telcosec/wallpaper.jpg"/>
+          <property name="image-style" type="int" value="5"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/telcosec/wallpaper.jpg"/>
+          <property name="image-style" type="int" value="5"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/telcosec/wallpaper.jpg"/>
+          <property name="image-style" type="int" value="5"/>
+        </property>
       </property>
     </property>
+  </property>
+  <property name="desktop-icons" type="empty">
+    <property name="style" type="int" value="0"/>
   </property>
 </channel>
 EOF
@@ -70,6 +85,13 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
     <property name="theme" type="string" value="Yaru-bark-dark"/>
     <property name="button_layout" type="string" value="O|HMC"/>
     <property name="workspace_count" type="int" value="4"/>
+    <property name="use_compositing" type="bool" value="true"/>
+    <property name="vblank_mode" type="string" value="auto"/>
+    <property name="show_dock_shadow" type="bool" value="false"/>
+    <property name="show_popup_shadow" type="bool" value="false"/>
+    <property name="snap_to_border" type="bool" value="true"/>
+    <property name="snap_to_windows" type="bool" value="true"/>
+    <property name="tile_on_move" type="bool" value="true"/>
   </property>
 </channel>
 EOF
@@ -157,7 +179,9 @@ cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-keybo
   <property name="commands" type="empty">
     <property name="custom" type="empty">
       <property name="Super_L" type="string" value="xfce4-popup-whiskermenu"/>
-      <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="gnome-terminal"/>
+      <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="terminator"/>
+      <property name="&lt;Super&gt;e" type="string" value="thunar"/>
+      <property name="&lt;Super&gt;l" type="string" value="xflock4"/>
     </property>
   </property>
   <property name="xfwm4" type="empty">
@@ -188,12 +212,31 @@ cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-notif
 </channel>
 EOF
 
+# Pre-configure Whisker Menu favorites, layout dimensions, and panel properties
+sudo mkdir -p /etc/skel/.config/xfce4/panel
+cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/panel/whiskermenu-1.rc
+favorites=net.tenshu.Terminator.desktop,wireshark-mon.desktop,gqrx.desktop,pysim-shell.desktop,sigploit.desktop,firmwire.desktop,diafuzzer.desktop,ueransim-gnb.desktop,5ghoul-fuzzer.desktop,telcosec-docs.desktop
+button-title=TelcoSec
+button-icon=utilities-terminal
+show-button-title=true
+show-button-icon=true
+category-icon-size=1
+item-icon-size=2
+menu-width=520
+menu-height=600
+menu-opacity=95
+position-search-alternate=true
+stay-on-focus-out=false
+EOF
+
 if [ -d /home/telcosec ]; then
-  sudo mkdir -p /home/telcosec/.config/xfce4/xfce4-perchannel-xml
+  sudo mkdir -p /home/telcosec/.config/xfce4/xfce4-perchannel-xml /home/telcosec/.config/xfce4/panel
   sudo cp /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-panel.xml \
           /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-keyboard-shortcuts.xml \
           /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-notifyd.xml \
           /home/telcosec/.config/xfce4/xfce4-perchannel-xml/
+  sudo cp /etc/skel/.config/xfce4/panel/whiskermenu-1.rc \
+          /home/telcosec/.config/xfce4/panel/
   sudo chown -R telcosec:telcosec /home/telcosec/.config/xfce4
 fi
 
@@ -365,15 +408,15 @@ sudo systemctl enable telcosec-mon.service 2>/dev/null || true
 # builder/wireshark/preferences file — not duplicated here.
 
 grep -q '^TERMINAL=' /etc/environment 2>/dev/null && \
-  sudo sed -i 's/^TERMINAL=.*/TERMINAL=gnome-terminal/' /etc/environment || \
-  echo 'TERMINAL=gnome-terminal' | sudo tee -a /etc/environment
+  sudo sed -i 's/^TERMINAL=.*/TERMINAL=terminator/' /etc/environment || \
+  echo 'TERMINAL=terminator' | sudo tee -a /etc/environment
 
-sudo update-alternatives --set x-terminal-emulator /usr/bin/gnome-terminal 2>/dev/null || true
+sudo update-alternatives --set x-terminal-emulator /usr/bin/terminator 2>/dev/null || true
 
 sudo mkdir -p /etc/skel/.config
 cat << 'EOF' | sudo tee /etc/skel/.config/mimeapps.list
 [Default Applications]
-x-scheme-handler/terminal=org.gnome.Terminal.desktop
+x-scheme-handler/terminal=net.tenshu.Terminator.desktop
 EOF
 if [ -d /home/telcosec ]; then
   sudo cp /etc/skel/.config/mimeapps.list /home/telcosec/.config/mimeapps.list
@@ -458,21 +501,198 @@ clock-format=%d %b, %H:%M
 hide-user-image=true
 EOF
 
-# 9. Autostart Terminal
-sudo mkdir -p /etc/xdg/autostart
-cat << 'EOF' | sudo tee /etc/xdg/autostart/telcosec-terminal.desktop
-[Desktop Entry]
-Type=Application
-Name=TelcoSec Terminal
-Comment=Open XFCE Terminal with tmux general session on login
-Exec=gnome-terminal -- bash -c 'tmux new-session -A -s general; exec bash'
-Icon=utilities-terminal
-Terminal=false
-Categories=System;TerminalEmulator;
-X-GNOME-Autostart-enabled=true
+# 10. i3 Tiling Window Manager Configuration (Operational Mode)
+echo "Configuring i3 Tiling Window Manager for Telecom Operations..."
+sudo mkdir -p /etc/skel/.config/i3 /etc/skel/.config/i3status
+
+cat << 'EOF' | sudo tee /etc/skel/.config/i3/config
+# TelcoChisel i3 Configuration — Telecom Operational Mode
+set $mod Mod4
+
+font pango:Ubuntu, IBM Plex Mono 10
+
+# Amber Phosphor Color Theme
+client.focused          #e8921e #181a1b #ffffff #e8921e #e8921e
+client.focused_inactive #333333 #181a1b #aaaaaa #181a1b #181a1b
+client.unfocused        #222222 #181a1b #888888 #181a1b #181a1b
+client.urgent           #ff5555 #ff5555 #ffffff #ff5555 #ff5555
+
+# Windows & Floating Rules
+floating_modifier $mod
+default_border pixel 2
+default_floating_border pixel 2
+for_window [window_role="pop-up"] floating enable
+for_window [class="Gqrx"] floating enable resize set 1024 700
+for_window [class="Wireshark"] floating enable resize set 1280 800
+
+# Operational Workspaces
+set $ws1 "1: 📡 SDR & Spectrum"
+set $ws2 "2: 📶 RAN & 5G Core"
+set $ws3 "3: 💳 SIM & Baseband"
+set $ws4 "4: ⚡ Core Signaling"
+set $ws5 "5: 🔍 Network Analysis"
+set $ws6 "6: 🌐 Dashboard & Portal"
+
+# Switch Workspaces
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+bindsym $mod+6 workspace $ws6
+
+# Move Containers to Workspaces
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6
+
+# Core Navigation & Window Controls
+bindsym $mod+Return exec terminator
+bindsym $mod+d exec rofi -show drun -font "Ubuntu 11"
+bindsym $mod+Shift+q kill
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec xfce4-session-logout
+
+# Window Focus (Vim keys & Arrows)
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# Move Focused Window
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+# Layout Controls
+bindsym $mod+b split h
+bindsym $mod+v split v
+bindsym $mod+f fullscreen toggle
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space focus mode_toggle
+
+# Direct Tool Launch Shortcuts (Operational Mode)
+bindsym $mod+Shift+w exec wireshark-mon
+bindsym $mod+Shift+g exec gqrx
+bindsym $mod+Shift+s exec pysim-shell
+bindsym $mod+Shift+p exec sigploit
+bindsym $mod+Shift+b exec firefox
+
+# Operational Status Bar
+bar {
+    position top
+    status_command i3status
+    colors {
+        background #181a1b
+        statusline #e8921e
+        separator  #e8921e
+        focused_workspace  #e8921e #e8921e #181a1b
+        active_workspace   #333333 #333333 #ffffff
+        inactive_workspace #181a1b #181a1b #888888
+        urgent_workspace   #ff5555 #ff5555 #ffffff
+    }
+}
+
+# Autostart Programs
+exec --no-startup-id feh --bg-fill /usr/share/backgrounds/telcosec/wallpaper.jpg
+exec --no-startup-id picom -b --config /dev/null
+exec --no-startup-id terminator -e "bash -c 'tmux new-session -A -s op-center; exec bash'"
 EOF
 
-# Fix permissions on skel and home
+cat << 'EOF' | sudo tee /etc/skel/.config/i3status/config
+general {
+    colors = true
+    color_good = "#e8921e"
+    color_degraded = "#f5aa35"
+    color_bad = "#ff5555"
+    interval = 2
+}
+
+order += "ethernet _first_"
+order += "wireless _first_"
+order += "tun0"
+order += "load"
+order += "memory"
+order += "tztime local"
+
+ethernet _first_ {
+    format_up = "ETH: %ip (%speed)"
+    format_down = "ETH: down"
+}
+
+wireless _first_ {
+    format_up = "WLAN: %ip (%essid)"
+    format_down = "WLAN: down"
+}
+
+tun0 {
+    format_up = "VPN: %ip"
+    format_down = "VPN: down"
+}
+
+load {
+    format = "CPU: %1min"
+}
+
+memory {
+    format = "RAM: %used / %total"
+    threshold_degraded = "10%"
+    format_degraded = "RAM LOW: %free"
+}
+
+tztime local {
+    format = "📅 %Y-%m-%d  ⏰ %H:%M:%S"
+}
+EOF
+
+# Deploy LightDM Session Selector Hook
+cat << 'EOF' | sudo tee /usr/local/bin/telcosec-session-select > /dev/null
+#!/bin/bash
+# Selects desktop session based on kernel cmdline 'desktop=i3'
+if grep -q "desktop=i3" /proc/cmdline 2>/dev/null; then
+    mkdir -p /etc/lightdm/lightdm.conf.d
+    cat > /etc/lightdm/lightdm.conf.d/50-telcosec-autologin.conf << 'LIGHTDM'
+[Seat:*]
+autologin-user=telcosec
+autologin-user-timeout=0
+user-session=i3
+LIGHTDM
+fi
+EOF
+sudo chmod +x /usr/local/bin/telcosec-session-select
+
+# Add systemd oneshot to execute session selector before LightDM starts
+cat << 'EOF' | sudo tee /etc/systemd/system/telcosec-session-select.service > /dev/null
+[Unit]
+Description=TelcoSec Boot Desktop Session Selector
+Before=lightdm.service
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/telcosec-session-select
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl enable telcosec-session-select.service 2>/dev/null || true
+
+# Copy i3 configs to home if exists
 if [ -d /home/telcosec ]; then
+    sudo mkdir -p /home/telcosec/.config/i3 /home/telcosec/.config/i3status
+    sudo cp /etc/skel/.config/i3/config /home/telcosec/.config/i3/config
+    sudo cp /etc/skel/.config/i3status/config /home/telcosec/.config/i3status/config
     sudo chown -R telcosec:telcosec /home/telcosec/.config || true
 fi

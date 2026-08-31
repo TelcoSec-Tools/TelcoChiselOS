@@ -96,6 +96,7 @@ echo ""
 echo "✓ Open5GS Dockerized environment installed."
 echo "  Start:  sudo open5gs-start"
 echo "  Stop:   sudo open5gs-stop"
+echo "  Logs:   sudo open5gs-logs"
 echo "  Add UE: sudo 5ghoul-add-subscriber (or use the webui on http://localhost:3000)"
 OPEN5GS_SCRIPT
 sudo chmod +x /usr/local/bin/open5gs-install

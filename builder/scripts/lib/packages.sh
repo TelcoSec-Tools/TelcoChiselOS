@@ -32,10 +32,17 @@ PKGS_BASE=(
   # additionally let Ubuntu's patched grub-install auto-install the signed
   # shim so the installed system also boots under Secure Boot.
   grub-pc-bin grub-efi-amd64-bin shim-signed grub-efi-amd64-signed
-  # Desktop (XFCE + LightDM)
+  # Desktop (XFCE + i3 Tiling WM + LightDM)
   xfce4 xfce4-goodies lightdm thunar
-  gnome-terminal xfce4-taskmanager
+  i3 i3status i3lock rofi feh picom
   xserver-xorg xserver-xorg-input-all
+  # GPU Drivers, OpenCL & Hardware Acceleration (Intel, AMD, NVIDIA, Vulkan, VA-API)
+  xserver-xorg-video-all xserver-xorg-video-nouveau
+  mesa-vulkan-drivers mesa-va-drivers mesa-vdpau-drivers mesa-utils
+  intel-media-va-driver i965-va-driver
+  vulkan-tools
+  ocl-icd-libopencl1 opencl-headers ocl-icd-opencl-dev pocl-opencl-icd
+  ubuntu-drivers-common
   network-manager-gnome
   terminator firefox
   open-vm-tools open-vm-tools-desktop

@@ -274,6 +274,96 @@ LLMNR=no
 MulticastDNS=no
 EOF
 
+# 11c. Security & Performance Profile Switcher (telcosec-profile)
+echo "Deploying telcosec-profile CLI utility (Lab Mode vs Field Mode)..."
+cat << 'PROFILESCRIPT' | sudo tee /usr/local/bin/telcosec-profile
+#!/bin/bash
+# telcosec-profile — Security & Performance Profile Switcher for TelcoChiselOS
+# Allows switching between Lab Mode (optimized for SDR / low-latency research)
+# and Field Mode (hardened firewall, strict reverse path filtering, rate-limited SSH).
+
+set -e
+
+SHOW_HELP() {
+  cat << 'HELP'
+Usage: sudo telcosec-profile [COMMAND]
+
+Commands:
+  status        Display current operational profile and active settings
+  set lab       Activate Lab Mode (SDR low-latency tuned profile, rp_filter=0, open SDR routing)
+  set field     Activate Field Mode (hardened firewall, strict rp_filter=1, standard scheduler)
+  help          Show this help dialogue
+
+Profiles:
+  lab   (Default) High performance & low latency: tuned telcosec-sdr profile active,
+                  rp_filter=0 for packet crafting/spoofing, cellular TUN unmanaged.
+  field Hardened for untrusted/conference networks: strict reverse-path filtering,
+                  UFW strict deny incoming, balanced power profile.
+HELP
+}
+
+CMD="${1:-status}"
+ARG="${2:-}"
+
+case "$CMD" in
+  status)
+    echo "=== TelcoChisel Operational Profile Status ==="
+    RP=$(sysctl -n net.ipv4.conf.all.rp_filter 2>/dev/null || echo "unknown")
+    TUNED_ACT=$(tuned-adm active 2>/dev/null | awk -F': ' '{print $2}' || echo "inactive")
+    UFW_STATUS=$(ufw status 2>/dev/null | grep -i "Status:" | awk '{print $2}' || echo "inactive")
+    
+    echo "  Current Tuned Profile : ${TUNED_ACT:-none}"
+    echo "  Reverse Path Filter   : net.ipv4.conf.all.rp_filter = ${RP}"
+    echo "  UFW Firewall Status   : ${UFW_STATUS:-unknown}"
+    if [ "$RP" = "0" ]; then
+      echo "  Active Profile Mode   : [ LAB MODE (SDR / Research Optimized) ]"
+    else
+      echo "  Active Profile Mode   : [ FIELD MODE (Hardened / Untrusted Network) ]"
+    fi
+    ;;
+
+  set)
+    if [ "$(id -u)" -ne 0 ]; then
+      echo "ERROR: Run with sudo (e.g. sudo telcosec-profile set $ARG)"
+      exit 1
+    fi
+    case "$ARG" in
+      lab)
+        echo "--> Switching to Lab Mode (SDR / Research Optimized)..."
+        tuned-adm profile telcosec-sdr 2>/dev/null || true
+        sysctl -w net.ipv4.conf.all.rp_filter=0 >/dev/null 2>&1 || true
+        sysctl -w net.ipv4.conf.default.rp_filter=0 >/dev/null 2>&1 || true
+        ufw allow ssh >/dev/null 2>&1 || true
+        echo "✓ Lab Mode active: Real-time tuned profile loaded, packet spoofing/routing unblocked."
+        ;;
+      field)
+        echo "--> Switching to Field Mode (Hardened / Field Security)..."
+        tuned-adm profile balanced 2>/dev/null || tuned-adm profile throughput-performance 2>/dev/null || true
+        sysctl -w net.ipv4.conf.all.rp_filter=1 >/dev/null 2>&1 || true
+        sysctl -w net.ipv4.conf.default.rp_filter=1 >/dev/null 2>&1 || true
+        ufw limit ssh >/dev/null 2>&1 || true
+        echo "✓ Field Mode active: Strict reverse-path filtering enabled, SSH rate-limited."
+        ;;
+      *)
+        echo "ERROR: Unknown profile: '$ARG' (options: lab | field)"
+        exit 1
+        ;;
+    esac
+    ;;
+
+  help|--help|-h)
+    SHOW_HELP
+    ;;
+
+  *)
+    echo "ERROR: Unknown command: '$CMD'"
+    SHOW_HELP
+    exit 1
+    ;;
+esac
+PROFILESCRIPT
+sudo chmod +x /usr/local/bin/telcosec-profile
+
 # 12. Custom Domain Certificates Trust
 # If a custom Root/Intermediate CA cert exists, install it to system CA trust store
 if [ -f /tmp/security/telcosec-ca.crt ]; then
@@ -323,11 +413,6 @@ cat << 'EOF' | sudo tee /etc/profile.d/telcosec-aliases.sh
 #!/bin/sh
 # TelcoSec Professional Terminal Aliases
 
-# Open5GS
-alias open5gs-start="sudo systemctl start open5gs-*"
-alias open5gs-stop="sudo systemctl stop open5gs-*"
-alias open5gs-logs="sudo journalctl -u open5gs-* -f"
-
 # YateBTS
 alias yate-logs="tail -f /var/log/yate.log"
 
@@ -342,16 +427,14 @@ sudo chmod 644 /etc/profile.d/telcosec-aliases.sh
 echo "Deploying global tool PATH environment..."
 cat << 'EOF' | sudo tee /etc/profile.d/telcosec-env.sh
 #!/bin/sh
-# TelcoSec Professional Tool Paths
-# This ensures that tools installed in /opt/telcosec are executable globally.
+# TelcoSec Professional Tool Paths & Environment Setup
+
+# Standard System & Conda & Opt Tool Paths
+export PATH="/opt/telcosec/miniconda/envs/telcosec-sdr/bin:/opt/telcosec/miniconda/bin:/opt/telcosec/bin:/usr/local/sbin:/usr/local/bin:$PATH"
 
 if [ -d "/opt/telcosec" ]; then
     for tool_dir in /opt/telcosec/*; do
         if [ -d "$tool_dir" ]; then
-            # If the tool directory itself contains executables, add it to PATH
-            PATH="$PATH:$tool_dir"
-            
-            # If the tool directory has a bin folder, add it to PATH
             if [ -d "$tool_dir/bin" ]; then
                 PATH="$PATH:$tool_dir/bin"
             fi
@@ -359,6 +442,16 @@ if [ -d "/opt/telcosec" ]; then
     done
     export PATH
 fi
+
+# Auto-source Conda profile integration if present
+if [ -f "/opt/telcosec/miniconda/etc/profile.d/conda.sh" ]; then
+    . /opt/telcosec/miniconda/etc/profile.d/conda.sh 2>/dev/null || true
+fi
+
+# General Linux Environment Defaults
+export PYTHONUNBUFFERED=1
+export LANG=${LANG:-en_US.UTF-8}
+export LC_ALL=${LC_ALL:-en_US.UTF-8}
 EOF
 sudo chmod 644 /etc/profile.d/telcosec-env.sh
 
