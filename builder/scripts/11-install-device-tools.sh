@@ -187,6 +187,8 @@ Comment=Start Android Debug Bridge server
 Exec=adb start-server
 Terminal=false
 Categories=System;
+EOF
+
 # ─── H. Middleware & Simulator CLI Wrappers ──────────────────────────────────
 echo "  Deploying Middleware & SIMurai CLI Wrappers..."
 
