@@ -187,7 +187,79 @@ Comment=Start Android Debug Bridge server
 Exec=adb start-server
 Terminal=false
 Categories=System;
-X-GNOME-Autostart-enabled=true
-EOF
+# ─── H. Middleware & Simulator CLI Wrappers ──────────────────────────────────
+echo "  Deploying Middleware & SIMurai CLI Wrappers..."
+
+cat > /usr/local/bin/simurai << 'SCRIPT'
+#!/bin/bash
+echo "=== SIMurai — Software SIM & Smartcard Simulator Platform ==="
+if [ -f /opt/telcosec/simurai/simurai ]; then
+  exec /opt/telcosec/simurai/simurai "$@"
+else
+  echo "Source: /opt/telcosec/simurai"
+  echo "Usage: swsim / swicc-pcsc virtual IFD driver daemon."
+fi
+SCRIPT
+chmod +x /usr/local/bin/simurai
+
+cat > /usr/local/bin/nokia-netact-cli << 'SCRIPT'
+#!/bin/bash
+echo "=== Nokia NetAct OSS CLI Connector ==="
+if [ -z "$1" ]; then
+  echo "Usage: nokia-netact-cli <netact-host-ip>"
+  exit 1
+fi
+exec ssh -o StrictHostKeyChecking=no "$1"
+SCRIPT
+chmod +x /usr/local/bin/nokia-netact-cli
+
+cat > /usr/local/bin/ericsson-enm-cli << 'SCRIPT'
+#!/bin/bash
+echo "=== Ericsson ENM CLI Connector ==="
+if [ -z "$1" ]; then
+  echo "Usage: ericsson-enm-cli <enm-host-ip>"
+  exit 1
+fi
+exec ssh -o StrictHostKeyChecking=no "root@$1"
+SCRIPT
+chmod +x /usr/local/bin/ericsson-enm-cli
+
+cat > /usr/local/bin/huawei-u2000-cli << 'SCRIPT'
+#!/bin/bash
+echo "=== Huawei iMaster U2000 NMS CLI Connector ==="
+if [ -z "$1" ]; then
+  echo "Usage: huawei-u2000-cli <u2000-host-ip>"
+  exit 1
+fi
+exec telnet "$1" 8080
+SCRIPT
+chmod +x /usr/local/bin/huawei-u2000-cli
+
+cat > /usr/local/bin/gpu-info << 'SCRIPT'
+#!/bin/bash
+echo "=== TelcoChisel GPU & Acceleration Information ==="
+echo ""
+echo "--- PCI Graphics Devices ---"
+lspci -nnk | grep -A 3 -E "VGA|3D|Display" || true
+echo ""
+echo "--- OpenGL / Mesa Status ---"
+glxinfo -B 2>/dev/null | grep -E "OpenGL vendor|OpenGL renderer|OpenGL version|Direct rendering" || echo "Mesa glxinfo not available."
+echo ""
+echo "--- OpenCL Platform / Devices (Hashcat / PyTorch) ---"
+clinfo 2>/dev/null | grep -E "Platform Name|Device Name|Driver Version" || echo "No OpenCL hardware device detected (pocl CPU fallback active)."
+echo ""
+echo "--- Vulkan Devices ---"
+vulkaninfo --summary 2>/dev/null | grep -A 5 "Devices:" || echo "Vulkan summary not available."
+echo ""
+echo "--- Proprietary NVIDIA Driver Auto-Install ---"
+echo "To detect and auto-install proprietary NVIDIA drivers:"
+echo "  sudo ubuntu-drivers install"
+SCRIPT
+chmod +x /usr/local/bin/gpu-info
+
+record_tool "SIMurai" "/usr/local/bin/simurai" "sim"
+record_tool "Nokia NetAct CLI" "/usr/local/bin/nokia-netact-cli" "mw"
+record_tool "Ericsson ENM CLI" "/usr/local/bin/ericsson-enm-cli" "mw"
+record_tool "Huawei U2000 CLI" "/usr/local/bin/huawei-u2000-cli" "mw"
 
 echo "=== Device Tools installation complete ==="

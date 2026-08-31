@@ -110,14 +110,20 @@ else
 fi
 
 ROOTFS="$WORKDIR/chroot"
+
+# Shared chroot service-suppression helpers (builder/scripts/lib/)
+# shellcheck source=builder/scripts/lib/chroot-suppress.sh
+source "$(pwd)/builder/scripts/lib/chroot-suppress.sh"
 IMAGE_NAME="TelcoChisel-live.iso"
 
 # ─── Mount cleanup ────────────────────────────────────────────────────────────
 cleanup() {
-  rm -f "$ROOTFS/usr/sbin/policy-rc.d" "$ROOTFS/usr/local/sbin/udevadm" 2>/dev/null || true
-  if [ -d "$ROOTFS" ] && chroot "$ROOTFS" dpkg-divert --list /usr/bin/udevadm 2>/dev/null | grep -q "diversion of"; then
-    rm -f "$ROOTFS/usr/bin/udevadm" 2>/dev/null || true
-    chroot "$ROOTFS" dpkg-divert --local --rename --remove /usr/bin/udevadm 2>/dev/null || true
+  restore_chroot_services "$ROOTFS"
+  if [ -d "$ROOTFS" ]; then
+    awk -v r="$ROOTFS" '$2 ~ "^"r {print $2}' /proc/mounts 2>/dev/null | sort -r | while read -r mnt; do
+      fuser -k -9 "$mnt" 2>/dev/null || true
+      umount -lf "$mnt" 2>/dev/null || true
+    done
   fi
   umount -lf "$ROOTFS/root/.ccache" 2>/dev/null || true
   umount -lf "$ROOTFS/dev/pts" 2>/dev/null || true
@@ -151,20 +157,7 @@ elif $RESUME; then
 
   # ── Re-apply service suppression (removed at end of each run) ───────────────
   echo "--> Re-applying chroot service suppression..."
-  cat > "$ROOTFS/usr/sbin/policy-rc.d" << 'POLICY'
-#!/bin/sh
-exit 101
-POLICY
-  chmod +x "$ROOTFS/usr/sbin/policy-rc.d"
-
-  chroot "$ROOTFS" dpkg-divert --local --rename --add /usr/bin/udevadm 2>/dev/null || true
-  cat > "$ROOTFS/usr/bin/udevadm" << 'UDEVADM'
-#!/bin/sh
-exit 0
-UDEVADM
-  chmod +x "$ROOTFS/usr/bin/udevadm"
-  mkdir -p "$ROOTFS/usr/local/sbin"
-  cp "$ROOTFS/usr/bin/udevadm" "$ROOTFS/usr/local/sbin/udevadm"
+  suppress_chroot_services "$ROOTFS"
 
   # Re-copy builder assets (scripts may have changed since last run)
   echo "--> Re-syncing builder assets into chroot..."
@@ -234,23 +227,7 @@ HOSTS
   # Chroot service suppression
   # Hardware package postinstalls call udevadm/invoke-rc.d which fail inside
   # a chroot. Suppress them for the entire provisioning phase.
-  cat > "$ROOTFS/usr/sbin/policy-rc.d" << 'POLICY'
-#!/bin/sh
-exit 101
-POLICY
-  chmod +x "$ROOTFS/usr/sbin/policy-rc.d"
-
-  # Use dpkg-divert so the no-op at /usr/bin/udevadm survives udev package
-  # installation. Hardware postinstalls call udevadm via absolute path.
-  mkdir -p "$ROOTFS/usr/bin"
-  chroot "$ROOTFS" dpkg-divert --local --rename --add /usr/bin/udevadm 2>/dev/null || true
-  cat > "$ROOTFS/usr/bin/udevadm" << 'UDEVADM'
-#!/bin/sh
-exit 0
-UDEVADM
-  chmod +x "$ROOTFS/usr/bin/udevadm"
-  mkdir -p "$ROOTFS/usr/local/sbin"
-  cp "$ROOTFS/usr/bin/udevadm" "$ROOTFS/usr/local/sbin/udevadm"
+  suppress_chroot_services "$ROOTFS"
 
   # Copy builder assets
   echo "--> Copying builder assets..."
@@ -346,11 +323,7 @@ if ! $PACK_ONLY; then
   fi
 
   # Remove chroot service suppression
-  rm -f "$ROOTFS/usr/sbin/policy-rc.d" "$ROOTFS/usr/local/sbin/udevadm"
-  if chroot "$ROOTFS" dpkg-divert --list /usr/bin/udevadm 2>/dev/null | grep -q "diversion of"; then
-    rm -f "$ROOTFS/usr/bin/udevadm"
-    chroot "$ROOTFS" dpkg-divert --local --rename --remove /usr/bin/udevadm 2>/dev/null || true
-  fi
+  restore_chroot_services "$ROOTFS"
 
   # ── Live-boot fixups ───────────────────────────────────────────────────────
   # casper.conf: sourced by casper initramfs hooks — must use 'export' syntax so
@@ -563,9 +536,9 @@ trap cleanup_packing EXIT
 # ─── Squashfs ─────────────────────────────────────────────────────────────────
 mkdir -p "$WORKDIR/image/casper"
 # Derive CPU and memory limits from the host at pack time.
-# Cap processors to avoid thrashing on shared CI runners.
-_SQUASHFS_PROCS=$(nproc)
-[ "$_SQUASHFS_PROCS" -gt 8 ] && _SQUASHFS_PROCS=8
+# Allow environment override via SQUASHFS_PROCS; default to nproc capped at 16.
+_SQUASHFS_PROCS="${SQUASHFS_PROCS:-$(nproc)}"
+[ "$_SQUASHFS_PROCS" -gt 16 ] && _SQUASHFS_PROCS=16
 # Derive per-processor memory budget (mksquashfs -mem is per-processor).
 # Use ~60% of available RAM divided across processors; floor at 512M, cap at 4G.
 _AVAIL_KB=$(awk '/MemAvailable/{print $2}' /proc/meminfo 2>/dev/null || echo 4194304)
@@ -627,7 +600,7 @@ elif [ -f "$ROOTFS/usr/share/backgrounds/telcosec/logo.png" ]; then
 fi
 cat > "$WORKDIR/image/boot/grub/grub.cfg" << 'GRUB'
 set default=0
-set timeout=5
+set timeout=3
 
 insmod all_video
 insmod font
@@ -638,7 +611,7 @@ if loadfont /boot/grub/fonts/unicode.pf2 ; then
   terminal_output gfxterm
   if background_image /boot/grub/logo.png ; then
     set color_normal=light-gray/black
-    set color_highlight=cyan/black
+    set color_highlight=yellow/black
   fi
 fi
 
@@ -655,19 +628,25 @@ fi
 
 menuentry "TelcoChisel Live (Try without installing)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash usbcore.usbfs_memory_mb=1000 ---
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
+    initrd /casper/initrd
+}
+
+menuentry "TelcoChisel Live (i3 Tiling WM - Operational Mode)" {
+    set gfxpayload=keep
+    linux /casper/vmlinuz boot=casper desktop=i3 noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
 menuentry "Try TelcoChisel (load to RAM)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash usbcore.usbfs_memory_mb=1000 toram ---
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 toram ---
     initrd /casper/initrd
 }
 
 menuentry "TelcoChisel Live (Install)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel only-ubiquity quiet splash usbcore.usbfs_memory_mb=1000 ---
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel only-ubiquity quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
@@ -704,6 +683,15 @@ exec /usr/bin/xorriso "${args[@]}"
 XWRAP
 chmod +x /tmp/xorriso-wrap/xorriso
 PATH="/tmp/xorriso-wrap:$PATH" grub-mkrescue -o "$IMAGE_NAME" "$WORKDIR/image/"
+# Verify the injected flag actually reached xorriso: a grub-mkrescue change to
+# how it invokes xorriso would silently drop -iso-level 3 (files >4 GB fall
+# back to level 1 and the build produces a broken image without erroring).
+if xorriso -indev "$IMAGE_NAME" -report_el_torito as_mkisofs 2>/dev/null | grep -q 'iso-level' \
+   || xorriso -indev "$IMAGE_NAME" -toc 2>/dev/null | grep -qi 'IsoLevel.*3'; then
+  echo "    -iso-level 3 confirmed in image"
+else
+  echo "    WARNING: could not confirm -iso-level 3 inside $IMAGE_NAME — verify manually with: xorriso -indev $IMAGE_NAME -toc" >&2
+fi
 
 # ─── Secure Boot retrofit (best-effort) ───────────────────────────────────────
 # grub-mkrescue's own EFI image is unsigned, so Secure-Boot-enabled UEFI
@@ -790,11 +778,20 @@ else
 fi
 rmdir "$ISO_CHECK_DIR" 2>/dev/null || true
 
+# ─── Checksum Generation ──────────────────────────────────────────────────────
+# Fatal on failure — release tooling consumes the .sha256 file; shipping an
+# image without a verifiable checksum is worse than failing the build.
+echo "--> Generating SHA256 and MD5 checksums..."
+sha256sum "$IMAGE_NAME" > "${IMAGE_NAME}.sha256" || { echo "FATAL: sha256sum failed for $IMAGE_NAME" >&2; exit 1; }
+md5sum "$IMAGE_NAME" > "${IMAGE_NAME}.md5" || { echo "FATAL: md5sum failed for $IMAGE_NAME" >&2; exit 1; }
+SHA256_VAL=$(cut -d' ' -f1 < "${IMAGE_NAME}.sha256")
+
 # ─── Summary ──────────────────────────────────────────────────────────────────
 ELAPSED=$(( $(date +%s) - BUILD_START ))
 ISO_SIZE=$(du -sh "$IMAGE_NAME" | cut -f1)
 printf '\n╔══════════════════════════════════════════════════════╗\n'
 printf '║  %-52s║\n' "Build complete: $IMAGE_NAME"
 printf '║  %-52s║\n' "ISO size:       $ISO_SIZE"
+printf '║  %-52s║\n' "SHA256:         ${SHA256_VAL:0:16}..."
 printf '║  %-52s║\n' "Total time:     $(( ELAPSED/60 ))m$(( ELAPSED%60 ))s"
 printf '╚══════════════════════════════════════════════════════╝\n'

@@ -28,8 +28,9 @@ _PIP_CONSTRAINTS="${_PIP_RETRY_LIB_DIR}/pip-constraints.txt"
 pip_retry() {
   local attempt
   local extra_args=()
-  if [ "$1" = "install" ] && [ -f "$_PIP_CONSTRAINTS" ]; then
-    extra_args=(-c "$_PIP_CONSTRAINTS")
+  if [ "$1" = "install" ]; then
+    extra_args=(--break-system-packages --ignore-installed)
+    [ -f "$_PIP_CONSTRAINTS" ] && extra_args+=(-c "$_PIP_CONSTRAINTS")
   fi
   for attempt in 1 2 3; do
     pip3 "$@" "${extra_args[@]}" && return 0
@@ -43,8 +44,9 @@ pip_retry() {
 sudo_pip_retry() {
   local attempt
   local extra_args=()
-  if [ "$1" = "install" ] && [ -f "$_PIP_CONSTRAINTS" ]; then
-    extra_args=(-c "$_PIP_CONSTRAINTS")
+  if [ "$1" = "install" ]; then
+    extra_args=(--break-system-packages --ignore-installed)
+    [ -f "$_PIP_CONSTRAINTS" ] && extra_args+=(-c "$_PIP_CONSTRAINTS")
   fi
   for attempt in 1 2 3; do
     sudo pip3 "$@" "${extra_args[@]}" && return 0
@@ -60,8 +62,9 @@ venv_pip_retry() {
   shift
   local attempt
   local extra_args=()
-  if [ "$1" = "install" ] && [ -f "$_PIP_CONSTRAINTS" ]; then
-    extra_args=(-c "$_PIP_CONSTRAINTS")
+  if [ "$1" = "install" ]; then
+    extra_args=(--ignore-installed)
+    [ -f "$_PIP_CONSTRAINTS" ] && extra_args+=(-c "$_PIP_CONSTRAINTS")
   fi
   for attempt in 1 2 3; do
     "$pip_cmd" "$@" "${extra_args[@]}" && return 0

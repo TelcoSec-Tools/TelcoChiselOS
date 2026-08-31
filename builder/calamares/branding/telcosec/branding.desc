@@ -12,7 +12,7 @@ strings:
     versionedName:       TelcoChisel 1.0
     shortVersionedName:  TelcoSec 1.0
     bootloaderEntryName: TelcoSec
-    productUrl:          https://www.telcosec.net/
+    productUrl:          https://tschisel.telcosec.net
     supportUrl:          https://community.telcosec.net/
     knownIssuesUrl:      https://github.com/TelcoSec-Tools/TelcoChiselOS/issues
     releaseNotesUrl:     https://github.com/TelcoSec-Tools/TelcoChiselOS/releases

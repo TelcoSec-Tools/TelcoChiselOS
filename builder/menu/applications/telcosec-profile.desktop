@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Security Profile Switcher
+Comment=Toggle between Lab Mode (SDR/low-latency research) and Field Mode (hardened security)
+Exec=x-terminal-emulator -e "bash -c 'sudo telcosec-profile status; echo \"\"; echo \"Commands: sudo telcosec-profile set [lab|field]\"; read -rp \"Press Enter to close...\"'"
+Icon=security-high
+Terminal=false
+Categories=TelcoSec-Core;

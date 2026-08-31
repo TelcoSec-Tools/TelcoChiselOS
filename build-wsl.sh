@@ -54,18 +54,30 @@ if $IN_WSL; then
     echo "Running build directly (already inside WSL)..."
     echo ""
     cd "$WSL_PATH"
-    eval "$ENV_PREFIX sudo bash build-iso.sh $BUILD_ARGS"
-else
-    # Running from Git Bash — check kali-linux exists then launch it
-    # wsl.exe --list outputs UTF-16; probe by trying to run a no-op instead
-    if ! wsl.exe -d kali-linux -- echo "" >/dev/null 2>&1; then
-        echo "ERROR: WSL distribution 'kali-linux' not found."
-        echo "       Install it with:  wsl --install -d kali-linux"
-        exit 1
+    if [ "$(id -u)" -eq 0 ]; then
+        eval "$ENV_PREFIX bash build-iso.sh $BUILD_ARGS"
+    else
+        eval "$ENV_PREFIX sudo -E bash build-iso.sh $BUILD_ARGS"
     fi
-    echo "Launching WSL kali-linux build..."
+else
+    # Running from Git Bash — probe for Ubuntu-24.04 / Ubuntu first for native GRUB alignment
+    WSL_DISTRO="${WSL_DISTRO:-}"
+    if [ -z "$WSL_DISTRO" ]; then
+        if wsl.exe -d Ubuntu-24.04 -- echo "" >/dev/null 2>&1; then
+            WSL_DISTRO="Ubuntu-24.04"
+        elif wsl.exe -d Ubuntu -- echo "" >/dev/null 2>&1; then
+            WSL_DISTRO="Ubuntu"
+        elif wsl.exe -d kali-linux -- echo "" >/dev/null 2>&1; then
+            WSL_DISTRO="kali-linux"
+        else
+            echo "ERROR: No compatible WSL distribution found (Ubuntu-24.04, Ubuntu, or kali-linux)."
+            echo "       Install one with: wsl --install -d Ubuntu-24.04"
+            exit 1
+        fi
+    fi
+    echo "Launching WSL ($WSL_DISTRO) build..."
     echo ""
-    wsl.exe -d kali-linux -u root -- \
+    wsl.exe -d "$WSL_DISTRO" -u root -- \
         bash -c "cd \"$WSL_PATH\" && $ENV_PREFIX sudo bash build-iso.sh $BUILD_ARGS"
 fi
 
