@@ -2,7 +2,7 @@
 Type=Application
 Name=ADB Devices
 Comment=List connected Android/Samsung devices
-Exec=gnome-terminal -- bash -c "adb devices -l; exec bash"
+Exec=x-terminal-emulator -e "bash -c "adb devices -l; exec bash"
 Icon=phone
 Categories=TelcoSec-Device;
 Terminal=false

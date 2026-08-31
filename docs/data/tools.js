@@ -24,7 +24,7 @@ export const toolsCatalog = [
         status: "ready",
         desc: "Official device driver and interface software for Ettus Research USRP software-defined radios (B210, X310, etc.), compiled from source.",
         path: "Conda env (telcosec-sdr)",
-        cmd: 'uhd_usrp_probe --args="type=b200"'
+        cmd: "uhd_usrp_probe --args=\"type=b200\""
     },
     {
         name: "HackRF Host Tools",
@@ -60,7 +60,7 @@ export const toolsCatalog = [
         status: "ready",
         desc: "A baseband firmware emulation and fuzzing platform. Emulates Samsung Shannon and MediaTek modems under QEMU, enabling analysis of baseband OTA packets.",
         path: "/opt/telcosec/firmwire/",
-        cmd: "/opt/telcosec/firmwire/venv/bin/firmwire --help"
+        cmd: "firmwire --help"
     },
     {
         name: "QCSuper",
@@ -186,7 +186,7 @@ export const toolsCatalog = [
         status: "ready",
         desc: "Diameter protocol fuzzer written by Orange Security, designed to test core interfaces (S6a, Gx, Gy) for vulnerability to malformed requests.",
         path: "/opt/telcosec/diafuzzer/",
-        cmd: "python3 /opt/telcosec/diafuzzer/diafuzzer.py --help"
+        cmd: "diafuzzer --help"
     },
     {
         name: "Scapy (with SS7/Diameter modules)",
@@ -673,5 +673,14 @@ export const toolsCatalog = [
         desc: "Comprehensive suite for man-in-the-middle attacks on LAN (e.g. ARP spoofing) to intercept unencrypted TFTP configuration downloads.",
         path: "System-wide",
         cmd: "ettercap-text-only"
+    },
+    {
+        name: "TelcoSec Profile Switcher",
+        slug: "telcosec-profile",
+        category: "core",
+        status: "ready",
+        desc: "Operational security profile switcher to toggle between Lab Mode (SDR low-latency, rp_filter=0) and Field Mode (hardened firewall, strict rp_filter, rate-limited SSH).",
+        path: "/usr/local/bin/telcosec-profile",
+        cmd: "sudo telcosec-profile status"
     }
-]
+];

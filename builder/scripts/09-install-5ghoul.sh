@@ -545,6 +545,18 @@ echo "Done."
 EOF
 sudo chmod +x /usr/local/bin/open5gs-stop
 
+cat << 'EOF' | sudo tee /usr/local/bin/open5gs-logs
+#!/bin/bash
+if [ ! -d "/opt/telcosec/open5gs/docker_open5gs" ]; then
+  echo "Open5GS is not installed."
+  exit 1
+fi
+echo "Viewing Open5GS container logs (Ctrl+C to exit)..."
+cd /opt/telcosec/open5gs/docker_open5gs
+sudo docker compose logs -f || sudo docker-compose logs -f
+EOF
+sudo chmod +x /usr/local/bin/open5gs-logs
+
 echo "=== 5Ghoul dependencies installed ==="
 echo "  USRP B210:   sudo 5ghoul-install"
 echo "  BladeRF A4:  sudo 5ghoul-install --radio BLADERF"

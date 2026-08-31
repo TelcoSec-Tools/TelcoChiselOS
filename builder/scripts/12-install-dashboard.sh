@@ -6,6 +6,8 @@ echo "Installing Nginx, PHP-FPM, PostgreSQL, and dashboard PHP extensions..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/record-tool.sh
 source "${SCRIPT_DIR}/lib/record-tool.sh"
+# shellcheck source=lib/build-tool.sh
+source "${SCRIPT_DIR}/lib/build-tool.sh"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -52,7 +54,8 @@ DASHBOARD_SRC="/opt/telcosec/dashboard"
 # (matches the pattern used by oai-install, yatebts-install, etc.).
 if [ ! -d "$DASHBOARD_SRC" ]; then
   echo "  ${DASHBOARD_SRC} not present (10-install-telecom-advanced.sh may have been skipped) — cloning directly..."
-  git clone --depth 1 "$DASHBOARD_REPO" "$DASHBOARD_SRC" 2>/dev/null || true
+  clone_if_missing "$DASHBOARD_REPO" "$DASHBOARD_SRC" || \
+    echo "  WARNING: dashboard clone failed — deploying nginx/PHP without dashboard UI" >&2
 fi
 
 if [ -d "$DASHBOARD_SRC" ] && [ -n "$(ls -A "$DASHBOARD_SRC" 2>/dev/null)" ]; then

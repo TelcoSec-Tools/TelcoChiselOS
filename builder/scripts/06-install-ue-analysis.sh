@@ -36,9 +36,18 @@ if [ ! -d lpac ]; then git clone --depth 1 https://github.com/estkme-group/lpac.
 if [ ! -d simtrace2 ]; then git clone --depth 1 https://github.com/osmocom/simtrace2.git simtrace2 & PID_SIMTRACE2=$!; else PID_SIMTRACE2=""; fi
 if [ ! -d simurai ]; then git clone --recurse-submodules --shallow-submodules https://github.com/tomasz-lisowski/simurai.git simurai & PID_SIMURAI=$!; else PID_SIMURAI=""; fi
 
-# Wait for all clones to complete
+# Wait for all clones to complete and fail loudly on any clone failure
 echo "Waiting for all git clones to finish..."
-wait $PID_FIRMWIRE $PID_BALONG_FLASH $PID_BALONGTOOL $PID_MTK $PID_PYSIM $PID_LPAC $PID_SIMTRACE2 $PID_SIMURAI 2>/dev/null || true
+CLONE_FAIL=0
+for pid in $PID_FIRMWIRE $PID_BALONG_FLASH $PID_BALONGTOOL $PID_MTK \
+           $PID_PYSIM $PID_LPAC $PID_SIMTRACE2 $PID_SIMURAI; do
+  [ -z "$pid" ] && continue
+  if ! wait "$pid"; then
+    echo "UE analysis repo clone failed (pid $pid)" >&2
+    CLONE_FAIL=1
+  fi
+done
+[ "$CLONE_FAIL" -eq 0 ] || { echo "Aborting: one or more UE analysis repo clones failed" >&2; exit 1; }
 echo "All repositories checked/cloned."
 
 # Download SIMtrace 2 firmware binaries into the newly cloned directory
@@ -196,7 +205,19 @@ venv_pip_retry ./venv/bin/pip install --upgrade setuptools
 # custom Cython patches against whatever RocksDB headers Ubuntu ships) is the
 # best available proxy for "did the whole FirmWire venv actually come together."
 FIRMWIRE_ROCKSDB=$(find /opt/telcosec/firmwire/venv/lib -maxdepth 3 -iname 'rocksdb*' 2>/dev/null | head -1)
-record_tool "FirmWire" "$FIRMWIRE_ROCKSDB" "baseband"
+cat << 'EOF' | sudo tee /usr/local/bin/firmwire
+#!/bin/bash
+if [ -f /opt/telcosec/firmwire/venv/bin/firmwire ]; then
+  exec /opt/telcosec/firmwire/venv/bin/firmwire "$@"
+elif [ -f /opt/telcosec/firmwire/firmwire.py ]; then
+  exec python3 /opt/telcosec/firmwire/firmwire.py "$@"
+else
+  echo "FirmWire installation not found at /opt/telcosec/firmwire."
+  exit 1
+fi
+EOF
+sudo chmod +x /usr/local/bin/firmwire
+record_tool "FirmWire" "/usr/local/bin/firmwire" "baseband"
 
 # QCSuper (Qualcomm DIAG port traffic capture and Wireshark dissection)
 # Installed from PyPI — QCSuper no longer ships a requirements.txt in the repo.
@@ -240,8 +261,8 @@ record_tool "mtkclient" "$(command -v mtk 2>/dev/null)" "baseband"
 # pySim (SIM/USIM smartcard programming and operations)
 echo "Installing Osmocom pySim smartcard utility..."
 cd /opt/telcosec/pysim
-sudo_pip_retry install -r requirements.txt --break-system-packages
-sudo_pip_retry install --break-system-packages .
+sudo_pip_retry install -r requirements.txt --break-system-packages --ignore-installed
+sudo_pip_retry install --break-system-packages --ignore-installed .
 # pySim-shell.py is a standalone script in the repo, not a pip console_script
 # entry point — `pip install .` only installs the importable pySim library.
 # Symlink it onto PATH so launchers can invoke it as a plain command.

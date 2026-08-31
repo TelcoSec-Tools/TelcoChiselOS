@@ -22,6 +22,15 @@ concurrency:
   group: release
   cancel-in-progress: false   # never cancel a running build mid-way
 
+# Self-hosted runner requirements (Ubuntu 24.04+ host):
+#   - passwordless sudo for the runner user (build-iso.sh runs under sudo -E)
+#   - ~20 GB free disk in the runner work dir + /var
+#   - first run: the "Install Build Dependencies" step bootstraps the toolchain;
+#     it is skipped on later runs (everything persists on the host disk)
+#   - apt-cacher-ng persists on the host between runs, so the hosted-runner
+#     actions/cache save/restore steps are skipped on self-hosted
+# Flip `runs-on` back to `ubuntu-24.04` to return to GitHub-hosted runners —
+# all hosted-only steps are gated on RUNNER_ENVIRONMENT.
 env:
   ISO: TelcoChisel-live.iso
   SF_USER: rfs85
@@ -31,7 +40,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux]
     timeout-minutes: 240
     permissions:
       contents: write
@@ -82,8 +91,9 @@ jobs:
           echo "date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
           echo "Resolved version: $VERSION (nightly=$IS_NIGHTLY)"
 
-      # ── Free disk space ──────────────────────────────────────────────────────
+      # ── Hosted-runner-only: purge preinstalled bloat to make room ────────────
       - name: Free Disk Space
+        if: env.RUNNER_ENVIRONMENT == 'github-hosted'
         run: |
           sudo rm -rf \
             /usr/local/lib/android /usr/share/dotnet /opt/ghc \
@@ -92,13 +102,21 @@ jobs:
           sudo docker image prune -af || true
           df -h /
 
+      # Idempotent on both runner types: on self-hosted this is a fast no-op
+      # after the first run (tools persist on the host).
       - name: Install Build Dependencies
         run: |
-          sudo apt-get update -q
-          sudo apt-get install -y \
-            debootstrap squashfs-tools grub-pc-bin grub-efi-amd64-bin \
-            shim-signed grub-efi-amd64-signed \
-            xorriso mtools zstd apt-cacher-ng ccache rsync
+          MISSING=()
+          for t in debootstrap mksquashfs grub-mkrescue xorriso mformat ccache rsync; do
+            command -v "$t" >/dev/null 2>&1 || MISSING+=("$t")
+          done
+          if [[ ${#MISSING[@]} -gt 0 ]]; then
+            sudo apt-get update -q
+            sudo apt-get install -y \
+              debootstrap squashfs-tools grub-pc-bin grub-efi-amd64-bin \
+              shim-signed grub-efi-amd64-signed \
+              xorriso mtools zstd apt-cacher-ng ccache rsync
+          fi
           sudo ccache --max-size=4G
 
       - name: Configure apt-cacher-ng
@@ -113,7 +131,11 @@ jobs:
       # later "hit" restores the same stale cache and silently skips saving
       # a fresh one). restore-keys still lets us restore the most recent
       # cache matching the content-hash prefix, so growth is preserved.
+      # Caches are only needed on ephemeral hosted runners — on self-hosted the
+      # apt-cacher-ng and ccache directories persist on the host disk between
+      # runs, and skipping the save step avoids multi-GB cache uploads per run.
       - name: Restore apt-cacher-ng cache
+        if: env.RUNNER_ENVIRONMENT == 'github-hosted'
         uses: actions/cache@v4
         with:
           path: /var/cache/apt-cacher-ng
@@ -128,6 +150,7 @@ jobs:
           sudo chown -R apt-cacher-ng:apt-cacher-ng /var/cache/apt-cacher-ng || true
 
       - name: Restore ccache
+        if: env.RUNNER_ENVIRONMENT == 'github-hosted'
         uses: actions/cache@v4
         with:
           path: /root/.ccache
@@ -137,6 +160,11 @@ jobs:
             ccache-
 
       # ── Build ────────────────────────────────────────────────────────────────
+      # Same parity check deploy-docs runs — a drifted catalog must not ship
+      # inside the ISO just because the docs deploy didn't run.
+      - name: Verify tool catalog parity
+        run: node scripts/sync-catalogs.js
+
       - name: Build ISO
         env:
           APT_PROXY: http://localhost:3142
@@ -208,7 +236,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Prepare Caches for Saving
-        if: always()
+        if: always() && env.RUNNER_ENVIRONMENT == 'github-hosted'
         run: |
           sudo chown -R runner:docker /root/.ccache || true
           sudo chown -R runner:docker /var/cache/apt-cacher-ng || true
