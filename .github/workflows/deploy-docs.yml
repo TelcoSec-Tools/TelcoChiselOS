@@ -25,6 +25,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -32,9 +37,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: docs
-        run: |
-          rm -rf package-lock.json node_modules
-          npm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Verify tool catalog parity
         run: node scripts/sync-catalogs.js
@@ -43,7 +46,7 @@ jobs:
         working-directory: docs
         env:
           NODE_ENV: production
-        run: npm run generate
+        run: pnpm run generate
 
       - uses: actions/upload-pages-artifact@v3
         with:
