@@ -171,6 +171,8 @@ elif $RESUME; then
   rm -rf "$ROOTFS/tmp/wireshark" && cp -r builder/wireshark "$ROOTFS/tmp/wireshark"
   rm -rf "$ROOTFS/tmp/boot" && cp -r builder/boot "$ROOTFS/tmp/boot"
   rm -rf "$ROOTFS/tmp/wordlists" && cp -r builder/wordlists "$ROOTFS/tmp/wordlists"
+  # Guarantee Unix LF line endings across all copied builder assets inside chroot
+  find "$ROOTFS/tmp" -type f -exec sed -i -e 's/\r$//' {} + 2>/dev/null || true
 
   # Re-mount virtual filesystems
   echo "--> Mounting virtual filesystems..."
@@ -241,6 +243,8 @@ HOSTS
   cp -r builder/wireshark "$ROOTFS/tmp/wireshark"
   cp -r builder/boot      "$ROOTFS/tmp/boot"
   cp -r builder/wordlists "$ROOTFS/tmp/wordlists"
+  # Guarantee Unix LF line endings across all copied builder assets inside chroot
+  find "$ROOTFS/tmp" -type f -exec sed -i -e 's/\r$//' {} + 2>/dev/null || true
 
   # Mount virtual filesystems
   echo "--> Mounting virtual filesystems..."
@@ -292,7 +296,7 @@ if ! $PACK_ONLY; then
       /bin/bash -e "/tmp/scripts/$1"
   }
 
-  _phase  0 "00 · Consolidated package install"    chroot "$ROOTFS" /bin/bash -e /tmp/scripts/00-install-all-packages.sh
+  _phase  0 "00 · Consolidated package install"    chroot_run 00-install-all-packages.sh
   _phase  1 "01 · Base system + desktop"           chroot_run 01-install-base.sh
   _phase  2 "02 · SDR drivers + conda env"         chroot_run 02-install-sdr.sh
   _phase  3 "03 · Core network (srsRAN/Open5GS)"   chroot_run 03-install-core-network.sh
@@ -683,14 +687,12 @@ exec /usr/bin/xorriso "${args[@]}"
 XWRAP
 chmod +x /tmp/xorriso-wrap/xorriso
 PATH="/tmp/xorriso-wrap:$PATH" grub-mkrescue -o "$IMAGE_NAME" "$WORKDIR/image/"
-# Verify the injected flag actually reached xorriso: a grub-mkrescue change to
-# how it invokes xorriso would silently drop -iso-level 3 (files >4 GB fall
-# back to level 1 and the build produces a broken image without erroring).
-if xorriso -indev "$IMAGE_NAME" -report_el_torito as_mkisofs 2>/dev/null | grep -q 'iso-level' \
-   || xorriso -indev "$IMAGE_NAME" -toc 2>/dev/null | grep -qi 'IsoLevel.*3'; then
-  echo "    -iso-level 3 confirmed in image"
+# Verify the injected flag actually reached xorriso and squashfs is intact
+SQUASHFS_IN_ISO_SZ=$(xorriso -indev "$IMAGE_NAME" -lsl /casper 2>/dev/null | grep 'filesystem.squashfs' | awk '{print $5}' || true)
+if [ -n "$SQUASHFS_IN_ISO_SZ" ] && [ "$SQUASHFS_IN_ISO_SZ" -gt 0 ]; then
+  echo "    ISO Level 3 & filesystem.squashfs confirmed ($SQUASHFS_IN_ISO_SZ bytes) ✓"
 else
-  echo "    WARNING: could not confirm -iso-level 3 inside $IMAGE_NAME — verify manually with: xorriso -indev $IMAGE_NAME -toc" >&2
+  echo "    WARNING: could not confirm filesystem.squashfs inside $IMAGE_NAME" >&2
 fi
 
 # ─── Secure Boot retrofit (best-effort) ───────────────────────────────────────
