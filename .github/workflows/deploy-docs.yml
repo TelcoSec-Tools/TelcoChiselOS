@@ -33,7 +33,8 @@ jobs:
       - name: Install dependencies
         working-directory: docs
         run: |
-          npm install --include=optional
+          rm -rf package-lock.json node_modules
+          npm install
 
       - name: Verify tool catalog parity
         run: node scripts/sync-catalogs.js
