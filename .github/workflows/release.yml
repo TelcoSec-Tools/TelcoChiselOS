@@ -305,6 +305,7 @@ jobs:
           SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
         run: |
           SF_ROOT="/home/frs/project/$SF_PROJECT"
+          SF_TARGET="$SF_USER,$SF_PROJECT@$SF_HOST"
           SF_SSH="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR"
 
           cat << 'EOF' > sf-root-README.md
@@ -328,12 +329,14 @@ jobs:
           > **Live boot credentials:** `telcosec:telcosec`
           EOF
 
-          echo "-mkdir $SF_ROOT" > sftp_root_batch
-          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_root_batch "$SF_USER@$SF_HOST"
+          cat > sftp_root_batch << EOF
+          -mkdir /home/frs/project/$SF_PROJECT
+          EOF
+          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_root_batch "$SF_TARGET" || true
 
           rsync -av -e "$SF_SSH" \
             sf-root-README.md \
-            "$SF_USER@$SF_HOST:$SF_ROOT/README.md"
+            "$SF_TARGET:$SF_ROOT/README.md"
           echo "✓ SF root README → https://sourceforge.net/projects/$SF_PROJECT/files/"
 
       - name: Deploy to SourceForge — Nightly
@@ -342,15 +345,20 @@ jobs:
           SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
           VERSION:    ${{ steps.version.outputs.version }}
         run: |
-          SF_DIR="/home/frs/project/$SF_PROJECT/nightly"
-          SF_TMP="$SF_DIR/.upload-tmp"
+          SF_ROOT="/home/frs/project/$SF_PROJECT"
+          SF_DIR="$SF_ROOT/nightly"
+          SF_TMP="$SF_DIR/_upload_tmp"
+          SF_TARGET="$SF_USER,$SF_PROJECT@$SF_HOST"
           SF_SSH="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR"
 
           # SourceForge's restricted shell blocks arbitrary SSH commands like 'mkdir',
-          # but allows 'mkdir' via sftp. Create the directory via an sftp batch script.
-          echo "-mkdir $SF_DIR" > sftp_batch
-          echo "-mkdir $SF_TMP" >> sftp_batch
-          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_batch "$SF_USER@$SF_HOST"
+          # but allows 'mkdir' via sftp. Navigate to project root before creating folders.
+          cat > sftp_batch << EOF
+          cd $SF_ROOT
+          -mkdir nightly
+          -mkdir nightly/_upload_tmp
+          EOF
+          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_batch "$SF_TARGET"
 
           # Upload into a private staging subdir first — a network blip or
           # runner timeout mid-transfer never touches the public path, so
@@ -358,7 +366,7 @@ jobs:
           rsync -avP --partial \
             -e "$SF_SSH" \
             "$ISO" "${ISO}.sha256" "README.md" \
-            "$SF_USER@$SF_HOST:$SF_TMP/"
+            "$SF_TARGET:$SF_TMP/"
 
           # Publish: back up whatever's currently public (non-fatal — nothing
           # to back up on the very first upload), promote the newly uploaded
@@ -366,18 +374,19 @@ jobs:
           # ".old" backups let a human manually restore the previous good
           # files instead of the public path serving nothing.
           cat > sftp_publish << SFTPEOF
-          -rename $SF_DIR/$ISO $SF_DIR/$ISO.old
-          -rename $SF_DIR/${ISO}.sha256 $SF_DIR/${ISO}.sha256.old
-          -rename $SF_DIR/README.md $SF_DIR/README.md.old
-          rename $SF_TMP/$ISO $SF_DIR/$ISO
-          rename $SF_TMP/${ISO}.sha256 $SF_DIR/${ISO}.sha256
-          rename $SF_TMP/README.md $SF_DIR/README.md
-          -rm $SF_DIR/$ISO.old
-          -rm $SF_DIR/${ISO}.sha256.old
-          -rm $SF_DIR/README.md.old
-          -rmdir $SF_TMP
+          cd $SF_DIR
+          -rename $ISO $ISO.old
+          -rename ${ISO}.sha256 ${ISO}.sha256.old
+          -rename README.md README.md.old
+          rename _upload_tmp/$ISO $ISO
+          rename _upload_tmp/${ISO}.sha256 ${ISO}.sha256
+          rename _upload_tmp/README.md README.md
+          -rm $ISO.old
+          -rm ${ISO}.sha256.old
+          -rm README.md.old
+          -rmdir _upload_tmp
           SFTPEOF
-          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_publish "$SF_USER@$SF_HOST"
+          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_publish "$SF_TARGET"
           echo "✓ SF nightly → https://sourceforge.net/projects/$SF_PROJECT/files/nightly/"
 
       - name: Deploy to SourceForge — Versioned Release
@@ -386,15 +395,20 @@ jobs:
           SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
           VERSION:    ${{ steps.version.outputs.version }}
         run: |
-          SF_DIR="/home/frs/project/$SF_PROJECT/$VERSION"
-          SF_TMP="$SF_DIR/.upload-tmp"
+          SF_ROOT="/home/frs/project/$SF_PROJECT"
+          SF_DIR="$SF_ROOT/$VERSION"
+          SF_TMP="$SF_DIR/_upload_tmp"
+          SF_TARGET="$SF_USER,$SF_PROJECT@$SF_HOST"
           SF_SSH="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR"
 
           # SourceForge's restricted shell blocks arbitrary SSH commands like 'mkdir',
-          # but allows 'mkdir' via sftp. Create the directory via an sftp batch script.
-          echo "-mkdir $SF_DIR" > sftp_batch
-          echo "-mkdir $SF_TMP" >> sftp_batch
-          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_batch "$SF_USER@$SF_HOST"
+          # but allows 'mkdir' via sftp. Navigate to project root before creating folders.
+          cat > sftp_batch << EOF
+          cd $SF_ROOT
+          -mkdir $VERSION
+          -mkdir $VERSION/_upload_tmp
+          EOF
+          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_batch "$SF_TARGET"
 
           # Upload into a private staging subdir first — a network blip or
           # runner timeout mid-transfer never touches the public path, so
@@ -402,7 +416,7 @@ jobs:
           rsync -avP --partial \
             -e "$SF_SSH" \
             "$ISO" "${ISO}.sha256" "README.md" \
-            "$SF_USER@$SF_HOST:$SF_TMP/"
+            "$SF_TARGET:$SF_TMP/"
 
           # Publish: back up whatever's currently public (non-fatal — nothing
           # to back up on the very first upload of this version), promote the
@@ -410,18 +424,19 @@ jobs:
           # partway, the ".old" backups let a human manually restore the
           # previous good files instead of the public path serving nothing.
           cat > sftp_publish << SFTPEOF
-          -rename $SF_DIR/$ISO $SF_DIR/$ISO.old
-          -rename $SF_DIR/${ISO}.sha256 $SF_DIR/${ISO}.sha256.old
-          -rename $SF_DIR/README.md $SF_DIR/README.md.old
-          rename $SF_TMP/$ISO $SF_DIR/$ISO
-          rename $SF_TMP/${ISO}.sha256 $SF_DIR/${ISO}.sha256
-          rename $SF_TMP/README.md $SF_DIR/README.md
-          -rm $SF_DIR/$ISO.old
-          -rm $SF_DIR/${ISO}.sha256.old
-          -rm $SF_DIR/README.md.old
-          -rmdir $SF_TMP
+          cd $SF_DIR
+          -rename $ISO $ISO.old
+          -rename ${ISO}.sha256 ${ISO}.sha256.old
+          -rename README.md README.md.old
+          rename _upload_tmp/$ISO $ISO
+          rename _upload_tmp/${ISO}.sha256 ${ISO}.sha256
+          rename _upload_tmp/README.md README.md
+          -rm $ISO.old
+          -rm ${ISO}.sha256.old
+          -rm README.md.old
+          -rmdir _upload_tmp
           SFTPEOF
-          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_publish "$SF_USER@$SF_HOST"
+          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_publish "$SF_TARGET"
           echo "✓ SF versioned → https://sourceforge.net/projects/$SF_PROJECT/files/$VERSION/"
 
       # ── GitHub Releases ──────────────────────────────────────────────────────
