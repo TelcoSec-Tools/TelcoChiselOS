@@ -1,31 +1,97 @@
+# =============================================================================
+# TelcoChiselOS .gitignore
+# =============================================================================
+
+# AI & Agent Workspace Artifacts
+.claude/
 .claude.md
 CLAUDE.md
+.remember/
+.superpowers/
+.gemini/
 
-# Build artifacts
+# Build & Live ISO Artifacts
 live-iso-work/
+build/
+dist/
+out/
+*.iso
+*.iso.sha256
+*.iso.md5
+*.iso.sig
+*.squashfs
+*.img
 
-# Docs build artifacts
+# Python Artifacts & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node.js & Docs Build Artifacts
+node_modules/
 docs/node_modules/
 docs/.nuxt/
 docs/.output/
 docs/dist/
+.nitro/
+.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Local agent/AI scratch dirs
-.claude/
-
-# VM debugging artifacts (never commit these)
+# VM, Debugging & Runtime Logs
 guest_*.txt
 guest_*.log
-TelcoChisel-live.iso
-TelcoChisel-live_*.iso
+*.log
+/tmp/
+
+# Marketing & Outreach Drafts
 PRESS_KIT.md
 outreach.md
 
-# Secrets — never commit private keys (e.g. the SourceForge deploy key)
+# Secrets & Private Keys (NEVER COMMIT)
 sf_deploy
 sf_deploy.pub
+sf_deploy*
 *.pem
+*.key
+*.p12
+*.pfx
 id_rsa
+id_rsa.pub
 id_ed25519
+id_ed25519.pub
 *_rsa
+*_rsa.pub
 *_ed25519
+*_ed25519.pub
+.env
+.env.*
+!.env.example
+
+# OS & Editor Artifacts
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
