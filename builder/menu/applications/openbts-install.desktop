@@ -2,7 +2,7 @@
 Type=Application
 Name=OpenBTS Setup
 Comment=Compile and install OpenBTS GSM BTS
-Exec=x-terminal-emulator -e "bash -c "sudo openbts-install; exec bash"
+Exec=x-terminal-emulator -e "bash -c 'sudo openbts-install; exec bash'"
 Icon=network-wireless
 Categories=TelcoSec-GSM;
 Terminal=false

@@ -115,7 +115,7 @@ echo "  Installing Osmocom tools..."
 # Try the Osmocom APT repo first (added by 00-install-all-packages.sh).
 # If the repo key wasn't imported successfully the list file won't exist,
 # so we fall back to source builds / skip gracefully.
-OSMOCOM_PKGS="osmo-bts-virtual osmo-bts-trx osmo-trx-common osmo-hlr osmo-msc osmo-bsc osmo-sgsn osmocom-utils libosmocore-dev libosmovty-dev libosmosim-dev libosmogb-dev libosmo-sigtran-dev"
+OSMOCOM_PKGS="osmo-bts-virtual osmo-bts-trx osmo-hlr osmo-msc osmo-bsc osmo-sgsn libosmocore-utils libosmocore-dev libosmo-sigtran-dev"
 if [ -f /etc/apt/sources.list.d/osmocom.list ]; then
   apt-get update -qq 2>/dev/null || true
   # shellcheck disable=SC2086
@@ -309,15 +309,20 @@ echo "  Installing LTESniffer..."
 if [ -d "${TELCOSEC_OPT}/ltesniffer" ]; then
   cd "${TELCOSEC_OPT}/ltesniffer"
   mkdir -p build && cd build
-  export CFLAGS="-Wno-error -fcommon"
-  export CXXFLAGS="-Wno-error -fcommon"
-  cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -3
-  make -j"$(nproc)" 2>&1 | tail -5 || true
-  # Use explicit expected output path (cmake project puts binary at src/LTESniffer)
-  if [ -f src/LTESniffer ]; then
-    ln -sf "${TELCOSEC_OPT}/ltesniffer/build/src/LTESniffer" /usr/local/bin/ltesniffer
+  export CFLAGS="-Wno-error -fcommon -fpermissive"
+  export CXXFLAGS="-Wno-error -fcommon -fpermissive -std=c++14"
+  cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -5
+  make -j"$(nproc)" 2>&1 | tail -10 || make 2>&1 | tail -10 || true
+  
+  # Locate the compiled LTESniffer binary in build tree or src
+  SNIFFER_BIN=$(find . -type f \( -name "LTESniffer" -o -name "ltesniffer" \) 2>/dev/null | head -1)
+  if [ -n "$SNIFFER_BIN" ] && [ -f "$SNIFFER_BIN" ]; then
+    ln -sf "${TELCOSEC_OPT}/ltesniffer/build/${SNIFFER_BIN#./}" /usr/local/bin/ltesniffer
+    echo "  LTESniffer binary linked: ${SNIFFER_BIN}"
+  elif [ -f "${TELCOSEC_OPT}/ltesniffer/src/LTESniffer" ]; then
+    ln -sf "${TELCOSEC_OPT}/ltesniffer/src/LTESniffer" /usr/local/bin/ltesniffer
   else
-    echo "  WARNING: LTESniffer binary not found at expected path src/LTESniffer"
+    echo "  WARNING: LTESniffer binary not found after compilation"
   fi
   cd /
 fi
@@ -344,10 +349,9 @@ echo "gtp5g module loaded: $(lsmod | grep gtp5g)"
 GSCRIPT
 chmod +x /usr/local/bin/gtp5g-load
 
-# ─── M. GTP Python toolkit ───────────────────────────────────────────────────
-echo "  Installing GTP Python tools..."
-pip_retry install gtplib --break-system-packages
-pip_retry install python-messaging --break-system-packages
+# ─── M. GTP & Telecom Python toolkit ─────────────────────────────────────────
+echo "  Installing GTP & Telecom Python tools..."
+pip_retry install pygtp python-messaging smpplib --break-system-packages
 
 # ─── N. OAI UE installer helper ──────────────────────────────────────────────
 echo "  Installing OAI-UE helper script..."

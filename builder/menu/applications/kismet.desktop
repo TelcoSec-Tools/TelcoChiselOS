@@ -2,7 +2,7 @@
 Type=Application
 Name=Kismet
 Comment=Wireless network detector and packet sniffer
-Exec=x-terminal-emulator -e "bash -c "sudo kismet -c mon0; exec bash"
+Exec=x-terminal-emulator -e "bash -c 'sudo kismet -c mon0; exec bash'"
 Icon=network-wireless
 Categories=TelcoSec-Network;
 Terminal=false

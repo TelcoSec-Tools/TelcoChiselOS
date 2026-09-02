@@ -2,7 +2,7 @@
 Type=Application
 Name=LTESniffer
 Comment=Open-source LTE downlink/uplink sniffer
-Exec=x-terminal-emulator -e "bash -c "ltesniffer --help; exec bash"
+Exec=x-terminal-emulator -e "bash -c 'ltesniffer --help; exec bash'"
 Icon=network-wired
 Categories=TelcoSec-LTE;
 Terminal=false
