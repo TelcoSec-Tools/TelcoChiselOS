@@ -172,7 +172,9 @@ jobs:
           CCACHE_DIR: /root/.ccache
           SQUASHFS_LEVEL: "3"
           ISO_VERSION: ${{ steps.version.outputs.version }}
-        run: sudo -E bash build-iso.sh
+        run: |
+          sudo -E bash build-iso.sh
+          sudo chown -R "$(id -u):$(id -g)" .
 
       # ── Post-build metadata ──────────────────────────────────────────────────
       - name: Generate Checksum & Metadata

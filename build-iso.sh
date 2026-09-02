@@ -788,6 +788,11 @@ sha256sum "$IMAGE_NAME" > "${IMAGE_NAME}.sha256" || { echo "FATAL: sha256sum fai
 md5sum "$IMAGE_NAME" > "${IMAGE_NAME}.md5" || { echo "FATAL: md5sum failed for $IMAGE_NAME" >&2; exit 1; }
 SHA256_VAL=$(cut -d' ' -f1 < "${IMAGE_NAME}.sha256")
 
+# If executed via sudo, restore ownership to the invoking user
+if [ -n "${SUDO_UID:-}" ] && [ -n "${SUDO_GID:-}" ]; then
+  chown "${SUDO_UID}:${SUDO_GID}" "$IMAGE_NAME" "${IMAGE_NAME}.sha256" "${IMAGE_NAME}.md5" 2>/dev/null || true
+fi
+
 # ─── Summary ──────────────────────────────────────────────────────────────────
 ELAPSED=$(( $(date +%s) - BUILD_START ))
 ISO_SIZE=$(du -sh "$IMAGE_NAME" | cut -f1)
