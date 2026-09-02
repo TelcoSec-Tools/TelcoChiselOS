@@ -2,7 +2,7 @@
 Type=Application
 Name=SIPp
 Comment=SIP protocol performance tester and traffic generator
-Exec=x-terminal-emulator -e "bash -c "sipp -h; exec bash"
+Exec=x-terminal-emulator -e "bash -c 'sipp -h; exec bash'"
 Icon=utilities-terminal
 Categories=TelcoSec-VoIP;
 Terminal=false

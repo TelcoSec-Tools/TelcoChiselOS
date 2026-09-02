@@ -62,12 +62,10 @@ chmod +x /usr/local/bin/spflashtool-install
 
 # ─── B. Qualcomm tools ───────────────────────────────────────────────────────
 echo "  Installing Qualcomm EDL tools..."
-# Try pip install first, fall back to source
-# NOTE: intentionally NOT using pip_retry here — pip_retry always returns 0
-# (it's designed for simple non-fatal installs), which would silently defeat
-# the `|| { fallback }` below. This line needs the real pip3 exit code so a
-# failed PyPI install actually triggers the source-build fallback.
-pip3 install edl --break-system-packages 2>/dev/null || {
+# Try pip install first (with constraints), fall back to source
+local_constraints=""
+[ -f "${SCRIPT_DIR}/lib/pip-constraints.txt" ] && local_constraints="-c ${SCRIPT_DIR}/lib/pip-constraints.txt"
+pip3 install edl ${local_constraints} --break-system-packages 2>/dev/null || {
   git clone --depth 1 https://github.com/bkerler/edl "${TELCOSEC_OPT}/edl" 2>/dev/null || true
   if [ -d "${TELCOSEC_OPT}/edl" ]; then
     pip_retry install -e "${TELCOSEC_OPT}/edl" --break-system-packages
@@ -105,14 +103,12 @@ chmod +x /usr/local/bin/mtk-auth-bypass
 # ─── D. AT command interface ─────────────────────────────────────────────────
 echo "  Configuring AT command tools..."
 
-# Quick AT command sender (atinout)
-pip_retry install atinout
-# If not available via pip, install from source
+# Quick AT command sender (atinout - C utility from source)
 if ! command -v atinout &>/dev/null; then
   git clone --depth 1 https://github.com/ThisSmartHouse/atinout "${TELCOSEC_OPT}/atinout" \
     2>/dev/null || true
   if [ -d "${TELCOSEC_OPT}/atinout" ]; then
-    cd "${TELCOSEC_OPT}/atinout" && make && cp atinout /usr/local/bin/ && cd /
+    cd "${TELCOSEC_OPT}/atinout" && make -j"$(nproc)" && cp atinout /usr/local/bin/ && cd /
   fi
 fi
 record_tool "atinout" "/usr/local/bin/atinout" "baseband"

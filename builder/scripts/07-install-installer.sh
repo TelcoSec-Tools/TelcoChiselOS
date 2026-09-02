@@ -44,3 +44,9 @@ EOF
 
 sudo chmod +x /etc/skel/Desktop/install-telcosec.desktop
 
+if [ -d /home/telcosec ]; then
+  sudo mkdir -p /home/telcosec/Desktop
+  sudo cp -f /etc/skel/Desktop/install-telcosec.desktop /home/telcosec/Desktop/
+  sudo chmod +x /home/telcosec/Desktop/install-telcosec.desktop || true
+  sudo chown -R telcosec:telcosec /home/telcosec/Desktop
+fi

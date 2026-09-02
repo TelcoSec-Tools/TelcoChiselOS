@@ -2,7 +2,7 @@
 Type=Application
 Name=srsUE
 Comment=srsRAN LTE User Equipment simulator
-Exec=x-terminal-emulator -e "bash -c "srsue; exec bash"
+Exec=x-terminal-emulator -e "bash -c 'srsue; exec bash'"
 Icon=network-wired
 Categories=TelcoSec-LTE;
 Terminal=false

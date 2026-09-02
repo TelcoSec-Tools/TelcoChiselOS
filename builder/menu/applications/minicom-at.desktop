@@ -2,7 +2,7 @@
 Type=Application
 Name=AT Command Console
 Comment=Interactive AT command terminal (minicom)
-Exec=x-terminal-emulator -e "bash -c "at-console; exec bash"
+Exec=x-terminal-emulator -e "bash -c 'at-console; exec bash'"
 Icon=utilities-terminal
 Categories=TelcoSec-Device;
 Terminal=false

@@ -2,7 +2,7 @@
 Type=Application
 Name=LTE Cell Scanner
 Comment=Scan for LTE base stations using SDR
-Exec=x-terminal-emulator -e "bash -c "LTE-CellSearch --help; exec bash"
+Exec=x-terminal-emulator -e "bash -c 'LTE-CellSearch --help; exec bash'"
 Icon=network-wired
 Categories=TelcoSec-LTE;
 Terminal=false

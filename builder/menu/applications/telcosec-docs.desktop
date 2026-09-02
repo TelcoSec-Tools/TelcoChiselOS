@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TelcoSec Documentation
+Comment=Offline Telecom Security OS Documentation and Tool Reference
+Exec=firefox file:///usr/share/doc/telcosec/index.html
+Icon=help-browser
+Terminal=false
+Categories=TelcoSec-Tools;

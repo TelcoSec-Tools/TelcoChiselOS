@@ -2,8 +2,8 @@
 Version=1.0
 Type=Application
 Name=SIMurai (swsim)
-Comment=Software SIM emulator — emulate a full UICC/SIM card via TCP/IP and PC/SC
-Exec=x-terminal-emulator -e "bash -c "echo 'SIMurai — software SIM platform'; echo ''; echo 'Usage: simurai <listen-ip> <port> <filesystem.json>'; echo '       swicc-pcsc is registered with pcscd as a virtual IFD driver.'; echo ''; echo 'Source: /opt/telcosec/simurai'; echo ''; read -p 'Press Enter to exit...'"
+Comment=Software SIM emulator - emulate a full UICC/SIM card via TCP/IP and PC/SC
+Exec=x-terminal-emulator -e "bash -c 'simurai; echo \"\"; read -p \"Press Enter to exit...\"'"
 Icon=smartcard
 Terminal=false
 Categories=TelcoSec-SIM;

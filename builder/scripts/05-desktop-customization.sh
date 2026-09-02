@@ -31,7 +31,7 @@ EOF
 # match to the brand's amber accent (#e8921e), completing the harmonization
 # already done for Calamares/tmux/docs.
 echo "Writing XFCE default configurations..."
-sudo mkdir -p /etc/xdg/xfce4/xfconf/xfce-perchannel-xml
+sudo mkdir -p /etc/xdg/xfce4/xfconf/xfce-perchannel-xml /etc/skel/.config/xfce4/xfce4-perchannel-xml /etc/skel/.config/gtk-3.0
 
 cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -39,12 +39,28 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
   <property name="Net" type="empty">
     <property name="ThemeName" type="string" value="Yaru-bark-dark"/>
     <property name="IconThemeName" type="string" value="Papirus-Dark"/>
+    <property name="EnableAnimations" type="bool" value="true"/>
   </property>
   <property name="Gtk" type="empty">
     <property name="FontName" type="string" value="Ubuntu 10"/>
     <property name="MonospaceFontName" type="string" value="IBM Plex Mono 11"/>
+    <property name="MenuPopupDelay" type="int" value="0"/>
+    <property name="ToolbarStyle" type="string" value="icons"/>
+    <property name="ButtonImages" type="bool" value="true"/>
+    <property name="MenuImages" type="bool" value="true"/>
   </property>
 </channel>
+EOF
+
+cat << 'EOF' | sudo tee /etc/skel/.config/gtk-3.0/settings.ini
+[Settings]
+gtk-theme-name = Yaru-bark-dark
+gtk-icon-theme-name = Papirus-Dark
+gtk-font-name = Ubuntu 10
+gtk-monospace-font-name = IBM Plex Mono 11
+gtk-menu-popup-delay = 0
+gtk-enable-animations = 1
+gtk-application-prefer-dark-theme = 1
 EOF
 
 cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
@@ -73,7 +89,13 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.
     </property>
   </property>
   <property name="desktop-icons" type="empty">
-    <property name="style" type="int" value="0"/>
+    <property name="style" type="int" value="2"/>
+    <property name="file-icons" type="empty">
+      <property name="show-filesystem" type="bool" value="false"/>
+      <property name="show-home" type="bool" value="false"/>
+      <property name="show-trash" type="bool" value="false"/>
+      <property name="show-removable" type="bool" value="false"/>
+    </property>
   </property>
 </channel>
 EOF
@@ -86,13 +108,51 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
     <property name="button_layout" type="string" value="O|HMC"/>
     <property name="workspace_count" type="int" value="4"/>
     <property name="use_compositing" type="bool" value="true"/>
+    <property name="unredirect_overlays" type="bool" value="true"/>
+    <property name="cycle_preview" type="bool" value="true"/>
+    <property name="cycle_tabwin_mode" type="int" value="1"/>
+    <property name="zoom_desktop" type="bool" value="false"/>
     <property name="vblank_mode" type="string" value="auto"/>
     <property name="show_dock_shadow" type="bool" value="false"/>
     <property name="show_popup_shadow" type="bool" value="false"/>
+    <property name="frame_opacity" type="int" value="100"/>
+    <property name="inactive_opacity" type="int" value="100"/>
     <property name="snap_to_border" type="bool" value="true"/>
     <property name="snap_to_windows" type="bool" value="true"/>
     <property name="tile_on_move" type="bool" value="true"/>
+    <property name="box_move" type="bool" value="false"/>
+    <property name="box_resize" type="bool" value="false"/>
   </property>
+</channel>
+EOF
+
+cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfce4-session" version="1.0">
+  <property name="general" type="empty">
+    <property name="SaveOnExit" type="bool" value="false"/>
+    <property name="PromptOnLogout" type="bool" value="true"/>
+  </property>
+  <property name="compat" type="empty">
+    <property name="LaunchGNOME" type="bool" value="false"/>
+    <property name="LaunchKDE" type="bool" value="false"/>
+  </property>
+  <property name="shutdown" type="empty">
+    <property name="ShowHibernate" type="bool" value="false"/>
+    <property name="ShowSuspend" type="bool" value="false"/>
+  </property>
+</channel>
+EOF
+
+cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/thunar.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="thunar" version="1.0">
+  <property name="last-view" type="string" value="ThunarDetailsView"/>
+  <property name="misc-single-click" type="bool" value="false"/>
+  <property name="misc-show-hidden" type="bool" value="false"/>
+  <property name="misc-parallel-copy-mode" type="string" value="THUNAR_PARALLEL_COPY_MODE_NEVER"/>
+  <property name="misc-date-style" type="string" value="THUNAR_DATE_STYLE_SHORT"/>
+  <property name="misc-thumbnail-mode" type="string" value="THUNAR_THUMBNAIL_MODE_ONLY_LOCAL"/>
 </channel>
 EOF
 
@@ -112,19 +172,8 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-ma
 </channel>
 EOF
 
-# Panel, keyboard shortcuts, and notification daemon configs are per-user
-# xfconf state, not system-wide defaults like the ones above — XFCE reads
-# these from ~/.config/xfce4/xfce4-panel.xml etc, not /etc/xdg/xfce4/. Deploy
-# via /etc/skel/ (new users, and Calamares-installed users via users.conf's
-# skel copy) and directly into the live session's home, matching the pattern
-# already used below for .tmux.conf and mimeapps.list.
-sudo mkdir -p /etc/skel/.config/xfce4/xfce4-perchannel-xml
-
-# Single top panel: Whisker Menu (searches the categorized tool menu built in
-# builder/menu/) on the left, window list filling the middle, workspace
-# switcher + system tray + clock on the right. No second panel, no desktop
-# icons — kept to one deliberate row so the 76-tool catalog is one click away
-# without adding visual clutter.
+# Single top panel: Whisker Menu on the left, Terminator quick launcher next to it,
+# window list with middle-click close filling the middle, workspace switcher + tray + clock on the right.
 cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-panel.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-panel" version="1.0">
@@ -139,6 +188,7 @@ cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-panel
       <property name="size" type="uint" value="30"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="1"/>
+        <value type="int" value="6"/>
         <value type="int" value="2"/>
         <value type="int" value="3"/>
         <value type="int" value="4"/>
@@ -152,9 +202,17 @@ cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-panel
       <property name="button-icon" type="string" value="utilities-terminal"/>
       <property name="show-button-title" type="bool" value="true"/>
     </property>
+    <property name="plugin-6" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="net.tenshu.Terminator.desktop"/>
+      </property>
+    </property>
     <property name="plugin-2" type="string" value="tasklist">
       <property name="expand" type="bool" value="true"/>
       <property name="grouping" type="uint" value="1"/>
+      <property name="middle-click" type="uint" value="3"/>
+      <property name="flat-buttons" type="bool" value="true"/>
+      <property name="show-labels" type="bool" value="true"/>
     </property>
     <property name="plugin-3" type="string" value="pager">
       <property name="rows" type="uint" value="1"/>
@@ -213,7 +271,7 @@ cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-notif
 EOF
 
 # Pre-configure Whisker Menu favorites, layout dimensions, and panel properties
-sudo mkdir -p /etc/skel/.config/xfce4/panel
+sudo mkdir -p /etc/skel/.config/xfce4/panel/launcher-6
 cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/panel/whiskermenu-1.rc
 favorites=net.tenshu.Terminator.desktop,wireshark-mon.desktop,gqrx.desktop,pysim-shell.desktop,sigploit.desktop,firmwire.desktop,diafuzzer.desktop,ueransim-gnb.desktop,5ghoul-fuzzer.desktop,telcosec-docs.desktop
 button-title=TelcoSec
@@ -229,15 +287,101 @@ position-search-alternate=true
 stay-on-focus-out=false
 EOF
 
+# Deploy Terminator launcher for top panel plugin-6
+cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop
+[Desktop Entry]
+Name=Terminator
+Comment=Multiple terminals in one window
+TryExec=terminator
+Exec=terminator
+Icon=terminator
+Type=Application
+Categories=GNOME;GTK;Utility;TerminalEmulator;System;
+StartupNotify=true
+X-Ubuntu-Gettext-Domain=terminator
+EOF
+sudo cp /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop /etc/skel/.config/xfce4/panel/launcher-6/1.desktop
+
+# Deploy Terminator shortcut to Desktop
+echo "Deploying Terminator desktop shortcut..."
+sudo mkdir -p /etc/skel/Desktop
+sudo cp /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop /etc/skel/Desktop/terminator.desktop
+sudo chmod +x /etc/skel/Desktop/terminator.desktop
+
+# Pre-configure Terminator Developer Palette & Behavior
+sudo mkdir -p /etc/skel/.config/terminator
+cat << 'EOF' | sudo tee /etc/skel/.config/terminator/config
+[global_config]
+  title_transmit_fg_color = "#e8921e"
+  title_transmit_bg_color = "#181a1b"
+  title_receive_fg_color = "#ffffff"
+  title_receive_bg_color = "#222222"
+  title_inactive_fg_color = "#888888"
+  title_inactive_bg_color = "#181a1b"
+  suppress_multiple_term_dialog = True
+  copy_on_selection = True
+[keybindings]
+  split_horiz = <Primary><Shift>e
+  split_vert = <Primary><Shift>o
+[profiles]
+  [[default]]
+    background_color = "#121417"
+    foreground_color = "#e0e6ed"
+    cursor_color = "#e8921e"
+    font = IBM Plex Mono 11
+    use_system_font = False
+    scrollback_infinite = True
+    palette = "#0d1117:#ff5555:#50fa7b:#e8921e:#58a6ff:#ff79c6:#00ffd5:#e0e6ed:#484f58:#ff6e6e:#69ff94:#f5aa35:#79c0ff:#ff92df:#56f4e6:#ffffff"
+    show_titlebar = False
+[layouts]
+  [[default]]
+    [[[window0]]]
+      type = Window
+      parent = ""
+      size = 900, 600
+    [[[child1]]]
+      type = Terminal
+      parent = window0
+      profile = default
+[plugins]
+EOF
+
+# Optimize Tumbler Thumbnailer (Prevent USB I/O lockups on large dumps and captures)
+sudo mkdir -p /etc/xdg/tumbler
+cat << 'EOF' | sudo tee /etc/xdg/tumbler/tumbler.rc
+[JPEGThumbnailer]
+Disabled=false
+Priority=1
+Locations=
+MaxFileSize=52428800
+
+[PDFThumbnailer]
+Disabled=false
+Priority=1
+Locations=
+MaxFileSize=52428800
+EOF
+
 if [ -d /home/telcosec ]; then
-  sudo mkdir -p /home/telcosec/.config/xfce4/xfce4-perchannel-xml /home/telcosec/.config/xfce4/panel
-  sudo cp /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-panel.xml \
-          /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-keyboard-shortcuts.xml \
-          /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-notifyd.xml \
-          /home/telcosec/.config/xfce4/xfce4-perchannel-xml/
+  sudo mkdir -p /home/telcosec/.config/xfce4/xfce4-perchannel-xml \
+                /home/telcosec/.config/xfce4/panel/launcher-6 \
+                /home/telcosec/.config/gtk-3.0 \
+                /home/telcosec/.config/terminator \
+                /home/telcosec/Desktop
+  sudo cp /etc/skel/.config/xfce4/xfce4-perchannel-xml/*.xml \
+          /home/telcosec/.config/xfce4/xfce4-perchannel-xml/ 2>/dev/null || true
   sudo cp /etc/skel/.config/xfce4/panel/whiskermenu-1.rc \
           /home/telcosec/.config/xfce4/panel/
-  sudo chown -R telcosec:telcosec /home/telcosec/.config/xfce4
+  sudo cp /etc/skel/.config/xfce4/panel/launcher-6/* \
+          /home/telcosec/.config/xfce4/panel/launcher-6/
+  sudo cp /etc/skel/.config/gtk-3.0/settings.ini \
+          /home/telcosec/.config/gtk-3.0/settings.ini 2>/dev/null || true
+  sudo cp /etc/skel/.config/terminator/config \
+          /home/telcosec/.config/terminator/config 2>/dev/null || true
+  sudo cp /etc/skel/Desktop/terminator.desktop \
+          /home/telcosec/Desktop/
+  sudo chmod +x /home/telcosec/Desktop/*.desktop || true
+  sudo chown -R telcosec:telcosec /home/telcosec/.config /home/telcosec/Desktop
 fi
 
 # 2. Message of the Day (MOTD)

@@ -2,7 +2,7 @@
 Type=Application
 Name=Modmobmap
 Comment=Cell mapping via modem AT commands (2G/3G/4G)
-Exec=x-terminal-emulator -e "bash -c "modmobmap --help; exec bash"
+Exec=x-terminal-emulator -e "bash -c 'modmobmap --help; exec bash'"
 Icon=network-wireless
 Categories=TelcoSec-Network;
 Terminal=false

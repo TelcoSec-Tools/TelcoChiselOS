@@ -376,11 +376,16 @@ record_tool "SIMTester" "/usr/local/bin/simtester" "sim"
 git_clone_retry --depth 1 https://github.com/SysSec-KAIST/LTESniffer "${TELCOSEC_OPT}/ltesniffer"
 cd "${TELCOSEC_OPT}/ltesniffer"
 mkdir -p build && cd build
-export CFLAGS="-Wno-error"
-export CXXFLAGS="-Wno-error"
-cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -3
-make -j"$(nproc)" 2>&1 | tail -5 || true
-[ -f src/LTESniffer ] && ln -sf "${TELCOSEC_OPT}/ltesniffer/build/src/LTESniffer" /usr/local/bin/ltesniffer
+export CFLAGS="-Wno-error -fcommon -fpermissive"
+export CXXFLAGS="-Wno-error -fcommon -fpermissive -std=c++14"
+cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -5
+make -j"$(nproc)" 2>&1 | tail -10 || make 2>&1 | tail -10 || true
+SNIFFER_BIN=$(find . -type f \( -name "LTESniffer" -o -name "ltesniffer" \) 2>/dev/null | head -1)
+if [ -n "$SNIFFER_BIN" ] && [ -f "$SNIFFER_BIN" ]; then
+  ln -sf "${TELCOSEC_OPT}/ltesniffer/build/${SNIFFER_BIN#./}" /usr/local/bin/ltesniffer
+elif [ -f "${TELCOSEC_OPT}/ltesniffer/src/LTESniffer" ]; then
+  ln -sf "${TELCOSEC_OPT}/ltesniffer/src/LTESniffer" /usr/local/bin/ltesniffer
+fi
 record_tool "LTESniffer" "/usr/local/bin/ltesniffer" "4g"
 
 # ─── 21. RouterSploit (from 10-install-telecom-advanced.sh) ────────────────

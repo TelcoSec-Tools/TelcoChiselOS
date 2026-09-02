@@ -9,26 +9,15 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
-const appsDir = path.join(__dirname, '..', 'builder', 'menu', 'applications');
-const files = fs.readdirSync(appsDir).filter(f => f.endsWith('.desktop'));
-
-let updatedCount = 0;
-
-files.forEach(file => {
-    const filePath = path.join(appsDir, file);
-    let content = fs.readFileSync(filePath, 'utf8');
-
-    if (content.includes('gnome-terminal -- bash -c')) {
-        content = content.replace(/gnome-terminal -- bash -c/g, 'x-terminal-emulator -e "bash -c');
-        // Ensure closing quote is matched if needed
-        if (content.match(/Exec=x-terminal-emulator -e "bash -c [^"\n]+$/m)) {
-            content = content.replace(/(Exec=x-terminal-emulator -e "bash -c [^\n]+)$/m, '$1"');
-        }
-        fs.writeFileSync(filePath, content, 'utf8');
-        console.log(`Updated ${file}: replaced gnome-terminal with x-terminal-emulator`);
-        updatedCount++;
+const pythonScript = path.join(__dirname, 'fix_desktop_entries.py');
+if (fs.existsSync(pythonScript)) {
+    try {
+        const output = execSync(`python "${pythonScript}"`, { encoding: 'utf8' });
+        console.log(output.trim());
+    } catch (e) {
+        console.error('Failed to run fix_desktop_entries.py:', e);
     }
-});
+}
 
-console.log(`\nSuccessfully updated ${updatedCount} launcher files.`);

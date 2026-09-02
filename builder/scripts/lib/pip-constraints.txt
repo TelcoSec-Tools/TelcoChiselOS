@@ -30,3 +30,8 @@
 # installs across 04/06/09/10/11 can upgrade it freely without hitting
 # "Cannot uninstall … RECORD file not found". No constraint needed here as
 # long as that force-reinstall step runs before any of these scripts.
+
+# paramiko: paramiko 5.0.0 breaks backwards compatibility with edlclient (>=4.0.0,<5)
+# and exscript (>=1.17,<5). Pin to <5.0.0,>=4.0.0 to satisfy both.
+paramiko<5.0.0,>=4.0.0
+
