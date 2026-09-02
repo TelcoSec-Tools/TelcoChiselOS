@@ -2,7 +2,7 @@
 Type=Application
 Name=Load GTP5G Module
 Comment=Compile and load 5G GTP kernel module
-Exec=x-terminal-emulator -e "bash -c "sudo gtp5g-load; exec bash"
+Exec=x-terminal-emulator -e "bash -c 'sudo gtp5g-load; exec bash'"
 Icon=applications-system
 Categories=TelcoSec-5GNR;
 Terminal=false

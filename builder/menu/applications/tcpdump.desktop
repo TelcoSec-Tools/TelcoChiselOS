@@ -2,7 +2,7 @@
 Type=Application
 Name=tcpdump
 Comment=Command-line packet analyzer
-Exec=x-terminal-emulator -e "bash -c "sudo tcpdump -i mon0 -v; exec bash"
+Exec=x-terminal-emulator -e "bash -c 'sudo tcpdump -i mon0 -v; exec bash'"
 Icon=utilities-terminal
 Categories=TelcoSec-Network;
 Terminal=false
