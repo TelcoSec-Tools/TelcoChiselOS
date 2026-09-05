@@ -156,6 +156,17 @@ find /usr/share/wordlists/telecom -type d -exec chmod 755 {} + 2>/dev/null || tr
 [ -f /usr/share/wordlists/telecom/scripts/imsi_generator.py ] && \
   install -m 755 /usr/share/wordlists/telecom/scripts/imsi_generator.py /usr/local/bin/telcosec-imsi-generator || true
 
+# Ensure mausezahn and mz from netsniff-ng package are easily accessible in PATH
+if [ -f /usr/sbin/mausezahn ] && [ ! -f /usr/local/bin/mausezahn ]; then
+  ln -sf /usr/sbin/mausezahn /usr/local/bin/mausezahn
+fi
+if [ -f /usr/sbin/mz ] && [ ! -f /usr/local/bin/mz ]; then
+  ln -sf /usr/sbin/mz /usr/local/bin/mz
+elif [ -f /usr/sbin/mausezahn ] && [ ! -f /usr/local/bin/mz ]; then
+  ln -sf /usr/sbin/mausezahn /usr/local/bin/mz
+fi
+record_tool "mausezahn (mz)" "$(command -v mz 2>/dev/null || command -v mausezahn 2>/dev/null || echo '/usr/sbin/mausezahn')" "adsl"
+
 # ─── 8. libosmocore >= 1.11.0 (from 06-install-ue-analysis.sh) ─────────────
 # Ubuntu 24.04 ships 1.7.0; simtrace2 host tools require >= 1.11.0.
 echo "Building libosmocore from source..."
