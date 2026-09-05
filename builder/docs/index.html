@@ -726,12 +726,12 @@ ACTION==&quot;add&quot;, SUBSYSTEM==&quot;usb&quot;, ATTR{idVendor}==&quot;1d50&
 
                 <h3>4. Unified Operator CLI (`telcosec`)</h3>
                 <p>
-                    TelcoChisel includes a centralized operator command-line interface, <code class="inline-code">telcosec</code>, for rapid diagnostics, hardware discovery, 5G core orchestration, and security assessments:
+                    TelcoChisel includes a centralized operator command-line interface, <code class="inline-code">telcosec</code> (symlinked to <code class="inline-code">telcochisel</code>), for rapid diagnostics, hardware discovery, modular metapackage management, smartcard &amp; eSIM auditing, 5G core orchestration, and security assessments:
                 </p>
                 <div class="terminal-block">
                     <div class="terminal-header">
                         <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
-                        <div class="terminal-title">Unified Operator CLI Commands</div>
+                        <div class="terminal-title">Unified Operator CLI — Core Commands</div>
                     </div>
                     <div class="terminal-body">
                         <pre><code># Full environment diagnostics (kernel, real-time limits, SDR USB, SCTP, services)
@@ -753,9 +753,45 @@ telcosec academy</code></pre>
                     </div>
                 </div>
 
-                <h3>5. Modular Metapackage Manager (`telcosec-pkg`)</h3>
+                <h4>Smartcard, SIM &amp; eSIM Auditing (`telcosec sim`)</h4>
                 <p>
-                    TelcoChisel features a 10-tier modular metapackage repository hosted on Cloudflare Pages (<code class="inline-code">meta.telcosec.net</code>). Operators can inspect, install, and audit modular tool bundles on-demand:
+                    The pure Go SIM auditing suite provides native ISO/IEC 7816-3 Answer-to-Reset (ATR) decoding, PC/SC smartcard reader monitoring, Osmocom SIMtrace 2 sniffer control, and eSIM Local Profile Assistant (`lpac`) integration with zero external C dependencies:
+                </p>
+                <div class="terminal-block">
+                    <div class="terminal-header">
+                        <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+                        <div class="terminal-title">Smartcard &amp; eSIM Auditing Commands</div>
+                    </div>
+                    <div class="terminal-body">
+                        <pre><code># Audit smartcard environment (pcscd daemon, USB reader detection, toolchains)
+telcosec sim status
+
+# Enumerate active PC/SC readers and card insertion state
+telcosec sim readers
+
+# Decode ISO/IEC 7816-3 ATR (auto-detected card or manual hex string)
+telcosec sim atr
+telcosec sim atr 3B9F95801FC78031E073FE211B674A4C7380110043
+telcosec sim atr 3B9F95801FC78031E073FE211B674A4C7380110043 --json
+
+# Osmocom SIMtrace 2 sniffer probe & GSMTAP Wireshark streaming
+telcosec sim trace list
+telcosec sim trace sniff --channel 0 --wireshark
+
+# eSIM Local Profile Assistant (lpac) chip metadata, installed profiles, and drivers
+telcosec sim lpac chip
+telcosec sim lpac profile
+telcosec sim lpac drivers
+
+# Interactive pySim-shell smartcard explorer
+telcosec sim shell</code></pre>
+                        <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec sim status\ntelcosec sim readers\ntelcosec sim atr\ntelcosec sim lpac profile')">Copy</button>
+                    </div>
+                </div>
+
+                <h3>5. Modular Metapackage Manager (`telcosec pkg` / `telcosec-pkg`)</h3>
+                <p>
+                    TelcoChisel features a 10-tier modular metapackage repository hosted on Cloudflare Pages (<code class="inline-code">meta.telcosec.net</code>). Operators can inspect, install, and audit modular tool bundles on-demand using either the unified operator CLI (<code class="inline-code">telcosec pkg</code>) or the standalone <code class="inline-code">telcosec-pkg</code> utility:
                 </p>
                 <div class="terminal-block">
                     <div class="terminal-header">
@@ -764,26 +800,26 @@ telcosec academy</code></pre>
                     </div>
                     <div class="terminal-body">
                         <pre><code># List all 10 official metapackages and installation status
-telcosec-pkg list
+telcosec pkg list
 
 # Inspect exact tool manifests included in a package tier
-telcosec-pkg tools 5g
+telcosec pkg tools 5g
 
 # Search across metapackages and tool manifests
-telcosec-pkg search sdr
+telcosec pkg search sdr
 
 # Install modular tool suites via intelligent aliases (e.g. 5g, sdr, sim, wireline)
-sudo telcosec-pkg install 5g
-sudo telcosec-pkg install sdr sim
+sudo telcosec pkg install 5g
+sudo telcosec pkg install sdr sim
 
 # Upgrade installed metapackages with latest upstream fixes
-sudo telcosec-pkg upgrade
+sudo telcosec pkg upgrade
 
 # Inspect package dependencies and audit dependency linkage
-telcosec-pkg info 5g
-telcosec-pkg check
-telcosec-pkg repo status</code></pre>
-                        <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec-pkg list\ntelcosec-pkg tools 5g\ntelcosec-pkg search sdr\nsudo telcosec-pkg install 5g\ntelcosec-pkg check')">Copy</button>
+telcosec pkg info 5g
+telcosec pkg check
+telcosec pkg repo status</code></pre>
+                        <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec pkg list\ntelcosec pkg tools 5g\ntelcosec pkg search sdr\nsudo telcosec pkg install 5g\ntelcosec pkg check')">Copy</button>
                     </div>
                 </div>
 
@@ -1398,9 +1434,15 @@ sudo 5ghoul-run --Attack.Name=NAS_5GS_Fuzz --UE.IMSI=001011234567890</code></pre
                             <div style="margin-top: 6px;"><strong style="color: #ff88cc;">Threat Model:</strong> Rogue SIM applets (STK), weak administrative keys (ADM1), or malicious eSIM profiles extracted via untrusted LPA.</div>
                         </div>
                         <div style="margin-bottom: 16px; font-size: 0.85rem;">
-                            <strong>Toolchain:</strong> <span class="tag tag-sim">pySim</span> <span class="tag tag-sim">lpac</span> <span class="tag tag-sim">pcscd</span> <span class="tag tag-sim">SIMtrace 2</span>
+                            <strong>Toolchain:</strong> <span class="tag tag-sim">telcosec sim</span> <span class="tag tag-sim">pySim</span> <span class="tag tag-sim">lpac</span> <span class="tag tag-sim">pcscd</span> <span class="tag tag-sim">SIMtrace 2</span>
                         </div>
                         <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; margin-bottom: 8px;">Execution Commands</h4>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>telcosec sim atr && telcosec sim lpac profile</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec sim atr && telcosec sim lpac profile')">Copy</button>
+                            </div>
+                        </div>
                         <div class="terminal-block">
                             <div class="terminal-body">
                                 <code>sudo pySim-shell.py -p 0</code>
@@ -1410,7 +1452,10 @@ sudo 5ghoul-run --Attack.Name=NAS_5GS_Fuzz --UE.IMSI=001011234567890</code></pre
                         <div class="terminal-block">
                             <div class="terminal-body">
                                 <code>lpac profile list</code>
-                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'lpac profile list')">Copy</button>                        <div style="background: linear-gradient(135deg, rgba(232, 146, 30, 0.05) 0%, rgba(10, 15, 30, 0.85) 100%); border: 1px solid var(--amber-lo); border-left: 3px solid var(--amber); padding: 14px 18px; border-radius: 2px; margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'lpac profile list')">Copy</button>
+                            </div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, rgba(232, 146, 30, 0.05) 0%, rgba(10, 15, 30, 0.85) 100%); border: 1px solid var(--amber-lo); border-left: 3px solid var(--amber); padding: 14px 18px; border-radius: 2px; margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
                             <div>
                                 <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--amber); font-weight: 700; letter-spacing: 0.1em; margin-bottom: 2px;">INTERACTIVE LAB TESTBED AVAILABLE</div>
                                 <div style="font-size: 0.82rem; color: var(--tx-dim);">Deploy this exact assessment scenario in an isolated cloud sandbox on TelcoSec Academy.</div>

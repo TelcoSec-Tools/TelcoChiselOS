@@ -115,7 +115,7 @@ Or use tools like **Rufus** (DD mode) or **Ventoy** on Windows. For persistent l
 
 ## Unified Operator CLI (`telcosec`)
 
-TelcoChisel provides a centralized operator command-line interface, **`telcosec`** (symlinked to `telcochisel`), designed for rapid field diagnostics, hardware enumeration, cellular core management, and security scanning.
+TelcoChisel provides a centralized operator command-line interface, **`telcosec`** (symlinked to `telcochisel`), designed for rapid field diagnostics, hardware enumeration, modular metapackage management, smartcard & eSIM auditing, cellular core management, and security scanning.
 
 ```bash
 # Run the operator diagnostic overview
@@ -123,6 +123,12 @@ telcosec status
 
 # Enumerate connected SDR hardware and SIM readers
 telcosec hardware
+
+# Audit smartcard environment, decode ISO 7816-3 ATRs, and inspect eSIMs
+telcosec sim status
+telcosec sim atr
+telcosec sim atr 3B9F95801FC78031E073FE211B674A4C7380110043
+telcosec sim lpac profile
 
 # Launch or inspect 5G Standalone core & RAN simulation
 telcosec 5g status
@@ -144,12 +150,44 @@ telcosec academy
 | :--- | :--- | :--- |
 | `telcosec status` | — | System diagnostic report: kernel version, real-time priority (`SCHED_RR`), USB memory limits, SCTP status, cellular services, and smartcard reader daemons. |
 | `telcosec hardware` | — | Automated detection of USRP, HackRF, BladeRF, LimeSDR, RTL-SDR, Airspy, PlutoSDR, and Osmocom SIMtrace / CCID readers. |
+| `telcosec sim` | `status`, `readers`, `atr`, `trace`, `lpac`, `shell` | Smartcard, SIM, and eSIM auditing suite: ISO/IEC 7816-3 ATR decoding, PC/SC reader monitoring, Osmocom SIMtrace 2 sniffer, and `lpac` eSIM LPA integration. |
 | `telcosec sdr` | `status`, `list`, `usb`, `10g`, `firmware` | Delegates to `telcosec-sdr` for comprehensive USB and 10Gbps transceiver management. |
 | `telcosec 10g` | `status`, `tune`, `setup`, `probe` | Direct shortcut to optimize 10GbE network interfaces (MTU 9000, 4096 rings, 64MB buffers) and configure USRP X310/N310 IP links. |
 | `telcosec 5g` | `status`, `start`, `stop`, `logs` | Orchestration for Open5GS 5G SA Core services and UERANSIM gNB/UE emulation with pre-configured PLMN `001/01`. |
 | `telcosec scan` | `gsm`, `lte`, `sctp` | Guided cellular frequency survey and high-speed SCTP signaling endpoint discovery. |
 | `telcosec pkg` | `list`, `install`, `remove`, `info`, `check`, `repo` | Delegates to `telcosec-pkg` for modular metapackage management. |
 | `telcosec academy` | — | Opens direct terminal funnels and learning links to TelcoSec Academy hands-on browser labs (`app.telcosec.net`). |
+
+---
+
+## Smartcard, SIM & eSIM Auditing Suite (`telcosec sim`)
+
+TelcoChisel features a pure Go, zero-CGO smartcard and eSIM auditing engine embedded directly in the `telcosec` CLI. It facilitates automated ISO/IEC 7816-3 Answer-to-Reset (ATR) parsing, baud rate factor ($F_i/D_i$, work etu) calculation, historical byte extraction, telecommunications profile detection (2G GSM, 3G/4G USIM, 5G ISIM, sysmoUSIM), PC/SC reader detection, Osmocom SIMtrace 2 sniffer capture, and eSIM Local Profile Assistant (`lpac`) profile management:
+
+```bash
+# Audit smartcard environment (pcscd daemon, USB smartcard reader detection, toolchains)
+telcosec sim status
+
+# Enumerate active PC/SC readers and card insertion state
+telcosec sim readers
+
+# Decode ISO/IEC 7816-3 ATR (auto-detected card or manual hex string)
+telcosec sim atr
+telcosec sim atr 3B9F95801FC78031E073FE211B674A4C7380110043
+telcosec sim atr 3B9F95801FC78031E073FE211B674A4C7380110043 --json
+
+# Osmocom SIMtrace 2 sniffer probe & GSMTAP Wireshark streaming
+telcosec sim trace list
+telcosec sim trace sniff --channel 0 --wireshark
+
+# eSIM Local Profile Assistant (lpac) chip metadata, installed profiles, and drivers
+telcosec sim lpac chip
+telcosec sim lpac profile
+telcosec sim lpac drivers
+
+# Launch interactive pySim-shell smartcard explorer
+telcosec sim shell
+```
 
 ---
 

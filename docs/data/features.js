@@ -59,15 +59,15 @@ export const featuresCatalog = [
     name: "Unified Operator CLI Suite",
     slug: "telcosec-operator-cli",
     category: "tools",
-    desc: "Centralized operator CLI (telcosec) providing one-touch environment diagnostics, hardware auto-discovery, 5G Core orchestration, and guided RF/SCTP frequency scans.",
-    cmd: "telcosec status && telcosec hardware"
+    desc: "Centralized operator CLI (telcosec) providing one-touch environment diagnostics, hardware discovery, 10-tier metapackage management (telcosec pkg), smartcard/SIM/eSIM auditing (telcosec sim), 5G Core orchestration, and guided RF/SCTP scans.",
+    cmd: "telcosec status && telcosec pkg list && telcosec sim status"
   },
   {
     name: "Modular Metapackage Manager",
     slug: "metapackage-manager",
     category: "system",
-    desc: "Dedicated package management CLI (telcosec-pkg) to inspect, install, purge, and verify 10 modular Debian telecom suites from meta.telcosec.net using intuitive domain aliases.",
-    cmd: "telcosec-pkg list && telcosec-pkg check"
+    desc: "Modular Debian package management CLI (telcosec-pkg / telcosec pkg) to inspect, install, purge, and verify 10 telecom suites from meta.telcosec.net using intuitive domain aliases.",
+    cmd: "telcosec-pkg list && telcosec pkg check"
   },
   {
     name: "Low-Latency Real-Time Kernel & Multi-Boot",

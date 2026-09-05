@@ -192,22 +192,32 @@ export const featuresMetadata = {
   "telcosec-operator-cli": {
     keywords: [
       "telcosec operator CLI",
+      "telcosec sim smartcard atr",
+      "telcosec pkg metapackage",
+      "lpac esim management",
+      "osmocom simtrace 2",
       "telcochisel operator commands",
       "telecom security CLI status",
       "automated SDR hardware discovery",
       "5G core management command line"
     ],
-    overview: "TelcoChisel provides a centralized operator command-line interface, `telcosec` (also symlinked to `telcochisel`), designed for rapid field diagnostics, hardware enumeration, cellular core management, and security scanning. Rather than requiring operators to remember dozens of disparate Linux commands and hardware probe syntax, `telcosec` aggregates system status, SDR transceiver detection, 5G SA simulation, and security scanning into a single intuitive tool.",
+    overview: "TelcoChisel provides a centralized operator command-line interface, `telcosec` (also symlinked to `telcochisel`), designed for rapid field diagnostics, hardware enumeration, modular metapackage management (`telcosec pkg`), smartcard and eSIM auditing (`telcosec sim`), cellular core management, and security scanning. Rather than requiring operators to remember dozens of disparate Linux commands and hardware probe syntax, `telcosec` aggregates system status, SDR transceiver detection, 10-tier metapackage operations, pure Go ISO 7816-3 ATR parsing, 5G SA simulation, and security scanning into a single intuitive tool.",
     config: [
       "Run the comprehensive operator diagnostic overview:\ntelcosec status",
       "Enumerate all connected SDR transceivers and smartcard interfaces:\ntelcosec hardware",
+      "Inspect and manage modular 10-tier metapackages on-demand:\ntelcosec pkg list\ntelcosec pkg info 5g\nsudo telcosec pkg install sdr sim",
+      "Audit smartcard environment, PC/SC readers, and toolchains:\ntelcosec sim status\ntelcosec sim readers",
+      "Decode ISO/IEC 7816-3 Answer-to-Reset (ATR) and classify telecom SIM profiles:\ntelcosec sim atr 3B9F95801FC78031E073FE211B674A4C7380110043\ntelcosec sim atr --json",
+      "Inspect eSIM LPA chip details and installed eSIM profiles:\ntelcosec sim lpac chip\ntelcosec sim lpac profile",
       "Inspect and manage 5G Standalone core services and UERANSIM:\ntelcosec 5g status",
       "Launch guided frequency surveys or SCTP signaling sweeps:\ntelcosec scan"
     ],
-    troubleshooting: "If `telcosec hardware` does not detect your connected SDR, verify physical USB connectivity (`lsusb`), check that your user account belongs to the `plugdev` group (`id -nG`), and ensure the low-latency udev rules have triggered (`sudo udevadm trigger`).",
+    troubleshooting: "If `telcosec hardware` does not detect your connected SDR, verify physical USB connectivity (`lsusb`), check that your user account belongs to the `plugdev` group (`id -nG`), and ensure the low-latency udev rules have triggered (`sudo udevadm trigger`). If smartcard readers are not detected, run `telcosec sim status` to verify that `pcscd` daemon is running (`sudo systemctl restart pcscd`).",
     faq: [
       { q: "What does 'telcosec status' report?", a: "It audits running kernel version, real-time SCHED_RR permissions, locked memory limits, USB buffer allocations, active SCTP kernel socket parameters, running cellular core services (Open5GS, MongoDB), and smartcard daemon status." },
-      { q: "Can 'telcosec' run without root privileges?", a: "Yes. Most discovery commands (`status`, `hardware`, `scan`, `academy`) run unprivileged. Service orchestration commands (`telcosec 5g start`) invoke sudo only when restarting system daemons." },
+      { q: "How does 'telcosec sim' decode SIM smartcards?", a: "It includes a native, pure Go ISO/IEC 7816-3 ATR parser with zero external C dependencies. It validates direct/inverse convention, decodes Fi/Di speed factors, extracts historical bytes, verifies TCK checksums, and classifies profiles into 2G GSM, 3G/4G USIM, 5G ISIM, and sysmoUSIM test SIMs." },
+      { q: "Is 'telcosec pkg' different from 'telcosec-pkg'?", a: "No. 'telcosec pkg' delegates directly to the exact same modular metapackage engine and repository, providing identical options and domain aliases inside the unified operator interface." },
+      { q: "Can 'telcosec' run without root privileges?", a: "Yes. Most discovery commands (`status`, `hardware`, `sim`, `pkg list`, `scan`, `academy`) run unprivileged. Service orchestration commands (`telcosec 5g start`, `telcosec pkg install`) invoke sudo only when modifying system state." },
       { q: "Is 'telcochisel' interchangeable with 'telcosec'?", a: "Yes. `/usr/local/bin/telcochisel` is a symlink pointing directly to `/usr/local/bin/telcosec`." }
     ]
   },
@@ -215,25 +225,27 @@ export const featuresMetadata = {
   "metapackage-manager": {
     keywords: [
       "telcosec-pkg metapackage manager",
+      "telcosec pkg command",
       "modular telecom security packages",
       "Debian metapackages telecom",
       "Cloudflare Pages APT repository",
       "telcochisel-pkg command line"
     ],
-    overview: "TelcoChisel features a 10-tier modular Debian metapackage architecture hosted on Cloudflare Pages edge CDN (`meta.telcosec.net`). Using the dedicated `telcosec-pkg` CLI, operators can inspect, install, remove, and verify specialized telecommunications suites (such as 5G, SDR, SIM, Wireline, or UE firmware tools) on-demand using simple domain aliases.",
+    overview: "TelcoChisel features a 10-tier modular Debian metapackage architecture hosted on Cloudflare Pages edge CDN (`meta.telcosec.net`). Using either the unified operator CLI (`telcosec pkg`) or the dedicated `telcosec-pkg` standalone utility, operators can inspect, install, remove, and verify specialized telecommunications suites (such as 5G, SDR, SIM, Wireline, or UE firmware tools) on-demand using simple domain aliases.",
     config: [
-      "List all 10 official metapackages and current installation status:\ntelcosec-pkg list",
-      "Inspect exact tool manifests included in a package tier:\ntelcosec-pkg tools 5g",
-      "Search across metapackages and tool manifests:\ntelcosec-pkg search sdr",
-      "Install a modular tool suite using intuitive domain aliases:\nsudo telcosec-pkg install 5g",
-      "Upgrade installed metapackages with latest upstream fixes:\nsudo telcosec-pkg upgrade",
-      "Inspect package dependencies and installed disk footprint:\ntelcosec-pkg info 5g",
-      "Audit system dependency integrity, pinning policy, and library linkages:\ntelcosec-pkg check",
-      "Verify APT repository connectivity, pinning, and GPG keyring:\ntelcosec-pkg repo status"
+      "List all 10 official metapackages and current installation status:\ntelcosec pkg list\n# or: telcosec-pkg list",
+      "Inspect exact tool manifests included in a package tier:\ntelcosec pkg tools 5g",
+      "Search across metapackages and tool manifests:\ntelcosec pkg search sdr",
+      "Install a modular tool suite using intuitive domain aliases:\nsudo telcosec pkg install 5g",
+      "Upgrade installed metapackages with latest upstream fixes:\nsudo telcosec pkg upgrade",
+      "Inspect package dependencies and installed disk footprint:\ntelcosec pkg info 5g",
+      "Audit system dependency integrity, pinning policy, and library linkages:\ntelcosec pkg check",
+      "Verify APT repository connectivity, pinning, and GPG keyring:\ntelcosec pkg repo status"
     ],
-    troubleshooting: "If `telcosec-pkg install` reports repository connectivity errors, check network access to `meta.telcosec.net` and run `sudo telcosec-pkg repo refresh` to update the APT package cache and verify the GPG signing key.",
+    troubleshooting: "If `telcosec-pkg install` reports repository connectivity errors, check network access to `meta.telcosec.net` and run `sudo telcosec pkg repo refresh` to update the APT package cache and verify the GPG signing key.",
     faq: [
       { q: "What aliases does 'telcosec-pkg' recognize?", a: "It supports aliases like `5g` / `sba` / `nr` (telcochisel-tools-5g), `sdr` / `satcom` / `ntn` (telcochisel-tools-sdr), `sim` / `smartcard` (telcochisel-tools-sim), `4g` / `lte` (telcochisel-tools-4g), `2g-3g` / `gsm` (telcochisel-tools-2g-3g), `wireline` / `pstn` / `voip` / `broadband` (telcochisel-tools-pstn-adsl), `ue` / `modem` / `diag` (telcochisel-tools-ue), `hardware` / `fpga` (telcochisel-hardware-sdr), and `full` / `complete` (telcochisel-meta-full)." },
+      { q: "Can I use 'telcosec pkg' instead of 'telcosec-pkg'?", a: "Yes. Both commands execute the same underlying manager, so 'telcosec pkg list' and 'telcosec-pkg list' are completely equivalent." },
       { q: "Can I install TelcoChisel metapackages on standard Ubuntu 24.04?", a: "Yes. The official repository at `meta.telcosec.net` can be added to any standard Ubuntu 24.04 or Debian-compatible system." },
       { q: "Does 'telcosec-pkg check' verify binary dependencies?", a: "Yes. It executes dpkg and apt checks to detect missing dependencies, broken packages, pinning priorities, and incomplete installations." }
     ]
