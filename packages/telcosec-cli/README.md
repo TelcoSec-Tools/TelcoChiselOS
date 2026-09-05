@@ -81,6 +81,21 @@ telcosec completion fish > ~/.config/fish/completions/telcosec.fish
 
 ---
 
+## Manual Page
+
+A comprehensive Section 1 manual page is provided:
+
+```bash
+# View local manpage
+man telcosec
+man telcochisel
+
+# Read direct file
+man ./docs/man/telcosec.1
+```
+
+---
+
 ## Package Structure
 
 ```text
@@ -95,6 +110,14 @@ telcosec-cli/
 │   ├── sdr/                          # USB & Network SDR discovery, FPGA bitstream management
 │   ├── search/                       # Desktop launcher catalog parser and keyword search
 │   └── telemetry/                    # Kernel latency, PAM limits, USBFS memory, hugepages
+├── completions/                      # Embedded shell autocompletions (Bash, Zsh, Fish)
+│   ├── telcosec.bash
+│   ├── _telcosec
+│   ├── telcosec.fish
+│   └── completions.go
+├── docs/
+│   └── man/                          # Section 1 UNIX manual pages
+│       └── telcosec.1
 ├── Makefile
 ├── LICENSE
 └── README.md

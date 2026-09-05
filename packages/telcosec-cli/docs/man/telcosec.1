@@ -1,0 +1,244 @@
+.TH TELCOSEC 1 "September 2026" "TelcoChiselOS 3.0" "TelcoSec User Commands"
+.SH NAME
+telcosec, telcochisel \- Unified Operator CLI for Telecom Security, SDR Diagnostics, and 5G Core Operations
+.SH SYNOPSIS
+.B telcosec
+.RB [ COMMAND ]
+.RB [ OPTIONS ]
+.br
+.B telcochisel
+.RB [ COMMAND ]
+.RB [ OPTIONS ]
+.SH DESCRIPTION
+.B telcosec
+is the official operator command center and system diagnostic utility for
+.B TelcoChiselOS
+and Debian/Ubuntu-derived Linux distributions.
+.PP
+Designed specifically for telecommunications security auditors, cellular network penetration testers, and Software Defined Radio (SDR) researchers,
+.B telcosec
+provides zero-dependency static inspection of kernel parameters, hardware transceivers, network buffers, and cellular core lifecycle daemons.
+.PP
+The command provides native discovery and optimization without relying on Python or external runtimes, querying Linux kernel subsystems directly via
+.IR /proc ,
+.IR /sys ,
+and system PAM limits.
+.SH COMMANDS
+.TP
+.BR check ", " status
+Execute a comprehensive pre-flight audit of kernel scheduler architecture (detecting low-latency or real-time PREEMPT_RT patches), distribution flavor, PAM real-time priority limits, high-throughput USBFS memory allocation, hugepages reservation, reverse path filtering mode, and telecom systemd service daemons.
+.TP
+.BR hardware ", " hw ", " devices
+Enumerate and actively probe all connected radio, modem, and smartcard hardware. Dispatches diagnostic checks across SoapySDR, Ettus UHD, Nuand BladeRF, and PC/SC smartcard readers.
+.TP
+.BI search " <query>"
+Search the catalog of 88 pre-installed telecommunications security tools and desktop entries by protocol keyword, acronym, or binary name (e.g., \fBsctp\fR, \fBdiameter\fR, \fB5g\fR, \fBnas\fR, \fBopen5gs\fR).
+.TP
+.B docs
+Open the interactive operator documentation portal. If the local offline documentation bundle is present at \fI/usr/share/doc/telcosec/index.html\fR, it launches in the default web browser; otherwise, it falls back to the online documentation portal at \fBhttps://chisel.telcosec.net\fR.
+.TP
+.BR sdr " [" status "|" usb "|" 10g "|" firmware "]"
+Manage Software Defined Radio transceiver driver frameworks and hardware interfaces.
+.RS
+.TP
+.B status
+Inspect connected USB SDR transceivers and serial AT cellular modems.
+.TP
+.B usb
+Verify and tune the kernel USBFS memory allocation (\fIusbfs_memory_mb\fR) to prevent sample drops during high MSPS captures.
+.TP
+.B 10g
+Inspect and configure 10Gbps SFP+ network interfaces for network SDRs.
+.TP
+.B firmware
+Audit local offline FPGA bitstream caches for BladeRF (\fI.rbf\fR) and Ettus USRP (\fI.bin\fR) devices.
+.RE
+.TP
+.BR 10g " [" status "|" tune "|" setup "|" probe "]"
+Optimize 10Gbps SFP+ Ethernet transceivers for high-bandwidth Ettus USRP transceivers (USRP X310, N310).
+.RS
+.TP
+.B status
+Display interface MTU, operational link state, negotiated link speed, and kernel socket buffer sysctl parameters.
+.TP
+.BI tune " <interface>"
+Apply high-performance network tuning: sets MTU to 9000 (Jumbo Frames), maximizes RX/TX ring descriptors to 4096 via \fBethtool\fR, and sizes kernel socket buffers (\fIrmem_max\fR, \fIwmem_max\fR) to 64 MB.
+.TP
+.BI setup " <interface> [" preset "]"
+Configure IP address and subnet for USRP transceivers using predefined presets (\fBx310-0\fR, \fBx310-1\fR, \fBn310-0\fR, \fBn310-1\fR) and apply 10GbE tuning.
+.TP
+.BI probe " [" ip "]"
+Probe the local network or a specific IP address for connected Ettus USRP devices using \fBuhd_find_devices\fR.
+.RE
+.TP
+.B firmware
+Display cached offline SDR FPGA images located in \fI/usr/share/Nuand/bladeRF\fR and \fI/usr/share/uhd/images\fR.
+.TP
+.BR profile " [" lab "|" field "|" status "]"
+Display or switch operational networking profiles:
+.RS
+.TP
+.B lab
+Disables IPv4 reverse path filtering (\fIrp_filter=0\fR) across all network interfaces, allowing packet crafting, asymmetric routing, and raw telecom frame injection.
+.TP
+.B field
+Enforces strict reverse path filtering (\fIrp_filter=1\fR) and enables firewall protections for live field engagements.
+.TP
+.B status
+Display the currently active profile.
+.RE
+.TP
+.BR 5g-sa ", " 5g " [" start "|" stop "|" status "|" add-sub "]"
+Manage local Open5GS 5G Standalone core network services:
+.RS
+.TP
+.B start
+Start all Open5GS 5G SA network function daemons (NRF, SCP, AMF, SMF, UPF, AUSF, UDM, UDR, PCF, NSSF, BSF).
+.TP
+.B stop
+Gracefully stop all Open5GS core network services.
+.TP
+.B status
+Check the operational status of the Access and Mobility Management Function (AMF) and User Plane Function (UPF).
+.TP
+.BI add-sub " [" imsi "] [" k "] [" opc "]"
+Provision a test SIM subscriber into the Open5GS MongoDB database using \fBopen5gs-dbctl\fR. Defaults to standard testbed credentials if parameters are omitted.
+.RE
+.TP
+.BR scan " [" sctp "|" sip "|" asleap "] [" options "]"
+Interactive telecommunications signaling assessment wizard:
+.RS
+.TP
+.B sctp
+Launch the Stream Control Transmission Protocol (SCTP) signaling scanner (\fBsctpscan\fR).
+.TP
+.B sip
+Launch the SIPVicious SIP network mapping and enumeration utility (\fBsvmap\fR).
+.TP
+.B asleap
+Launch the PPPoE and MS-CHAPv2 authentication cracker (\fBasleap\fR).
+.RE
+.TP
+.B academy
+Launch the TelcoSec Academy interactive field lab portal bridge at \fBhttps://app.telcosec.net\fR.
+.TP
+.B feedback
+Display community support channels and open the SourceForge user reviews portal in the browser.
+.TP
+.BR completion " [" bash "|" zsh "|" fish "]"
+Generate shell autocompletion script for the specified shell.
+.TP
+.BR version ", " \-v ", " \-\-version
+Print the release version, build commit, UTC compilation timestamp, and active kernel release.
+.SH OPERATIONAL PROFILES
+TelcoChiselOS defines two core operational profiles that adjust kernel network filtering:
+.TP
+.B Lab Mode (rp_filter = 0)
+Designed for testbed labs, SDR transmission, and signaling injection. Kernel reverse path filtering is disabled, permitting asymmetric routing, custom GTP-U tunnel encapsulation, and spoofed telecom packet injection.
+.TP
+.B Field Mode (rp_filter = 1)
+Designed for external penetration testing and live operational environments. Strict reverse path filtering is enforced to prevent IP spoofing and maintain network hygiene.
+.SH HARDWARE COMPATIBILITY
+.B telcosec
+identifies and manages the following hardware transceivers:
+.IP \(bu 2
+.B Ettus Research / NI USRP:
+B200, B210, B200mini, B205mini, USRP-2900, USRP-2901, X300, X310, N300, N310.
+.IP \(bu 2
+.B Great Scott Gadgets:
+HackRF One, HackRF Jawbreaker, Rad1o Badge.
+.IP \(bu 2
+.B Nuand:
+BladeRF 2.0 micro, BladeRF x40, BladeRF x115.
+.IP \(bu 2
+.B Lime Microsystems:
+LimeSDR USB, LimeSDR Mini.
+.IP \(bu 2
+.B Realtek:
+RTL2832U, RTL2838 (RTL-SDR v3/v4).
+.IP \(bu 2
+.B Airspy:
+Airspy R2, Airspy Mini, Airspy HF+.
+.IP \(bu 2
+.B Analog Devices:
+ADALM-PLUTO, ADALM-PLUTO DFU.
+.IP \(bu 2
+.B Cellular Modems & SIM Readers:
+Qualcomm / Quectel / SIMCom serial AT modems (\fI/dev/ttyUSB*\fR, \fI/dev/ttyACM*\fR) and ISO 7816 PC/SC smartcard readers.
+.SH FILES
+.TP
+.I /etc/telcochisel-flavor
+Contains the installed distribution flavor name (\fIFlagship Field Edition\fR or \fIModular Lite Edition\fR).
+.TP
+.I /etc/security/limits.d/99-telcochisel-rt.conf
+Configures PAM real-time priority (\fBrtprio 99\fR) and unlimited locked memory (\fBmemlock unlimited\fR).
+.TP
+.I /sys/module/usbcore/parameters/usbfs_memory_mb
+Kernel USBFS buffer parameter. Recommended value is \fB1000\fR MB for continuous SDR streaming.
+.TP
+.I /proc/sys/vm/nr_hugepages
+Configured Linux hugepages count.
+.TP
+.I /proc/sys/net/ipv4/conf/all/rp_filter
+IPv4 reverse path filtering mode flag (0 for Lab Mode, 1 for Field Mode).
+.TP
+.I /usr/share/doc/telcosec/index.html
+Local offline documentation index.
+.TP
+.I /usr/share/Nuand/bladeRF/*.rbf
+Cached offline FPGA bitstreams for Nuand BladeRF hardware.
+.TP
+.I /usr/share/uhd/images/*.bin
+Cached offline FPGA images for Ettus USRP hardware.
+.SH EXAMPLES
+.TP
+.B telcosec check
+Run a comprehensive pre-flight system audit.
+.TP
+.B telcosec hardware
+Probe all attached radio transceivers and SIM readers.
+.TP
+.B telcosec search diameter
+Search the tool catalog for Diameter protocol utilities.
+.TP
+.B sudo telcosec 10g tune eth1
+Optimize 10GbE network interface \fBeth1\fR with MTU 9000 and 4096 ring descriptors.
+.TP
+.B sudo telcosec 10g setup eth1 x310-0
+Configure \fBeth1\fR for USRP X310 port 0 with IP 192.168.10.1/24 and MTU 9000.
+.TP
+.B sudo telcosec 5g-sa start
+Start local Open5GS 5G Standalone core services.
+.TP
+.B sudo telcosec 5g-sa add-sub 001010000000001
+Provision test subscriber with IMSI 001010000000001 into Open5GS.
+.TP
+.B source <(telcosec completion bash)
+Enable interactive Bash autocompletion in the current terminal session.
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+General error, missing prerequisite, or invalid command arguments.
+.SH SEE ALSO
+.BR open5gs-amfd (8),
+.BR open5gs-dbctl (8),
+.BR uhd_find_devices (1),
+.BR bladeRF-cli (1),
+.BR ethtool (8),
+.BR sysctl (8),
+.BR ip (8)
+.SH AUTHOR
+TelcoSec Engineering <ops@telcosec.net>
+.br
+Official Web: https://chisel.telcosec.net
+.SH REPORTING BUGS
+Submit bug reports and feature requests to GitHub Issues:
+.br
+\fBhttps://github.com/TelcoSec-Tools/telcosec-cli/issues\fR
+.SH COPYRIGHT
+Copyright \(co 2026 TelcoSec Engineering.
+.br
+Licensed under the Apache License, Version 2.0.
