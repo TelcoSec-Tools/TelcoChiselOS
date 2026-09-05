@@ -11,6 +11,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
+  DOCKERHUB_NAMESPACE: ${{ secrets.DOCKERHUB_USERNAME || 'telcosec' }}
 
 jobs:
   # telcochisel-base is built and pushed first — every add-on image is
@@ -28,6 +29,7 @@ jobs:
       version: ${{ steps.meta.outputs.version }}
       owner_lc: ${{ steps.meta.outputs.owner_lc }}
       base_tag: ${{ steps.meta.outputs.base_tag }}
+      has_dockerhub: ${{ steps.meta.outputs.has_dockerhub }}
 
     steps:
       - name: Checkout
@@ -45,6 +47,11 @@ jobs:
           echo "owner_lc=${OWNER_LC}" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "base_tag=${{ env.REGISTRY }}/${OWNER_LC}/telcochisel-base:${VERSION}" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+            echo "has_dockerhub=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_dockerhub=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -56,17 +63,44 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Log in to Docker Hub
+        if: steps.meta.outputs.has_dockerhub == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME || 'telcosec' }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Prepare tags for telcochisel-base
+        id: tags
+        run: |
+          TAGS="${{ env.REGISTRY }}/${{ steps.meta.outputs.owner_lc }}/telcochisel-base:latest"
+          TAGS="${TAGS},${{ steps.meta.outputs.base_tag }}"
+          if [ "${{ steps.meta.outputs.has_dockerhub }}" = "true" ]; then
+            TAGS="${TAGS},${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-base:latest"
+            TAGS="${TAGS},${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-base:${{ steps.meta.outputs.version }}"
+          fi
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+
       - name: Build & push telcochisel-base
         uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/base.Dockerfile
           push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ steps.meta.outputs.owner_lc }}/telcochisel-base:latest
-            ${{ steps.meta.outputs.base_tag }}
+          tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha,scope=telcochisel-base
           cache-to: type=gha,mode=max,scope=telcochisel-base
+
+      - name: Update Docker Hub Description for base
+        if: steps.meta.outputs.has_dockerhub == 'true'
+        uses: peter-evans/dockerhub-description@v4
+        continue-on-error: true
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME || 'telcosec' }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-base
+          readme-filepath: docker/descriptions/base.md
+          short-description: "TelcoSec TelcoChisel Base — Headless CLI telecom security penetration testing and research toolset"
 
   # SDR, core-network, and device-tools all pull the base pushed above and
   # build independently — no ordering dependency between them, so they run
@@ -81,7 +115,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image: [sdr, core-network, device-tools]
+        include:
+          - image: sdr
+            short_desc: "TelcoSec TelcoChisel SDR — Software Defined Radio cellular research toolchain"
+          - image: core-network
+            short_desc: "TelcoSec TelcoChisel Core Network — 4G/5G SA core & RAN emulation & exploitation"
+          - image: device-tools
+            short_desc: "TelcoSec TelcoChisel Device Tools — Mobile device & baseband flashing & diagnostics"
 
     steps:
       - name: Checkout
@@ -97,6 +137,24 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Log in to Docker Hub
+        if: needs.base.outputs.has_dockerhub == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME || 'telcosec' }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Prepare tags for telcochisel-${{ matrix.image }}
+        id: tags
+        run: |
+          TAGS="${{ env.REGISTRY }}/${{ needs.base.outputs.owner_lc }}/telcochisel-${{ matrix.image }}:latest"
+          TAGS="${TAGS},${{ env.REGISTRY }}/${{ needs.base.outputs.owner_lc }}/telcochisel-${{ matrix.image }}:${{ needs.base.outputs.version }}"
+          if [ "${{ needs.base.outputs.has_dockerhub }}" = "true" ]; then
+            TAGS="${TAGS},${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-${{ matrix.image }}:latest"
+            TAGS="${TAGS},${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-${{ matrix.image }}:${{ needs.base.outputs.version }}"
+          fi
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+
       - name: Build & push telcochisel-${{ matrix.image }}
         uses: docker/build-push-action@v6
         with:
@@ -105,8 +163,17 @@ jobs:
           push: true
           build-args: |
             BASE_IMAGE=${{ needs.base.outputs.base_tag }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ needs.base.outputs.owner_lc }}/telcochisel-${{ matrix.image }}:latest
-            ${{ env.REGISTRY }}/${{ needs.base.outputs.owner_lc }}/telcochisel-${{ matrix.image }}:${{ needs.base.outputs.version }}
+          tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha,scope=telcochisel-${{ matrix.image }}
           cache-to: type=gha,mode=max,scope=telcochisel-${{ matrix.image }}
+
+      - name: Update Docker Hub Description for ${{ matrix.image }}
+        if: needs.base.outputs.has_dockerhub == 'true'
+        uses: peter-evans/dockerhub-description@v4
+        continue-on-error: true
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME || 'telcosec' }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-${{ matrix.image }}
+          readme-filepath: docker/descriptions/${{ matrix.image }}.md
+          short-description: ${{ matrix.short_desc }}

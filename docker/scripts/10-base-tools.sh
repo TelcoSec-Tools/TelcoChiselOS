@@ -430,6 +430,45 @@ record_tool "sipp" "/usr/local/bin/sipp" "voip"
 echo "telcosec ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/telcosec
 chmod 440 /etc/sudoers.d/telcosec
 
+# ─── 23b. TelcoSec & TelcoSec Academy interactive login banner ───────────────
+cat << 'BANNER_EOF' > /etc/profile.d/00-telcosec-banner.sh
+if [ -t 1 ] && [ -z "${TELCOSEC_BANNER_SHOWN:-}" ]; then
+  export TELCOSEC_BANNER_SHOWN=1
+  CYAN='\033[1;36m'
+  BOLD='\033[1m'
+  YELLOW='\033[1;33m'
+  RESET='\033[0m'
+
+  printf "${CYAN}"
+  cat << 'EOF'
+ +---------------------------------------------------------------+
+ |   _____ _____ _     ____ ___   ____ _   _ ___ ____  _____ _   |
+ |  |_   _| ____| |   / ___/ _ \ / ___| | | |_ _/ ___|| ____| |  |
+ |    | | |  _| | |  | |  | | | | |   | |_| || |\___ \|  _| | |  |
+ |    | | | |___| |__| |__| |_| | |___|  _  || | ___) | |___| |__|
+ |    |_| |_____|_____\____\___/ \____|_| |_|___|____/|_____|____|
+ |                                                               |
+EOF
+  printf "${RESET}${BOLD}"
+  cat << 'EOF'
+ |            TELCOCHISEL -- TELECOM SECURITY TOOLSET            |
+ +---------------------------------------------------------------+
+ |                                                               |
+ |  [*] TelcoSec Academy -- Hands-On Telecom & 5G Security Labs  |
+ |      - Real-world SS7, Diameter & GTP-C signaling audits      |
+ |      - Practical 4G LTE & 5G SA core / RAN exploitation       |
+EOF
+  printf "${RESET}"
+  printf "${BOLD} |      - Access interactive testbeds: ${YELLOW}https://app.telcosec.net${RESET}${BOLD}  |\n"
+  cat << 'EOF'
+ |                                                               |
+ +---------------------------------------------------------------+
+EOF
+  printf "${RESET}\n"
+fi
+BANNER_EOF
+chmod 644 /etc/profile.d/00-telcosec-banner.sh
+
 # ─── 24. Binary stripping, compiler purge & cache optimization ──────────────
 echo "Stripping binary symbols and pruning build caches..."
 strip --strip-unneeded /usr/local/bin/* 2>/dev/null || true
