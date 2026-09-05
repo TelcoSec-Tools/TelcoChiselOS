@@ -128,7 +128,7 @@ Rectangle {
                     Item { height: 8 }
 
                     Text {
-                        text: "• Pre-loaded with 78+ specialized cellular & radio analysis tools\n• Configured for USRP, HackRF One, BladeRF, LimeSDR & RTL-SDR\n• Standardized training platform for TelcoSec Academy"
+                        text: "• Pre-loaded with 88+ specialized cellular & radio analysis tools\n• Configured for USRP, HackRF One, BladeRF, LimeSDR & RTL-SDR\n• Standardized training platform for TelcoSec Academy"
                         color: "#a0a5aa"
                         font.pixelSize: 12
                         lineHeight: 1.4

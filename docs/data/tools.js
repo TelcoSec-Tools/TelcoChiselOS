@@ -700,5 +700,95 @@ export const toolsCatalog = [
         desc: "Osmocom GSM Mobile Station baseband protocol stack, providing layer 1-3 mobile phone emulation and CCCH/BCCH channel scanning.",
         path: "/usr/local/bin/osmocombb-install",
         cmd: "sudo osmocombb-install"
+    },
+    {
+        name: "Inspectrum",
+        slug: "inspectrum",
+        category: "sdr",
+        status: "ready",
+        desc: "Offline I/Q file visualizer and signal analyzer for measuring symbol periods, FSK frequency deviation, and preamble detection.",
+        path: "/usr/bin/inspectrum",
+        cmd: "inspectrum --help"
+    },
+    {
+        name: "URH (Universal Radio Hacker)",
+        slug: "urh",
+        category: "sdr",
+        status: "ready",
+        desc: "Complete wireless protocol reverse engineering suite supporting demodulation, bit extraction, frame parsing, and signal replay.",
+        path: "/usr/local/bin/urh",
+        cmd: "urh --help"
+    },
+    {
+        name: "Gpredict",
+        slug: "gpredict",
+        category: "sdr",
+        status: "ready",
+        desc: "Real-time satellite tracking and orbit prediction system for calculating Doppler frequency shifts in 3GPP NTN and satellite SDR captures.",
+        path: "/usr/bin/gpredict",
+        cmd: "gpredict --help"
+    },
+    {
+        name: "pcsc-tools",
+        slug: "pcsc-tools",
+        category: "sim",
+        status: "ready",
+        desc: "Smartcard reader discovery toolset featuring pcsc_scan to monitor card insertions and decode Answer-to-Reset (ATR) strings.",
+        path: "/usr/bin/pcsc_scan",
+        cmd: "pcsc_scan -v"
+    },
+    {
+        name: "OpenSC",
+        slug: "opensc",
+        category: "sim",
+        status: "ready",
+        desc: "Comprehensive smartcard and UICC management library and tools (pkcs11-tool, opensc-tool, opensc-explorer) for cryptographic tokens.",
+        path: "/usr/bin/pkcs11-tool",
+        cmd: "pkcs11-tool -L"
+    },
+    {
+        name: "sipsak",
+        slug: "sipsak",
+        category: "voip",
+        status: "ready",
+        desc: "SIP swiss army knife command-line tool for sending OPTIONS health checks, tracerouting SIP hops, and stress testing SIP proxies.",
+        path: "/usr/bin/sipsak",
+        cmd: "sipsak --help"
+    },
+    {
+        name: "voiphopper",
+        slug: "voiphopper",
+        category: "voip",
+        status: "ready",
+        desc: "Security assessment tool that mimics IP phone behavior by spoofing Cisco CDP and LLDP-MED packets to hop into VoIP voice VLANs.",
+        path: "/usr/local/bin/voiphopper",
+        cmd: "voiphopper --help"
+    },
+    {
+        name: "rtpbleed",
+        slug: "rtpbleed",
+        category: "voip",
+        status: "ready",
+        desc: "Scanner and audio extractor targeting RTP Bleed vulnerabilities in media proxies and SBCs to discover leaky RTP ports.",
+        path: "/usr/local/bin/rtpbleed",
+        cmd: "rtpbleed --help"
+    },
+    {
+        name: "mausezahn (mz)",
+        slug: "mausezahn",
+        category: "adsl",
+        status: "ready",
+        desc: "High-speed carrier Ethernet and multi-protocol packet crafter supporting 802.1Q tagged VLANs, QinQ, MPLS labels, and BPDU injection.",
+        path: "/usr/bin/mz",
+        cmd: "mz --help"
+    },
+    {
+        name: "mitmproxy (5G SBI)",
+        slug: "mitmproxy",
+        category: "5g",
+        status: "ready",
+        desc: "Interactive HTTP/2, mTLS, and WebSockets interception proxy tailored for 5G Service Based Architecture (SBI) API auditing.",
+        path: "/usr/bin/mitmproxy",
+        cmd: "mitmproxy --version"
     }
 ];

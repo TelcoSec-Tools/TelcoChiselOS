@@ -13,7 +13,7 @@
   [![Docs](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/deploy-docs.yml/badge.svg)](https://chisel.telcosec.net)
   [![Ubuntu 24.04](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com)
   [![Kernel](https://img.shields.io/badge/Kernel-Low--Latency_Realtime-00ffd5?logo=linux&logoColor=black)](https://chisel.telcosec.net)
-  [![Tools](https://img.shields.io/badge/Tools-78_Pre--configured-e8921e?logo=gnuradio&logoColor=black)](https://chisel.telcosec.net/#tools)
+  [![Tools](https://img.shields.io/badge/Tools-88_Pre--configured-e8921e?logo=gnuradio&logoColor=black)](https://chisel.telcosec.net/#tools)
   [![Metapackages](https://img.shields.io/badge/Metapackages-10_Suites-0099ff?logo=debian&logoColor=white)](https://meta.telcosec.net)
   [![SDR Transceivers](https://img.shields.io/badge/SDR-USB_%26_10GbE_SFP%2B-26d464)](https://chisel.telcosec.net)
   [![Containers](https://img.shields.io/badge/Pods-Podman_%26_K8s-8a2be2?logo=podman&logoColor=white)](docker/README.md)
@@ -33,7 +33,7 @@
 
 **TelcoChisel** is an operational live Linux environment configured for telecommunications security auditing, radio frequency analysis, and baseband research. 
 
-Based on **Ubuntu 24.04 LTS (Noble Numbat)** with a dual-kernel architecture featuring the **low-latency real-time kernel** (`linux-image-lowlatency`) by default, an XFCE desktop environment, and an optional lightweight i3 tiling session, it ships with **78 pre-configured tools** for Software Defined Radio (SDR) operation, cellular RAN simulation (2G, 4G EPC & 5G SA), baseband firmware emulation, SIM/eSIM auditing, core signaling protocol analysis (SS7, Diameter, GTP, HTTP/2 SBI), wireline broadband exploitation, and VoIP telephony testing.
+Based on **Ubuntu 24.04 LTS (Noble Numbat)** with a dual-kernel architecture featuring the **low-latency real-time kernel** (`linux-image-lowlatency`) by default, an XFCE desktop environment, and an optional lightweight i3 tiling session, it ships with **88 pre-configured tools** for Software Defined Radio (SDR) operation, cellular RAN simulation (2G, 4G EPC & 5G SA), baseband firmware emulation, SIM/eSIM auditing, core signaling protocol analysis (SS7, Diameter, GTP, HTTP/2 SBI), wireline broadband exploitation, and VoIP telephony testing.
 
 > [!NOTE]
 > TelcoChisel boots directly from a USB flash drive or virtual machine, providing an isolated, pre-configured research testbed without modifying the host operating system. It includes support for **LUKS-encrypted persistence** (`casper-rw`), a **Toram mode** (copy-to-RAM for maximum I/O throughput), and can be permanently installed to disk via the bundled **Calamares GUI Installer**.
@@ -63,7 +63,7 @@ flowchart TD
         TELCOPKG["telcosec-pkg<br/>(10-Tier Modular Metapackage Manager via meta.telcosec.net)"]
     end
 
-    subgraph L4["4. 78 Pre-Configured Telecom Toolsets"]
+    subgraph L4["4. 88 Pre-Configured Telecom Toolsets"]
         SDR_T["SDR & RF DSP<br/>(GNU Radio 3.10, UHD, Gqrx, gr-gsm)"]
         RAN_T["4G / 5G RAN & Core<br/>(Open5GS, UERANSIM, srsRAN, 5Ghoul, my5G-RANTester)"]
         BB_T["Baseband & Mobile UE<br/>(FirmWire, QCSuper, SCAT, MTKClient, Balong)"]
@@ -229,11 +229,11 @@ telcosec-pkg repo status
 | **`telcochisel-tools-sim`** | `sim`, `esim` | Smartcard auditing, APDU sniffing, and eSIM LPA profiles (SIMtrace 2, pySim-shell, lpac, SIMurai, SIMtester). |
 | **`telcochisel-tools-pstn-adsl`** | `pstn`, `adsl`, `wireline`, `voip` | Wireline broadband, PPPoE, DOCSIS, VLAN, SNMP, and VoIP/SIP assessment suites. |
 | **`telcochisel-tools-ue`** | `ue`, `mobile` | Baseband firmware analysis, Qualcomm DIAG, Samsung Shannon, and MediaTek BROM tools. |
-| **`telcochisel-meta-full`** | `full`, `all` | Umbrella metapackage installing the entire 78-tool telecommunications security suite. |
+| **`telcochisel-meta-full`** | `full`, `all` | Umbrella metapackage installing the entire 88-tool telecommunications security suite. |
 
 ---
 
-## Pre-loaded Toolsets (78 Tools)
+## Pre-loaded Toolsets (88 Tools)
 
 Tools are organized by functional domain. The status indicates whether a tool is **Ready** (installed and executable immediately) or requires a **Setup** command (runs a setup script on demand to optimize system footprint).
 
@@ -251,6 +251,9 @@ Radio drivers are isolated in a dedicated Conda environment (`telcosec-sdr`) to 
 | **Kalibrate-RTL** | `Ready` | `kal -s GSM900` | RTL-SDR local oscillator frequency calibration |
 | **GQRX** | `Ready` | `gqrx` | SDR receiver GUI and real-time spectrum analyzer |
 | **LimeSuite** | `Ready` | `LimeUtil --find` | LimeSDR management and diagnostics utility |
+| **Inspectrum** | `Ready` | `inspectrum [capture.sigmf]` | Offline spectral and I/Q signal visualizer for symbol rate and preamble analysis |
+| **URH (Universal Radio Hacker)** | `Ready` | `urh` | Complete wireless protocol reverse engineering suite for demodulation and replay |
+| **Gpredict** | `Ready` | `gpredict` | Real-time satellite tracking and orbit prediction system for 3GPP NTN captures |
 
 ---
 
@@ -262,6 +265,7 @@ Radio drivers are isolated in a dedicated Conda environment (`telcosec-sdr`) to 
 | **srsRAN** | `Setup` | `sudo srsran-install` | 4G/5G software radio access network (RAN) and gNodeB simulator |
 | **UERANSIM** | `Ready` | `nr-gnb -c /etc/telcosec/ueransim/gnb.yaml` | 5G SA UE and gNodeB simulator preconfigured for test PLMN (001/01) |
 | **my5G-RANTester** | `Ready` | `my5g-rantester --help` | High-concurrency 5G NR RAN stress testing and multi-UE simulation |
+| **mitmproxy (5G SBI)** | `Ready` | `mitmproxy -p 8080` | Interactive HTTP/2 and mTLS interception proxy for 5G Service Based Architecture (SBI) |
 | **OAI UE** | `Setup` | `sudo oai-install [--radio BLADERF\|USRP]` | OpenAirInterface 5G NR User Equipment simulation stack |
 | **srsUE** | `Setup` | `srsue /etc/srsran/ue.conf` | Software UE for LTE attach procedures and downlink capture |
 | **5Ghoul Fuzzer** | `Setup` | `sudo 5ghoul-install` | 5G NR baseband fuzzer utilizing rogue gNB attack vectors |
@@ -313,6 +317,8 @@ Radio drivers are isolated in a dedicated Conda environment (`telcosec-sdr`) to 
 | **SIMurai** | `Ready` | `simurai --help` | Software SIM and ICC-PCSC virtual smartcard simulator daemon |
 | **SIMtester** | `Ready` | `simtester` | Utility to assess SIM card security configurations, keys, and crypto limits |
 | **pcscd** | `Ready` | `systemctl status pcscd` | PC/SC smartcard reader subsystem daemon with CCID arbitration |
+| **pcsc-tools** | `Ready` | `pcsc_scan -v` | Smartcard reader prober and Answer-to-Reset (ATR) database decoder |
+| **OpenSC** | `Ready` | `pkcs11-tool -L` | Cryptographic smartcard and UICC management library and PKCS#11 key explorer |
 
 ---
 
@@ -324,7 +330,10 @@ Radio drivers are isolated in a dedicated Conda environment (`telcosec-sdr`) to 
 | **SigPloit** | `Ready` | `sudo sigploit` | Exploitation framework for SS7, Diameter, and GTP signalling protocols |
 | **Diafuzzer** | `Ready` | `diafuzzer --help` | Diameter protocol fuzzer for S6a, Gx, and Gy core interfaces |
 | **sctpscan** | `Ready` | `sctpscan --help` | High-speed SCTP port scanner for SIGTRAN and Diameter interface endpoints |
+| **sipsak** | `Ready` | `sipsak -s sip:target` | SIP swiss army knife for OPTIONS health checks, traceroute, and proxy stress tests |
 | **SIPVicious** | `Ready` | `svmap --help` | Security testing toolkit for SIP and VoIP PBX endpoints |
+| **voiphopper** | `Ready` | `voiphopper -i eth0 -c` | Security assessment tool to hop into VoIP voice VLANs via Cisco CDP and LLDP-MED |
+| **rtpbleed** | `Ready` | `rtpbleed -t <target>` | Scanner and audio extractor targeting RTP Bleed vulnerabilities in media proxies and SBCs |
 | **Scapy (Telecom Modules)** | `Ready` | `scapy` | Packet crafting utility with MAP, TCAP, Diameter, and GTP protocol support |
 | **SIPp** | `Ready` | `sipp -h` | SIP traffic generator and performance testing tool |
 | **Twinkle & Linphone** | `Ready` | `twinkle` / `linphone` | SIP softphone clients for VoIP protocol security assessment |
@@ -340,6 +349,7 @@ Radio drivers are isolated in a dedicated Conda environment (`telcosec-sdr`) to 
 | Tool | Status | Command / Usage | Purpose |
 | :--- | :---: | :--- | :--- |
 | **RouterSploit** | `Ready` | `routersploit` | Exploitation framework for embedded devices (CPE routers/modems) |
+| **mausezahn (mz)** | `Ready` | `mz -t ip "dp=80"` | High-speed carrier Ethernet and multi-protocol packet crafter (802.1Q, QinQ, MPLS) |
 | **RDNSx** | `Ready` | `rdnsx` | Rapid DNS Reverse Resolver for fast telecommunications network enumeration |
 | **asleap** | `Ready` | `asleap -h` | PPPoE MS-CHAPv2 dictionary attack and offline cracking tool |
 | **snmp-check** | `Ready` | `snmp-check -h` | SNMP enumerator for mapping routing tables via weak community strings |
@@ -534,7 +544,7 @@ For structured training on cellular security, protocol analysis, and vulnerabili
 ## Frequently Asked Questions (AEO & SEO)
 
 **What is TelcoChisel?**  
-TelcoChisel is an advanced Live Linux OS tailored specifically for Telecom Security. It comes pre-loaded with 78 tools for SDR engineering, cellular network auditing, baseband research, and core network simulation.
+TelcoChisel is an advanced Live Linux OS tailored specifically for Telecom Security. It comes pre-loaded with 88 tools for SDR engineering, cellular network auditing, baseband research, and core network simulation.
 
 **Who created TelcoChisel?**  
 TelcoChisel was developed by TelcoSec, a leading consulting and training firm specializing in Telecom Security.
