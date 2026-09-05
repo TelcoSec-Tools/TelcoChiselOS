@@ -33,7 +33,8 @@ apt-get update
 mapfile -t FILTERED_PKGS < <(filter_pkgs "${PKGS_SDR[@]}")
 apt_retry install -y --no-install-recommends \
   "${FILTERED_PKGS[@]}" \
-  libbladerf2 libbladerf-dev bladerf
+  libbladerf2 libbladerf-dev bladerf \
+  build-essential
 rm -rf /var/lib/apt/lists/*
 
 # ─── 2. Miniconda + telcosec-sdr env ────────────────────────────────────────
