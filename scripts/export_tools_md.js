@@ -23,7 +23,7 @@ for (const item of catalog) {
 }
 
 let md = '# TelcoChiselOS Default Tools Catalog\n\n';
-md += 'TelcoChiselOS includes **75 default tools** organized across 10 specialized functional domains. Tools marked `Ready` are pre-configured and executable immediately. Tools marked `Setup` feature automated first-run helper scripts.\n\n';
+md += `TelcoChiselOS includes **${catalog.length} default tools** organized across 10 specialized functional domains. Tools marked \`Ready\` are pre-configured and executable immediately. Tools marked \`Setup\` feature automated first-run helper scripts.\n\n`;
 
 for (const [cat, name] of Object.entries(catMap)) {
   const tools = grouped[cat] || [];
@@ -37,6 +37,6 @@ for (const [cat, name] of Object.entries(catMap)) {
   md += '\n';
 }
 
-const targetPath = path.join('C:', 'Users', 'ruben', '.gemini', 'antigravity-ide', 'brain', '136997a2-26b3-451c-8ccd-550481596ccb', 'default_tools_list.md');
+const targetPath = process.argv[2] || path.join(__dirname, '..', 'docs', 'data', 'tools_catalog.md');
 fs.writeFileSync(targetPath, md, 'utf8');
-console.log('Artifact written to ' + targetPath);
+console.log(`Tool catalog (${catalog.length} tools) written to ${targetPath}`);

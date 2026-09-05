@@ -9,6 +9,7 @@ CLAUDE.md
 .remember/
 .superpowers/
 .gemini/
+scratch/
 
 # Build & Live ISO Artifacts
 live-iso-work/
@@ -24,6 +25,7 @@ out/
 *.part-*
 *.squashfs
 *.img
+*.deb
 
 # Python Artifacts & Virtual Environments
 __pycache__/
