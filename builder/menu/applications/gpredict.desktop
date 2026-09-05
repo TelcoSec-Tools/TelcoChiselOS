@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Gpredict
+Comment=Real-Time Satellite Tracking and Orbit Prediction
+Exec=gpredict
+Icon=applications-science
+Terminal=false
+Categories=TelcoSec-SDR;

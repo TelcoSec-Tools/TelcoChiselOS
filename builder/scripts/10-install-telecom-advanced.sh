@@ -526,6 +526,73 @@ if [ -d "${TELCOSEC_OPT}/docsis" ]; then
 fi
 record_tool "docsis" "/usr/local/bin/docsis" "adsl"
 
+# 5. VoIP Hopper (Voice VLAN hopping security assessment tool)
+if [ ! -d "${TELCOSEC_OPT}/voiphopper" ]; then
+  git clone --depth 1 https://github.com/ik-5/voiphopper "${TELCOSEC_OPT}/voiphopper" 2>/dev/null || \
+  git clone --depth 1 https://github.com/rapid7/voiphopper "${TELCOSEC_OPT}/voiphopper" 2>/dev/null || true
+fi
+if [ -d "${TELCOSEC_OPT}/voiphopper" ]; then
+  cd "${TELCOSEC_OPT}/voiphopper"
+  gcc -O2 -Wall voiphopper.c -o voiphopper -lpcap 2>/dev/null || make 2>/dev/null || true
+  if [ -f voiphopper ]; then
+    ln -sf "${TELCOSEC_OPT}/voiphopper/voiphopper" /usr/local/bin/voiphopper
+  fi
+  cd /
+fi
+record_tool "voiphopper" "/usr/local/bin/voiphopper" "voip"
+
+# 6. rtpbleed (RTP stream bleeding and leaky media proxy auditor)
+cat << 'EOF' | tee /usr/local/bin/rtpbleed > /dev/null
+#!/usr/bin/env python3
+"""
+RTP Bleed / Leaky Media Proxy Security Auditor
+Audits target RTP proxy ports for unauthenticated audio leaking.
+"""
+import sys
+import socket
+import argparse
+import time
+
+def audit_rtp(target, start_port, end_port, timeout=1.0):
+    print(f"[*] Scanning {target} UDP ports {start_port}-{end_port} for leaky RTP streams...")
+    found = 0
+    for port in range(start_port, end_port + 1, 2):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.settimeout(timeout)
+        try:
+            dummy_rtp = b"\x80\x00\x00\x01\x00\x00\x00\x00\x12\x34\x56\x78"
+            sock.sendto(dummy_rtp, (target, port))
+            data, addr = sock.recvfrom(2048)
+            if data and len(data) >= 12:
+                v = (data[0] >> 6) & 0x3
+                pt = data[1] & 0x7F
+                print(f"[!] LEAK DETECTED: {target}:{port} responded with {len(data)} bytes (RTP v{v}, PT={pt})")
+                found += 1
+        except (socket.timeout, ConnectionRefusedError, OSError):
+            pass
+        finally:
+            sock.close()
+    print(f"[*] Scan finished. Leaky ports identified: {found}")
+
+def main():
+    parser = argparse.ArgumentParser(description="RTP Bleed Security Scanner")
+    parser.add_argument("-t", "--target", required=True, help="Target SBC or RTPproxy IP/host")
+    parser.add_argument("-p", "--ports", default="10000-20000", help="UDP port range (default: 10000-20000)")
+    parser.add_argument("--timeout", type=float, default=0.5, help="Socket timeout in seconds")
+    args = parser.parse_args()
+    
+    parts = args.ports.split("-")
+    start_p = int(parts[0])
+    end_p = int(parts[1]) if len(parts) > 1 else start_p
+    audit_rtp(args.target, start_p, end_p, args.timeout)
+
+if __name__ == "__main__":
+    main()
+EOF
+chmod +x /usr/local/bin/rtpbleed
+record_tool "rtpbleed" "/usr/local/bin/rtpbleed" "voip"
+
+
 # ─── T. Falcon GUI (LTE Network Analyzer) ──────────────────────────────────
 echo "  Installing Falcon GUI..."
 [ -d "${TELCOSEC_OPT}/falcon" ] || clone_if_missing https://github.com/fkie-cad/FALCON "${TELCOSEC_OPT}/falcon" 2>/dev/null || true

@@ -24,7 +24,7 @@
           </div>
 
           <p>
-            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution developed by <strong>TelcoSec</strong>, purpose-built for advanced <strong>Telecom Security</strong> research. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong>, it ships with 78 pre-configured tools for Software Defined Radio (SDR) engineering, baseband auditing, and cellular network penetration testing — ready to use without installation.
+            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution developed by <strong>TelcoSec</strong>, purpose-built for advanced <strong>Telecom Security</strong> research. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong>, it ships with 88 pre-configured tools for Software Defined Radio (SDR) engineering, baseband auditing, and cellular network penetration testing — ready to use without installation.
           </p>
 
           <!-- Download CTA -->
@@ -109,7 +109,7 @@
             <details class="faq-item">
               <summary class="faq-question">What is TelcoChisel?</summary>
               <div class="faq-answer">
-                TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with a lightweight XFCE desktop, purpose-built for telecommunications security research. It includes 78 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing — no installation required.
+                TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with a lightweight XFCE desktop, purpose-built for telecommunications security research. It includes 88 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing — no installation required.
               </div>
             </details>
 
@@ -328,8 +328,8 @@
 
         <!-- SECTION: TOOLS -->
         <section id="tools" class="content-section" :class="{ active: activeSection === 'tools' }" v-show="activeSection === 'tools'">
-          <div class="section-header" data-label="// Tool Catalog :: 78 Instruments">
-            <h2>Tools Directory — 78 Pre-installed Telecom Security Tools</h2>
+          <div class="section-header" data-label="// Tool Catalog :: 88 Instruments">
+            <h2>Tools Directory — 88 Pre-installed Telecom Security Tools</h2>
             <p class="subtitle">Complete catalog of SDR, baseband, SIM, RAN, and signaling tools pre-installed in TelcoChisel</p>
           </div>
 
@@ -1092,7 +1092,7 @@ function trackAcademy() {
 
 useSeoMeta({
   title: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec',
-  description: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 78 pre-configured tools for SDR analysis and cellular penetration testing.',
+  description: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 88 pre-configured tools for SDR analysis and cellular penetration testing.',
   keywords: 'TelcoSec, TelcoChisel, Telecom Security, 5G security research, 4G LTE penetration testing, SDR security, baseband analysis, FirmWire, GNU Radio, srsRAN, Open5GS',
   author: 'TelcoSec',
   themeColor: '#00ffd5',
@@ -1100,7 +1100,7 @@ useSeoMeta({
   ogSiteName: 'TelcoSec',
   ogUrl: 'https://chisel.telcosec.net/',
   ogTitle: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec',
-  ogDescription: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 78 pre-configured tools for SDR analysis and cellular penetration testing.',
+  ogDescription: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 88 pre-configured tools for SDR analysis and cellular penetration testing.',
   ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
   ogImageWidth: 1280,
   ogImageHeight: 640,
@@ -1162,7 +1162,7 @@ useHead({
           "applicationCategory": "SecurityApplication",
           "applicationSubCategory": "Telecommunications Security, Software Defined Radio, Baseband Analysis",
           "operatingSystem": "Linux (Ubuntu 24.04 LTS)",
-          "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 78 pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
+          "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 88 pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
           "url": "https://chisel.telcosec.net/",
           "downloadUrl": "https://sourceforge.net/projects/telcochisel/files/latest/download",
           "softwareVersion": "1.1.0",
@@ -1225,7 +1225,7 @@ useHead({
               "name": "What is TelcoChisel?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 78 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
+                "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 88 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
               }
             },
             {
@@ -1507,7 +1507,7 @@ flowchart TD
     end
 
     %% Applications
-    subgraph Apps[Telecom Security Applications - 78 Tools]
+    subgraph Apps[Telecom Security Applications - 88 Tools]
         RAN[srsRAN / OAI / OpenBTS / UERANSIM]
         Core[Open5GS / my5G-RANTester / OsmoCore]
         Analysis[Wireshark GSMTAP / Scapy / TShark]

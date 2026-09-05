@@ -151,7 +151,7 @@ export const featuresMetadata = {
       "modular telecom security packages",
       "APT repo TelcoChisel"
     ],
-    overview: "TelcoChisel distributes its 78+ telecom security tools through a modular 10-tier Debian metapackage architecture hosted on the Cloudflare Pages global edge network (`meta.telcosec.net`). Security teams can deploy lightweight, domain-specific toolchains — such as SDR, 5G Core, SIM smartcards, mobile modems, or PSTN wireline — onto any standard Ubuntu 24.04 system without installing the complete 20 GB operating system image.",
+    overview: "TelcoChisel distributes its 88+ telecom security tools through a modular 10-tier Debian metapackage architecture hosted on the Cloudflare Pages global edge network (`meta.telcosec.net`). Security teams can deploy lightweight, domain-specific toolchains — such as SDR, 5G Core, SIM smartcards, mobile modems, or PSTN wireline — onto any standard Ubuntu 24.04 system without installing the complete 20 GB operating system image.",
     config: [
       "Query all available TelcoChisel modular metapackages:\napt-cache search telcochisel-",
       "Inspect package dependencies for the 5G Core assessment suite:\napt-cache depends telcochisel-5g",
