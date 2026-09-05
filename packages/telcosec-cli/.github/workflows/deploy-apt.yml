@@ -1,0 +1,124 @@
+name: Deploy TelcoSec Operator CLI APT Repository
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (do not publish to Cloudflare Pages)'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: apt-pages
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    name: Build Multi-Arch DEBs & Deploy APT Repo
+    runs-on: ubuntu-24.04
+    env:
+      CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go Toolchain
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+          cache-dependency-path: '**/go.sum'
+
+      - name: Install Packaging Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            reprepro \
+            gnupg \
+            debhelper \
+            dpkg-dev \
+            build-essential
+
+      - name: Setup GPG Signing Key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: bash scripts/ci-setup-gpg.sh
+
+      - name: Build Multi-Arch Debian Packages (AMD64 & ARM64)
+        run: |
+          mkdir -p build-output
+          TAG_NAME="${GITHUB_REF_NAME:-v3.0.0}"
+          TAG_CLEAN="${TAG_NAME#v}"
+          if [ -n "$TAG_CLEAN" ]; then
+            sed -i "1s/telcosec-cli ([^)]*)/telcosec-cli (${TAG_CLEAN}-1)/" debian/changelog
+          fi
+
+          # Build native AMD64 package
+          echo "[+] Building amd64 package..."
+          dpkg-buildpackage -us -uc -b -aamd64 -d
+          # Build cross ARM64 package
+          echo "[+] Building arm64 package..."
+          dpkg-buildpackage -us -uc -b -aarm64 -d
+
+          mv ../telcosec-cli_*.deb build-output/
+          echo "[+] Successfully compiled packages:"
+          ls -lh build-output/
+
+      - name: Assemble Static APT Repository via Reprepro
+        run: |
+          mkdir -p public/conf
+          cp conf/distributions public/conf/
+
+          # Export public armored GPG key for client enrollment
+          gpg --armor --export "repo@telcosec.net" > public/public.gpg
+          cp public/public.gpg public/telcosec.gpg
+
+          # Ingest both amd64 and arm64 packages into noble suite
+          for deb in build-output/*.deb; do
+            if [ -f "$deb" ]; then
+              echo "[+] Ingesting $deb into noble distribution..."
+              reprepro --basedir public includedeb noble "$deb"
+            fi
+          done
+
+          # Strip build configuration and tracking DB from public static web output
+          rm -rf public/conf public/db
+
+          # Set custom domain CNAME for Cloudflare Pages
+          echo "meta.telcosec.net" > public/CNAME
+
+      - name: Deploy to Cloudflare Pages (meta.telcosec.net)
+        if: env.CF_API_TOKEN != '' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy public --project-name=telcochisel-repos --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Upload Debian Packages Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: telcosec-cli-deb-packages
+          path: build-output/*.deb
+          retention-days: 30
+
+      - name: Upload Static APT Repository Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: telcosec-cli-apt-repository
+          path: ./public
+          retention-days: 30

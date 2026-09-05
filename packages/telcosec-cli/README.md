@@ -16,6 +16,8 @@ The official standalone operator CLI and telemetry suite for telecom security en
 - **SDR & Radio Hardware Diagnostics**: Automated discovery and health audits for Ettus USRP (UHD), Great Scott Gadgets HackRF, Nuand BladeRF, LimeSDR, RTL-SDR, and ADALM-PLUTO.
 - **10GbE Network Transceiver Optimization**: One-click Jumbo Frame configuration (MTU 9000), 4096 RX/TX ring buffer descriptors, and 64 MB socket buffers for high-bandwidth SDRs (USRP X310, N310).
 - **5G Standalone Lifecycle Management**: Controls Open5GS core network services and provisions subscriber credentials (`IMSI`, `K`, `OPc`) via `open5gs-dbctl`.
+- **10-Tier Modular Metapackage Management**: Seamless interface to inspect, install, and audit modular telecom suites (`telcosec pkg list`, `telcosec pkg info 5g`, `sudo telcosec pkg install sdr sim`).
+- **Smartcard, SIM & eSIM Auditing**: Pure Go ISO/IEC 7816-3 Answer-to-Reset (ATR) decoding, PC/SC reader monitoring, Osmocom SIMtrace 2 sniffer control, and eSIM Local Profile Assistant (`lpac`) integration (`telcosec sim`).
 - **Tool Catalog Keyword Search**: Instantly searches installed desktop tools and applications by protocol keyword (`sctp`, `diameter`, `ss7`, `nas`, `ran`).
 - **Operational Profile Switching**: Toggles between Lab Mode (`rp_filter=0`, unrestricted packet crafting) and Field Mode (hardened reverse path filtering).
 
@@ -27,18 +29,29 @@ The official standalone operator CLI and telemetry suite for telecom security en
 - Linux kernel 5.15+ (low-latency or PREEMPT_RT recommended for high-MSPS SDRs)
 - Go 1.22+ (for building from source)
 
-### Debian / Ubuntu Package Installation (.deb)
+### Official APT Repository Installation (Ubuntu 24.04 / 22.04 & Debian 12)
 
-Pre-built `.deb` packages are available from the GitHub Releases page or the official TelcoSec APT repository:
+Install `telcosec-cli` via the official Cloudflare Pages-backed APT edge repository (`meta.telcosec.net`):
+
+```bash
+# 1. Install TelcoSec APT keyring
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://meta.telcosec.net/public.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/telcosec.gpg
+
+# 2. Add TelcoChisel repository source
+echo "deb [signed-by=/etc/apt/keyrings/telcosec.gpg] https://meta.telcosec.net noble main" | sudo tee /etc/apt/sources.list.d/telcosec.list
+
+# 3. Update package index and install telcosec-cli
+sudo apt-get update && sudo apt-get install -y telcosec-cli
+```
+
+### Manual Debian Package Installation (.deb)
+
+Pre-built multi-architecture `.deb` packages (`amd64` and `arm64`) are available on the [GitHub Releases](https://github.com/TelcoSec-Tools/telcosec-cli/releases) page:
 
 ```bash
 # Install via dpkg
 sudo dpkg -i telcosec-cli_3.0.0-1_amd64.deb
-
-# Or install from official TelcoSec repository
-curl -sS https://meta.telcosec.net/gpg/KEY.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/telcosec.gpg
-echo "deb [signed-by=/etc/apt/trusted.gpg.d/telcosec.gpg] https://meta.telcosec.net noble main" | sudo tee /etc/apt/sources.list.d/telcosec.list
-sudo apt update && sudo apt install telcosec-cli
 ```
 
 ### Building Debian Package (.deb)
