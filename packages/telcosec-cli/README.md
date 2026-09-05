@@ -45,6 +45,24 @@ echo "deb [signed-by=/etc/apt/keyrings/telcosec.gpg] https://meta.telcosec.net n
 sudo apt-get update && sudo apt-get install -y telcosec-cli
 ```
 
+### macOS & Linux (Homebrew)
+
+Install `telcosec` on macOS (Apple Silicon & Intel) or Linux via the official [TelcoSec Homebrew tap](https://github.com/TelcoSec-Tools/homebrew-tap):
+
+```bash
+# Tap the official TelcoSec repository
+brew tap telcosec-tools/tap
+
+# Install telcosec (includes shell completions & man pages)
+brew install telcosec
+
+# Or install directly in a single command:
+brew install telcosec-tools/tap/telcosec
+
+# To compile bleeding-edge from trunk:
+brew install --HEAD telcosec-tools/tap/telcosec
+```
+
 ### Manual Debian Package Installation (.deb)
 
 Pre-built multi-architecture `.deb` packages (`amd64` and `arm64`) are available on the [GitHub Releases](https://github.com/TelcoSec-Tools/telcosec-cli/releases) page:
