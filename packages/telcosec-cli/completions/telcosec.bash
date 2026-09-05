@@ -10,7 +10,7 @@ _telcosec() {
     local cur prev words cword
     _init_completion || return
 
-    local commands="check status hardware hw devices search find docs doc documentation sdr 10g 10gbe network firmware bitstreams profile pkg package packages 5g-sa 5g 5gsa scan academy feedback review version completion help"
+    local commands="check status hardware hw devices search find docs doc documentation sdr 10g 10gbe network firmware bitstreams profile pkg package packages sim smartcard esim 5g-sa 5g 5gsa scan academy feedback review version completion help"
 
     if [[ $cword -eq 1 ]]; then
         COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
@@ -20,6 +20,24 @@ _telcosec() {
     local cmd="${words[1]}"
 
     case "$cmd" in
+        sim|smartcard|esim)
+            local sim_subcommands="status readers atr trace lpac shell"
+            if [[ $cword -eq 2 ]]; then
+                COMPREPLY=( $(compgen -W "$sim_subcommands" -- "$cur") )
+            elif [[ $cword -eq 3 ]]; then
+                case "${words[2]}" in
+                    status|readers|atr)
+                        COMPREPLY=( $(compgen -W "--json -j" -- "$cur") )
+                        ;;
+                    trace|simtrace|simtrace2)
+                        COMPREPLY=( $(compgen -W "list sniff" -- "$cur") )
+                        ;;
+                    lpac|esim)
+                        COMPREPLY=( $(compgen -W "status chip profiles drivers --json" -- "$cur") )
+                        ;;
+                esac
+            fi
+            ;;
         pkg|package|packages)
             local pkg_subcommands="list info install remove check audit repo"
             local metapackages="base hardware sdr 2g-3g 4g 5g sim wireline pstn ue full"

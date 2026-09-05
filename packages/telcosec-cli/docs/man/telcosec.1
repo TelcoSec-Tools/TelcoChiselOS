@@ -111,6 +111,29 @@ Audit installed metapackages and verify dpkg database package consistency.
 Audit or configure enrollment in the official \fBhttps://meta.telcosec.net\fR APT repository and GPG signing keys.
 .RE
 .TP
+.BR sim " [" status "|" readers "|" atr "|" trace "|" lpac "|" shell "]"
+Comprehensive smartcard, SIM, and eSIM auditing suite:
+.RS
+.TP
+.B status
+Display global SIM auditing environment status, including PC/SC daemon state, attached readers, and toolchain readiness.
+.TP
+.B readers
+Enumerate attached PC/SC and USB CCID smartcard readers, card presence status, and detected ATR strings.
+.TP
+.BI atr " [" hex_string "]"
+Decode and analyze an ISO/IEC 7816-3 Answer-to-Reset (ATR) sequence. If \fIhex_string\fR is omitted, the ATR is automatically polled from the first active smartcard inserted into a connected reader. Evaluates transmission convention, clock rate conversion (Fi), baud rate adjustment (Di), work ETU, extra guard time, historical bytes, telecom profile classification (GSM, USIM, ISIM, sysmoUSIM), and TCK checksum integrity. Supports \fB--json\fR.
+.TP
+.BR trace " [" list "|" sniff "]"
+Inspect Osmocom SIMtrace 1/2 hardware probes or stream live APDU signaling over GSMTAP (UDP 4729) directly into Wireshark.
+.TP
+.BR lpac " [" status "|" chip "|" profiles "|" drivers "]"
+Interact with the eSIM Local Profile Assistant (lpac) to inspect eUICC chip EID, default SM-DP+ server address, installed MNO profiles, and APDU driver interfaces.
+.TP
+.B shell
+Launch an interactive Osmocom \fBpySim-shell\fR session for smartcard filesystem exploration, file reading, and APDU testing.
+.RE
+.TP
 .BR 5g-sa ", " 5g " [" start "|" stop "|" status "|" add-sub "]"
 Manage local Open5GS 5G Standalone core network services:
 .RS
@@ -223,6 +246,12 @@ Probe all attached radio transceivers and SIM readers.
 .TP
 .B telcosec search diameter
 Search the tool catalog for Diameter protocol utilities.
+.TP
+.B telcosec sim atr 3B9F95801FC78031E073FE211B674A4C7380110043
+Decode and classify an ISO/IEC 7816-3 Answer-to-Reset from a sysmoUSIM-SJS1 test card.
+.TP
+.B telcosec sim readers --json
+Enumerate all connected PC/SC smartcard readers and detected ATRs in structured JSON.
 .TP
 .B sudo telcosec 10g tune eth1
 Optimize 10GbE network interface \fBeth1\fR with MTU 9000 and 4096 ring descriptors.

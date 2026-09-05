@@ -19,6 +19,7 @@ _telcosec() {
         'firmware:Inspect and manage offline SDR FPGA bitstreams (BladeRF, USRP)'
         'profile:Switch operational profiles (lab vs field)'
         'pkg:Official metapackage manager (list, info, install, remove, repo)'
+        'sim:Smartcard, SIM & eSIM auditing (status, readers, atr, trace, lpac, shell)'
         '5g-sa:5G Standalone core & RAN lifecycle manager (Open5GS)'
         'scan:Interactive telecom protocol assessment wizard (sctp, sip, asleap)'
         'academy:Access TelcoSec Academy interactive labs & credentials'
@@ -38,6 +39,50 @@ _telcosec() {
             ;;
         args)
             case $words[1] in
+                sim|smartcard|esim)
+                    local -a sim_subcmds
+                    sim_subcmds=(
+                        'status:Audit smartcard daemon, reader count, and toolchain'
+                        'readers:List attached PC/SC and USB CCID smartcard readers'
+                        'atr:Parse and decode ISO/IEC 7816-3 Answer-to-Reset'
+                        'trace:Osmocom SIMtrace 2 probe inspection and APDU sniffing'
+                        'lpac:eSIM Local Profile Assistant profile and chip manager'
+                        'shell:Launch interactive Osmocom pySim-shell console'
+                    )
+                    _arguments -C \
+                        '1: :->sim_subcmd' \
+                        '*:: :->sim_args'
+                    case $state in
+                        sim_subcmd)
+                            _describe -t sim_subcmds 'sim command' sim_subcmds
+                            ;;
+                        sim_args)
+                            case $words[1] in
+                                trace|simtrace)
+                                    local -a trace_subcmds
+                                    trace_subcmds=(
+                                        'list:List attached Osmocom SIMtrace hardware probes'
+                                        'sniff:Stream live APDU traffic via GSMTAP to Wireshark'
+                                    )
+                                    _describe -t trace_subcmds 'trace action' trace_subcmds
+                                    ;;
+                                lpac|esim)
+                                    local -a lpac_subcmds
+                                    lpac_subcmds=(
+                                        'status:Show general lpac status and installed drivers'
+                                        'chip:Query eUICC chip EID and capabilities'
+                                        'profiles:List installed eSIM profiles on target chip'
+                                        'drivers:Enumerate available APDU and HTTP drivers'
+                                    )
+                                    _describe -t lpac_subcmds 'lpac action' lpac_subcmds
+                                    ;;
+                                status|readers|atr)
+                                    _arguments '--json[Output results in structured JSON format]'
+                                    ;;
+                            esac
+                            ;;
+                    esac
+                    ;;
                 pkg|package|packages)
                     local -a pkg_subcmds metapackages
                     pkg_subcmds=(
