@@ -1,3 +1,12 @@
+telcosec-cli (3.0.1-1) noble; urgency=medium
+
+  * Multi-platform Darwin (macOS Apple Silicon & Intel) release binaries.
+  * Official Homebrew tap formula integration (telcosec-tools/tap).
+  * Multi-architecture container automation (ghcr.io/telcosec-tools/telcosec-cli).
+  * Automated release bumping and unattended GPG package signing.
+
+ -- TelcoSec Engineering <ops@telcosec.net>  Sun, 06 Sep 2026 00:30:00 +0000
+
 telcosec-cli (3.0.0-1) noble; urgency=medium
 
   * Initial standalone release of telcosec-cli.
