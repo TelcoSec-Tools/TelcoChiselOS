@@ -17,8 +17,11 @@ concurrency:
   group: "pages"
   cancel-in-progress: true
 
+env:
+  SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+
 # Runs on GitHub-hosted runners (ubuntu-latest).
-# Uses Node 20 to build the static Nuxt 3 site and deploy to GitHub Pages.
+# Uses Node 20 to build the static Nuxt 3 site and deploy to GitHub Pages and SourceForge.
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -47,6 +50,19 @@ jobs:
         env:
           NODE_ENV: production
         run: pnpm run generate
+
+      - name: Deploy to SourceForge Project Web
+        if: env.SF_SSH_KEY != ''
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SF_SSH_KEY" > ~/.ssh/sf_deploy
+          chmod 600 ~/.ssh/sf_deploy
+          ssh-keyscan -H web.sourceforge.net >> ~/.ssh/known_hosts 2>/dev/null
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
+            docs/.output/public/ \
+            rfs85,telcochisel@web.sourceforge.net:/home/project-web/telcochisel/htdocs/
+          echo "✓ Deployed to https://telcochisel.sourceforge.io"
 
       - uses: actions/upload-pages-artifact@v3
         with:
