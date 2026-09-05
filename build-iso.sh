@@ -328,6 +328,9 @@ HOSTS
   cp -r builder/wireshark "$ROOTFS/tmp/wireshark"
   cp -r builder/boot      "$ROOTFS/tmp/boot"
   cp -r builder/wordlists "$ROOTFS/tmp/wordlists"
+  if [ -d packages/telcosec-cli ]; then
+    cp -r packages/telcosec-cli "$ROOTFS/tmp/telcosec-cli"
+  fi
   # Guarantee Unix LF line endings across all copied builder assets inside chroot
   find "$ROOTFS/tmp" -type f -exec sed -i -e 's/\r$//' {} + 2>/dev/null || true
 

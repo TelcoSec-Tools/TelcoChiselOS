@@ -381,12 +381,33 @@ esac
 PROFILESCRIPT
 sudo chmod +x /usr/local/bin/telcosec-profile
 
-# 11d. Unified TelcoSec Operator CLI & Helpers
-echo "Deploying unified telcosec operator CLI and persistence tools..."
-if [ -f /tmp/scripts/bin/telcosec ]; then
+# 11d. Unified TelcoSec Operator CLI, Shell Completions & Manual Pages
+echo "Deploying unified telcosec operator CLI, shell completions, and manpages..."
+CLI_DEPLOYED=0
+if [ -d /tmp/telcosec-cli ] && command -v go >/dev/null 2>&1; then
+  echo "  Building standalone telcosec Go binary from source..."
+  (
+    cd /tmp/telcosec-cli
+    make build
+    make install-completions
+    make install-man
+    sudo install -m 755 bin/telcosec /usr/local/bin/telcosec
+    sudo ln -sf /usr/local/bin/telcosec /usr/local/bin/telcochisel
+  ) && CLI_DEPLOYED=1 || echo "  Warning: In-chroot Go compilation failed, using fallback script."
+fi
+
+if [ "$CLI_DEPLOYED" -eq 0 ] && [ -f /tmp/scripts/bin/telcosec ]; then
+  echo "  Installing in-tree telcosec script launcher..."
   sudo cp -f /tmp/scripts/bin/telcosec /usr/local/bin/telcosec
   sudo chmod 755 /usr/local/bin/telcosec
   sudo ln -sf /usr/local/bin/telcosec /usr/local/bin/telcochisel
+  if [ -d /tmp/telcosec-cli ]; then
+    (
+      cd /tmp/telcosec-cli
+      make install-completions 2>/dev/null || true
+      make install-man 2>/dev/null || true
+    )
+  fi
 fi
 
 if [ -f /tmp/scripts/bin/telcosec-create-usb ]; then

@@ -53,7 +53,7 @@ PKGS_BASE=(
   plymouth plymouth-themes
   # Core system tools
   git vim nano htop fzf
-  build-essential cmake pkg-config
+  build-essential cmake pkg-config golang-go
   ufw openssh-server
   openvpn network-manager-openvpn network-manager-openvpn-gnome
   wireguard wireguard-tools resolvconf
