@@ -1,0 +1,11 @@
+.git
+.github
+dist
+bin
+build-output
+*.deb
+*.tar.gz
+*.iso
+*.img
+coverage.txt
+.DS_Store
