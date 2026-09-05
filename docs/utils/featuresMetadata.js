@@ -192,6 +192,7 @@ export const featuresMetadata = {
   "telcosec-operator-cli": {
     keywords: [
       "telcosec operator CLI",
+      "telcosec brew homebrew tap",
       "telcosec sim smartcard atr",
       "telcosec pkg metapackage",
       "lpac esim management",
@@ -201,8 +202,9 @@ export const featuresMetadata = {
       "automated SDR hardware discovery",
       "5G core management command line"
     ],
-    overview: "TelcoChisel provides a centralized operator command-line interface, `telcosec` (also symlinked to `telcochisel`), designed for rapid field diagnostics, hardware enumeration, modular metapackage management (`telcosec pkg`), smartcard and eSIM auditing (`telcosec sim`), cellular core management, and security scanning. Rather than requiring operators to remember dozens of disparate Linux commands and hardware probe syntax, `telcosec` aggregates system status, SDR transceiver detection, 10-tier metapackage operations, pure Go ISO 7816-3 ATR parsing, 5G SA simulation, and security scanning into a single intuitive tool.",
+    overview: "TelcoChisel provides a centralized operator command-line interface, `telcosec` (also symlinked to `telcochisel`), designed for rapid field diagnostics, hardware enumeration, modular metapackage management (`telcosec pkg`), smartcard and eSIM auditing (`telcosec sim`), cellular core management, and security scanning. Available on Linux via APT (`apt install telcosec-cli`) and on macOS & Linux via Homebrew (`brew install telcosec-tools/tap/telcosec`). Rather than requiring operators to remember dozens of disparate Linux commands and hardware probe syntax, `telcosec` aggregates system status, SDR transceiver detection, 10-tier metapackage operations, pure Go ISO 7816-3 ATR parsing, 5G SA simulation, and security scanning into a single intuitive tool.",
     config: [
+      "Install on macOS (Apple Silicon/Intel) or Linux via official Homebrew tap:\nbrew tap telcosec-tools/tap\nbrew install telcosec",
       "Run the comprehensive operator diagnostic overview:\ntelcosec status",
       "Enumerate all connected SDR transceivers and smartcard interfaces:\ntelcosec hardware",
       "Inspect and manage modular 10-tier metapackages on-demand:\ntelcosec pkg list\ntelcosec pkg info 5g\nsudo telcosec pkg install sdr sim",
@@ -214,6 +216,7 @@ export const featuresMetadata = {
     ],
     troubleshooting: "If `telcosec hardware` does not detect your connected SDR, verify physical USB connectivity (`lsusb`), check that your user account belongs to the `plugdev` group (`id -nG`), and ensure the low-latency udev rules have triggered (`sudo udevadm trigger`). If smartcard readers are not detected, run `telcosec sim status` to verify that `pcscd` daemon is running (`sudo systemctl restart pcscd`).",
     faq: [
+      { q: "How do I install telcosec on macOS?", a: "Run 'brew tap telcosec-tools/tap && brew install telcosec'. The formula builds a native Mach-O binary for your architecture (Apple Silicon M1/M2/M3/M4 or Intel x86_64) and automatically installs shell completions and manual pages." },
       { q: "What does 'telcosec status' report?", a: "It audits running kernel version, real-time SCHED_RR permissions, locked memory limits, USB buffer allocations, active SCTP kernel socket parameters, running cellular core services (Open5GS, MongoDB), and smartcard daemon status." },
       { q: "How does 'telcosec sim' decode SIM smartcards?", a: "It includes a native, pure Go ISO/IEC 7816-3 ATR parser with zero external C dependencies. It validates direct/inverse convention, decodes Fi/Di speed factors, extracts historical bytes, verifies TCK checksums, and classifies profiles into 2G GSM, 3G/4G USIM, 5G ISIM, and sysmoUSIM test SIMs." },
       { q: "Is 'telcosec pkg' different from 'telcosec-pkg'?", a: "No. 'telcosec pkg' delegates directly to the exact same modular metapackage engine and repository, providing identical options and domain aliases inside the unified operator interface." },

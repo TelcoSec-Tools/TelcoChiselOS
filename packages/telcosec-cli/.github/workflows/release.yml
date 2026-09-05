@@ -37,12 +37,18 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "$LDFLAGS" -o dist/telcosec-linux-amd64 ./cmd/telcosec
           # Linux ARM64
           CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags "$LDFLAGS" -o dist/telcosec-linux-arm64 ./cmd/telcosec
+          # macOS AMD64 (Intel)
+          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags "$LDFLAGS" -o dist/telcosec-darwin-amd64 ./cmd/telcosec
+          # macOS ARM64 (Apple Silicon)
+          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags "$LDFLAGS" -o dist/telcosec-darwin-arm64 ./cmd/telcosec
 
           chmod +x dist/*
 
           cd dist
           tar -czvf "telcosec_${TAG_NAME}_linux_amd64.tar.gz" telcosec-linux-amd64
           tar -czvf "telcosec_${TAG_NAME}_linux_arm64.tar.gz" telcosec-linux-arm64
+          tar -czvf "telcosec_${TAG_NAME}_darwin_amd64.tar.gz" telcosec-darwin-amd64
+          tar -czvf "telcosec_${TAG_NAME}_darwin_arm64.tar.gz" telcosec-darwin-arm64
           sha256sum *.tar.gz > SHA256SUMS
 
       - name: Build Debian Packages (AMD64 & ARM64)
