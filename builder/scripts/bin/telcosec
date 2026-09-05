@@ -1,0 +1,347 @@
+#!/usr/bin/env bash
+# =============================================================================
+# /usr/local/bin/telcosec — Unified Operator CLI for TelcoChiselOS
+#
+# Provides an integrated command-line interface for:
+#   - System & hardware telemetry (SDRs, modems, SIM readers, kernel latency)
+#   - Operational profiles (Lab Mode vs Field Mode, Hugepages)
+#   - 5G Standalone core & RAN lifecycle (Open5GS, UERANSIM)
+#   - Signaling and protocol assessment runners (SCTP, SIP, Diameter, SS7)
+#   - Offline SDR FPGA bitstream management
+#   - TelcoSec Academy lab testbed bridge
+# =============================================================================
+set -euo pipefail
+
+VERSION="1.1.0"
+
+# Color helpers
+if [ -t 1 ]; then
+  BOLD='\033[1m'
+  CYAN='\033[1;36m'
+  GREEN='\033[1;32m'
+  YELLOW='\033[1;33m'
+  RED='\033[1;31m'
+  BLUE='\033[1;34m'
+  MAGENTA='\033[1;35m'
+  RESET='\033[0m'
+else
+  BOLD='' CYAN='' GREEN='' YELLOW='' RED='' BLUE='' MAGENTA='' RESET=''
+fi
+
+banner() {
+  printf "${CYAN}"
+  cat << 'EOF'
+  _____ _____ _     ____ ___   ____ _   _ ___ ____  _____ _     
+ |_   _| ____| |   / ___/ _ \ / ___| | | |_ _/ ___|| ____| |    
+   | | |  _| | |  | |  | | | | |   | |_| || |\___ \|  _| | |    
+   | | | |___| |__| |__| |_| | |___|  _  || | ___) | |___| |___ 
+   |_| |_____|_____\____\___/ \____|_| |_|___|____/|_____|_____|
+EOF
+  printf "${RESET}${BOLD}          TelcoChisel Telecom Security Command Center v%s${RESET}\n\n" "$VERSION"
+}
+
+usage() {
+  banner
+  cat << EOF
+Usage: telcosec <command> [options]
+       telcochisel <command> [options]
+
+Commands:
+  status               Comprehensive system, kernel, hardware, and services audit
+  hardware | sdr       Enumerate and probe attached SDRs, modems, and SIM readers
+  firmware             Inspect and manage offline SDR FPGA bitstreams (BladeRF, USRP)
+  profile [mode]       Switch operational profiles (lab | field | status)
+  5g <action>          5G Standalone core & RAN manager (start | stop | status | add-sub)
+  scan <protocol>      Interactive protocol assessment wizard (sctp | sip | diameter | ss7 | adsl)
+  academy              Access TelcoSec Academy interactive labs & credentials
+  version              Show TelcoChiselOS release version and kernel details
+
+Run 'telcosec <command> --help' for command-specific options.
+EOF
+}
+
+cmd_status() {
+  banner
+  echo -e "${BOLD}=== System & Kernel Status ===${RESET}"
+  KVER=$(uname -r)
+  if echo "$KVER" | grep -qi "lowlatency"; then
+    echo -e "  Kernel Architecture : ${GREEN}${KVER} [Low-Latency / Real-Time SDR]${RESET}"
+  else
+    echo -e "  Kernel Architecture : ${YELLOW}${KVER} [Generic Scheduler]${RESET}"
+  fi
+
+  # Realtime limits
+  RT_CONF="/etc/security/limits.d/99-telcochisel-rt.conf"
+  if [ -f "$RT_CONF" ] || [ -f "/etc/security/limits.d/99-realtime.conf" ]; then
+    echo -e "  PAM Real-Time Limits: ${GREEN}Active (rtprio 99, memlock unlimited)${RESET}"
+  else
+    echo -e "  PAM Real-Time Limits: ${YELLOW}Not detected${RESET}"
+  fi
+
+  # USBFS Memory Buffer
+  USBFS_MEM=$(cat /sys/module/usbcore/parameters/usbfs_memory_mb 2>/dev/null || echo "unknown")
+  if [ "$USBFS_MEM" -ge 500 ] 2>/dev/null; then
+    echo -e "  USBFS Memory Buffer : ${GREEN}${USBFS_MEM} MB (High-throughput SDR ready)${RESET}"
+  else
+    echo -e "  USBFS Memory Buffer : ${YELLOW}${USBFS_MEM} MB (Default: may drop samples under high MSPS)${RESET}"
+  fi
+
+  # Hugepages
+  HP_TOTAL=$(cat /proc/sys/vm/nr_hugepages 2>/dev/null || echo "0")
+  echo -e "  Allocated Hugepages : ${CYAN}${HP_TOTAL} pages${RESET}"
+
+  # Reverse Path Filter
+  RP=$(sysctl -n net.ipv4.conf.all.rp_filter 2>/dev/null || echo "1")
+  if [ "$RP" = "0" ]; then
+    echo -e "  Active Profile Mode : ${GREEN}[ LAB MODE (Packet crafting unblocked, rp_filter=0) ]${RESET}"
+  else
+    echo -e "  Active Profile Mode : ${YELLOW}[ FIELD MODE (Hardened firewall, rp_filter=1) ]${RESET}"
+  fi
+
+  echo ""
+  echo -e "${BOLD}=== Hardware Devices ===${RESET}"
+  # SDRs
+  SDR_DETECTED=0
+  if lsusb 2>/dev/null | grep -Ei "(2500:0020|2500:0022|1d50:604b|1d50:6089|0bda:2838|2500:0021|1d50:6060)"; then
+    SDR_DETECTED=1
+  fi
+  if [ "$SDR_DETECTED" -eq 1 ]; then
+    echo -e "  SDR Transceivers    : ${GREEN}Detected via USB (run 'telcosec sdr' for full probe)${RESET}"
+  else
+    echo -e "  SDR Transceivers    : ${YELLOW}None connected via USB${RESET}"
+  fi
+
+  # Modems
+  if ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null | grep -q .; then
+    MODEMS=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null | tr '\n' ' ')
+    echo -e "  Serial AT Modems    : ${GREEN}Available (${MODEMS})${RESET}"
+  else
+    echo -e "  Serial AT Modems    : ${YELLOW}None connected${RESET}"
+  fi
+
+  # PC/SC SmartCard / SIM
+  if command -v pcsc_scan &>/dev/null && pgrep -x pcscd >/dev/null; then
+    echo -e "  SIM Card Daemon     : ${GREEN}pcscd active (pySim ready)${RESET}"
+  else
+    echo -e "  SIM Card Daemon     : ${YELLOW}pcscd not running (run: sudo systemctl start pcscd)${RESET}"
+  fi
+
+  echo ""
+  echo -e "${BOLD}=== Core Telecom Services ===${RESET}"
+  for svc in open5gs-amfd open5gs-upfd nginx docker NetworkManager; do
+    if systemctl is-active --quiet "$svc" 2>/dev/null; then
+      printf "  %-20s: ${GREEN}running${RESET}\n" "$svc"
+    else
+      printf "  %-20s: ${YELLOW}inactive / stopped${RESET}\n" "$svc"
+    fi
+  done
+  echo ""
+}
+
+cmd_hardware() {
+  banner
+  echo -e "${BOLD}=== Scanning Attached Telecom Hardware ===${RESET}\n"
+
+  echo -e "${CYAN}[1/4] Probing SDR Transceivers via SoapySDR...${RESET}"
+  if command -v SoapySDRUtil &>/dev/null; then
+    SoapySDRUtil --find 2>/dev/null || echo "No SoapySDR devices responded."
+  elif [ -f /opt/telcosec/miniconda/envs/telcosec-sdr/bin/SoapySDRUtil ]; then
+    /opt/telcosec/miniconda/envs/telcosec-sdr/bin/SoapySDRUtil --find 2>/dev/null || echo "No SoapySDR devices responded."
+  else
+    echo "SoapySDRUtil not found."
+  fi
+
+  echo -e "\n${CYAN}[2/4] Probing Ettus USRP Devices...${RESET}"
+  if command -v uhd_find_devices &>/dev/null; then
+    uhd_find_devices 2>/dev/null || echo "No USRP devices responded."
+  elif [ -f /opt/telcosec/miniconda/envs/telcosec-sdr/bin/uhd_find_devices ]; then
+    /opt/telcosec/miniconda/envs/telcosec-sdr/bin/uhd_find_devices 2>/dev/null || echo "No USRP devices responded."
+  else
+    echo "uhd_find_devices not found."
+  fi
+
+  echo -e "\n${CYAN}[3/4] Probing Nuand BladeRF Devices...${RESET}"
+  if command -v bladeRF-cli &>/dev/null; then
+    bladeRF-cli -p 2>/dev/null || echo "No BladeRF devices responded."
+  else
+    echo "bladeRF-cli not found."
+  fi
+
+  echo -e "\n${CYAN}[4/4] Probing SIM Card Readers (PC/SC)...${RESET}"
+  if command -v pcsc_scan &>/dev/null; then
+    timeout 2 pcsc_scan -n 2>/dev/null || echo "No smartcard readers detected."
+  else
+    echo "pcsc_scan not installed."
+  fi
+  echo ""
+}
+
+cmd_firmware() {
+  banner
+  echo -e "${BOLD}=== Offline SDR FPGA Bitstream Management ===${RESET}\n"
+
+  BLADERF_DIR="/usr/share/Nuand/bladeRF"
+  UHD_DIR="/usr/share/uhd/images"
+
+  echo -e "${CYAN}--- BladeRF FPGA Images (${BLADERF_DIR}) ---${RESET}"
+  if [ -d "$BLADERF_DIR" ]; then
+    ls -lh "$BLADERF_DIR"/*.rbf 2>/dev/null || echo -e "${YELLOW}  No .rbf bitstreams found in ${BLADERF_DIR}${RESET}"
+  else
+    echo -e "${YELLOW}  Directory ${BLADERF_DIR} does not exist.${RESET}"
+  fi
+
+  echo -e "\n${CYAN}--- USRP FPGA Images (${UHD_DIR}) ---${RESET}"
+  if [ -d "$UHD_DIR" ]; then
+    ls -lh "$UHD_DIR"/*.bin 2>/dev/null | head -10 || echo -e "${YELLOW}  No .bin FPGA images found in ${UHD_DIR}${RESET}"
+  else
+    echo -e "${YELLOW}  Directory ${UHD_DIR} does not exist.${RESET}"
+  fi
+
+  echo ""
+  echo "To download/refresh offline FPGA images (requires internet):"
+  echo "  sudo /usr/local/bin/bladerf-download-images"
+  echo "  sudo /usr/local/bin/uhd-download-images"
+  echo ""
+}
+
+cmd_profile() {
+  mode="${1:-status}"
+  if command -v telcosec-profile &>/dev/null; then
+    telcosec-profile "$mode" "${2:-}"
+  else
+    echo "telcosec-profile utility not found."
+  fi
+}
+
+cmd_5g() {
+  action="${1:-status}"
+  case "$action" in
+    start)
+      echo "=== Starting Open5GS 5G Standalone Core Services ==="
+      sudo systemctl start open5gs-nrfd open5gs-scpd open5gs-amfd open5gs-smfd open5gs-upfd open5gs-ausfd open5gs-udmd open5gs-udrd open5gs-pcfd open5gs-nssfd open5gs-bsfd 2>/dev/null || true
+      echo "5G Core started. Verifying AMF status:"
+      systemctl status open5gs-amfd --no-pager | head -5 || true
+      ;;
+    stop)
+      echo "=== Stopping Open5GS 5G Standalone Core Services ==="
+      sudo systemctl stop open5gs-* 2>/dev/null || true
+      echo "5G Core stopped."
+      ;;
+    status)
+      echo "=== Open5GS Core Services Status ==="
+      systemctl status open5gs-amfd open5gs-upfd --no-pager | grep -E "Loaded:|Active:" || echo "Services not active"
+      ;;
+    add-sub)
+      imsi="${2:-001011234567890}"
+      k="${3:-465B5CE8B199B49FAA5F0A2EE238A6BC}"
+      opc="${4:-E8ED289DEBA952E4283B54E88E6183CA}"
+      if command -v open5gs-dbctl &>/dev/null; then
+        sudo open5gs-dbctl add "$imsi" "$k" "$opc"
+        echo "Successfully provisioned IMSI: $imsi"
+      else
+        echo "ERROR: open5gs-dbctl not found. Is Open5GS installed?"
+      fi
+      ;;
+    *)
+      echo "Usage: telcosec 5g {start|stop|status|add-sub [imsi] [k] [opc]}"
+      ;;
+  esac
+}
+
+cmd_scan() {
+  proto="${1:-help}"
+  case "$proto" in
+    sctp)
+      echo "=== SCTP Signaling Scanner (sctpscan) ==="
+      if command -v sctpscan &>/dev/null; then
+        shift || true
+        sctpscan "$@"
+      else
+        echo "sctpscan not found."
+      fi
+      ;;
+    sip)
+      echo "=== SIP Scanner (SIPVicious) ==="
+      if command -v sipvicious_svmap &>/dev/null; then
+        shift || true
+        sipvicious_svmap "$@"
+      elif command -v svmap &>/dev/null; then
+        shift || true
+        svmap "$@"
+      else
+        echo "SIPVicious svmap not found."
+      fi
+      ;;
+    asleap)
+      echo "=== Asleap PPPoE / MS-CHAPv2 Cracker ==="
+      if command -v asleap &>/dev/null; then
+        shift || true
+        asleap "$@"
+      else
+        echo "asleap not found."
+      fi
+      ;;
+    *)
+      echo "Usage: telcosec scan {sctp|sip|asleap} [target options]"
+      ;;
+  esac
+}
+
+cmd_academy() {
+  banner
+  echo -e "${BOLD}=== TelcoSec Academy -- Hands-On Telecom Security Labs ===${RESET}"
+  echo "Access live interactive testbeds for:"
+  echo "  - 5G Standalone Core & RAN exploitation"
+  echo "  - SS7, Diameter & GTP-C signaling audits"
+  echo "  - SDR over-the-air cellular attacks & SIB analysis"
+  echo "  - Baseband reverse engineering & FirmWire fuzzing"
+  echo ""
+  echo -e "Portal URL: ${YELLOW}https://app.telcosec.net${RESET}"
+  echo ""
+  if [ -n "${DISPLAY:-}" ] && command -v xdg-open &>/dev/null; then
+    read -rp "Open TelcoSec Academy in browser? [Y/n] " ans
+    if [[ "$ans" =~ ^[Yy]?$ ]]; then
+      xdg-open "https://app.telcosec.net/?utm_source=telcochisel_cli" >/dev/null 2>&1 &
+    fi
+  fi
+}
+
+# Subcommand dispatch
+action="${1:-help}"
+shift || true
+
+case "$action" in
+  status)
+    cmd_status
+    ;;
+  hardware|sdr)
+    cmd_hardware
+    ;;
+  firmware)
+    cmd_firmware
+    ;;
+  profile)
+    cmd_profile "$@"
+    ;;
+  5g)
+    cmd_5g "$@"
+    ;;
+  scan)
+    cmd_scan "$@"
+    ;;
+  academy)
+    cmd_academy
+    ;;
+  version|-v|--version)
+    echo "TelcoChisel OS Telecom Security Framework v${VERSION}"
+    uname -a
+    ;;
+  help|-h|--help)
+    usage
+    ;;
+  *)
+    echo "Unknown command: $action"
+    usage
+    exit 1
+    ;;
+esac
