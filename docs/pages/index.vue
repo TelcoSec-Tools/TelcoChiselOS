@@ -988,10 +988,14 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
           </div>
 
           <h3>Community &amp; Collaboration Channels</h3>
-          <div class="grid-3" style="margin-top: 10px;">
+          <div class="grid-2" style="margin-top: 10px;">
             <a href="https://discord.gg/RykzXTQFXF" class="card highlight-teal" target="_blank">
               <div class="card-title" style="color: var(--accent-teal);">Discord Chat</div>
               <p class="card-desc" style="font-size: 0.85rem;">Join telecom security discussions, help threads, and share radio captures in real time.</p>
+            </a>
+            <a href="https://sourceforge.net/projects/telcochisel/reviews/new" class="card highlight-teal" target="_blank">
+              <div class="card-title" style="color: var(--accent-teal);">SourceForge Reviews</div>
+              <p class="card-desc" style="font-size: 0.85rem;">Rate TelcoChisel, leave field feedback, and help support open-source telecom research.</p>
             </a>
             <a href="https://www.linkedin.com/company/telco-sec" class="card highlight-teal" target="_blank">
               <div class="card-title" style="color: var(--accent-teal);">LinkedIn Updates</div>

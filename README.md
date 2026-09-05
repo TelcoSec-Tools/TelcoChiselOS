@@ -19,6 +19,7 @@
   [![Containers](https://img.shields.io/badge/Pods-Podman_%26_K8s-8a2be2?logo=podman&logoColor=white)](docker/README.md)
   [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-00ffd5.svg)](LICENSE)
   [![Download](https://img.shields.io/sourceforge/dt/telcochisel?logo=sourceforge&label=Downloads)](https://sourceforge.net/projects/telcochisel/files/latest/download)
+  [![SourceForge Reviews](https://img.shields.io/sourceforge/reviews/telcochisel?logo=sourceforge&label=Reviews)](https://sourceforge.net/projects/telcochisel/reviews/new)
 
   [**Official Docs**](https://chisel.telcosec.net) • [**Download ISO**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**TelcoSec Academy**](https://app.telcosec.net) • [**Community Hub**](https://community.telcosec.net) • [**Discord Chat**](https://discord.gg/RykzXTQFXF)
 
@@ -614,6 +615,7 @@ In enterprise networks, VoIP infrastructure is isolated inside dedicated 802.1Q 
 | **Academy Learning Portal** | [app.telcosec.net](https://app.telcosec.net) |
 | **Research & Advisory Blog** | [blog.telcosec.net](https://blog.telcosec.net) |
 | **Community Discussion Forum** | [community.telcosec.net](https://community.telcosec.net) |
+| **SourceForge User Reviews** | [Rate TelcoChisel on SourceForge](https://sourceforge.net/projects/telcochisel/reviews/new) |
 | **Official Discord Server** | [discord.gg/RykzXTQFXF](https://discord.gg/RykzXTQFXF) |
 
 ---

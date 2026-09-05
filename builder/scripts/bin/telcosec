@@ -57,6 +57,7 @@ Commands:
   5g <action>          5G Standalone core & RAN manager (start | stop | status | add-sub)
   scan <protocol>      Interactive protocol assessment wizard (sctp | sip | diameter | ss7 | adsl)
   academy              Access TelcoSec Academy interactive labs & credentials
+  feedback             Community support channels & SourceForge review portal
   version              Show TelcoChiselOS release version and kernel details
 
 Run 'telcosec <command> --help' for command-specific options.
@@ -335,6 +336,29 @@ cmd_sdr() {
   fi
 }
 
+cmd_feedback() {
+  banner
+  echo -e "${BOLD}=== Community Support & SourceForge Reviews ===${RESET}"
+  echo -e "  Your feedback helps telecom security researchers and operators discover TelcoChisel."
+  echo ""
+  echo -e "  ${CYAN}⭐ Rate TelcoChisel on SourceForge:${RESET}"
+  echo -e "     https://sourceforge.net/projects/telcochisel/reviews/new"
+  echo ""
+  echo -e "  ${GREEN}💬 Community Discussion Forum:${RESET}"
+  echo -e "     https://community.telcosec.net"
+  echo ""
+  echo -e "  ${BLUE}🐛 Bug Reports & Feature Requests (GitHub Issues):${RESET}"
+  echo -e "     https://github.com/TelcoSec-Tools/TelcoChiselOS/issues"
+  echo ""
+  echo -e "  ${MAGENTA}🎮 Official Discord Chat Server:${RESET}"
+  echo -e "     https://discord.gg/RykzXTQFXF"
+  echo ""
+  if [ -n "${DISPLAY:-}" ]; then
+    echo -e "  Opening SourceForge review portal in browser..."
+    (xdg-open "https://sourceforge.net/projects/telcochisel/reviews/new" 2>/dev/null || sensible-browser "https://sourceforge.net/projects/telcochisel/reviews/new" 2>/dev/null || true) &
+  fi
+}
+
 # Subcommand dispatch
 action="${1:-help}"
 shift || true
@@ -376,6 +400,9 @@ case "$action" in
     ;;
   academy)
     cmd_academy
+    ;;
+  feedback|review|reviews)
+    cmd_feedback
     ;;
   version|-v|--version)
     echo "TelcoChisel OS Telecom Security Framework v${VERSION}"
