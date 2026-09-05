@@ -507,6 +507,16 @@
               </div>
             </div>
           </div>
+
+          <!-- Academy 5G Fuzzing Certification Bridge -->
+          <AcademyCard
+            variant="contextual"
+            category="baseband"
+            title="5G NR Baseband Fuzzing &amp; Exploitation Training"
+            desc="Master 5Ghoul exploits, OAI rogue gNodeB fuzzing, and modem crash triaging in structured sandbox labs at TelcoSec Academy."
+            cta-text="Access 5G Fuzzing Labs"
+            campaign="5ghoul_section"
+          />
         </section>
 
         <!-- SECTION: SCENARIOS -->
@@ -632,7 +642,29 @@
                 </h4>
                 <MermaidDiagram :chart="scenario.diagram" />
               </div>
+
+              <!-- Interactive Academy Sandbox Bridge -->
+              <AcademyCard
+                v-if="scenario.academyLab"
+                variant="scenario"
+                :category="scenario.category"
+                :lab-name="scenario.academyLab.name"
+                :desc="scenario.academyLab.desc"
+                campaign="scenarios_section"
+              />
             </div>
+          </div>
+
+          <!-- Academy Red Team Path Banner -->
+          <div style="margin-top: 36px;">
+            <AcademyCard
+              variant="contextual"
+              category="general"
+              title="TelcoSec Certified Telecom Security Practitioner (CTSP)"
+              desc="Train on all 6 assessment playbooks with live cloud sandboxes, pre-provisioned 5G Cores, and synthetic UEs. Complete practical capture-the-flag exercises and earn industry-recognized certification."
+              cta-text="Enroll in CTSP Program"
+              campaign="scenarios_overview_footer"
+            />
           </div>
         </section>
 

@@ -71,6 +71,16 @@
             </AppCallout>
           </section>
 
+          <!-- Academy Interactive Lab Funnel -->
+          <AcademyCard
+            variant="contextual"
+            :category="tool.category"
+            :title="`Master ${tool.name} with Interactive Telecom Labs`"
+            :desc="`Practice deploying ${tool.name} against live cellular networks, radio interfaces, and mobile cores in TelcoSec Academy's browser-accessible cloud sandboxes.`"
+            cta-text="Launch Interactive Lab"
+            campaign="tool_page"
+          />
+
           <!-- FAQ Accordion for AEO -->
           <section class="tool-info-section tool-faq-section" v-if="tool.faq && tool.faq.length">
             <h2>Frequently Asked Questions</h2>
