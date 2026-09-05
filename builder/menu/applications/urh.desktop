@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Universal Radio Hacker
+Comment=Wireless Protocol Reverse Engineering Suite
+Exec=urh
+Icon=radio
+Terminal=false
+Categories=TelcoSec-SDR;

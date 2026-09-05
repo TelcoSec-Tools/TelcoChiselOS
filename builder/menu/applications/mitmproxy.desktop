@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=mitmproxy (5G SBI)
+Comment=Interactive HTTP/2 & mTLS interception proxy for 5G Service Based Architecture
+Exec=x-terminal-emulator -e "bash -c 'mitmproxy --version; mitmproxy -p 8080'"
+Icon=network-wired
+Terminal=false
+Categories=TelcoSec-5G;

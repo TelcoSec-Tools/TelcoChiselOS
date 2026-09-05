@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=PCSC Scan
+Comment=Scan PC/SC smartcard readers and decode Answer-to-Reset (ATR)
+Exec=x-terminal-emulator -e "bash -c 'pcsc_scan'"
+Icon=smartcard
+Terminal=false
+Categories=TelcoSec-SIM;

@@ -71,6 +71,7 @@ PKGS_SDR=(
   autoconf automake libtool
   libsqlite3-dev libwxgtk3.2-dev freeglut3-dev
   libbladerf2 libbladerf-dev bladerf
+  inspectrum gpredict
 )
 
 # ─── 03-install-core-network.sh ──────────────────────────────────────────────
@@ -101,6 +102,7 @@ PKGS_TOOLS=(
   lksctp-tools libsctp-dev libglib2.0-dev
   ruby ruby-snmp
   sipsak
+  mausezahn mitmproxy
   python3-pip python3-venv
   wireguard
   twinkle baresip linphone-desktop
@@ -108,7 +110,7 @@ PKGS_TOOLS=(
 
 # ─── 06-install-ue-analysis.sh ───────────────────────────────────────────────
 PKGS_UE_ANALYSIS=(
-  pcscd pcsc-tools libpcsclite-dev libccid
+  pcscd pcsc-tools opensc libpcsclite-dev libccid
   python3-pyscard python3-dev
   libosmocore-dev libmd-dev librocksdb-dev
   git wget unzip cmake pkg-config build-essential gnupg autoconf automake libtool

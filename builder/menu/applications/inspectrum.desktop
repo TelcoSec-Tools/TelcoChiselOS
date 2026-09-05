@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Inspectrum
+Comment=Offline Spectral and I/Q Signal Visualizer
+Exec=inspectrum
+Icon=utilities-system-monitor
+Terminal=false
+Categories=TelcoSec-SDR;

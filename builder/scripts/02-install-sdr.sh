@@ -396,5 +396,21 @@ sudo chmod +x /usr/local/bin/sdr-info
 
 record_tool "sdr-info" "/usr/local/bin/sdr-info" "sdr"
 
+# Install Universal Radio Hacker (URH) into the telcosec-sdr conda environment
+echo "Installing Universal Radio Hacker (URH) in telcosec-sdr conda env..."
+conda run -n telcosec-sdr pip install --no-cache-dir urh || {
+  echo "  WARNING: Failed to pip install urh in conda env"
+}
+
+# Create wrapper for URH
+cat << 'WRAPPER' | sudo tee /usr/local/bin/urh > /dev/null
+#!/bin/bash
+source /opt/telcosec/miniconda/etc/profile.d/conda.sh
+conda activate telcosec-sdr 2>/dev/null
+exec urh "$@"
+WRAPPER
+sudo chmod +x /usr/local/bin/urh
+record_tool "URH" "/usr/local/bin/urh" "sdr"
+
 # Set permissions
 sudo chown -R telcosec:telcosec /opt/telcosec
