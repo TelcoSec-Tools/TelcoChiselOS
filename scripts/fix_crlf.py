@@ -7,14 +7,14 @@ extensions = (
     '.desktop', '.conf', '.rules', '.service', '.list', '.yml', '.yaml',
     '.css', '.html', '.directory', '.menu', '.ini', '.lua', '.example'
 )
-special_names = {'build-iso.sh', 'build-wsl.sh', 'check_urls.sh', 'LICENSE', 'Dockerfile', '.gitignore', '.gitattributes'}
+special_names = {'build-iso.sh', 'build-wsl.sh', 'LICENSE', 'Dockerfile', '.gitignore', '.gitattributes'}
 
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 count = 0
 
 for root, dirs, files in os.walk(base_dir):
     # skip .git, node_modules, dist, .output, and worktrees
-    dirs[:] = [d for d in dirs if d not in ('.git', 'node_modules', '.output', 'dist', '.nuxt')]
+    dirs[:] = [d for d in dirs if d not in ('.git', 'node_modules', '.output', 'dist', '.nuxt', 'scratch')]
     for f in files:
         if f.endswith(extensions) or f in special_names:
             p = os.path.join(root, f)
