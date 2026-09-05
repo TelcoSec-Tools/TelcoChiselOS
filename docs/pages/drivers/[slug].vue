@@ -88,6 +88,16 @@
             </div>
           </section>
 
+          <!-- Academy Driver & RF Hardware Lab Funnel -->
+          <AcademyCard
+            variant="contextual"
+            :category="driver.category === 'transceiver' ? 'sdr' : (driver.category === 'reader' ? 'sim' : 'baseband')"
+            :title="`Learn ${driver.name} Operations in Virtual Labs`"
+            :desc="`Master SDR transceiver signal capture, IQ stream processing, and smartcard analysis without risking expensive physical hardware.`"
+            cta-text="Launch Virtual Hardware Lab"
+            campaign="driver_page"
+          />
+
           <!-- Footer CTA -->
           <div class="back-footer-cta">
             <NuxtLink to="/#drivers" class="btn-back-link">

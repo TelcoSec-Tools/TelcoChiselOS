@@ -10,6 +10,10 @@ export const scenariosCatalog = [
     threatModel: "Rogue or compromised IoT/CPE devices initiating synchronized mass-registration storms to degrade or deny service across the 5G Core control plane.",
     interfaces: ["N1 (NAS-MM / NAS-SM)", "N2 (NGAP over SCTP)", "N3 (GTP-U data plane)"],
     tools: ["my5G-RANTester", "UERANSIM", "Open5GS", "Wireshark", "TShark"],
+    academyLab: {
+      name: "5G SA Core Load & DoS Simulation Testbed",
+      desc: "Deploy an isolated 5G Core cloud container with Open5GS AMF/UPF, synthetic UERANSIM UEs, and live signaling dissectors on app.telcosec.net."
+    },
     methodology: [
       "Deploy or attach to an isolated 5G SA testbed (e.g. Open5GS or commercial core) configured with test PLMN 001-01.",
       "Initialize baseline control plane capture using TShark filtering on sctp and ngap protocols.",
@@ -60,6 +64,10 @@ export const scenariosCatalog = [
     threatModel: "Adversaries gathering target network topology, carrier aggregation bands, and cell identity parameters to plan focused rogue base station or spoofing attacks.",
     interfaces: ["Air Interface (Uu) Downlink", "Broadcast Control Channel (BCCH)", "Physical Downlink Shared Channel (PDSCH)"],
     tools: ["LTESniffer", "LTE-CellScanner", "Modmobmap", "kalibrate-gsm", "Gqrx"],
+    academyLab: {
+      name: "Virtual SDR Spectrum Analysis & SIB Decoding Lab",
+      desc: "Stream high-rate 5G NR and LTE IQ sample captures, decode MIB/SIB broadcast blocks, and practice RF recon in a browser sandbox on app.telcosec.net."
+    },
     methodology: [
       "Connect SDR transceiver (Ettus USRP, BladeRF, or HackRF One) and verify clock stability and gain settings.",
       "Scan GSM bands with kal-gsm to calculate local oscillator frequency offsets and establish reference ppm.",
@@ -99,6 +107,10 @@ export const scenariosCatalog = [
     threatModel: "IMSI catchers or rogue cell devices attempting to coerce victim handsets into unencrypted legacy protocols (GSM A5/0 or LTE EEA0) to intercept voice, SMS, or metadata.",
     interfaces: ["LTE Uu (RRC / NAS)", "GSM Um (LAPDm / Layer 3)", "S1-MME (S1AP)"],
     tools: ["srsRAN", "Open5GS", "YateBTS", "Wireshark", "srsUE"],
+    academyLab: {
+      name: "Isolated Rogue eNodeB & Downgrade Attack Sandbox",
+      desc: "Simulate cellular reselection vectors, cleartext IMSI extraction, and NULL-ciphering downgrade scenarios in a safe virtual testbed on app.telcosec.net."
+    },
     methodology: [
       "Operate exclusively inside an approved RF Faraday cage or via direct coaxial cabling with 30dB attenuators.",
       "Configure srsRAN eNodeB with ITU-T test PLMN (MCC 001, MNC 01) and advertise priority reselection parameters in SIB3.",
@@ -146,6 +158,10 @@ export const scenariosCatalog = [
     threatModel: "Vulnerabilities in commercial baseband firmware allowing remote code execution via malformed over-the-air signaling frames prior to OS-level authentication.",
     interfaces: ["Qualcomm DIAG (/dev/ttyUSB*)", "MediaTek BROM / PreLoader", "Samsung Shannon Modem Trace"],
     tools: ["QCSuper", "SCAT", "FirmWire", "MTKClient", "Wireshark"],
+    academyLab: {
+      name: "FirmWire Baseband Firmware Emulation Lab",
+      desc: "Fuzz QEMU-emulated Samsung Shannon & MediaTek modem RTOS tasks and capture low-level DIAG telemetry on app.telcosec.net."
+    },
     methodology: [
       "Connect a Qualcomm- or MediaTek-based research test device in diagnostic mode via USB.",
       "Verify port detection and driver arbitration under unprivileged dialout / plugdev groups.",
@@ -186,6 +202,10 @@ export const scenariosCatalog = [
     threatModel: "Weak authentication implementations, insecure SIM OTA applets, or tampered eSIM profile metadata exposing subscriber identities or cryptographic credentials.",
     interfaces: ["ISO-7816-3 (T=0 / T=1 Smartcard Interface)", "PC/SC IFD Subsystem", "GSMA SGP.22 LPA (eSIM)"],
     tools: ["pySim", "lpac", "SIMtrace 2", "SIMTester", "SIMurai"],
+    academyLab: {
+      name: "Virtual UICC & eSIM LPA Remote Provisioning Lab",
+      desc: "Explore ISO-7816 smartcard file systems with pySim-shell, inspect authentication algorithms, and audit GSMA RSP SGP.22 eSIM profiles on app.telcosec.net."
+    },
     methodology: [
       "Insert smartcard into a standard PC/SC reader or connect Osmocom SIMtrace 2 sniffer hardware between handset and card.",
       "Verify card communication using pcsc_scan and query ATR (Answer to Reset).",
@@ -239,6 +259,10 @@ export const scenariosCatalog = [
     threatModel: "Eavesdropping on unencrypted broadband aggregation links or exploiting default TR-069 CWMP implementations to compromise subscriber edge routers and pivot into carrier backbones.",
     interfaces: ["PPPoE (Point-to-Point Protocol over Ethernet)", "802.1Q VLAN Trunks", "TR-069 / CWMP", "SIP (RFC 3261 over UDP/TCP:5060)"],
     tools: ["Asleap", "RouterSploit", "docsis", "SIPp", "Sipsak", "Twinkle", "Baresip"],
+    academyLab: {
+      name: "Carrier Broadband & SIP Trunk Penetration Testing Lab",
+      desc: "Audit PPPoE MS-CHAPv2 handshakes, test TR-069 ACS endpoints, and perform SIPp carrier signaling stress tests on app.telcosec.net."
+    },
     methodology: [
       "Capture PPPoE active discovery (PADI/PADO) and PPP authentication frames across the test VLAN.",
       "Extract MS-CHAPv2 Challenge and Response hashes and perform dictionary validation using Asleap.",

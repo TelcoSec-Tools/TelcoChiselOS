@@ -133,6 +133,9 @@
       </ul>
     </nav>
 
+    <!-- Academy Funnel Widget -->
+    <AcademyCard variant="sidebar" campaign="sidebar_nav" />
+
     <!-- Theme Toggle -->
     <div class="theme-switch-container">
       <span class="theme-switch-label">Light Theme</span>

@@ -86,6 +86,16 @@
             </div>
           </section>
 
+          <!-- Academy Feature Learning Path Funnel -->
+          <AcademyCard
+            variant="contextual"
+            :category="feature.category === 'kernel' || feature.category === 'environment' ? 'sdr' : (feature.category === 'network' ? 'core' : 'general')"
+            :title="`Learn ${feature.name} in TelcoSec Academy`"
+            :desc="`Master real-world implementation, protocol fuzzing, and telecom security engineering in guided browser sandbox labs.`"
+            cta-text="Start Telecom Lab"
+            campaign="feature_page"
+          />
+
           <!-- Footer CTA -->
           <div class="back-footer-cta">
             <NuxtLink to="/#features" class="btn-back-link">

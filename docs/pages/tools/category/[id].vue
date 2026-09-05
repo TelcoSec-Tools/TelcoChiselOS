@@ -43,6 +43,14 @@
             <p>No tools found for this category.</p>
           </div>
 
+          <!-- Academy Category Lab Funnel -->
+          <AcademyCard
+            variant="contextual"
+            :category="categoryId"
+            :title="`Hands-on ${categoryLabel} Labs at TelcoSec Academy`"
+            campaign="category_page"
+          />
+
           <!-- Footer CTA -->
           <div class="back-footer-cta">
             <NuxtLink to="/#tools" class="btn-back-link">
