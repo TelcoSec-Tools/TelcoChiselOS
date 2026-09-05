@@ -14,6 +14,9 @@
 
 GIT_QUIET_ARGS=(--depth 1)
 
+# Prevent git from ever prompting interactively for credentials during automated builds
+export GIT_TERMINAL_PROMPT=0
+
 clone_if_missing() {
   local url="$1" dir="$2"; shift 2
   if [ -d "$dir" ]; then
@@ -37,10 +40,17 @@ clone_bg() {
     return 0
   fi
   (
-    if ! git clone "${GIT_QUIET_ARGS[@]}" "$@" "$url" "$dir" 2>/dev/null; then
+    local err_file
+    err_file=$(mktemp)
+    if ! git clone "${GIT_QUIET_ARGS[@]}" "$@" "$url" "$dir" >/dev/null 2>"$err_file"; then
       echo "  [clone] FAILED: $url" >&2
+      if [ -s "$err_file" ]; then
+        sed 's/^/    [git] /' "$err_file" >&2
+      fi
+      rm -f "$err_file"
       exit 1
     fi
+    rm -f "$err_file"
   ) &
   _BG_CLONE_PIDS["$(basename "$dir")"]=$!
 }
