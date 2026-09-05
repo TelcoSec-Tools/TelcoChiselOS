@@ -26,6 +26,8 @@ out/
 *.squashfs
 *.img
 *.deb
+*.buildinfo
+*.changes
 
 # Python Artifacts & Virtual Environments
 __pycache__/

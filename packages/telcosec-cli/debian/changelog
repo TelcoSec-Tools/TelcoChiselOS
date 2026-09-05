@@ -1,0 +1,9 @@
+telcosec-cli (3.0.0-1) noble; urgency=medium
+
+  * Initial standalone release of telcosec-cli.
+  * Zero-dependency Go implementation with telemetry, sdr, network,
+    cellular, search, and docs packages.
+  * Embedded shell autocompletion suite for Bash, Zsh, and Fish.
+  * Linux Section 1 manual page (telcosec.1 / telcochisel.1).
+
+ -- TelcoSec Engineering <ops@telcosec.net>  Sat, 05 Sep 2026 18:00:00 +0000

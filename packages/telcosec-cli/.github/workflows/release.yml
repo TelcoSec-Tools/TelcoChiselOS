@@ -42,10 +42,30 @@ jobs:
           tar -czvf "telcosec_${TAG_NAME}_linux_arm64.tar.gz" telcosec-linux-arm64
           sha256sum *.tar.gz > SHA256SUMS
 
+      - name: Build Debian Packages (AMD64 & ARM64)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debhelper dpkg-dev
+
+          TAG_NAME="${GITHUB_REF_NAME:-v3.0.0}"
+          TAG_CLEAN="${TAG_NAME#v}"
+          if [ -n "$TAG_CLEAN" ]; then
+            sed -i "1s/telcosec-cli ([^)]*)/telcosec-cli (${TAG_CLEAN}-1)/" debian/changelog
+          fi
+
+          # Build AMD64 and ARM64 packages
+          dpkg-buildpackage -us -uc -b -aamd64 -d
+          dpkg-buildpackage -us -uc -b -aarm64 -d
+
+          mv ../telcosec-cli_*.deb dist/
+          cd dist
+          sha256sum *.deb >> SHA256SUMS
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             dist/*.tar.gz
+            dist/*.deb
             dist/SHA256SUMS
           generate_release_notes: true
