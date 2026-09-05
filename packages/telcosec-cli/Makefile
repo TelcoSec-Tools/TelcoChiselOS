@@ -18,7 +18,7 @@ LDFLAGS := -s -w \
 BIN_DIR := bin
 TARGET := $(BIN_DIR)/$(NAME)
 
-.PHONY: all build clean test lint install install-completions
+.PHONY: all build clean test lint install install-completions install-man
 
 all: build
 
@@ -42,7 +42,14 @@ install-completions:
 	install -m 644 completions/telcosec.fish /usr/share/fish/vendor_completions.d/telcosec.fish
 	@echo "Shell completions installed for Bash, Zsh, and Fish"
 
-install: build install-completions
+install-man:
+	install -d /usr/share/man/man1
+	gzip -9c docs/man/telcosec.1 > /usr/share/man/man1/telcosec.1.gz
+	chmod 644 /usr/share/man/man1/telcosec.1.gz
+	ln -sf telcosec.1.gz /usr/share/man/man1/telcochisel.1.gz
+	@echo "Installed manpages to /usr/share/man/man1/telcosec.1.gz and linked telcochisel.1.gz"
+
+install: build install-completions install-man
 	install -d /usr/local/bin
 	install -m 755 $(TARGET) /usr/local/bin/$(NAME)
 	@ln -sf /usr/local/bin/$(NAME) /usr/local/bin/telcochisel
