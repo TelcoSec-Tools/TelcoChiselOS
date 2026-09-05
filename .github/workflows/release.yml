@@ -17,6 +17,14 @@ on:
           - patch     # bump x.y.Z → x.y.Z+1, create versioned release
           - minor     # bump x.Y.z → x.Y+1.0, create versioned release
           - major     # bump X.y.z → X+1.0.0, create versioned release
+      build_flavor:
+        description: 'Distro flavor to build'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full      # Flagship Field Edition (~5.0 GB, all 88 tools)
+          - lite      # Modular Lite Edition (~1.8 GB, base + telcosec-pkg)
 
 concurrency:
   group: release
@@ -54,10 +62,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       # ── Determine version & release mode ────────────────────────────────────
-      - name: Resolve Version
+      - name: Resolve Version & Flavor
         id: version
         run: |
           RELEASE_TYPE="${{ inputs.release_type }}"
+          FLAVOR="${{ inputs.build_flavor || 'full' }}"
           # tag push always produces a versioned release, overriding the input
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             VERSION="${GITHUB_REF_NAME}"
@@ -67,14 +76,6 @@ jobs:
             IS_NIGHTLY=true
           else
             # Auto-bump the latest semver tag.
-            # NOTE: the tag is NOT created/pushed here — only the version
-            # string is computed. Creating the tag this early meant a build
-            # failure later left a dangling tag in the repo, and a re-run
-            # would auto-bump AGAIN (skipping a version). The tag is created
-            # by softprops/action-gh-release in the "Publish Versioned
-            # GitHub Release" step below, which only runs after a successful
-            # build — and that action creates the tag itself as part of
-            # publishing, atomically, only on success.
             LATEST=$(git tag --list 'v*.*.*' --sort=-version:refname | head -1)
             [[ -z "$LATEST" ]] && LATEST="v0.0.0"
             MAJOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f1)
@@ -87,15 +88,22 @@ jobs:
             esac
             IS_NIGHTLY=false
           fi
+          if [ "$FLAVOR" = "lite" ]; then
+            ISO_NAME="TelcoChisel-${VERSION}-lite-amd64.iso"
+          else
+            ISO_NAME="TelcoChisel-${VERSION}-amd64.iso"
+          fi
           echo "version=$VERSION"         >> "$GITHUB_OUTPUT"
+          echo "flavor=$FLAVOR"           >> "$GITHUB_OUTPUT"
           echo "is_nightly=$IS_NIGHTLY"   >> "$GITHUB_OUTPUT"
           echo "date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
-          echo "iso_name=TelcoChisel-${VERSION}-amd64.iso" >> "$GITHUB_OUTPUT"
-          echo "Resolved version: $VERSION (nightly=$IS_NIGHTLY)"
+          echo "iso_name=$ISO_NAME"       >> "$GITHUB_OUTPUT"
+          echo "Resolved: version=$VERSION, flavor=$FLAVOR (nightly=$IS_NIGHTLY, iso=$ISO_NAME)"
 
       - name: Set ISO Environment Name
         run: |
-          echo "ISO=TelcoChisel-${{ steps.version.outputs.version }}-amd64.iso" >> "$GITHUB_ENV"
+          echo "ISO=${{ steps.version.outputs.iso_name }}" >> "$GITHUB_ENV"
+          echo "BUILD_FLAVOR=${{ steps.version.outputs.flavor }}" >> "$GITHUB_ENV"
 
       # ── Hosted-runner-only: purge preinstalled bloat to make room ────────────
       - name: Free Disk Space
@@ -104,8 +112,10 @@ jobs:
           sudo rm -rf \
             /usr/local/lib/android /usr/share/dotnet /opt/ghc \
             /usr/local/share/boost /usr/lib/jvm /usr/share/swift \
-            /usr/local/lib/node_modules /opt/hostedtoolcache /imagegeneration
+            /usr/local/lib/node_modules /opt/hostedtoolcache /imagegeneration \
+            /usr/share/man /usr/share/doc
           sudo docker image prune -af || true
+          sudo docker system prune -af --volumes || true
           df -h /
 
       # Idempotent on both runner types: on self-hosted this is a fast no-op
@@ -183,9 +193,12 @@ jobs:
           CCACHE_DIR: /root/.ccache
           SQUASHFS_LEVEL: "3"
           ISO_VERSION: ${{ steps.version.outputs.version }}
+          BUILD_FLAVOR: ${{ steps.version.outputs.flavor }}
         run: |
-          sudo -E bash build-iso.sh --version="${{ steps.version.outputs.version }}"
+          sudo -E bash build-iso.sh --version="${{ steps.version.outputs.version }}" --flavor="${{ steps.version.outputs.flavor }}"
           sudo chown -R "$(id -u):$(id -g)" .
+          # Ensure TelcoChisel-live.iso compatibility hardlink exists
+          cp -l "$ISO" TelcoChisel-live.iso 2>/dev/null || cp "$ISO" TelcoChisel-live.iso 2>/dev/null || true
 
       # ── Post-build metadata ──────────────────────────────────────────────────
       - name: Generate Checksum & Metadata
@@ -194,6 +207,7 @@ jobs:
           SHA256=$(sha256sum "$ISO" | awk '{print $1}')
           SIZE=$(du -sh "$ISO" | cut -f1)
           printf '%s  %s\n' "$SHA256" "$ISO" > "${ISO}.sha256"
+          [ -f "TelcoChisel-live.iso" ] && printf '%s  TelcoChisel-live.iso\n' "$SHA256" > "TelcoChisel-live.iso.sha256"
 
           # Collect commits since last stable tag for the changelog
           LAST_TAG=$(git tag --list 'v*.*.*' --sort=-version:refname | head -1 || true)
@@ -218,18 +232,18 @@ jobs:
 
       # ── Artifact retention (safety net before publish steps) ─────────────────
       # Retains the ISO and sha256 for 7 days in case SourceForge/GH publish fails.
-      # ISO is chunked at 1.9 GB to stay under GH's artifact file size limit.
-      - name: Split ISO for artifact upload
+      # Split ONCE into workspace and copy chunks to /tmp/iso-chunks for upload.
+      - name: Split ISO for artifact upload & GitHub Release
         run: |
+          split -b 1900M "$ISO" "${ISO}.part-"
           mkdir -p /tmp/iso-chunks
-          split -b 1900M "$ISO" "/tmp/iso-chunks/${ISO}.part"
-          cp "${ISO}.sha256" /tmp/iso-chunks/
+          cp "${ISO}.part-"* "${ISO}.sha256" /tmp/iso-chunks/
           cp -f "${ISO}.build-info.json" /tmp/iso-chunks/ 2>/dev/null || true
 
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TelcoChisel-${{ steps.version.outputs.version }}
+          name: TelcoChisel-${{ steps.version.outputs.version }}-${{ steps.version.outputs.flavor }}
           path: /tmp/iso-chunks/
           retention-days: 7
           if-no-files-found: error
@@ -357,7 +371,7 @@ jobs:
           # nobody can download a partial/corrupt ISO mid-upload.
           rsync -avP --partial \
             -e "$SF_SSH" \
-            "$ISO" "${ISO}.sha256" "${ISO}.build-info.json" "README.md" \
+            "$ISO" "${ISO}.sha256" "${ISO}.build-info.json" TelcoChisel-live.iso* "README.md" \
             "$SF_TARGET:$SF_TMP/"
 
           # Publish: back up whatever's currently public (non-fatal — nothing
@@ -370,14 +384,20 @@ jobs:
           -rename $ISO $ISO.old
           -rename ${ISO}.sha256 ${ISO}.sha256.old
           -rename ${ISO}.build-info.json ${ISO}.build-info.json.old
+          -rename TelcoChisel-live.iso TelcoChisel-live.iso.old
+          -rename TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256.old
           -rename README.md README.md.old
           rename _upload_tmp/$ISO $ISO
           rename _upload_tmp/${ISO}.sha256 ${ISO}.sha256
           rename _upload_tmp/${ISO}.build-info.json ${ISO}.build-info.json
+          -rename _upload_tmp/TelcoChisel-live.iso TelcoChisel-live.iso
+          -rename _upload_tmp/TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256
           rename _upload_tmp/README.md README.md
           -rm $ISO.old
           -rm ${ISO}.sha256.old
           -rm ${ISO}.build-info.json.old
+          -rm TelcoChisel-live.iso.old
+          -rm TelcoChisel-live.iso.sha256.old
           -rm README.md.old
           -rmdir _upload_tmp
           SFTPEOF
@@ -411,27 +431,31 @@ jobs:
           # nobody can download a partial/corrupt ISO mid-upload.
           rsync -avP --partial \
             -e "$SF_SSH" \
-            "$ISO" "${ISO}.sha256" "${ISO}.build-info.json" "README.md" \
+            "$ISO" "${ISO}.sha256" "${ISO}.build-info.json" TelcoChisel-live.iso* "README.md" \
             "$SF_TARGET:$SF_TMP/"
 
           # Publish: back up whatever's currently public (non-fatal — nothing
           # to back up on the very first upload of this version), promote the
-          # newly uploaded files into place, then clean up. If promotion fails
-          # partway, the ".old" backups let a human manually restore the
-          # previous good files instead of the public path serving nothing.
+          # newly uploaded files into place, then clean up.
           cat > sftp_publish << SFTPEOF
           cd $SF_DIR
           -rename $ISO $ISO.old
           -rename ${ISO}.sha256 ${ISO}.sha256.old
           -rename ${ISO}.build-info.json ${ISO}.build-info.json.old
+          -rename TelcoChisel-live.iso TelcoChisel-live.iso.old
+          -rename TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256.old
           -rename README.md README.md.old
           rename _upload_tmp/$ISO $ISO
           rename _upload_tmp/${ISO}.sha256 ${ISO}.sha256
           rename _upload_tmp/${ISO}.build-info.json ${ISO}.build-info.json
+          -rename _upload_tmp/TelcoChisel-live.iso TelcoChisel-live.iso
+          -rename _upload_tmp/TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256
           rename _upload_tmp/README.md README.md
           -rm $ISO.old
           -rm ${ISO}.sha256.old
           -rm ${ISO}.build-info.json.old
+          -rm TelcoChisel-live.iso.old
+          -rm TelcoChisel-live.iso.sha256.old
           -rm README.md.old
           -rmdir _upload_tmp
           SFTPEOF
@@ -444,14 +468,14 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           if [ -n "${SF_API_KEY:-}" ]; then
-            echo "Setting default download on SourceForge for ${VERSION}/TelcoChisel-live.iso..."
+            echo "Setting default download on SourceForge for ${VERSION}/${ISO}..."
             HTTP_CODE=$(curl -s -o /tmp/sf_api_resp.txt -w "%{http_code}" -X PUT \
               -H "Accept: application/json" \
               -d "default=windows&default=mac&default=linux&default=bsd&default=solaris&default=others" \
               -d "api_key=${SF_API_KEY}" \
-              "https://sourceforge.net/projects/${SF_PROJECT}/files/${VERSION}/TelcoChisel-live.iso")
+              "https://sourceforge.net/projects/${SF_PROJECT}/files/${VERSION}/${ISO}")
             if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
-              echo "✓ Successfully pinned ${VERSION}/TelcoChisel-live.iso as default download on SourceForge"
+              echo "✓ Successfully pinned ${VERSION}/${ISO} as default download on SourceForge"
             else
               echo "⚠️ SourceForge Release API returned HTTP $HTTP_CODE (non-fatal)"
               cat /tmp/sf_api_resp.txt 2>/dev/null || true
@@ -461,9 +485,9 @@ jobs:
           fi
 
       # ── GitHub Releases ──────────────────────────────────────────────────────
-      - name: Split ISO for GitHub Release
+      # Chunks were already produced in the earlier single-split step.
+      - name: Verify ISO split parts for GitHub Release
         run: |
-          split -b 1900M "$ISO" "${ISO}.part-"
           ls -lh "${ISO}.part-"*
 
       - name: Publish Nightly GitHub Release

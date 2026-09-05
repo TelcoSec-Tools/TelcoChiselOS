@@ -5,6 +5,8 @@ on:
     branches: ["main"]
     paths:
       - 'docs/**'
+      - 'data/tools.json'
+      - 'scripts/sync-catalogs.js'
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
@@ -33,10 +35,32 @@ jobs:
         with:
           version: 9
 
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('docs/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Cache Nuxt build
+        uses: actions/cache@v4
+        with:
+          path: docs/.nuxt/cache
+          key: ${{ runner.os }}-nuxt-cache-${{ hashFiles('docs/**', 'data/tools.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuxt-cache-
 
       - name: Install dependencies
         working-directory: docs
