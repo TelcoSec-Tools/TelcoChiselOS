@@ -1,0 +1,55 @@
+#!/usr/bin/make -f
+export DH_VERBOSE = 1
+export CGO_ENABLED = 0
+
+DEB_BUILD_ARCH ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH)
+DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+ifeq ($(DEB_HOST_ARCH),amd64)
+    export GOARCH = amd64
+else ifeq ($(DEB_HOST_ARCH),arm64)
+    export GOARCH = arm64
+else ifeq ($(DEB_HOST_ARCH),armhf)
+    export GOARCH = arm
+else ifeq ($(DEB_HOST_ARCH),i386)
+    export GOARCH = 386
+endif
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	make build
+
+override_dh_auto_test:
+ifeq ($(DEB_BUILD_ARCH),$(DEB_HOST_ARCH))
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	make test
+endif
+endif
+
+override_dh_strip:
+	# Pre-stripped via Go ldflags -s -w
+
+override_dh_dwz:
+	# No DWARF compression for Go binaries
+
+override_dh_makeshlibs:
+	# No shared libraries provided
+
+override_dh_shlibdeps:
+	# Statically linked Go binary (CGO_ENABLED=0)
+
+override_dh_auto_install:
+	make install PREFIX=/usr DESTDIR=debian/telcosec-cli
+
+override_dh_builddeb:
+	@if [ "$$(stat -c '%a' debian/telcosec-cli/DEBIAN 2>/dev/null)" = "777" ]; then \
+		ARCH=$(DEB_HOST_ARCH); \
+		VER=$$(dpkg-parsechangelog -SVersion); \
+		dpkg-deb --root-owner-group --no-check --build debian/telcosec-cli "../telcosec-cli_$${VER}_$${ARCH}.deb"; \
+	else \
+		dh_builddeb -- --root-owner-group; \
+	fi
+
+override_dh_auto_clean:
+	make clean

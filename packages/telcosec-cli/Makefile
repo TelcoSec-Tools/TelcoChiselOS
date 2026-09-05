@@ -18,9 +18,21 @@ LDFLAGS := -s -w \
 BIN_DIR := bin
 TARGET := $(BIN_DIR)/$(NAME)
 
-.PHONY: all build clean test lint install install-completions install-man
+PREFIX ?= /usr/local
+DESTDIR ?=
+BINDIR ?= $(DESTDIR)$(PREFIX)/bin
+MANDIR ?= $(DESTDIR)$(PREFIX)/share/man/man1
+BASHCOMPDIR ?= $(DESTDIR)/etc/bash_completion.d
+ZSHCOMPDIR ?= $(DESTDIR)$(PREFIX)/share/zsh/vendor-completions
+FISHCOMPDIR ?= $(DESTDIR)$(PREFIX)/share/fish/vendor_completions.d
+
+.PHONY: all build clean test lint install install-completions install-man deb
 
 all: build
+
+deb:
+	dpkg-buildpackage -us -uc -b
+	@echo "Debian package build complete"
 
 build:
 	@mkdir -p $(BIN_DIR)
@@ -34,24 +46,24 @@ clean:
 	rm -rf $(BIN_DIR)
 
 install-completions:
-	install -d /etc/bash_completion.d
-	install -m 644 completions/telcosec.bash /etc/bash_completion.d/telcosec
-	install -d /usr/share/zsh/vendor-completions
-	install -m 644 completions/_telcosec /usr/share/zsh/vendor-completions/_telcosec
-	install -d /usr/share/fish/vendor_completions.d
-	install -m 644 completions/telcosec.fish /usr/share/fish/vendor_completions.d/telcosec.fish
+	install -d $(BASHCOMPDIR)
+	install -m 644 completions/telcosec.bash $(BASHCOMPDIR)/telcosec
+	install -d $(ZSHCOMPDIR)
+	install -m 644 completions/_telcosec $(ZSHCOMPDIR)/_telcosec
+	install -d $(FISHCOMPDIR)
+	install -m 644 completions/telcosec.fish $(FISHCOMPDIR)/telcosec.fish
 	@echo "Shell completions installed for Bash, Zsh, and Fish"
 
 install-man:
-	install -d /usr/share/man/man1
-	gzip -9c docs/man/telcosec.1 > /usr/share/man/man1/telcosec.1.gz
-	chmod 644 /usr/share/man/man1/telcosec.1.gz
-	ln -sf telcosec.1.gz /usr/share/man/man1/telcochisel.1.gz
-	@echo "Installed manpages to /usr/share/man/man1/telcosec.1.gz and linked telcochisel.1.gz"
+	install -d $(MANDIR)
+	gzip -9c docs/man/telcosec.1 > $(MANDIR)/telcosec.1.gz
+	chmod 644 $(MANDIR)/telcosec.1.gz
+	ln -sf telcosec.1.gz $(MANDIR)/telcochisel.1.gz
+	@echo "Installed manpages to $(MANDIR)/telcosec.1.gz and linked telcochisel.1.gz"
 
 install: build install-completions install-man
-	install -d /usr/local/bin
-	install -m 755 $(TARGET) /usr/local/bin/$(NAME)
-	@ln -sf /usr/local/bin/$(NAME) /usr/local/bin/telcochisel
-	@echo "Installed $(NAME) to /usr/local/bin/$(NAME) and linked telcochisel"
+	install -d $(BINDIR)
+	install -m 755 $(TARGET) $(BINDIR)/$(NAME)
+	@ln -sf $(NAME) $(BINDIR)/telcochisel
+	@echo "Installed $(NAME) to $(BINDIR)/$(NAME) and linked telcochisel"
 

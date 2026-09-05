@@ -27,6 +27,29 @@ The official standalone operator CLI and telemetry suite for telecom security en
 - Linux kernel 5.15+ (low-latency or PREEMPT_RT recommended for high-MSPS SDRs)
 - Go 1.22+ (for building from source)
 
+### Debian / Ubuntu Package Installation (.deb)
+
+Pre-built `.deb` packages are available from the GitHub Releases page or the official TelcoSec APT repository:
+
+```bash
+# Install via dpkg
+sudo dpkg -i telcosec-cli_3.0.0-1_amd64.deb
+
+# Or install from official TelcoSec repository
+curl -sS https://meta.telcosec.net/gpg/KEY.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/telcosec.gpg
+echo "deb [signed-by=/etc/apt/trusted.gpg.d/telcosec.gpg] https://meta.telcosec.net noble main" | sudo tee /etc/apt/sources.list.d/telcosec.list
+sudo apt update && sudo apt install telcosec-cli
+```
+
+### Building Debian Package (.deb)
+```bash
+# Build native Debian package (.deb)
+make deb
+
+# Or using dpkg-buildpackage directly
+dpkg-buildpackage -us -uc -b
+```
+
 ### Building from Source
 ```bash
 git clone https://github.com/TelcoSec-Tools/telcosec-cli.git
