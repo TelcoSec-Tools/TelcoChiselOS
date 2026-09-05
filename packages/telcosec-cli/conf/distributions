@@ -1,0 +1,9 @@
+Origin: TelcoSec
+Label: TelcoSec CLI Repository
+Suite: noble
+Codename: noble
+Architectures: amd64 arm64
+Components: main
+Description: Official TelcoSec Operator CLI and Diagnostics Tooling
+SignWith: repo@telcosec.net
+DebIndices: Packages Release . .gz .xz
