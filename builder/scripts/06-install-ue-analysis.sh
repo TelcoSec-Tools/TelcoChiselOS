@@ -18,6 +18,8 @@ fi
 
 # shellcheck source=lib/pip-retry.sh
 source "${SCRIPT_DIR}/lib/pip-retry.sh"
+# shellcheck source=lib/build-tool.sh
+source "${SCRIPT_DIR}/lib/build-tool.sh"
 
 # Create tools root directory
 sudo mkdir -p /opt/telcosec
@@ -27,30 +29,22 @@ sudo chown -R telcosec:telcosec /opt/telcosec
 echo "Cloning all UE analysis repositories in parallel..."
 cd /opt/telcosec
 
-if [ ! -d firmwire ]; then git clone --depth 1 https://github.com/FirmWire/FirmWire.git firmwire & PID_FIRMWIRE=$!; else PID_FIRMWIRE=""; fi
-if [ ! -d balong-flash ]; then git clone --depth 1 https://github.com/forth32/balongflash.git balong-flash & PID_BALONG_FLASH=$!; else PID_BALONG_FLASH=""; fi
-if [ ! -d balongtool ]; then git clone --depth 1 https://github.com/forth32/balong-nvtool.git balongtool & PID_BALONGTOOL=$!; else PID_BALONGTOOL=""; fi
-if [ ! -d mtkclient ]; then git clone --depth 1 https://github.com/bkerler/mtkclient.git mtkclient & PID_MTK=$!; else PID_MTK=""; fi
-if [ ! -d pysim ]; then git clone --depth 1 https://github.com/osmocom/pysim.git pysim & PID_PYSIM=$!; else PID_PYSIM=""; fi
-if [ ! -d lpac ]; then git clone --depth 1 https://github.com/estkme-group/lpac.git lpac & PID_LPAC=$!; else PID_LPAC=""; fi
-if [ ! -d simtrace2 ]; then git clone --depth 1 https://github.com/osmocom/simtrace2.git simtrace2 & PID_SIMTRACE2=$!; else PID_SIMTRACE2=""; fi
-if [ ! -d simurai ]; then git clone --recurse-submodules --shallow-submodules https://github.com/tomasz-lisowski/simurai.git simurai & PID_SIMURAI=$!; else PID_SIMURAI=""; fi
-if [ ! -d my5g-rantester ]; then git clone --depth 1 https://github.com/my5G/my5G-RANTester.git my5g-rantester & PID_MY5G=$!; else PID_MY5G=""; fi
-if [ ! -d osmocom-bb ]; then git clone --depth 1 https://gitea.osmocom.org/cellular-infrastructure/osmocom-bb.git osmocom-bb & PID_OSMOCOMBB=$!; else PID_OSMOCOMBB=""; fi
+clone_bg https://github.com/FirmWire/FirmWire.git /opt/telcosec/firmwire
+clone_bg https://github.com/forth32/balongflash.git /opt/telcosec/balong-flash
+clone_bg https://github.com/forth32/balong-nvtool.git /opt/telcosec/balongtool
+clone_bg https://github.com/bkerler/mtkclient.git /opt/telcosec/mtkclient
+clone_bg https://github.com/osmocom/pysim.git /opt/telcosec/pysim
+clone_bg https://github.com/estkme-group/lpac.git /opt/telcosec/lpac
+clone_bg https://github.com/osmocom/simtrace2.git /opt/telcosec/simtrace2
+clone_bg https://github.com/tomasz-lisowski/simurai.git /opt/telcosec/simurai --recurse-submodules --shallow-submodules
+clone_bg https://github.com/my5G/my5G-RANTester.git /opt/telcosec/my5g-rantester
+clone_bg https://gitea.osmocom.org/cellular-infrastructure/osmocom-bb.git /opt/telcosec/osmocom-bb
 
 # Wait for all clones to complete and fail loudly on any clone failure
-echo "Waiting for all git clones to finish..."
-CLONE_FAIL=0
-for pid in $PID_FIRMWIRE $PID_BALONG_FLASH $PID_BALONGTOOL $PID_MTK \
-           $PID_PYSIM $PID_LPAC $PID_SIMTRACE2 $PID_SIMURAI \
-           $PID_MY5G $PID_OSMOCOMBB; do
-  [ -z "$pid" ] && continue
-  if ! wait "$pid"; then
-    echo "UE analysis repo clone failed (pid $pid)" >&2
-    CLONE_FAIL=1
-  fi
-done
-[ "$CLONE_FAIL" -eq 0 ] || { echo "Aborting: one or more UE analysis repo clones failed" >&2; exit 1; }
+if ! wait_clones "UE analysis repos"; then
+  echo "Aborting: one or more UE analysis repo clones failed" >&2
+  exit 1
+fi
 echo "All repositories checked/cloned."
 
 # Download SIMtrace 2 firmware binaries into the newly cloned directory
@@ -299,7 +293,7 @@ echo "Building libosmocore from source (Ubuntu 24.04 ships 1.7.0, need >= 1.11.0
 apt-get install -y liburing-dev libtalloc-dev libgnutls28-dev autoconf-archive
 
 rm -rf /tmp/libosmocore
-git clone --depth 1 https://gitea.osmocom.org/osmocom/libosmocore.git /tmp/libosmocore
+clone_if_missing https://gitea.osmocom.org/osmocom/libosmocore.git /tmp/libosmocore
 cd /tmp/libosmocore
 autoreconf -fi
 ./configure \
