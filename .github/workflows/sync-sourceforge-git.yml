@@ -10,6 +10,9 @@ concurrency:
   group: sf-git-sync
   cancel-in-progress: false
 
+env:
+  SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+
 jobs:
   sync:
     runs-on: ubuntu-24.04
