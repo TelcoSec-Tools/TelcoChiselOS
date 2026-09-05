@@ -88,6 +88,29 @@ Enforces strict reverse path filtering (\fIrp_filter=1\fR) and enables firewall 
 Display the currently active profile.
 .RE
 .TP
+.BR pkg " [" list "|" info "|" install "|" remove "|" check "|" repo "]"
+Manage the official 10-tier modular TelcoChisel telecom security metapackages:
+.RS
+.TP
+.BR list " [" \-\-json "]"
+List all 10 canonical domain metapackage suites with local installation status and descriptions.
+.TP
+.BI info " <alias_or_name>"
+Display detailed tool breakdown, dependencies, and subsystem components for a requested suite (e.g. \fB5g\fR, \fBsdr\fR, \fBsim\fR, \fBwireline\fR).
+.TP
+.BI install " <alias_or_name>"
+Install a modular domain suite using the system package manager.
+.TP
+.BI remove " <alias_or_name>"
+Remove a domain suite from the local system.
+.TP
+.B check
+Audit installed metapackages and verify dpkg database package consistency.
+.TP
+.BR repo " [" status "|" enable "]"
+Audit or configure enrollment in the official \fBhttps://meta.telcosec.net\fR APT repository and GPG signing keys.
+.RE
+.TP
 .BR 5g-sa ", " 5g " [" start "|" stop "|" status "|" add-sub "]"
 Manage local Open5GS 5G Standalone core network services:
 .RS

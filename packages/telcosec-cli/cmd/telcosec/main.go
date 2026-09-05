@@ -12,6 +12,7 @@ import (
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/cellular"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/docs"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/network"
+	"github.com/TelcoSec-Tools/telcosec-cli/pkg/packages"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/sdr"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/search"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/telemetry"
@@ -25,13 +26,13 @@ var (
 )
 
 func printBanner() {
-	fmt.Print(telemetry.Cyan)
-	fmt.Print(`  _____ _____ _     ____ ___   ____ _   _ ___ ____  _____ _     
+	fmt.Printf(`%s
+  _____ _____ _     ____ ___   ____ _   _ ___ ____  _____ _     
  |_   _| ____| |   / ___/ _ \ / ___| | | |_ _/ ___|| ____| |    
    | | |  _| | |  | |  | | | | |   | |_| || |\___ \|  _| | |    
    | | | |___| |__| |__| |_| | |___|  _  || | ___) | |___| |___ 
    |_| |_____|_____\____\___/ \____|_| |_|___|____/|_____|_____|
-`)
+`, telemetry.Cyan)
 	fmt.Printf("%s%s          TelcoChisel Telecom Security Command Center v%s%s\n\n",
 		telemetry.Reset, telemetry.Bold, Version, telemetry.Reset)
 }
@@ -50,6 +51,7 @@ Commands:
   10g [action]         10Gbps network SDR interface optimization (status | tune | setup | probe)
   firmware             Inspect and manage offline SDR FPGA bitstreams (BladeRF, USRP)
   profile [mode]       Switch operational profiles (lab | field | status)
+  pkg [action]         Official metapackage manager (list | info | install | remove | check | repo)
   5g-sa <action>       5G Standalone core & RAN manager (start | stop | status | add-sub)
   scan <protocol>      Interactive protocol assessment wizard (sctp | sip | asleap)
   academy              Access TelcoSec Academy interactive labs & credentials
@@ -180,6 +182,9 @@ func main() {
 				fmt.Printf("Profile switched: %s\n", curMode)
 			}
 		}
+
+	case "pkg", "package", "packages":
+		handlePkgCommand(args)
 
 	case "5g", "5g-sa", "5gsa":
 		action := "status"
@@ -334,6 +339,93 @@ func handle10GCommand(args []string) {
 
 	default:
 		fmt.Printf("Unknown 10G action: %s\nUsage: telcosec 10g [status|tune|setup|probe]\n", action)
+		os.Exit(1)
+	}
+}
+
+func handlePkgCommand(args []string) {
+	action := "list"
+	if len(args) > 0 {
+		action = strings.ToLower(args[0])
+	}
+
+	switch action {
+	case "list", "ls":
+		jsonOutput := false
+		for _, arg := range args[1:] {
+			if arg == "--json" || arg == "-j" {
+				jsonOutput = true
+			}
+		}
+		if !jsonOutput {
+			printBanner()
+		}
+		_ = packages.ListPackages(os.Stdout, jsonOutput)
+
+	case "info", "show":
+		if len(args) < 2 {
+			fmt.Println("Usage: telcosec pkg info <suite_alias_or_name>")
+			fmt.Println("Example: telcosec pkg info 5g")
+			os.Exit(1)
+		}
+		printBanner()
+		if err := packages.ShowInfo(os.Stdout, args[1]); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+
+	case "install", "add":
+		if len(args) < 2 {
+			fmt.Println("Usage: telcosec pkg install <suite_alias_or_name>")
+			fmt.Println("Example: telcosec pkg install 5g")
+			os.Exit(1)
+		}
+		printBanner()
+		if err := packages.InstallPackage(os.Stdout, args[1]); err != nil {
+			fmt.Printf("Installation error: %v\n", err)
+			os.Exit(1)
+		}
+
+	case "remove", "purge", "del", "rm":
+		if len(args) < 2 {
+			fmt.Println("Usage: telcosec pkg remove <suite_alias_or_name>")
+			fmt.Println("Example: telcosec pkg remove 5g")
+			os.Exit(1)
+		}
+		printBanner()
+		if err := packages.RemovePackage(os.Stdout, args[1]); err != nil {
+			fmt.Printf("Removal error: %v\n", err)
+			os.Exit(1)
+		}
+
+	case "check", "audit", "verify":
+		printBanner()
+		_ = packages.AuditPackages(os.Stdout)
+
+	case "repo":
+		subAction := "status"
+		if len(args) > 1 {
+			subAction = strings.ToLower(args[1])
+		}
+		printBanner()
+		switch subAction {
+		case "status":
+			_ = packages.RepoStatus(os.Stdout)
+		case "enable":
+			_ = packages.RepoEnable(os.Stdout)
+		default:
+			fmt.Printf("Unknown repo action: %s\nUsage: telcosec pkg repo [status|enable]\n", subAction)
+			os.Exit(1)
+		}
+
+	default:
+		// If argument directly matches a package alias/name, treat as info
+		if p := packages.FindPackage(action); p != nil {
+			printBanner()
+			_ = packages.ShowInfo(os.Stdout, action)
+			return
+		}
+		fmt.Printf("Unknown pkg action: %s\n\nUsage: telcosec pkg [list|info|install|remove|check|repo]\n", action)
 		os.Exit(1)
 	}
 }
