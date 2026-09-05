@@ -432,12 +432,50 @@
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                 style="color: var(--accent-teal);">
-                                <path d="M5 12h14M12 5l7 7-7 7" />
+                                <polyline points="4 17 10 11 4 5" />
+                                <line x1="12" y1="19" x2="20" y2="19" />
                             </svg>
-                            SDR Sandbox
+                            Unified Operator CLI
                         </div>
-                        <p class="card-desc">Radio drivers (UHD, HackRF, BladeRF, LimeSDR) are compiled from source and
-                            sandboxed in a dedicated Conda virtual environment, preserving system Python integrity.</p>
+                        <p class="card-desc">Centralized operator command-line interface (<code class="inline-code">telcosec</code>) providing one-touch diagnostics, hardware auto-discovery, 5G SA core orchestration, and frequency surveys.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                style="color: var(--accent-teal);">
+                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+                                <line x1="6" y1="6" x2="6.01" y2="6" />
+                                <line x1="6" y1="18" x2="6.01" y2="18" />
+                            </svg>
+                            SDR &amp; 10GbE Driver Manager
+                        </div>
+                        <p class="card-desc">Dedicated transceiver utility (<code class="inline-code">telcosec-sdr</code>) managing USB SDRs and 10Gbps Ethernet transceivers (USRP X310/N310) with MTU 9000, 4096 ring descriptors, and 64MB buffers.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                style="color: var(--accent-teal);">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                            </svg>
+                            Modular 10-Tier Metapackages
+                        </div>
+                        <p class="card-desc">Debian repository at <code class="inline-code">meta.telcosec.net</code> with <code class="inline-code">telcosec-pkg</code> CLI to selectively install domain suites across SDR, 5G, SIM, Wireline, and Baseband.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                style="color: var(--accent-teal);">
+                                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                                <polyline points="2 17 12 22 22 17" />
+                                <polyline points="2 12 12 17 22 12" />
+                            </svg>
+                            Telecom Container PODs
+                        </div>
+                        <p class="card-desc">Pre-configured rootless Podman (<code class="inline-code">podman play kube</code>) and Kubernetes multi-container pods in <code class="inline-code">docker/pods/</code> for 5G Core, RAN, and SDR wireless testing.</p>
                     </div>
                     <div class="card">
                         <div class="card-title">
@@ -446,34 +484,51 @@
                                 style="color: var(--accent-teal);">
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
-                            Baseband Emulation
+                            SDR Sandbox &amp; Real-Time DSP
                         </div>
-                        <p class="card-desc">Audit baseband firmware binaries using FirmWire. QCSuper parses diagnostic
-                            logs directly from active test UE devices connected via Qualcomm DIAG USB.</p>
+                        <p class="card-desc">Radio drivers (UHD, HackRF, BladeRF, LimeSDR) are compiled from source and sandboxed in a dedicated Conda virtual environment with real-time <code class="inline-code">SCHED_RR</code> scheduling.</p>
                     </div>
                     <div class="card">
                         <div class="card-title">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                 style="color: var(--accent-teal);">
-                                <path d="M5 12h14M12 5l7 7-7 7" />
+                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
+                                <rect x="9" y="9" width="6" height="6" />
+                                <line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" />
+                                <line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" />
+                                <line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" />
+                                <line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" />
                             </svg>
-                            SIM & eSIM Utilities
+                            Baseband Emulation &amp; Fuzzing
                         </div>
-                        <p class="card-desc">Audit SIM interfaces using Osmocom SIMtrace 2 and pySim-shell. Manage
-                            profiles on eSIM chips using the lpac Local Profile Assistant (LPA).</p>
+                        <p class="card-desc">Audit cellular modem firmware binaries via FirmWire. QCSuper and SCAT stream live radio telemetry directly from test UEs via Qualcomm DIAG USB and MediaTek BROM serial ports.</p>
                     </div>
                     <div class="card">
                         <div class="card-title">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                 style="color: var(--accent-teal);">
-                                <path d="M5 12h14M12 5l7 7-7 7" />
+                                <rect x="3" y="4" width="18" height="16" rx="2" />
+                                <line x1="7" y1="8" x2="7.01" y2="8" />
+                                <line x1="11" y1="8" x2="17" y2="8" />
                             </svg>
-                            Signaling Scanners
+                            SIM &amp; eSIM Smartcard Tools
                         </div>
-                        <p class="card-desc">Audit SIGTRAN, Diameter, SIP/VoIP, and GTP cores with Diafuzzer, SigPloit,
-                            SIPVicious, and custom Wireshark protocol dissecting profiles.</p>
+                        <p class="card-desc">Audit SIM interfaces using Osmocom SIMtrace 2 and pySim-shell. Manage profiles on eSIM chips using the lpac Local Profile Assistant (LPA) and simulate virtual UICCs via SIMurai.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                style="color: var(--accent-teal);">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="2" y1="12" x2="22" y2="12" />
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                            </svg>
+                            Signaling &amp; Core Scanners
+                        </div>
+                        <p class="card-desc">Audit SIGTRAN (M3UA), Diameter, SIP/VoIP, and GTP cores with Diafuzzer, SigPloit, sctpscan, SIPVicious, and pre-tuned Wireshark protocol dissector profiles.</p>
                     </div>
                 </div>
 
@@ -784,6 +839,112 @@ sudo telcosec-sdr 10g setup enp3s0f0 x310-0
 # Probe network for attached USRP devices
 telcosec-sdr 10g probe</code></pre>
                         <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec-sdr status\nsudo telcosec-sdr usb tune\ntelcosec-sdr 10g status\nsudo telcosec-sdr 10g tune enp3s0f0')">Copy</button>
+                    </div>
+                </div>
+
+                <h4>SDR Transceiver Compatibility &amp; Network Tuning Matrix</h4>
+                <div class="doc-table-container">
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th>Transceiver</th>
+                                <th>Host Bus</th>
+                                <th>Max Rate</th>
+                                <th>Duplex</th>
+                                <th>Driver Stack</th>
+                                <th>Optimization Command</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>USRP B200 / B210</strong></td>
+                                <td>USB 3.0 SuperSpeed</td>
+                                <td>61.44 MSps</td>
+                                <td>Full Duplex (2x2 MIMO)</td>
+                                <td>Ettus UHD / SoapyUHD</td>
+                                <td><code>sudo telcosec-sdr usb tune</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>USRP X300 / X310</strong></td>
+                                <td>Dual 10GbE SFP+ / PCIe</td>
+                                <td>200.0 MSps</td>
+                                <td>Full Duplex (2x2 MIMO)</td>
+                                <td>Ettus UHD / DPDK</td>
+                                <td><code>sudo telcosec-sdr 10g tune &lt;iface&gt;</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>USRP N300 / N310 / N320</strong></td>
+                                <td>Dual 10GbE SFP+ / White Rabbit</td>
+                                <td>153.6 MSps</td>
+                                <td>Full Duplex (4x4 MIMO)</td>
+                                <td>Ettus UHD / Linux Embedded</td>
+                                <td><code>sudo telcosec-sdr 10g tune &lt;iface&gt;</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>HackRF One</strong></td>
+                                <td>USB 2.0 HighSpeed</td>
+                                <td>20.0 MSps</td>
+                                <td>Half Duplex</td>
+                                <td>libhackrf / SoapyHackRF</td>
+                                <td><code>sudo telcosec-sdr usb tune</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>BladeRF 2.0 micro xA4</strong></td>
+                                <td>USB 3.0 SuperSpeed</td>
+                                <td>61.44 MSps</td>
+                                <td>Full Duplex (2x2 MIMO)</td>
+                                <td>libbladeRF / SoapyBladeRF</td>
+                                <td><code>sudo telcosec-sdr usb tune</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>LimeSDR USB / Mini</strong></td>
+                                <td>USB 3.0 SuperSpeed</td>
+                                <td>61.44 MSps</td>
+                                <td>Full Duplex (2x2 MIMO)</td>
+                                <td>LimeSuite / SoapyLime</td>
+                                <td><code>sudo telcosec-sdr usb tune</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>RTL-SDR v3 / v4</strong></td>
+                                <td>USB 2.0 HighSpeed</td>
+                                <td>3.2 MSps</td>
+                                <td>RX Only</td>
+                                <td>librtlsdr / rtl-sdr</td>
+                                <td><code>sudo telcosec-sdr usb tune</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>ADALM-PLUTO (PlutoSDR)</strong></td>
+                                <td>USB 2.0 OTG / Ethernet RNDIS</td>
+                                <td>20.0 MSps</td>
+                                <td>Full Duplex (1x1)</td>
+                                <td>libiio / SoapyPlutoSDR</td>
+                                <td><code>telcosec-sdr status</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>9. Telecom Container &amp; POD Orchestration (`docker/pods/`)</h3>
+                <p>
+                    For virtualized environments and automated CI/CD pipelines, TelcoChisel provides pre-engineered <strong>Telecom POD manifests</strong> under <code class="inline-code">docker/pods/</code>. These multi-container specifications deploy tightly-coupled cellular testbeds sharing localhost networking:
+                </p>
+                <div class="terminal-block">
+                    <div class="terminal-header">
+                        <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+                        <div class="terminal-title">Telecom POD Orchestration Commands</div>
+                    </div>
+                    <div class="terminal-body">
+                        <pre><code># Launch rootless multi-container Telecom Pod via Podman (Core + Scanner)
+podman play kube docker/pods/podman-telecom-pod.yaml
+
+# Deploy 5G SA Core &amp; UERANSIM multi-container pod to Kubernetes
+kubectl apply -f docker/pods/k8s-5g-core-pod.yaml
+
+# Manage pods using the unified deployer helper
+bash docker/pods/pod-deploy.sh start-podman
+bash docker/pods/pod-deploy.sh status
+bash docker/pods/pod-deploy.sh stop-podman</code></pre>
+                        <button class="terminal-copy-btn" onclick="copyCommand(this, 'podman play kube docker/pods/podman-telecom-pod.yaml\nbash docker/pods/pod-deploy.sh status')">Copy</button>
                     </div>
                 </div>
             </section>
