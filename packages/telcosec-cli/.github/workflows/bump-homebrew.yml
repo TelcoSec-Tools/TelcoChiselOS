@@ -1,0 +1,77 @@
+name: Bump Homebrew Tap
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Tag or Version to bump in homebrew-tap (e.g. v3.0.1 or 3.0.1)'
+        required: true
+        type: string
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  bump-tap:
+    name: Dispatch Formula Bump to homebrew-tap
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve Target Version
+        id: resolve
+        run: |
+          RAW_VER="${{ github.event.inputs.version || github.event.release.tag_name || github.ref_name }}"
+          CLEAN_VER="${RAW_VER#v}"
+          TAG_NAME="v${CLEAN_VER}"
+          {
+            echo "tag_name=${TAG_NAME}"
+            echo "version=${CLEAN_VER}"
+          } >> "$GITHUB_OUTPUT"
+          echo "[+] Targeting release tag: ${TAG_NAME}"
+
+      - name: Fetch Release Archive & Compute SHA256
+        id: archive
+        run: |
+          TAG_NAME="${{ steps.resolve.outputs.tag_name }}"
+          ARCHIVE_URL="https://github.com/TelcoSec-Tools/telcosec-cli/archive/refs/tags/${TAG_NAME}.tar.gz"
+          echo "[+] Fetching ${ARCHIVE_URL}..."
+
+          HTTP_STATUS=$(curl -sL -w "%{http_code}" -o archive.tar.gz "${ARCHIVE_URL}")
+          if [ "$HTTP_STATUS" -ne 200 ] || [ ! -s archive.tar.gz ]; then
+            echo "[!] Error: Failed to fetch archive from ${ARCHIVE_URL} (status ${HTTP_STATUS})"
+            exit 1
+          fi
+
+          SHA256=$(sha256sum archive.tar.gz | awk '{print $1}')
+          rm -f archive.tar.gz
+          {
+            echo "sha256=${SHA256}"
+            echo "url=${ARCHIVE_URL}"
+          } >> "$GITHUB_OUTPUT"
+          echo "[+] Calculated SHA256: ${SHA256}"
+
+      - name: Trigger Homebrew Tap Bump
+        env:
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN || secrets.GH_PAT }}
+        run: |
+          TAG_NAME="${{ steps.resolve.outputs.tag_name }}"
+          SHA256="${{ steps.archive.outputs.sha256 }}"
+
+          if [ -n "${TAP_TOKEN:-}" ]; then
+            echo "[+] Dispatching bump-formula event to TelcoSec-Tools/homebrew-tap..."
+            curl -X POST \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Authorization: token ${TAP_TOKEN}" \
+              https://api.github.com/repos/TelcoSec-Tools/homebrew-tap/dispatches \
+              -d "{\"event_type\": \"bump-formula\", \"client_payload\": {\"version\": \"${TAG_NAME}\", \"sha256\": \"${SHA256}\"}}"
+            echo "[+] Repository dispatch successfully triggered."
+          else
+            echo "[!] HOMEBREW_TAP_TOKEN secret not configured. Cross-repo dispatch skipped."
+            echo "[i] To bump Formula/telcosec.rb manually or in homebrew-tap UI:"
+            echo "    Repository: TelcoSec-Tools/homebrew-tap"
+            echo "    Workflow  : Bump Formula (bump.yml)"
+            echo "    Input     : version=${TAG_NAME}"
+            echo "    URL       : ${{ steps.archive.outputs.url }}"
+            echo "    SHA256    : ${SHA256}"
+          fi

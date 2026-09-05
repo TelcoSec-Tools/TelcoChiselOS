@@ -85,6 +85,18 @@ brew untap telcosec-tools/tap
 
 ---
 
+## Automated Formula Bumping
+
+Formula updates are automated via GitHub Actions:
+- Whenever a new tag (e.g. `v3.0.1`) is published in [`telcosec-cli`](https://github.com/TelcoSec-Tools/telcosec-cli), the release pipeline dispatches a `bump-formula` event to this tap.
+- Maintainers can also trigger an automated bump on-demand via the GitHub CLI:
+  ```bash
+  gh workflow run bump.yml --repo TelcoSec-Tools/homebrew-tap -f version=v3.0.1
+  ```
+- The workflow automatically fetches the release archive, computes and verifies the SHA256 checksum, updates `Formula/telcosec.rb`, runs `brew test-bot --only-tap-syntax` for audit compliance, and commits directly to `main`.
+
+---
+
 ## Documentation & Upstream Repositories
 
 - **TelcoChisel OS Documentation Portal**: [https://chisel.telcosec.net](https://chisel.telcosec.net)
