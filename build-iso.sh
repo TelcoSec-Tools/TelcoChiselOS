@@ -216,6 +216,10 @@ elif $RESUME; then
   mount --bind   /dev  "$ROOTFS/dev"
   mount --bind   /dev/pts "$ROOTFS/dev/pts"
 
+  # Recover from any interrupted dpkg transactions from previous runs
+  echo "--> Checking chroot package manager state..."
+  chroot "$ROOTFS" dpkg --configure -a 2>/dev/null || true
+
 else
   # ── Full clean build ─────────────────────────────────────────────────────────
   cleanup  # clear any leftover mounts from a previous run

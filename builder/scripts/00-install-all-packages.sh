@@ -59,6 +59,10 @@ apt_get_retry() {
 # libhackrf0, etc. (shared logic in lib/chroot-suppress.sh)
 suppress_chroot_services_inplace
 
+# Recover from any previously interrupted dpkg transactions (e.g. from an aborted build)
+echo "  Checking and repairing chroot package manager state..."
+dpkg --configure -a 2>/dev/null || true
+
 # ─── 0.5. Recover from broken apt state (crucial for --resume) ──────────────
 apt-get --fix-broken install -y -o Dpkg::Options::="--force-overwrite" || true
 
