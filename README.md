@@ -64,12 +64,12 @@ flowchart TD
     end
 
     subgraph L4["4. 88 Pre-Configured Telecom Toolsets"]
-        SDR_T["SDR & RF DSP<br/>(GNU Radio 3.10, UHD, Gqrx, gr-gsm)"]
-        RAN_T["4G / 5G RAN & Core<br/>(Open5GS, UERANSIM, srsRAN, 5Ghoul, my5G-RANTester)"]
+        SDR_T["SDR & RF DSP<br/>(GNU Radio 3.10, UHD, Gqrx, gr-gsm, URH, Inspectrum, Gpredict)"]
+        RAN_T["4G / 5G RAN & Core<br/>(Open5GS, UERANSIM, srsRAN, 5Ghoul, my5G-RANTester, mitmproxy)"]
         BB_T["Baseband & Mobile UE<br/>(FirmWire, QCSuper, SCAT, MTKClient, Balong)"]
         CORE_T["Signaling & Interconnect<br/>(SigPloit, Diafuzzer, sctpscan, Wireshark Profiles)"]
-        SIM_T["SIM / eSIM Smartcards<br/>(pySim-shell, lpac, SIMurai, SIMtester)"]
-        WIRE_T["Broadband & Wireline<br/>(RouterSploit, docsis, asleap, sipp, pppoe)"]
+        SIM_T["SIM / eSIM Smartcards<br/>(pySim-shell, lpac, SIMurai, SIMtester, pcsc-tools, OpenSC)"]
+        WIRE_T["Broadband, VoIP & Wireline<br/>(RouterSploit, docsis, asleap, sipp, voiphopper, rtpbleed, mausezahn)"]
     end
 
     subgraph L5["5. Operational Delivery & Ecosystem"]
@@ -420,19 +420,34 @@ TelcoChisel serves as the standardized operating environment for real-world tele
 * **Academy Lab:** [Cellular Baseband Reverse Engineering Lab →](https://app.telcosec.net/?utm_source=telcochisel_readme&utm_campaign=scenario_baseband)
 
 ### Scenario 4: SIM / eSIM Smartcard & OTA Toolkit Auditing
-* **Objective:** Intercept ISO 7816 APDUs during network attach, audit SIM card cryptographic parameters (COMP128/Milenage), and analyze eSIM SGP.22 remote provisioning protocols.
-* **Tools:** Osmocom SIMtrace 2, pySim-shell, lpac, SIMurai, SIMtester.
+* **Objective:** Intercept ISO 7816 APDUs during network attach, audit SIM card cryptographic parameters (COMP128/Milenage), inspect PKCS#11 cryptographic tokens, and analyze eSIM SGP.22 remote provisioning protocols.
+* **Tools:** Osmocom SIMtrace 2, pySim-shell, lpac, SIMurai, SIMtester, pcsc-tools, OpenSC.
 * **Academy Lab:** [SIM/eSIM Smartcard Security Lab →](https://app.telcosec.net/?utm_source=telcochisel_readme&utm_campaign=scenario_sim)
 
 ### Scenario 5: VoIP Telephony & SIP PBX Penetration Testing
-* **Objective:** Map VoIP PBX extensions, perform SIP Digest authentication cracking, and test IP-PBX systems against RTP session hijacking.
-* **Tools:** SIPVicious, SIPp, Twinkle, Baresip, Linphone, Scapy.
+* **Objective:** Map VoIP PBX extensions, perform SIP Digest authentication cracking, test IP-PBX systems against RTP session hijacking, and audit media proxies for silent RTP call bleeding.
+* **Tools:** SIPVicious, SIPp, sipsak, voiphopper, rtpbleed, Twinkle, Baresip, Linphone, Scapy.
 * **Academy Lab:** [Telecom VoIP & SIP Protocol Lab →](https://app.telcosec.net/?utm_source=telcochisel_readme&utm_campaign=scenario_voip)
 
-### Scenario 6: Wireline Broadband & DOCSIS Provisioning Auditing
-* **Objective:** Audit broadband access concentrators, extract PPPoE credentials, analyze DOCSIS configuration files, and exploit weak SNMP management interfaces on CPE modems.
-* **Tools:** RouterSploit, docsis, asleap, snmp-check, pppoe-discovery, yersinia.
+### Scenario 6: Wireline Broadband, DOCSIS & Carrier Ethernet Auditing
+* **Objective:** Audit broadband access concentrators, extract PPPoE credentials, analyze DOCSIS configuration files, craft custom 802.1Q and QinQ tagged frames, and exploit weak SNMP management interfaces on CPE modems.
+* **Tools:** RouterSploit, mausezahn (mz), docsis, asleap, snmp-check, pppoe-discovery, yersinia.
 * **Academy Lab:** [Wireline Broadband & CPE Exploitation Lab →](https://app.telcosec.net/?utm_source=telcochisel_readme&utm_campaign=scenario_adsl)
+
+### Scenario 7: Satellite & 3GPP Non-Terrestrial Network (NTN) Doppler Tracking
+* **Objective:** Track Low Earth Orbit (LEO) satellites and direct-to-cell NTN constellations, calculate dynamic Doppler frequency shifts in real time, steer SDR receiver front-ends, and record baseband I/Q for offline preamble and symbol rate extraction.
+* **Tools:** Gpredict, Inspectrum, GQRX, GNU Radio 3.10, SoapySDR.
+* **Academy Lab:** [Satcom & 3GPP NTN Interception Lab →](https://app.telcosec.net/?utm_source=telcochisel_readme&utm_campaign=scenario_satcom)
+
+### Scenario 8: Enterprise Voice VLAN Hopping & Carrier-Grade QinQ Trunk Auditing
+* **Objective:** Bypass network segmentation by spoofing Cisco CDP and LLDP-MED IP phones, discover Voice VLAN tags, automatically build 802.1Q sub-interfaces, and test carrier transport switches for QinQ boundary leakage and media port bleeding.
+* **Tools:** voiphopper, mausezahn (mz), sipsak, rtpbleed, SIPVicious.
+* **Academy Lab:** [Voice VLAN Hopping & Media Bleed Lab →](https://app.telcosec.net/?utm_source=telcochisel_readme&utm_campaign=scenario_vlan_hopping)
+
+### Scenario 9: 5G Service-Based Architecture (SBA) HTTP/2 & mTLS Interception
+* **Objective:** Intercept, decrypt, and tamper with 5G Core Network Function (NF) interactions across HTTP/2 REST Service Based Interfaces (SBI: Nnrf, Nausf, Nudm, Nsmf) using 3GPP OpenAPI specifications and local certificate authority injection.
+* **Tools:** mitmproxy (5G SBI), Open5GS, UERANSIM, curl, telcosec-download-openapi.
+* **Academy Lab:** [5G Core SBA REST & HTTP/2 Exploitation Lab →](https://app.telcosec.net/?utm_source=telcochisel_readme&utm_campaign=scenario_5g_sba)
 
 ---
 
@@ -568,6 +583,15 @@ Yes. Multi-container Telecom POD manifests in `docker/pods/` allow rootless exec
 * **Standard Live Mode:** Runs from the bootable media in RAM, leaving zero trace on host drives.  
 * **Encrypted Persistence (`casper-rw`):** Saves captures, tools, and custom configurations inside an AES-XTS LUKS-encrypted partition created by `telcosec-create-usb`.  
 * **Toram Mode:** Copies the entire squashfs filesystem into RAM during boot, yielding maximum I/O speed and allowing the operator to unplug the USB flash drive once booted.
+
+**How do I track and intercept Low Earth Orbit (LEO) satellite and NTN signals?**  
+TelcoChisel pairs **Gpredict** with **GQRX** or GNU Radio over the `rigctld` TCP socket interface (port 7356). As the satellite approaches the ground station, Gpredict calculates real-time SGP4 orbital propagation and steers the SDR receiver's center frequency to compensate for Doppler shift (up to ±50 kHz at L/S-band). Operators record raw I/Q samples directly into SigMF files and inspect preamble structures, symbol rates, and modulation schemes with **Inspectrum** or **URH**.
+
+**How do `voiphopper` and `mausezahn` bypass enterprise voice VLAN isolation?**  
+In enterprise networks, VoIP infrastructure is isolated inside dedicated 802.1Q Voice VLANs. Running `sudo voiphopper -i eth0 -c` passively listens for Cisco Discovery Protocol (CDP) or LLDP-MED packets broadcast by switches, discovers the Voice VLAN ID, creates a tagged sub-interface (e.g. `eth0.200`), and issues a DHCP request to acquire an IP inside the VoIP subnet. Operators then use `mausezahn (mz)` to craft line-rate nested QinQ frames (802.1ad) and probe media proxies with `rtpbleed` for silent audio stream leakage (CVE-2017-9936).
+
+**How can `mitmproxy` intercept and decrypt 5G SBA HTTP/2 Service Based Interfaces?**  
+5G Core Network Functions (AMF, SMF, NRF, UDM, AUSF) communicate over Service Based Interfaces (SBI) using HTTP/2 REST APIs with JSON payloads. Running `mitmweb -p 8080` establishes an intercepting proxy. By deploying TelcoChisel's offline 3GPP Rel-15–18 OpenAPI specifications via `telcosec-download-openapi` and trusting mitmproxy's root CA certificate across testbed containers, security researchers can decrypt, inspect, and modify live REST transactions between 5G Core functions in real time.
 
 ---
 

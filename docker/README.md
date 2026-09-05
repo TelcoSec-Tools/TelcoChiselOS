@@ -18,8 +18,8 @@ limitations" below before choosing a container over the ISO for a given task.
 
 | Image | Contents | Runtime needs |
 |-------|----------|----------------|
-| `telcochisel-base` | Headless CLI toolset: nmap, tshark, Scapy, SIPVicious, sctpscan, SigPloit, Diafuzzer, FirmWire, QCSuper, MTKClient, pySim, lpac, SIMtrace2, SIMurai, UERANSIM, SCAT, kalibrate-gsm, SIMTester, LTESniffer, RouterSploit, sipp, asleap, snmp-check, docsis, telecom wordlists | none |
-| `telcochisel-sdr` | `FROM base` + SoapySDR/UHD/LimeSuite/HackRF/BladeRF/rtl-sdr, GNU Radio, GQRX, gr-gsm, kalibrate-rtl (conda `telcosec-sdr` env) | USB device passthrough; X11 for GQRX |
+| `telcochisel-base` | Headless CLI toolset: nmap, tshark, Scapy, SIPVicious, sctpscan, SigPloit, Diafuzzer, FirmWire, QCSuper, MTKClient, pySim, lpac, SIMtrace2, SIMurai, UERANSIM, SCAT, kalibrate-gsm, SIMTester, LTESniffer, RouterSploit, sipp, asleap, snmp-check, docsis, sipsak, voiphopper, rtpbleed, mausezahn (mz), mitmproxy, pcsc-tools, OpenSC, telecom wordlists | none |
+| `telcochisel-sdr` | `FROM base` + SoapySDR/UHD/LimeSuite/HackRF/BladeRF/rtl-sdr, GNU Radio 3.10, GQRX, gr-gsm, kalibrate-rtl, URH, Inspectrum, Gpredict (conda `telcosec-sdr` env) | USB device passthrough; X11 for GUI tools |
 | `telcochisel-core-network` | `FROM base` + srsRAN/Open5GS/OAI-UE/5Ghoul first-run helper stubs and their build deps prebaked | `NET_ADMIN`, `/dev/net/tun`, often host networking |
 | `telcochisel-device-tools` | `FROM base` + Heimdall, ADB/Fastboot, MTKClient wrappers, QCSuper, EDL, AT console | USB/serial device passthrough |
 
