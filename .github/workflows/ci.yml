@@ -98,3 +98,29 @@ jobs:
             exit 1
           fi
           echo "✓ All shell and binary launchers use Unix LF line endings"
+
+  test-go-cli:
+    name: Go CLI Tests & Compilation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Run Go Unit Tests
+        run: |
+          cd packages/telcosec-cli
+          go test -v ./...
+
+      - name: Build Standalone Binary
+        run: |
+          cd packages/telcosec-cli
+          make build
+          ./bin/telcosec version
+          ./bin/telcosec check
+
