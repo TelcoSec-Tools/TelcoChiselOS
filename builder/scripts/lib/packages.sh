@@ -102,7 +102,7 @@ PKGS_TOOLS=(
   lksctp-tools libsctp-dev libglib2.0-dev
   ruby ruby-snmp
   sipsak
-  mausezahn mitmproxy
+  netsniff-ng mitmproxy
   python3-pip python3-venv
   wireguard
   twinkle baresip linphone-desktop
