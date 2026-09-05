@@ -223,16 +223,19 @@ export const featuresMetadata = {
     overview: "TelcoChisel features a 10-tier modular Debian metapackage architecture hosted on Cloudflare Pages edge CDN (`meta.telcosec.net`). Using the dedicated `telcosec-pkg` CLI, operators can inspect, install, remove, and verify specialized telecommunications suites (such as 5G, SDR, SIM, Wireline, or UE firmware tools) on-demand using simple domain aliases.",
     config: [
       "List all 10 official metapackages and current installation status:\ntelcosec-pkg list",
+      "Inspect exact tool manifests included in a package tier:\ntelcosec-pkg tools 5g",
+      "Search across metapackages and tool manifests:\ntelcosec-pkg search sdr",
       "Install a modular tool suite using intuitive domain aliases:\nsudo telcosec-pkg install 5g",
+      "Upgrade installed metapackages with latest upstream fixes:\nsudo telcosec-pkg upgrade",
       "Inspect package dependencies and installed disk footprint:\ntelcosec-pkg info 5g",
-      "Audit system dependency integrity and library linkages:\ntelcosec-pkg check",
-      "Verify APT repository connectivity and GPG keyring pinning:\ntelcosec-pkg repo status"
+      "Audit system dependency integrity, pinning policy, and library linkages:\ntelcosec-pkg check",
+      "Verify APT repository connectivity, pinning, and GPG keyring:\ntelcosec-pkg repo status"
     ],
     troubleshooting: "If `telcosec-pkg install` reports repository connectivity errors, check network access to `meta.telcosec.net` and run `sudo telcosec-pkg repo refresh` to update the APT package cache and verify the GPG signing key.",
     faq: [
-      { q: "What aliases does 'telcosec-pkg' recognize?", a: "It supports aliases like `5g` (telcochisel-tools-5g), `sdr` (telcochisel-tools-sdr), `sim` (telcochisel-tools-sim), `4g` (telcochisel-tools-4g), `2g` (telcochisel-tools-2g-3g), `wireline` (telcochisel-tools-pstn-adsl), `ue` (telcochisel-tools-ue), and `full` (telcochisel-meta-full)." },
+      { q: "What aliases does 'telcosec-pkg' recognize?", a: "It supports aliases like `5g` / `sba` / `nr` (telcochisel-tools-5g), `sdr` / `satcom` / `ntn` (telcochisel-tools-sdr), `sim` / `smartcard` (telcochisel-tools-sim), `4g` / `lte` (telcochisel-tools-4g), `2g-3g` / `gsm` (telcochisel-tools-2g-3g), `wireline` / `pstn` / `voip` / `broadband` (telcochisel-tools-pstn-adsl), `ue` / `modem` / `diag` (telcochisel-tools-ue), `hardware` / `fpga` (telcochisel-hardware-sdr), and `full` / `complete` (telcochisel-meta-full)." },
       { q: "Can I install TelcoChisel metapackages on standard Ubuntu 24.04?", a: "Yes. The official repository at `meta.telcosec.net` can be added to any standard Ubuntu 24.04 or Debian-compatible system." },
-      { q: "Does 'telcosec-pkg check' verify binary dependencies?", a: "Yes. It executes dpkg and apt checks to detect missing dependencies, broken packages, and incomplete installations." }
+      { q: "Does 'telcosec-pkg check' verify binary dependencies?", a: "Yes. It executes dpkg and apt checks to detect missing dependencies, broken packages, pinning priorities, and incomplete installations." }
     ]
   },
 

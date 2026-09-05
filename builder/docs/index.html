@@ -764,14 +764,24 @@ telcosec academy</code></pre>
                         <pre><code># List all 10 official metapackages and installation status
 telcosec-pkg list
 
+# Inspect exact tool manifests included in a package tier
+telcosec-pkg tools 5g
+
+# Search across metapackages and tool manifests
+telcosec-pkg search sdr
+
 # Install modular tool suites via intelligent aliases (e.g. 5g, sdr, sim, wireline)
 sudo telcosec-pkg install 5g
 sudo telcosec-pkg install sdr sim
 
+# Upgrade installed metapackages with latest upstream fixes
+sudo telcosec-pkg upgrade
+
 # Inspect package dependencies and audit dependency linkage
 telcosec-pkg info 5g
-telcosec-pkg check</code></pre>
-                        <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec-pkg list\nsudo telcosec-pkg install 5g\ntelcosec-pkg check')">Copy</button>
+telcosec-pkg check
+telcosec-pkg repo status</code></pre>
+                        <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec-pkg list\ntelcosec-pkg tools 5g\ntelcosec-pkg search sdr\nsudo telcosec-pkg install 5g\ntelcosec-pkg check')">Copy</button>
                     </div>
                 </div>
 
