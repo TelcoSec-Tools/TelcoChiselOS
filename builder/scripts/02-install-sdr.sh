@@ -6,6 +6,8 @@ echo "=== Installing Conda & Compiling SDR Drivers from Source ==="
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/record-tool.sh
 source "${SCRIPT_DIR}/lib/record-tool.sh"
+# shellcheck source=lib/build-tool.sh
+source "${SCRIPT_DIR}/lib/build-tool.sh"
 
 # Skip apt operations — handled by 00-install-all-packages.sh
 if [ ! -f /tmp/.packages-installed ]; then
@@ -57,32 +59,15 @@ export CMAKE_PREFIX_PATH="$CONDA_PREFIX"
 # 3. Clone SDR source repos in parallel (fail loudly if any clone fails)
 echo "Cloning SDR source repositories..."
 mkdir -p /opt/telcosec/src
-declare -A CLONE_PIDS
-_clone() {
-  local dir="$1" url="$2"
-  if [ -d "$dir" ]; then
-    echo "  [clone] $dir already present"
-  else
-    git clone --depth 1 "$url" "$dir" || echo "  [clone] FAILED: $url" >&2
-  fi
-}
-_clone /opt/telcosec/src/hackrf        https://github.com/greatscottgadgets/hackrf.git &
-CLONE_PIDS[hackrf]=$!
-_clone /opt/telcosec/src/uhd           https://github.com/EttusResearch/uhd.git &
-CLONE_PIDS[uhd]=$!
-_clone /opt/telcosec/src/kalibrate-rtl https://github.com/steve-m/kalibrate-rtl.git &
-CLONE_PIDS[kalibrate-rtl]=$!
-_clone /opt/telcosec/src/LimeSuite     https://github.com/myriadrf/LimeSuite.git &
-CLONE_PIDS[LimeSuite]=$!
+clone_bg https://github.com/greatscottgadgets/hackrf.git        /opt/telcosec/src/hackrf
+clone_bg https://github.com/EttusResearch/uhd.git               /opt/telcosec/src/uhd
+clone_bg https://github.com/steve-m/kalibrate-rtl.git          /opt/telcosec/src/kalibrate-rtl
+clone_bg https://github.com/myriadrf/LimeSuite.git              /opt/telcosec/src/LimeSuite
 
-CLONE_FAIL=0
-for name in "${!CLONE_PIDS[@]}"; do
-  if ! wait "${CLONE_PIDS[$name]}"; then
-    echo "SDR repo clone failed: $name" >&2
-    CLONE_FAIL=1
-  fi
-done
-[ "$CLONE_FAIL" -eq 0 ] || { echo "Aborting: one or more SDR repo clones failed" >&2; exit 1; }
+if ! wait_clones "SDR repos"; then
+  echo "Aborting: one or more SDR repo clones failed" >&2
+  exit 1
+fi
 echo "All SDR repos checked/cloned."
 
 # ── SDR build helper ─────────────────────────────────────────────────────────
@@ -117,8 +102,7 @@ record_tool "SoapySDR" "${CONDA_PREFIX}/bin/SoapySDRUtil" "sdr"
 
 # SoapyBladeRF clone (depends on SoapySDR being installed above)
 echo "Cloning SoapyBladeRF..."
-git clone --depth 1 https://github.com/pothosware/SoapyBladeRF.git \
-  /opt/telcosec/src/SoapyBladeRF 2>/dev/null || true
+clone_if_missing https://github.com/pothosware/SoapyBladeRF.git /opt/telcosec/src/SoapyBladeRF || true
 
 # 5–6. Build UHD, LimeSuite, HackRF + SoapyBladeRF in parallel.
 # UHD is the longest (15-20 min); parallelizing with the others saves ~10 min.
@@ -271,8 +255,7 @@ conda install -y --override-channels -c conda-forge \
 # fallback that always works.
 if [ ! -f "${CONDA_PREFIX}/include/rtl-sdr.h" ]; then
   echo "  Building librtlsdr from source into conda env..."
-  git clone --depth 1 https://github.com/osmocom/rtl-sdr \
-    /opt/telcosec/src/librtlsdr 2>/dev/null || true
+  clone_if_missing https://github.com/osmocom/rtl-sdr /opt/telcosec/src/librtlsdr || true
   if [ -d /opt/telcosec/src/librtlsdr ]; then
     cmake -S /opt/telcosec/src/librtlsdr -B /opt/telcosec/src/librtlsdr/build \
       -DCMAKE_INSTALL_PREFIX="${CONDA_PREFIX}" \
@@ -286,7 +269,7 @@ fi
 record_tool "librtlsdr" "${CONDA_PREFIX}/include/rtl-sdr.h" "sdr"
 
 # gr-gsm is not on conda-forge; build from source against the conda env
-git clone --depth 1 https://github.com/bkerler/gr-gsm /opt/telcosec/src/gr-gsm 2>/dev/null || true
+clone_if_missing https://github.com/bkerler/gr-gsm /opt/telcosec/src/gr-gsm || true
 if [ -d /opt/telcosec/src/gr-gsm ]; then
   cmake -S /opt/telcosec/src/gr-gsm -B /opt/telcosec/src/gr-gsm/build \
     -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" -DCMAKE_BUILD_TYPE=Release \

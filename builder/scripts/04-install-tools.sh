@@ -8,6 +8,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/record-tool.sh"
 # shellcheck source=lib/pip-retry.sh
 source "${SCRIPT_DIR}/lib/pip-retry.sh"
+# shellcheck source=lib/build-tool.sh
+source "${SCRIPT_DIR}/lib/build-tool.sh"
 
 # Skip apt operations — handled by 00-install-all-packages.sh
 if [ ! -f /tmp/.packages-installed ]; then
@@ -27,7 +29,7 @@ record_tool "SIPVicious" "$(command -v svmap 2>/dev/null || command -v sipviciou
 # Compile and Install sctpscan
 echo "Compiling and installing sctpscan..."
 sudo mkdir -p /opt/telcosec
-[ -d /opt/telcosec/sctpscan ] || sudo git clone --depth 1 https://github.com/philpraxis/sctpscan.git /opt/telcosec/sctpscan
+clone_if_missing https://github.com/philpraxis/sctpscan.git /opt/telcosec/sctpscan
 cd /opt/telcosec/sctpscan
 # Patch 1: Remove legacy STREAMS header (dropped in glibc 2.30 / Ubuntu 24.04)
 sudo sed -i '/#include <stropts.h>/d' sctpscan.c
@@ -47,8 +49,7 @@ cd -
 # Python 2.7 is EOL and building from source is slow. SigPloit is containerized.
 echo "Setting up SigPloit Docker environment..."
 sudo mkdir -p /opt/telcosec/sigploit
-[ -d /opt/telcosec/sigploit/.git ] || \
-  sudo git clone --depth 1 https://github.com/SigPloiter/SigPloit.git /opt/telcosec/sigploit
+clone_if_missing https://github.com/SigPloiter/SigPloit.git /opt/telcosec/sigploit
 
 cat << 'EOF' | sudo tee /opt/telcosec/sigploit/Dockerfile
 FROM ubuntu:20.04
@@ -75,7 +76,7 @@ sudo chown -R telcosec:telcosec /opt/telcosec/sigploit
 
 # Install Diafuzzer (Orange Diameter Fuzzer)
 echo "Installing Diafuzzer..."
-[ -d /opt/telcosec/diafuzzer ] || sudo git clone --depth 1 https://github.com/Orange-OpenSource/diafuzzer.git /opt/telcosec/diafuzzer || true
+clone_if_missing https://github.com/Orange-OpenSource/diafuzzer.git /opt/telcosec/diafuzzer || true
 if [ -f /opt/telcosec/diafuzzer/requirements.txt ]; then
   pip3 install -r /opt/telcosec/diafuzzer/requirements.txt --break-system-packages || true
 fi
@@ -110,7 +111,7 @@ sudo mkdir -p /usr/share/wordlists/telecom
 if [ -d "/tmp/wordlists" ] && [ "$(ls -A /tmp/wordlists 2>/dev/null)" ]; then
   sudo cp -r /tmp/wordlists/. /usr/share/wordlists/telecom/
 else
-  sudo git clone --depth 1 https://github.com/TelcoSec-Tools/TelcoSec-Wordlists /usr/share/wordlists/telecom/ 2>/dev/null || true
+  clone_if_missing https://github.com/TelcoSec-Tools/TelcoSec-Wordlists /usr/share/wordlists/telecom || true
 fi
 sudo find /usr/share/wordlists/telecom -type f -exec chmod 644 {} + 2>/dev/null || true
 sudo find /usr/share/wordlists/telecom -type d -exec chmod 755 {} + 2>/dev/null || true

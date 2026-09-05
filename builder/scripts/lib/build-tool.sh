@@ -31,14 +31,16 @@ clone_if_missing() {
 declare -A _BG_CLONE_PIDS 2>/dev/null || true
 
 clone_bg() {
-  local url="$1" dir="$2"
+  local url="$1" dir="$2"; shift 2 || true
   if [ -d "$dir" ]; then
     echo "  [clone] $dir already present — skipping"
     return 0
   fi
   (
-    git clone "${GIT_QUIET_ARGS[@]}" "$url" "$dir" 2>/dev/null || \
+    if ! git clone "${GIT_QUIET_ARGS[@]}" "$@" "$url" "$dir" 2>/dev/null; then
       echo "  [clone] FAILED: $url" >&2
+      exit 1
+    fi
   ) &
   _BG_CLONE_PIDS["$(basename "$dir")"]=$!
 }
