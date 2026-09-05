@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Rate TelcoChisel on SourceForge
+Comment=Leave a 5-star review or feedback on SourceForge
+Exec=xdg-open https://sourceforge.net/projects/telcochisel/reviews/new
+Icon=starred
+Terminal=false
+Categories=TelcoSec-Tools;
+Keywords=review;feedback;rating;sourceforge;support;telcosec;
