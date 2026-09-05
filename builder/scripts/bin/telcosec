@@ -12,7 +12,7 @@
 # =============================================================================
 set -euo pipefail
 
-VERSION="1.1.0"
+VERSION="3.0.0"
 
 # Color helpers
 if [ -t 1 ]; then
@@ -47,15 +47,17 @@ Usage: telcosec <command> [options]
        telcochisel <command> [options]
 
 Commands:
-  status               Comprehensive system, kernel, hardware, and services audit
+  check | status       Comprehensive system, kernel, hardware, and services audit
   hardware             Enumerate and probe attached SDRs, modems, and SIM readers
+  search <query>       Search installed 88 tools and desktop launchers by keyword
+  docs                 Open offline documentation & operator reference in browser
   sdr [action]         SDR drivers, USB & 10GbE management (status | usb | 10g | firmware)
   10g [action]         10Gbps network SDR interface optimization (status | tune | setup | probe)
   firmware             Inspect and manage offline SDR FPGA bitstreams (BladeRF, USRP)
   profile [mode]       Switch operational profiles (lab | field | status)
   pkg [action]         Official metapackage manager (list | install | remove | info | check)
-  5g <action>          5G Standalone core & RAN manager (start | stop | status | add-sub)
-  scan <protocol>      Interactive protocol assessment wizard (sctp | sip | diameter | ss7 | adsl)
+  5g-sa <action>       5G Standalone core & RAN manager (start | stop | status | add-sub)
+  scan <protocol>      Interactive protocol assessment wizard (sctp | sip | asleap)
   academy              Access TelcoSec Academy interactive labs & credentials
   feedback             Community support channels & SourceForge review portal
   version              Show TelcoChiselOS release version and kernel details
@@ -72,6 +74,15 @@ cmd_status() {
     echo -e "  Kernel Architecture : ${GREEN}${KVER} [Low-Latency / Real-Time SDR]${RESET}"
   else
     echo -e "  Kernel Architecture : ${YELLOW}${KVER} [Generic Scheduler]${RESET}"
+  fi
+
+  # Distribution Flavor
+  if [ -f "/etc/telcochisel-flavor" ]; then
+    FLAVOR=$(cat /etc/telcochisel-flavor 2>/dev/null || echo "")
+    echo -e "  Distribution Flavor : ${CYAN}${FLAVOR}${RESET}"
+  elif grep -q "VARIANT=" /etc/os-release 2>/dev/null; then
+    FLAVOR=$(grep -E "^VARIANT=" /etc/os-release | cut -d= -f2- | tr -d '"')
+    echo -e "  Distribution Flavor : ${CYAN}${FLAVOR}${RESET}"
   fi
 
   # Realtime limits
@@ -359,15 +370,63 @@ cmd_feedback() {
   fi
 }
 
+cmd_docs() {
+  banner
+  echo -e "${BOLD}=== TelcoChisel Interactive Documentation ===${RESET}\n"
+  DOC_PATH="/usr/share/doc/telcosec/index.html"
+  if [ -f "$DOC_PATH" ]; then
+    echo -e "  Offline documentation: ${GREEN}${DOC_PATH}${RESET}"
+    if [ -n "${DISPLAY:-}" ]; then
+      echo -e "  Opening offline documentation in browser..."
+      (xdg-open "file://${DOC_PATH}" 2>/dev/null || sensible-browser "file://${DOC_PATH}" 2>/dev/null || true) &
+    fi
+  else
+    echo -e "  Online documentation: ${CYAN}https://chisel.telcosec.net${RESET}"
+    if [ -n "${DISPLAY:-}" ]; then
+      (xdg-open "https://chisel.telcosec.net" 2>/dev/null || sensible-browser "https://chisel.telcosec.net" 2>/dev/null || true) &
+    fi
+  fi
+  echo ""
+}
+
+cmd_search() {
+  query="${1:-}"
+  if [ -z "$query" ]; then
+    echo "Usage: telcosec search <tool_name_or_keyword>"
+    return 1
+  fi
+  banner
+  echo -e "${BOLD}=== Searching Tool Catalog for '${query}' ===${RESET}\n"
+  FOUND=0
+  for f in /usr/share/applications/*.desktop /etc/skel/Desktop/*.desktop /usr/local/share/applications/*.desktop; do
+    [ -f "$f" ] || continue
+    if grep -Ei "$query" "$f" >/dev/null 2>&1; then
+      NAME=$(grep -E "^Name=" "$f" | head -1 | cut -d= -f2-)
+      COMMENT=$(grep -E "^Comment=" "$f" | head -1 | cut -d= -f2-)
+      EXEC=$(grep -E "^Exec=" "$f" | head -1 | cut -d= -f2-)
+      printf "  ${GREEN}%-28s${RESET} : %s\n" "$NAME" "$COMMENT"
+      printf "    Command: ${CYAN}%s${RESET}\n\n" "$EXEC"
+      FOUND=$((FOUND + 1))
+    fi
+  done
+  if [ "$FOUND" -eq 0 ]; then
+    echo -e "${YELLOW}No installed desktop tools matched '${query}'.${RESET}"
+    echo "Tip: Run 'telcosec pkg list' to search downloadable metapackages."
+  else
+    echo -e "Found ${GREEN}${FOUND}${RESET} matching tool(s)."
+  fi
+  echo ""
+}
+
 # Subcommand dispatch
 action="${1:-help}"
 shift || true
 
 case "$action" in
-  status)
+  check|status)
     cmd_status
     ;;
-  hardware)
+  hardware|hw|devices)
     cmd_hardware
     ;;
   sdr)
@@ -392,7 +451,7 @@ case "$action" in
   pkg|metapkg|packages)
     cmd_pkg "$@"
     ;;
-  5g)
+  5g|5g-sa|5gsa)
     cmd_5g "$@"
     ;;
   scan)
@@ -403,6 +462,12 @@ case "$action" in
     ;;
   feedback|review|reviews)
     cmd_feedback
+    ;;
+  docs|doc|documentation)
+    cmd_docs
+    ;;
+  search|find)
+    cmd_search "$@"
     ;;
   version|-v|--version)
     echo "TelcoChisel OS Telecom Security Framework v${VERSION}"
