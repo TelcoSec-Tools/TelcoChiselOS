@@ -8,7 +8,7 @@
 
     <!-- Primary SEO -->
     <meta name="description"
-        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 75+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
+        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 78 pre-configured tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
     <meta name="keywords"
         content="telecom security linux, 5G security research, 4G LTE penetration testing, SDR security, baseband analysis, FirmWire, GNU Radio, srsRAN, Open5GS, SIMtrace, HackRF, USRP, BladeRF, TelcoChisel">
     <meta name="author" content="TelcoSec">
@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://chisel.telcosec.net/">
     <meta property="og:title" content="TelcoChisel — 5G/4G Telecom Security Linux Distribution">
     <meta property="og:description"
-        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 75+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
+        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 78 pre-configured tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
     <meta property="og:image"
         content="https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png">
     <meta property="og:image:width" content="1280">
@@ -37,7 +37,7 @@
     <meta name="twitter:url" content="https://chisel.telcosec.net/">
     <meta name="twitter:title" content="TelcoChisel — 5G/4G Telecom Security Linux Distribution">
     <meta name="twitter:description"
-        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 75+ tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
+        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 78 pre-configured tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
     <meta name="twitter:image"
         content="https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png">
 
@@ -68,7 +68,7 @@
         "applicationCategory": "SecurityApplication",
         "applicationSubCategory": "Telecommunications Security, Software Defined Radio, Baseband Analysis",
         "operatingSystem": "Linux (Ubuntu 24.04 LTS)",
-        "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 75+ pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
+        "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 78 pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
         "url": "https://chisel.telcosec.net/",
         "downloadUrl": "https://github.com/TelcoSec-Tools/TelcoChiselOS/releases",
         "softwareVersion": "1.1.0",
@@ -130,7 +130,7 @@
             "name": "What is TelcoChisel?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 76 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
+              "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 78 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
             }
           },
           {
@@ -366,7 +366,7 @@
                     <strong>TelcoChisel</strong> is a free, bootable live Linux distribution purpose-built for
                     cellular security researchers, Software Defined Radio (SDR) engineers, and hardware pentesters.
                     Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong> with an XFCE desktop, it ships with
-                    76 pre-configured tools covering SDR drivers, 5G core simulation, baseband emulation, SIM auditing,
+                    78 pre-configured tools covering SDR drivers, 5G core simulation, baseband emulation, SIM auditing,
                     and telecom protocol fuzzing — ready to use without installation.
                 </p>
 
@@ -485,7 +485,7 @@
                         <summary class="faq-question">What is TelcoChisel?</summary>
                         <div class="faq-answer">
                             TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with an
-                            XFCE desktop, purpose-built for telecommunications security research. It includes 76
+                            XFCE desktop, purpose-built for telecommunications security research. It includes 78
                             pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing,
                             SIM and eSIM inspection, and 5G/4G core network penetration testing — no installation
                             required.
@@ -666,12 +666,98 @@ ACTION==&quot;add&quot;, SUBSYSTEM==&quot;usb&quot;, ATTR{idVendor}==&quot;1d50&
                         class="inline-code">mitigations=off</code>) and set the clocksource to TSC for stable timing on
                     bare metal installations.
                 </p>
+
+                <h3>4. Unified Operator CLI (`telcosec`)</h3>
+                <p>
+                    TelcoChisel includes a centralized operator command-line interface, <code class="inline-code">telcosec</code>, for rapid diagnostics, hardware discovery, 5G core orchestration, and security assessments:
+                </p>
+                <div class="terminal-block">
+                    <div class="terminal-header">
+                        <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+                        <div class="terminal-title">Unified Operator CLI Commands</div>
+                    </div>
+                    <div class="terminal-body">
+                        <pre><code># Full environment diagnostics (kernel, real-time limits, SDR USB, SCTP, services)
+telcosec status
+
+# Enumerate connected SDR transceivers and smartcard readers
+telcosec hardware
+
+# Manage 5G Standalone core network & UERANSIM gNB/UE emulation
+telcosec 5g status
+telcosec 5g start
+
+# Run interactive cellular survey and SCTP signaling endpoint scans
+telcosec scan
+
+# Access TelcoSec Academy interactive learning funnels
+telcosec academy</code></pre>
+                        <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec status\ntelcosec hardware\ntelcosec 5g status\ntelcosec scan')">Copy</button>
+                    </div>
+                </div>
+
+                <h3>5. Modular Metapackage Manager (`telcosec-pkg`)</h3>
+                <p>
+                    TelcoChisel features a 10-tier modular metapackage repository hosted on Cloudflare Pages (<code class="inline-code">meta.telcosec.net</code>). Operators can inspect, install, and audit modular tool bundles on-demand:
+                </p>
+                <div class="terminal-block">
+                    <div class="terminal-header">
+                        <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+                        <div class="terminal-title">Metapackage Management</div>
+                    </div>
+                    <div class="terminal-body">
+                        <pre><code># List all 10 official metapackages and installation status
+telcosec-pkg list
+
+# Install modular tool suites via intelligent aliases (e.g. 5g, sdr, sim, wireline)
+sudo telcosec-pkg install 5g
+sudo telcosec-pkg install sdr sim
+
+# Inspect package dependencies and audit dependency linkage
+telcosec-pkg info 5g
+telcosec-pkg check</code></pre>
+                        <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec-pkg list\nsudo telcosec-pkg install 5g\ntelcosec-pkg check')">Copy</button>
+                    </div>
+                </div>
+
+                <h3>6. Dual Low-Latency Kernel &amp; Multi-Boot Architecture</h3>
+                <p>
+                    TelcoChisel boots by default with the <strong>Ubuntu low-latency real-time kernel</strong> (<code class="inline-code">linux-image-lowlatency</code>), providing sub-millisecond timer granularity essential for high-throughput 5G NR and LTE frames. The live GRUB bootloader supports four operational profiles:
+                </p>
+                <ul style="margin-left: 20px; line-height: 1.8; color: var(--tx-main); font-size: 0.9rem;">
+                    <li><strong>Standard Live Mode:</strong> Full XFCE desktop environment with real-time DSP audio/RF scheduling.</li>
+                    <li><strong>Encrypted Persistence Mode:</strong> Automatically discovers and mounts a LUKS-encrypted <code class="inline-code">casper-rw</code> partition for sensitive field data.</li>
+                    <li><strong>Lightweight i3 Tiling Mode:</strong> High-performance keyboard-driven window manager minimizing RAM consumption on field laptops.</li>
+                    <li><strong>Toram Mode:</strong> Copies the squashfs filesystem directly into RAM, maximizing I/O speed and allowing the live USB to be disconnected.</li>
+                </ul>
+
+                <h3>7. Air-Gapped Field Utilities &amp; Wireshark Profiles</h3>
+                <p>
+                    For mission-critical, air-gapped deployments, TelcoChisel bundles specialized field automation scripts and protocol dissector profiles:
+                </p>
+                <div class="terminal-block">
+                    <div class="terminal-header">
+                        <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+                        <div class="terminal-title">Field &amp; Air-Gapped Utilities</div>
+                    </div>
+                    <div class="terminal-body">
+                        <pre><code># Create a bootable USB drive with optional LUKS-encrypted persistence
+sudo telcosec-create-usb /dev/sdX
+
+# Pre-fetch official 3GPP Rel 15-18 SBA OpenAPI schemas for offline 5G Core fuzzing
+telcosec-download-openapi
+
+# Switch Wireshark protocol dissector profiles and colorfilters
+telcosec-profile</code></pre>
+                        <button class="terminal-copy-btn" onclick="copyCommand(this, 'sudo telcosec-create-usb /dev/sdX\ntelcosec-download-openapi\ntelcosec-profile')">Copy</button>
+                    </div>
+                </div>
             </section>
 
             <!-- SECTION: TOOLS -->
             <section id="tools" class="content-section">
-                <div class="section-header" data-label="// Tool Catalog :: 76 Instruments">
-                    <h2>Tools Directory — 76 Pre-installed Telecom Security Tools</h2>
+                <div class="section-header" data-label="// Tool Catalog :: 78 Instruments">
+                    <h2>Tools Directory — 78 Pre-installed Telecom Security Tools</h2>
                     <p class="subtitle">Complete catalog of SDR, baseband, SIM, core network, ADSL, VoIP, and signaling tools pre-installed
                         in TelcoChisel</p>
                 </div>

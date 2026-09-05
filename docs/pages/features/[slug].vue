@@ -236,7 +236,8 @@ function categoryTagClass(cat) {
     security:    'tag-sim',
     hardware:    'tag-sdr',
     tools:       'tag-lte',
-    environment: 'tag-ue'
+    environment: 'tag-ue',
+    system:      'tag-5g'
   }[cat] || ''
 }
 function categoryTagLabel(cat) {
@@ -246,7 +247,8 @@ function categoryTagLabel(cat) {
     security:    'Security Hardening',
     hardware:    'Hardware Access',
     tools:       'Tool Configuration',
-    environment: 'Dev Environment'
+    environment: 'Dev Environment',
+    system:      'System & Packaging'
   }[cat] || cat
 }
 </script>

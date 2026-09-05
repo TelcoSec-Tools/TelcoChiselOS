@@ -54,6 +54,35 @@ export const featuresCatalog = [
     category: "network",
     desc: "Integrated wireline telecommunications toolchain covering PPPoE session auditing, VLAN 802.1Q injection, TR-069 CWMP emulation, DOCSIS cable modem security, and SIP/VoIP signaling stress testing.",
     cmd: "pppoe -h && sipp -h"
+  },
+  {
+    name: "Unified Operator CLI Suite",
+    slug: "telcosec-operator-cli",
+    category: "tools",
+    desc: "Centralized operator CLI (telcosec) providing one-touch environment diagnostics, hardware auto-discovery, 5G Core orchestration, and guided RF/SCTP frequency scans.",
+    cmd: "telcosec status && telcosec hardware"
+  },
+  {
+    name: "Modular Metapackage Manager",
+    slug: "metapackage-manager",
+    category: "system",
+    desc: "Dedicated package management CLI (telcosec-pkg) to inspect, install, purge, and verify 10 modular Debian telecom suites from meta.telcosec.net using intuitive domain aliases.",
+    cmd: "telcosec-pkg list && telcosec-pkg check"
+  },
+  {
+    name: "Low-Latency Real-Time Kernel & Multi-Boot",
+    slug: "lowlatency-kernel-boot",
+    category: "kernel",
+    desc: "Default boot using linux-image-lowlatency with sub-millisecond timer resolution, supporting 4 GRUB modes: Standard Live, LUKS Encrypted Persistence, i3 Tiling, and Toram.",
+    cmd: "uname -r && cat /proc/cmdline"
+  },
+  {
+    name: "Air-Gapped Persistence & 3GPP Specs",
+    slug: "airgapped-persistence",
+    category: "hardware",
+    desc: "Field utilities including telcosec-create-usb for automated LUKS encrypted persistence and telcosec-download-openapi for offline 3GPP Rel 15-18 SBA OpenAPI schema caching.",
+    cmd: "which telcosec-create-usb telcosec-download-openapi"
   }
 ];
+
 
