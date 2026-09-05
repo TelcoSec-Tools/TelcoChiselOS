@@ -1,0 +1,100 @@
+name: CI Validation
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-scripts:
+    name: Shell Script Syntax (bash -n)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify bash syntax across all scripts
+        run: bash scripts/test_syntax.sh
+
+  check-catalogs:
+    name: Tool Catalog Parity & Integrity
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify catalog parity across doc portals
+        run: node scripts/sync-catalogs.js
+
+      - name: Validate 88 tool definitions
+        run: node scripts/validate_all_tools.js
+
+  lint-yaml:
+    name: YAML Manifests & Configurations
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate YAML files
+        run: |
+          python -c "
+          import glob, yaml, sys
+          files = glob.glob('.github/workflows/*.yml') + glob.glob('docker/**/*.yaml', recursive=True) + glob.glob('docker/**/*.yml', recursive=True)
+          errors = 0
+          for f in files:
+              try:
+                  with open(f, 'r', encoding='utf-8') as stream:
+                      yaml.safe_load(stream)
+                  print(f'[OK] Valid YAML: {f}')
+              except Exception as e:
+                  print(f'[ERROR] Invalid YAML: {f} -> {e}')
+                  errors += 1
+          if errors > 0:
+              sys.exit(1)
+          "
+
+  check-crlf:
+    name: Line Ending Hygiene (LF)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for unwanted CRLF in shell scripts
+        run: |
+          ERRORS=0
+          while IFS= read -r -d '' file; do
+            if grep -q $'\r' "$file"; then
+              echo "::error file=$file::CRLF line endings detected in $file"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done < <(find . -type f \( -name "*.sh" -o -path "*/bin/telcosec*" \) -not -path "*/.git/*" -print0)
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "Failed: $ERRORS files contain Windows CRLF line endings. Run python scripts/fix_crlf.py"
+            exit 1
+          fi
+          echo "✓ All shell and binary launchers use Unix LF line endings"
