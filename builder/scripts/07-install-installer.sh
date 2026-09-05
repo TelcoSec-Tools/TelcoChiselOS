@@ -50,3 +50,24 @@ if [ -d /home/telcosec ]; then
   sudo chmod +x /home/telcosec/Desktop/install-telcosec.desktop || true
   sudo chown -R telcosec:telcosec /home/telcosec/Desktop
 fi
+
+# 3. Create Autostart Hook for Direct-Install Boot Mode
+echo "Creating Calamares direct-install autostart hook..."
+sudo mkdir -p /etc/skel/.config/autostart
+cat << 'EOF' | sudo tee /etc/skel/.config/autostart/calamares-boot.desktop
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Calamares Installer Autostart
+Comment=Automatically launch Calamares if booted with install option
+Exec=sh -c 'if grep -Ewq "calamares|only-ubiquity" /proc/cmdline; then sudo -E calamares; fi'
+Terminal=false
+StartupNotify=false
+Hidden=false
+EOF
+
+if [ -d /home/telcosec ]; then
+  sudo mkdir -p /home/telcosec/.config/autostart
+  sudo cp -f /etc/skel/.config/autostart/calamares-boot.desktop /home/telcosec/.config/autostart/
+  sudo chown -R telcosec:telcosec /home/telcosec/.config
+fi

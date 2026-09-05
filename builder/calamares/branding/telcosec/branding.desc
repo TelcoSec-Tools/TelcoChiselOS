@@ -6,11 +6,11 @@ windowPlacement: center
 
 strings:
     productName:         TelcoChisel
-    shortProductName:    TelcoSec
-    version:             1.0.0
-    shortVersion:        1.0.0
-    versionedName:       TelcoChisel OS 1.0.0
-    shortVersionedName:  TelcoSec 1.0.0
+    shortProductName:    TelcoChisel
+    version:             3.0.0
+    shortVersion:        3.0.0
+    versionedName:       TelcoChisel OS 3.0.0 (Noble Numbat)
+    shortVersionedName:  TelcoChisel 3.0.0
     bootloaderEntryName: TelcoChisel
     productUrl:          https://chisel.telcosec.net
     supportUrl:          https://community.telcosec.net/
