@@ -15,6 +15,7 @@ import (
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/packages"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/sdr"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/search"
+	"github.com/TelcoSec-Tools/telcosec-cli/pkg/sim"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/telemetry"
 )
 
@@ -52,6 +53,7 @@ Commands:
   firmware             Inspect and manage offline SDR FPGA bitstreams (BladeRF, USRP)
   profile [mode]       Switch operational profiles (lab | field | status)
   pkg [action]         Official metapackage manager (list | info | install | remove | check | repo)
+  sim [action]         Smartcard, SIM & eSIM auditing (status | readers | atr | trace | lpac | shell)
   5g-sa <action>       5G Standalone core & RAN manager (start | stop | status | add-sub)
   scan <protocol>      Interactive protocol assessment wizard (sctp | sip | asleap)
   academy              Access TelcoSec Academy interactive labs & credentials
@@ -185,6 +187,9 @@ func main() {
 
 	case "pkg", "package", "packages":
 		handlePkgCommand(args)
+
+	case "sim", "smartcard", "esim":
+		handleSimCommand(args)
 
 	case "5g", "5g-sa", "5gsa":
 		action := "status"
@@ -426,6 +431,128 @@ func handlePkgCommand(args []string) {
 			return
 		}
 		fmt.Printf("Unknown pkg action: %s\n\nUsage: telcosec pkg [list|info|install|remove|check|repo]\n", action)
+		os.Exit(1)
+	}
+}
+
+func handleSimCommand(args []string) {
+	action := "status"
+	if len(args) > 0 {
+		action = strings.ToLower(args[0])
+	}
+
+	jsonOutput := false
+	var filteredArgs []string
+	for _, arg := range args {
+		if arg == "--json" || arg == "-j" {
+			jsonOutput = true
+		} else {
+			filteredArgs = append(filteredArgs, arg)
+		}
+	}
+
+	switch action {
+	case "status", "check":
+		if !jsonOutput {
+			printBanner()
+		}
+		_ = sim.PrintEnvironmentStatus(os.Stdout, jsonOutput)
+
+	case "readers", "reader", "list", "ls":
+		if !jsonOutput {
+			printBanner()
+		}
+		_ = sim.PrintReaders(os.Stdout, jsonOutput)
+
+	case "atr", "decode":
+		if !jsonOutput {
+			printBanner()
+		}
+		atrHex := ""
+		if len(filteredArgs) > 1 {
+			atrHex = filteredArgs[1]
+		}
+		if atrHex == "" {
+			fmt.Printf("%sPolling active smartcard from connected PC/SC reader...%s\n\n", sim.Dim, sim.Reset)
+			activeATR, err := sim.GetActiveATR()
+			if err != nil {
+				fmt.Printf("%sError: %v%s\n\n", sim.Yellow, err, sim.Reset)
+				fmt.Println("Tip: Insert a SIM card into an attached reader, or specify an ATR hex string:")
+				fmt.Printf("     %stelcosec sim atr 3B9F95801FC78031E073FE211B674A4C7380110043%s\n\n", sim.Cyan, sim.Reset)
+				os.Exit(1)
+			}
+			atrHex = activeATR
+		}
+
+		decoded, err := sim.DecodeATR(atrHex)
+		if err != nil {
+			fmt.Printf("ATR Decoding error: %v\n", err)
+			os.Exit(1)
+		}
+		_ = sim.PrintATR(os.Stdout, decoded, jsonOutput)
+
+	case "trace", "simtrace", "simtrace2":
+		subAction := "list"
+		if len(filteredArgs) > 1 {
+			subAction = strings.ToLower(filteredArgs[1])
+		}
+		switch subAction {
+		case "list", "status":
+			if !jsonOutput {
+				printBanner()
+			}
+			_ = sim.PrintSIMtraceStatus(os.Stdout, jsonOutput)
+		case "sniff", "capture":
+			printBanner()
+			sniffArgs := []string{}
+			if len(filteredArgs) > 2 {
+				sniffArgs = filteredArgs[2:]
+			}
+			if err := sim.RunSniffer(os.Stdout, sniffArgs); err != nil {
+				fmt.Printf("SIMtrace sniffer error: %v\n", err)
+				os.Exit(1)
+			}
+		default:
+			fmt.Printf("Unknown trace action: %s\nUsage: telcosec sim trace [list|sniff]\n", subAction)
+			os.Exit(1)
+		}
+
+	case "lpac", "esim":
+		subAction := "status"
+		if len(filteredArgs) > 1 {
+			subAction = strings.ToLower(filteredArgs[1])
+		}
+		if !jsonOutput {
+			printBanner()
+		}
+		_ = sim.PrintLPACStatus(os.Stdout, subAction, jsonOutput)
+
+	case "shell", "pysim":
+		printBanner()
+		shellArgs := []string{}
+		if len(filteredArgs) > 1 {
+			shellArgs = filteredArgs[1:]
+		}
+		if err := sim.LaunchPySimShell(os.Stdout, shellArgs); err != nil {
+			fmt.Printf("pySim-shell error: %v\n", err)
+			os.Exit(1)
+		}
+
+	default:
+		// If argument looks like an ATR hex string (starts with 3b or 3f), decode directly
+		if strings.HasPrefix(action, "3b") || strings.HasPrefix(action, "3f") {
+			if !jsonOutput {
+				printBanner()
+			}
+			decoded, err := sim.DecodeATR(action)
+			if err != nil {
+				fmt.Printf("ATR Decoding error: %v\n", err)
+				os.Exit(1)
+			}
+			_ = sim.PrintATR(os.Stdout, decoded, jsonOutput)
+			return
+		}
+		fmt.Printf("Unknown sim action: %s\n\nUsage: telcosec sim [status|readers|atr [hex]|trace [list|sniff]|lpac|shell]\n", action)
 		os.Exit(1)
 	}
 }
