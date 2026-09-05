@@ -35,12 +35,15 @@ if [ ! -d pysim ]; then git clone --depth 1 https://github.com/osmocom/pysim.git
 if [ ! -d lpac ]; then git clone --depth 1 https://github.com/estkme-group/lpac.git lpac & PID_LPAC=$!; else PID_LPAC=""; fi
 if [ ! -d simtrace2 ]; then git clone --depth 1 https://github.com/osmocom/simtrace2.git simtrace2 & PID_SIMTRACE2=$!; else PID_SIMTRACE2=""; fi
 if [ ! -d simurai ]; then git clone --recurse-submodules --shallow-submodules https://github.com/tomasz-lisowski/simurai.git simurai & PID_SIMURAI=$!; else PID_SIMURAI=""; fi
+if [ ! -d my5g-rantester ]; then git clone --depth 1 https://github.com/my5G/my5G-RANTester.git my5g-rantester & PID_MY5G=$!; else PID_MY5G=""; fi
+if [ ! -d osmocom-bb ]; then git clone --depth 1 https://gitea.osmocom.org/cellular-infrastructure/osmocom-bb.git osmocom-bb & PID_OSMOCOMBB=$!; else PID_OSMOCOMBB=""; fi
 
 # Wait for all clones to complete and fail loudly on any clone failure
 echo "Waiting for all git clones to finish..."
 CLONE_FAIL=0
 for pid in $PID_FIRMWIRE $PID_BALONG_FLASH $PID_BALONGTOOL $PID_MTK \
-           $PID_PYSIM $PID_LPAC $PID_SIMTRACE2 $PID_SIMURAI; do
+           $PID_PYSIM $PID_LPAC $PID_SIMTRACE2 $PID_SIMURAI \
+           $PID_MY5G $PID_OSMOCOMBB; do
   [ -z "$pid" ] && continue
   if ! wait "$pid"; then
     echo "UE analysis repo clone failed (pid $pid)" >&2
@@ -364,8 +367,92 @@ else
 fi
 record_tool "SIMurai" "/usr/local/bin/simurai" "sim"
 
+# my5G-RANTester (5G SA multi-UE and gNodeB load tester & traffic generator)
+echo "Setting up my5G-RANTester (5G SA multi-UE simulator)..."
+if [ -d /opt/telcosec/my5g-rantester ]; then
+  cd /opt/telcosec/my5g-rantester
+  if ! command -v go >/dev/null 2>&1; then
+    echo "Installing Go compiler for my5G-RANTester build..."
+    apt-get update -qq && apt-get install -y --no-install-recommends golang-go || true
+  fi
+  if command -v go >/dev/null 2>&1; then
+    echo "Compiling my5G-RANTester..."
+    go build -o app cmd/app.go || echo "WARNING: my5G-RANTester compilation failed"
+    if [ -f app ]; then
+      cat << 'MY5G_WRAPPER' | sudo tee /usr/local/bin/my5g-rantester
+#!/bin/bash
+# TelcoChisel my5G-RANTester Launcher
+DIR="/opt/telcosec/my5g-rantester"
+if [ ! -f "$DIR/app" ]; then
+  echo "my5G-RANTester binary not found at $DIR/app"
+  exit 1
+fi
+cd "$DIR"
+exec ./app "$@"
+MY5G_WRAPPER
+      sudo chmod +x /usr/local/bin/my5g-rantester
+
+      # Provision default ITU-T test network config (MCC 001, MNC 01)
+      sudo mkdir -p /etc/telcosec/my5g-rantester
+      if [ -f config/config.yml ]; then
+        sudo cp config/config.yml /etc/telcosec/my5g-rantester/config.yml
+        sudo sed -i "s/mcc: '93'/mcc: '001'/g; s/mcc: 93/mcc: 001/g; s/mcc: '208'/mcc: '001'/g" /etc/telcosec/my5g-rantester/config.yml 2>/dev/null || true
+        sudo sed -i "s/mnc: '70'/mnc: '01'/g;  s/mnc: 70/mnc: 01/g;  s/mnc: '93'/mnc: '01'/g"   /etc/telcosec/my5g-rantester/config.yml 2>/dev/null || true
+      fi
+      record_tool "my5G-RANTester" "/usr/local/bin/my5g-rantester" "ue"
+    fi
+  else
+    echo "WARNING: Go compiler not available — my5G-RANTester build skipped"
+  fi
+fi
+
+# OsmocomBB (GSM Mobile Station UE software stack)
+echo "Setting up OsmocomBB GSM Mobile Station builder..."
+cat << 'OSMOCOMBB_SCRIPT' | sudo tee /usr/local/bin/osmocombb-install
+#!/bin/bash
+set -e
+echo "╔══════════════════════════════════════════════╗"
+echo "║   OsmocomBB Mobile Station Builder           ║"
+echo "║   https://osmocom.org/projects/baseband      ║"
+echo "╚══════════════════════════════════════════════╝"
+echo ""
+if [ "$(id -u)" -ne 0 ]; then
+  echo "Run as root: sudo osmocombb-install"
+  exit 1
+fi
+
+INSTALL_DIR="/opt/telcosec/osmocom-bb"
+if [ ! -d "$INSTALL_DIR/.git" ]; then
+  echo "[1/3] Cloning osmocom-bb..."
+  git clone --depth 1 https://gitea.osmocom.org/cellular-infrastructure/osmocom-bb.git "$INSTALL_DIR"
+fi
+
+cd "$INSTALL_DIR/src/host/osmocon"
+echo "[2/3] Compiling osmocon..."
+make -j$(nproc)
+install -m 755 osmocon /usr/local/bin/osmocon
+
+cd "$INSTALL_DIR/src/host/layer23"
+echo "[3/3] Compiling layer23 mobile apps (mobile, ccch_scan, bcch_dump)..."
+autoreconf -fi
+./configure
+make -j$(nproc)
+install -m 755 src/mobile/mobile /usr/local/bin/osmocombb-mobile
+install -m 755 src/misc/ccch_scan /usr/local/bin/osmocombb-ccch-scan 2>/dev/null || true
+install -m 755 src/misc/bcch_dump /usr/local/bin/osmocombb-bcch-dump 2>/dev/null || true
+
+echo ""
+echo "✓ OsmocomBB host tools installed:"
+echo "  - osmocon:             Layer 1 serial/USB bridge"
+echo "  - osmocombb-mobile:    Virtual GSM Mobile Phone application"
+echo "  - osmocombb-ccch-scan: GSM control channel scanner"
+OSMOCOMBB_SCRIPT
+sudo chmod +x /usr/local/bin/osmocombb-install
+record_tool "OsmocomBB" "/usr/local/bin/osmocombb-install" "ue"
+
 # Clean up build objects and update ownership
 cd /opt/telcosec
 sudo chown -R telcosec:telcosec /opt/telcosec
 
 echo "=== All Baseband, SIM, and UE Analysis Tools Installed Successfully ==="
+
