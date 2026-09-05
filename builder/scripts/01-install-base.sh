@@ -20,7 +20,8 @@ EOF
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
     casper initramfs-tools
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    linux-image-generic
+    linux-image-lowlatency linux-headers-lowlatency \
+    linux-image-generic linux-headers-generic
   # Bootloader packages needed INSIDE the image (see lib/packages.sh PKGS_BASE
   # for the full rationale) — without these, Calamares can't install a
   # bootloader on the target system at all.
@@ -38,11 +39,15 @@ EOF
     docker.io docker-compose-v2
 fi
 
-echo "=== Ensuring initrd is generated ==="
-KVER=$(ls /boot/vmlinuz-* 2>/dev/null | sort -V | tail -1 | sed 's|/boot/vmlinuz-||')
-if [ -n "$KVER" ] && [ ! -f "/boot/initrd.img-$KVER" ]; then
-  update-initramfs -c -k "$KVER"
-fi
+echo "=== Ensuring initrd is generated for all installed kernels ==="
+for vmlinuz in /boot/vmlinuz-*; do
+  [ -f "$vmlinuz" ] || continue
+  kver="${vmlinuz##*/vmlinuz-}"
+  if [ ! -f "/boot/initrd.img-$kver" ]; then
+    echo "  Generating initrd for kernel: $kver..."
+    update-initramfs -c -k "$kver" || true
+  fi
+done
 
 echo "=== Configuring NetworkManager ==="
 sudo systemctl enable NetworkManager
