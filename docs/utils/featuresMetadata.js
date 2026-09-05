@@ -187,6 +187,99 @@ export const featuresMetadata = {
       { q: "What is TR-069 and how is it audited?", a: "TR-069 (CWMP) is the broadband standard used by carriers to configure and manage customer premises equipment (CPE) remotely. Security audits inspect whether the ACS endpoints enforce strict TLS mutual authentication." },
       { q: "Can SIPp test carrier IMS (IP Multimedia Subsystem) cores?", a: "Yes. SIPp is the industry-standard SIP benchmarking tool capable of generating high-rate SIP INVITE, REGISTER, and OPTIONS traffic with custom authentication digests." }
     ]
+  },
+
+  "telcosec-operator-cli": {
+    keywords: [
+      "telcosec operator CLI",
+      "telcochisel operator commands",
+      "telecom security CLI status",
+      "automated SDR hardware discovery",
+      "5G core management command line"
+    ],
+    overview: "TelcoChisel provides a centralized operator command-line interface, `telcosec` (also symlinked to `telcochisel`), designed for rapid field diagnostics, hardware enumeration, cellular core management, and security scanning. Rather than requiring operators to remember dozens of disparate Linux commands and hardware probe syntax, `telcosec` aggregates system status, SDR transceiver detection, 5G SA simulation, and security scanning into a single intuitive tool.",
+    config: [
+      "Run the comprehensive operator diagnostic overview:\ntelcosec status",
+      "Enumerate all connected SDR transceivers and smartcard interfaces:\ntelcosec hardware",
+      "Inspect and manage 5G Standalone core services and UERANSIM:\ntelcosec 5g status",
+      "Launch guided frequency surveys or SCTP signaling sweeps:\ntelcosec scan"
+    ],
+    troubleshooting: "If `telcosec hardware` does not detect your connected SDR, verify physical USB connectivity (`lsusb`), check that your user account belongs to the `plugdev` group (`id -nG`), and ensure the low-latency udev rules have triggered (`sudo udevadm trigger`).",
+    faq: [
+      { q: "What does 'telcosec status' report?", a: "It audits running kernel version, real-time SCHED_RR permissions, locked memory limits, USB buffer allocations, active SCTP kernel socket parameters, running cellular core services (Open5GS, MongoDB), and smartcard daemon status." },
+      { q: "Can 'telcosec' run without root privileges?", a: "Yes. Most discovery commands (`status`, `hardware`, `scan`, `academy`) run unprivileged. Service orchestration commands (`telcosec 5g start`) invoke sudo only when restarting system daemons." },
+      { q: "Is 'telcochisel' interchangeable with 'telcosec'?", a: "Yes. `/usr/local/bin/telcochisel` is a symlink pointing directly to `/usr/local/bin/telcosec`." }
+    ]
+  },
+
+  "metapackage-manager": {
+    keywords: [
+      "telcosec-pkg metapackage manager",
+      "modular telecom security packages",
+      "Debian metapackages telecom",
+      "Cloudflare Pages APT repository",
+      "telcochisel-pkg command line"
+    ],
+    overview: "TelcoChisel features a 10-tier modular Debian metapackage architecture hosted on Cloudflare Pages edge CDN (`meta.telcosec.net`). Using the dedicated `telcosec-pkg` CLI, operators can inspect, install, remove, and verify specialized telecommunications suites (such as 5G, SDR, SIM, Wireline, or UE firmware tools) on-demand using simple domain aliases.",
+    config: [
+      "List all 10 official metapackages and current installation status:\ntelcosec-pkg list",
+      "Install a modular tool suite using intuitive domain aliases:\nsudo telcosec-pkg install 5g",
+      "Inspect package dependencies and installed disk footprint:\ntelcosec-pkg info 5g",
+      "Audit system dependency integrity and library linkages:\ntelcosec-pkg check",
+      "Verify APT repository connectivity and GPG keyring pinning:\ntelcosec-pkg repo status"
+    ],
+    troubleshooting: "If `telcosec-pkg install` reports repository connectivity errors, check network access to `meta.telcosec.net` and run `sudo telcosec-pkg repo refresh` to update the APT package cache and verify the GPG signing key.",
+    faq: [
+      { q: "What aliases does 'telcosec-pkg' recognize?", a: "It supports aliases like `5g` (telcochisel-tools-5g), `sdr` (telcochisel-tools-sdr), `sim` (telcochisel-tools-sim), `4g` (telcochisel-tools-4g), `2g` (telcochisel-tools-2g-3g), `wireline` (telcochisel-tools-pstn-adsl), `ue` (telcochisel-tools-ue), and `full` (telcochisel-meta-full)." },
+      { q: "Can I install TelcoChisel metapackages on standard Ubuntu 24.04?", a: "Yes. The official repository at `meta.telcosec.net` can be added to any standard Ubuntu 24.04 or Debian-compatible system." },
+      { q: "Does 'telcosec-pkg check' verify binary dependencies?", a: "Yes. It executes dpkg and apt checks to detect missing dependencies, broken packages, and incomplete installations." }
+    ]
+  },
+
+  "lowlatency-kernel-boot": {
+    keywords: [
+      "low-latency kernel telecom",
+      "linux-image-lowlatency Ubuntu 24.04",
+      "dual boot GRUB live ISO",
+      "encrypted persistence casper-rw LUKS",
+      "toram mode live Linux"
+    ],
+    overview: "High-rate cellular transceivers and baseband fuzzing require sub-millisecond scheduling predictability and timer resolution. TelcoChisel boots by default with the Ubuntu low-latency real-time kernel (`linux-image-lowlatency`). The bootloader also exposes four specialized operational profiles: Standard Live Mode, Encrypted Persistent Live Mode (using LUKS casper-rw), Lightweight i3 Tiling Mode, and Toram Mode.",
+    config: [
+      "Verify that the low-latency kernel is active:\nuname -r",
+      "Inspect the live boot commandline parameters:\ncat /proc/cmdline",
+      "Check timer frequency and preemption model:\nzgrep -E 'CONFIG_HZ|CONFIG_PREEMPT' /proc/config.gz 2>/dev/null || uname -v",
+      "Check available memory in Toram or live overlay:\ndf -h / /cow"
+    ],
+    troubleshooting: "If persistence fails to load on boot, ensure your persistent USB partition has the filesystem label `casper-rw` (or `persistence`) and was formatted using `telcosec-create-usb`.",
+    faq: [
+      { q: "Why use the low-latency kernel instead of standard generic kernel?", a: "The low-latency kernel is built with CONFIG_PREEMPT and 1000 Hz timer frequency, drastically reducing scheduling jitter during high-bandwidth 5G NR and LTE RF sample streaming." },
+      { q: "What is Toram mode?", a: "Toram mode copies the entire compressed live filesystem into RAM during boot. This yields maximum I/O performance and allows the operator to unplug the USB flash drive once booted." },
+      { q: "How does Encrypted Persistence protect data?", a: "It uses LUKS encryption on the persistence partition, ensuring that captured PCAPs, credentials, and custom scripts cannot be extracted if the physical USB flash drive is lost or confiscated." }
+    ]
+  },
+
+  "airgapped-persistence": {
+    keywords: [
+      "air-gapped telecom security tools",
+      "telcosec-create-usb persistence wizard",
+      "telcosec-download-openapi 3GPP SBA",
+      "offline 5G core API testing",
+      "Wireshark telecom dissector colorfilters"
+    ],
+    overview: "Field assessments frequently occur in classified or air-gapped cellular labs with zero internet access. TelcoChisel provides field utilities including `telcosec-create-usb` for automated creation of bootable flash drives with LUKS-encrypted persistence, `telcosec-download-openapi` for bulk offline caching of 3GPP Rel 15-18 SBA OpenAPI schemas, and pre-tuned Wireshark telecom dissector colorfilters.",
+    config: [
+      "Inspect the bootable USB creation wizard:\ntelcosec-create-usb --help",
+      "Fetch and cache official 3GPP SBA OpenAPI specifications:\ntelcosec-download-openapi",
+      "Inspect cached 3GPP OpenAPI specifications:\nls -la /usr/share/telcosec/openapi/ || ls -la /opt/telcosec/openapi/",
+      "Switch Wireshark telecom dissector profiles and color rules:\ntelcosec-profile"
+    ],
+    troubleshooting: "When running `telcosec-create-usb`, verify that the target device is unmounted (`lsblk`) and you have specified the correct device path (e.g. `/dev/sdb`, not a partition like `/dev/sdb1`).",
+    faq: [
+      { q: "What 3GPP releases does 'telcosec-download-openapi' support?", a: "It pulls official 3GPP 5G Service Based Architecture (SBA) specifications across Release 15, Release 16, Release 17, and Release 18." },
+      { q: "How do Wireshark colorfilters improve telecom analysis?", a: "They highlight critical signaling messages (5G NAS Registration/Security, NGAP Initial Context, SCTP ABORT/SHUTDOWN, Diameter Errors, and GTP-C Path Failures) with distinct color palettes." },
+      { q: "Can 'telcosec-create-usb' format both UEFI and Legacy BIOS drives?", a: "Yes. It creates a hybrid partition layout containing an EFI System Partition (FAT32) and an ext4/LUKS persistence partition." }
+    ]
   }
 
 };
