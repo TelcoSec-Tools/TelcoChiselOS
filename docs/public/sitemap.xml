@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://tschisel.telcosec.net/</loc>
+    <loc>https://chisel.telcosec.net/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://tschisel.telcosec.net/#overview</loc>
+    <loc>https://chisel.telcosec.net/#overview</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://tschisel.telcosec.net/#features</loc>
+    <loc>https://chisel.telcosec.net/#features</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tschisel.telcosec.net/#tools</loc>
+    <loc>https://chisel.telcosec.net/#tools</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://tschisel.telcosec.net/#drivers</loc>
+    <loc>https://chisel.telcosec.net/#drivers</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://tschisel.telcosec.net/#fuzzer</loc>
+    <loc>https://chisel.telcosec.net/#fuzzer</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tschisel.telcosec.net/#scenarios</loc>
+    <loc>https://chisel.telcosec.net/#scenarios</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://tschisel.telcosec.net/#projects</loc>
+    <loc>https://chisel.telcosec.net/#projects</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

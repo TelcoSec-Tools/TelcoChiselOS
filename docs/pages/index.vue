@@ -1098,7 +1098,7 @@ useSeoMeta({
   themeColor: '#00ffd5',
   ogType: 'website',
   ogSiteName: 'TelcoSec',
-  ogUrl: 'https://tschisel.telcosec.net/',
+  ogUrl: 'https://chisel.telcosec.net/',
   ogTitle: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec',
   ogDescription: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 75+ tools for SDR analysis and cellular penetration testing.',
   ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
@@ -1115,7 +1115,7 @@ useSeoMeta({
 useSchemaOrg([
   defineWebSite({
     name: 'TelcoChisel',
-    url: 'https://tschisel.telcosec.net',
+    url: 'https://chisel.telcosec.net',
     description: 'Advanced Telecom Security Operating System',
     publisher: {
       '@type': 'Organization',
@@ -1148,7 +1148,7 @@ useSchemaOrg([
 
 useHead({
   link: [
-    { rel: 'canonical', href: 'https://tschisel.telcosec.net/' },
+    { rel: 'canonical', href: 'https://chisel.telcosec.net/' },
     { rel: 'icon', type: 'image/svg+xml', href: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ffd5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3Cpath d='M12 8v4'/%3E%3Cpath d='M12 16h.01'/%3E%3C/svg%3E" }
   ],
   script: [
@@ -1163,7 +1163,7 @@ useHead({
           "applicationSubCategory": "Telecommunications Security, Software Defined Radio, Baseband Analysis",
           "operatingSystem": "Linux (Ubuntu 24.04 LTS)",
           "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 75+ pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
-          "url": "https://tschisel.telcosec.net/",
+          "url": "https://chisel.telcosec.net/",
           "downloadUrl": "https://sourceforge.net/projects/telcochisel/files/latest/download",
           "softwareVersion": "1.1.0",
           "releaseNotes": "https://github.com/TelcoSec-Tools/TelcoChiselOS/releases",
@@ -1203,7 +1203,7 @@ useHead({
           "@context": "https://schema.org",
           "@type": "WebSite",
           "name": "TelcoChisel Documentation",
-          "url": "https://tschisel.telcosec.net/",
+          "url": "https://chisel.telcosec.net/",
           "description": "Official documentation for TelcoChisel — a free Linux distribution for 5G/4G telecom security research.",
           "publisher": {
             "@type": "Organization",
@@ -1212,7 +1212,7 @@ useHead({
           },
           "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://tschisel.telcosec.net/#tools?q={search_term_string}",
+            "target": "https://chisel.telcosec.net/#tools?q={search_term_string}",
             "query-input": "required name=search_term_string"
           }
         },

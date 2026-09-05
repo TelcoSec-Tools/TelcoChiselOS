@@ -150,7 +150,7 @@ useSeoMeta({
   ogTitle: `${driver.name} Setup Guide — Telecom Security Hardware by TelcoSec`,
   ogDescription: `How to install, configure, and troubleshoot ${driver.name} drivers in TelcoChisel by TelcoSec for advanced Telecom Security and ${metadata.keywords[0]}.`,
   ogType: 'article',
-  ogUrl: `https://tschisel.telcosec.net/drivers/${driver.slug}`,
+  ogUrl: `https://chisel.telcosec.net/drivers/${driver.slug}`,
   ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
   twitterCard: 'summary_large_image',
   twitterTitle: `${driver.name} Setup Guide — Telecom Security Hardware by TelcoSec`,
@@ -163,7 +163,7 @@ const schemas = [
     applicationCategory: 'SecurityApplication',
     operatingSystem: 'Linux (Ubuntu 24.04 LTS / TelcoChisel)',
     description: driver.desc,
-    url: `https://tschisel.telcosec.net/drivers/${driver.slug}`,
+    url: `https://chisel.telcosec.net/drivers/${driver.slug}`,
     offers: {
       '@type': 'Offer',
       price: '0',

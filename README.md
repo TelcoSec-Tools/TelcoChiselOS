@@ -1,6 +1,6 @@
 <div align="center">
   <br/>
-  <a href="https://tschisel.telcosec.net">
+  <a href="https://chisel.telcosec.net">
     <img src="assets/logo.png" alt="TelcoChisel Logo" width="140" height="140" style="border-radius: 20px; box-shadow: 0px 8px 30px rgba(232, 146, 30, 0.35);">
   </a>
   <br/><br/>
@@ -10,12 +10,12 @@
   **TelcoChisel is a specialized Live Linux distribution developed by TelcoSec for advanced Telecom Security, 4G/5G mobile network auditing, SDR transceiver engineering, and cellular baseband vulnerability research.**
 
   [![Build Status](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/release.yml/badge.svg)](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/release.yml)
-  [![Docs](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/deploy-docs.yml/badge.svg)](https://tschisel.telcosec.net)
+  [![Docs](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/deploy-docs.yml/badge.svg)](https://chisel.telcosec.net)
   [![Ubuntu 24.04](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com)
   [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-00ffd5.svg)](LICENSE)
   [![Download](https://img.shields.io/sourceforge/dt/telcochisel?logo=sourceforge&label=Downloads)](https://sourceforge.net/projects/telcochisel/files/latest/download)
 
-  [**Official Docs**](https://tschisel.telcosec.net) • [**Download ISO**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**TelcoSec Academy**](https://app.telcosec.net) • [**Community Hub**](https://community.telcosec.net) • [**Discord Chat**](https://discord.gg/RykzXTQFXF)
+  [**Official Docs**](https://chisel.telcosec.net) • [**Download ISO**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**TelcoSec Academy**](https://app.telcosec.net) • [**Community Hub**](https://community.telcosec.net) • [**Discord Chat**](https://discord.gg/RykzXTQFXF)
 
   ---
 
@@ -243,7 +243,7 @@ Telecom Security is critical to protecting mobile network infrastructures (like 
 
 | Resource | Link |
 | :--- | :--- |
-| **Documentation Portal** | [tschisel.telcosec.net](https://tschisel.telcosec.net) |
+| **Documentation Portal** | [chisel.telcosec.net](https://chisel.telcosec.net) |
 | **Academy Learning Portal** | [app.telcosec.net](https://app.telcosec.net) |
 | **Research & Advisory Blog** | [blog.telcosec.net](https://blog.telcosec.net) |
 | **Community Discussion Forum** | [community.telcosec.net](https://community.telcosec.net) |

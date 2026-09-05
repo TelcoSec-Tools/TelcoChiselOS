@@ -158,7 +158,7 @@ useSeoMeta({
   ogTitle: `${feature.name} — TelcoChisel OS Configuration Guide by TelcoSec`,
   ogDescription: `How TelcoChisel by TelcoSec configures ${feature.name} for advanced Telecom Security research. ${feature.desc}`,
   ogType: 'article',
-  ogUrl: `https://tschisel.telcosec.net/features/${feature.slug}`,
+  ogUrl: `https://chisel.telcosec.net/features/${feature.slug}`,
   ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
   twitterCard: 'summary_large_image',
   twitterTitle: `${feature.name} — TelcoChisel OS Configuration Guide by TelcoSec`,
@@ -170,14 +170,14 @@ const schemas = [
     '@type': 'TechArticle',
     headline: `${feature.name} — TelcoChisel OS Configuration`,
     description: feature.desc,
-    url: `https://tschisel.telcosec.net/features/${feature.slug}`,
+    url: `https://chisel.telcosec.net/features/${feature.slug}`,
     keywords: metadata.keywords.join(', '),
     author: {
       name: 'TelcoSec',
       url: 'https://telcosec.net/'
     },
     isPartOf: {
-      '@id': 'https://tschisel.telcosec.net/#software'
+      '@id': 'https://chisel.telcosec.net/#software'
     }
   })
 ]
