@@ -19,9 +19,19 @@
 ARG BASE_IMAGE=telcochisel-base
 FROM ${BASE_IMAGE}
 
-LABEL org.opencontainers.image.title="telcochisel-core-network" \
-      org.opencontainers.image.description="TelcoChisel core-network first-run helpers (srsRAN/Open5GS/OAI-UE/5Ghoul)" \
-      org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS"
+LABEL org.opencontainers.image.title="TelcoSec TelcoChisel Core Network" \
+      org.opencontainers.image.description="TelcoSec TelcoChisel Core Network — 4G LTE & 5G SA core and RAN emulation & exploitation platform (srsRAN Project, Open5GS 5G Core, OpenAirInterface UE, 5Ghoul fuzzing, gtp5g)" \
+      org.opencontainers.image.url="https://telcosec.net" \
+      org.opencontainers.image.documentation="https://telcosec.net/docs" \
+      org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS" \
+      org.opencontainers.image.vendor="TelcoSec" \
+      org.opencontainers.image.licenses="GPL-3.0" \
+      net.telcosec.brand="TelcoSec" \
+      net.telcosec.product="TelcoChisel" \
+      net.telcosec.tier="core-network" \
+      net.telcosec.category="telecom-security-research" \
+      net.telcosec.academy.url="https://app.telcosec.net" \
+      net.telcosec.academy.training="Master 5G SA Core, UPF eBPF bypass, and cellular signaling at TelcoSec Academy: https://app.telcosec.net"
 
 USER root
 COPY docker/scripts/30-core-network.sh /tmp/30-core-network.sh

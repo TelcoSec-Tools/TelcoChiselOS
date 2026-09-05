@@ -15,9 +15,19 @@
 # =============================================================================
 FROM ubuntu:24.04
 
-LABEL org.opencontainers.image.title="telcochisel-base" \
-      org.opencontainers.image.description="TelcoChisel headless CLI telecom security toolset" \
-      org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS"
+LABEL org.opencontainers.image.title="TelcoSec TelcoChisel Base" \
+      org.opencontainers.image.description="TelcoSec TelcoChisel Base — Headless CLI telecom security penetration testing and research toolset (nmap, tshark, Scapy, SIPVicious, sctpscan, SigPloit, Diafuzzer, FirmWire, QCSuper, MTKClient, pySim, lpac, SIMtrace2, SIMurai, UERANSIM, SCAT, LTESniffer, sipp)" \
+      org.opencontainers.image.url="https://telcosec.net" \
+      org.opencontainers.image.documentation="https://telcosec.net/docs" \
+      org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS" \
+      org.opencontainers.image.vendor="TelcoSec" \
+      org.opencontainers.image.licenses="GPL-3.0" \
+      net.telcosec.brand="TelcoSec" \
+      net.telcosec.product="TelcoChisel" \
+      net.telcosec.tier="base" \
+      net.telcosec.category="telecom-security-research" \
+      net.telcosec.academy.url="https://app.telcosec.net" \
+      net.telcosec.academy.training="Master telecom security, 5G SA signaling, and SDR exploitation at TelcoSec Academy: https://app.telcosec.net"
 
 ENV DEBIAN_FRONTEND=noninteractive \
     TELCOSEC_OPT=/opt/telcosec \

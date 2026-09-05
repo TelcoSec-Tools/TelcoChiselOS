@@ -20,9 +20,19 @@
 ARG BASE_IMAGE=telcochisel-base
 FROM ${BASE_IMAGE}
 
-LABEL org.opencontainers.image.title="telcochisel-sdr" \
-      org.opencontainers.image.description="TelcoChisel SDR toolchain (SoapySDR/UHD/LimeSuite/HackRF/GNU Radio/GQRX)" \
-      org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS"
+LABEL org.opencontainers.image.title="TelcoSec TelcoChisel SDR" \
+      org.opencontainers.image.description="TelcoSec TelcoChisel SDR — Software Defined Radio cellular research toolchain (SoapySDR, UHD USRP, LimeSuite, HackRF, BladeRF, rtl-sdr, GNU Radio, GQRX, gr-gsm)" \
+      org.opencontainers.image.url="https://telcosec.net" \
+      org.opencontainers.image.documentation="https://telcosec.net/docs" \
+      org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS" \
+      org.opencontainers.image.vendor="TelcoSec" \
+      org.opencontainers.image.licenses="GPL-3.0" \
+      net.telcosec.brand="TelcoSec" \
+      net.telcosec.product="TelcoChisel" \
+      net.telcosec.tier="sdr" \
+      net.telcosec.category="telecom-security-research" \
+      net.telcosec.academy.url="https://app.telcosec.net" \
+      net.telcosec.academy.training="Master SDR cellular analysis and 2G-5G radio security at TelcoSec Academy: https://app.telcosec.net"
 
 USER root
 COPY docker/scripts/20-sdr.sh /tmp/20-sdr.sh
