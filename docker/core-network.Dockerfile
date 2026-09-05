@@ -21,6 +21,7 @@ FROM ${BASE_IMAGE}
 
 LABEL org.opencontainers.image.title="TelcoSec TelcoChisel Core Network" \
       org.opencontainers.image.description="TelcoSec TelcoChisel Core Network — 4G LTE & 5G SA core and RAN emulation & exploitation platform (srsRAN Project, Open5GS 5G Core, OpenAirInterface UE, 5Ghoul fuzzing, gtp5g)" \
+      org.opencontainers.image.version="1.1.0" \
       org.opencontainers.image.url="https://telcosec.net" \
       org.opencontainers.image.documentation="https://telcosec.net/docs" \
       org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS" \
@@ -39,4 +40,9 @@ RUN bash /tmp/30-core-network.sh && rm -f /tmp/30-core-network.sh
 
 WORKDIR /home/telcosec
 USER telcosec
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD ["/usr/local/bin/container-healthcheck.sh"]
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["/bin/bash"]
