@@ -35,7 +35,8 @@
                 @click="selectResult(index)"
               >
                 <div class="result-icon">
-                  <svg v-if="result.item.type === 'tool'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                  <svg v-if="result.item.type === 'scenario'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red, #ef4444)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
+                  <svg v-else-if="result.item.type === 'tool'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
                   <svg v-else-if="result.item.type === 'feature'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                   <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="14.31" y1="8" x2="20.05" y2="17.94"></line></svg>
                 </div>
@@ -72,6 +73,7 @@ import { useSearch } from '~/composables/useSearch'
 import { toolsCatalog } from '~/data/tools.js'
 import { featuresCatalog } from '~/data/features.js'
 import { driversCatalog } from '~/data/drivers.js'
+import { scenariosCatalog } from '~/data/scenarios.js'
 
 const { isSearchOpen, closeSearch } = useSearch()
 const router = useRouter()
@@ -86,7 +88,17 @@ const results = ref([])
 const searchData = [
   ...toolsCatalog.map(t => ({ ...t, type: 'tool', id: `tool_${t.slug}`, url: `/tools/${t.slug}` })),
   ...featuresCatalog.map(f => ({ ...f, type: 'feature', id: `feature_${f.slug}`, url: `/features/${f.slug}` })),
-  ...driversCatalog.map(d => ({ ...d, type: 'driver', id: `driver_${d.slug}`, url: `/drivers/${d.slug}` }))
+  ...driversCatalog.map(d => ({ ...d, type: 'driver', id: `driver_${d.slug}`, url: `/drivers/${d.slug}` })),
+  ...scenariosCatalog.map(s => ({
+    name: s.title,
+    desc: `${s.summary} Interfaces: ${s.interfaces.join(', ')}`,
+    category: s.category,
+    cmd: s.tools.join(', '),
+    path: s.badge,
+    type: 'scenario',
+    id: `scenario_${s.slug}`,
+    url: `/#scenarios`
+  }))
 ]
 
 const fuse = new Fuse(searchData, {

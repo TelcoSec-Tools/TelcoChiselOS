@@ -509,91 +509,131 @@
           </div>
         </section>
 
-        <!-- SECTION: BUILDER -->
-        <section id="builder" class="content-section" :class="{ active: activeSection === 'builder' }" v-show="activeSection === 'builder'">
-          <div class="section-header" data-label="// ISO Build Pipeline :: Ubuntu 24.04">
-            <h2>Developer Guide — Building the TelcoChisel Live ISO</h2>
-            <p class="subtitle">Build the bootable Ubuntu 24.04 ISO from source on any Ubuntu/Debian host or WSL2</p>
+        <!-- SECTION: SCENARIOS -->
+        <section id="scenarios" class="content-section" :class="{ active: activeSection === 'scenarios' }" v-show="activeSection === 'scenarios'">
+          <div class="section-header" data-label="// Operations :: Telecom Red Teaming">
+            <h2>Telecom Red Teaming Scenarios &amp; Assessment Playbooks</h2>
+            <p class="subtitle">Production-grade assessment playbooks, protocol fuzzing methodologies, and live terminal command suites for telecom operators and security auditors.</p>
           </div>
 
+          <AppCallout type="warning" title="Operational Safety &amp; Legal Authorization">
+            All telecom red team scenarios must be conducted strictly within authorized engagement scope, inside RF-shielded enclosures (Faraday cages or direct coaxial cabling with 30dB attenuators), or against private laboratory testbeds (e.g. Open5GS, srsRAN, my5G-RANTester). Never transmit unauthorized RF or disrupt commercial subscriber networks.
+          </AppCallout>
+
           <p>
-            TelcoChisel uses an automated bash orchestration build chain to bootstrap, configure, and output bootable XFCE live desktop images.
+            TelcoChisel is purpose-built for end-to-end telecom penetration testing — spanning physical Layer 1 RF broadcasts and SIM smartcards up to 5G Service-Based Architecture (SBA) and carrier VoIP trunks. Use the structured playbooks below to perform repeatable, audit-ready security assessments.
           </p>
 
-          <h3>1. Setup Compilation Host</h3>
-          <p>
-            The build environment must be run on a native Ubuntu or Debian host machine (or inside a WSL2 container with systemd enabled). You need approximately 20 GB of free storage.
-          </p>
-          <TerminalBlock title="Install Host Dependencies" :code="`# Update and install build packages\nsudo apt-get update\nsudo apt-get install -y debootstrap squashfs-tools grub-pc-bin grub-efi-amd64-bin xorriso mtools zstd`" />
+          <!-- Category Filter Bar -->
+          <div class="filter-bar" style="margin-bottom: 24px;">
+            <div class="filter-tags">
+              <button
+                v-for="cat in scenarioCategories"
+                :key="cat.id"
+                class="filter-btn"
+                :class="{ active: activeScenarioCategory === cat.id }"
+                @click="activeScenarioCategory = cat.id"
+              >
+                {{ cat.label }} ({{ scenarioFilterCount(cat.id) }})
+              </button>
+            </div>
+          </div>
 
-          <h3>2. Run the Build Pipeline</h3>
-          <p>
-            Clone this repository, review configurations inside <code class="inline-code">builder/</code>, and execute the master build script.
-          </p>
-          <TerminalBlock title="Compile Live ISO" :code="`# Execute compilation\nsudo ./build-iso.sh`" />
+          <!-- Scenarios List -->
+          <div class="scenarios-container" style="display: flex; flex-direction: column; gap: 32px;">
+            <div
+              v-for="scenario in filteredScenarios"
+              :key="scenario.id"
+              class="card highlight-teal scenario-card"
+              style="padding: 24px;"
+            >
+              <!-- Header -->
+              <div style="margin-bottom: 12px;">
+                <span class="tag" :class="scenarioCategoryClass(scenario.category)" style="margin-bottom: 8px; display: inline-block;">
+                  {{ scenario.badge }}
+                </span>
+                <h3 style="margin: 0; font-size: 1.35rem; color: #fff;">{{ scenario.title }}</h3>
+              </div>
 
-          <h3>3. Pipeline Phase Execution Order</h3>
-          <p>
-            The orchestrator bootstraps a minimal chroot container and runs provisioning scripts sequentially. Do not alter their index prefixes, as each step relies on outputs of the previous scripts:
-          </p>
-          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.95rem;">
-            <thead>
-              <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
-                <th style="padding: 12px; color: #ffffff;">Script File</th>
-                <th style="padding: 12px; color: #ffffff;">Provisioning Operation</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">00-install-all-packages.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Pre-downloads all apt packages to speed up provisioning.</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">01-install-base.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Installs XFCE, LightDM, Firefox, base compilers, and sets the live boot user.</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">02-install-sdr.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Creates Conda environment; compiles UHD, HackRF, and BladeRF SDR drivers.</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">03-install-core-network.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Compiles and sets up the srsRAN simulation suite.</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">04-install-tools.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Deploys Wireshark, SigPloit, Diafuzzer, SIPVicious, Scapy, softphones, and dictionaries.</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">05-desktop-customization.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Sets desktop custom wallpapers, icons, Firefox bookmarks toolbar, and start documentation page.</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">06-install-ue-analysis.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Deploys FirmWire baseband QEMU environment, QCSuper, and card programming scripts.</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">07-install-installer.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Integrates the Calamares installer engine with customized TelcoSec branding graphics.</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">08-system-optimization.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Injects the low-latency udev configs, SCTP limits, CPU isolation limits, and CA certificates.</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">09-install-5ghoul.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Deploys the 5Ghoul ogstun virtual network adapters and compilation frameworks.</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">10-install-telecom-advanced.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Clones and builds advanced telecom tools to /opt/telcosec in parallel (UERANSIM, SCAT, kalibrate-gsm, YateBTS, OpenBTS, srsGUI, LTE-CellScanner, LTESniffer, gtp5g).</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">11-install-device-tools.sh</td>
-                <td style="padding: 12px; color: var(--text-secondary);">Installs Samsung, Qualcomm, and MediaTek device wrapper scripts to /usr/local/bin.</td>
-              </tr>
-            </tbody>
-          </table>
+              <p class="card-desc" style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 18px;">
+                {{ scenario.summary }}
+              </p>
+
+              <!-- Threat Model & Objective -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 16px; border-radius: 4px; border: 1px solid var(--border-color);">
+                <div>
+                  <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-teal); font-weight: 600; margin-bottom: 4px;">
+                    Assessment Objective
+                  </div>
+                  <div style="font-size: 0.88rem; color: var(--text-primary); line-height: 1.5;">
+                    {{ scenario.objective }}
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #ff88cc; font-weight: 600; margin-bottom: 4px;">
+                    Adversary Threat Model
+                  </div>
+                  <div style="font-size: 0.88rem; color: var(--text-primary); line-height: 1.5;">
+                    {{ scenario.threatModel }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Target Interfaces & Toolchain -->
+              <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; font-size: 0.85rem;">
+                <div>
+                  <strong style="color: var(--text-muted); margin-right: 8px;">Target Interfaces:</strong>
+                  <span v-for="iface in scenario.interfaces" :key="iface" class="tag tag-device" style="margin-right: 6px; margin-bottom: 4px;">
+                    {{ iface }}
+                  </span>
+                </div>
+                <div>
+                  <strong style="color: var(--text-muted); margin-right: 8px;">Active Toolchain:</strong>
+                  <span v-for="tl in scenario.tools" :key="tl" class="tag tag-ran" style="margin-right: 6px; margin-bottom: 4px;">
+                    {{ tl }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Methodology Steps -->
+              <div style="margin-bottom: 20px;">
+                <h4 style="font-size: 0.92rem; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
+                  Operational Methodology
+                </h4>
+                <div class="steps-container" style="margin: 0;">
+                  <div v-for="(step, idx) in scenario.methodology" :key="idx" class="step-item" style="padding: 6px 0; margin-bottom: 18px;">
+                    <div class="step-badge">{{ idx + 1 }}</div>
+                    <div class="step-content" style="font-size: 0.88rem; line-height: 1.5; color: var(--text-secondary);">
+                      {{ step }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Terminal Commands -->
+              <div style="margin-bottom: 20px;">
+                <h4 style="font-size: 0.92rem; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
+                  Execution Commands
+                </h4>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <div v-for="(cmdObj, cIdx) in scenario.commands" :key="cIdx">
+                    <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px;">
+                      {{ cmdObj.desc }}
+                    </div>
+                    <TerminalBlock :code="cmdObj.cmd" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Protocol Architecture & Attack Flow Diagram -->
+              <div v-if="scenario.diagram" style="margin-top: 10px;">
+                <h4 style="font-size: 0.92rem; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+                  Protocol Exchange &amp; Attack Sequence
+                </h4>
+                <MermaidDiagram :chart="scenario.diagram" />
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- SECTION: VIRTUALIZATION -->
@@ -1000,6 +1040,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
 import { toolsCatalog } from '~/data/tools.js'
 import { driversCatalog } from '~/data/drivers.js'
 import { featuresCatalog } from '~/data/features.js'
+import { scenariosCatalog } from '~/data/scenarios.js'
 
 const { gtag } = useGtag()
 
@@ -1173,10 +1214,10 @@ useHead({
             },
             {
               "@type": "Question",
-              "name": "How do I build the TelcoChisel ISO?",
+              "name": "What Telecom Red Teaming scenarios are supported?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Run 'sudo ./build-iso.sh' on an Ubuntu or Debian host after installing: debootstrap, squashfs-tools, grub-pc-bin, grub-efi-amd64-bin, xorriso, and mtools. The build requires approximately 20 GB of free disk space and takes 30 to 60 minutes. On Windows, you can build inside WSL2."
+                "text": "TelcoChisel provides end-to-end assessment playbooks covering 5G Standalone Core resilience testing, over-the-air RF spectrum discovery, isolated rogue base station simulation, Qualcomm and MediaTek baseband diagnostic reverse engineering, SIM/eSIM profile auditing, and wireline broadband/VoIP security assessments."
               }
             },
             {
@@ -1234,7 +1275,7 @@ useHead({
 })
 
 // Section navigation
-const VALID_SECTIONS = ['overview', 'installation', 'features', 'tools', 'drivers', 'fuzzer', 'builder', 'virtualization', 'projects', 'legal']
+const VALID_SECTIONS = ['overview', 'installation', 'features', 'tools', 'drivers', 'fuzzer', 'scenarios', 'virtualization', 'projects', 'legal']
 const activeSection = ref('overview')
 const sidebarOpen = ref(false)
 const downloadModalOpen = ref(false)
@@ -1371,6 +1412,39 @@ function featureCatLabel(cat) {
     tools:       'Tool Config',
     environment: 'Dev Environment'
   }[cat] || cat
+}
+
+// Scenarios directory & category filtering
+const activeScenarioCategory = ref('all')
+const scenarioCategories = [
+  { id: 'all',      label: 'All Scenarios' },
+  { id: '5g',       label: '5G Core & SA' },
+  { id: '4g',       label: '4G LTE & SIB' },
+  { id: 'rf',       label: 'Over-The-Air RF' },
+  { id: 'baseband', label: 'Baseband Modems' },
+  { id: 'sim',      label: 'SIM & Smartcard' },
+  { id: 'wireline', label: 'Wireline & VoIP' }
+]
+
+const filteredScenarios = computed(() => {
+  if (activeScenarioCategory.value === 'all') return scenariosCatalog
+  return scenariosCatalog.filter(s => s.category === activeScenarioCategory.value)
+})
+
+function scenarioFilterCount(id) {
+  if (id === 'all') return scenariosCatalog.length
+  return scenariosCatalog.filter(s => s.category === id).length
+}
+
+function scenarioCategoryClass(cat) {
+  return {
+    '5g':       'tag-5g',
+    '4g':       'tag-lte',
+    'rf':       'tag-sdr',
+    'baseband': 'tag-ue',
+    'sim':      'tag-sim',
+    'wireline': 'tag-network'
+  }[cat] || ''
 }
 
 // Mermaid Architecture Diagram
