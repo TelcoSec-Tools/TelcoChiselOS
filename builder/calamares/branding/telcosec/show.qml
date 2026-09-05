@@ -54,7 +54,7 @@ Rectangle {
         running: true
         repeat: true
         onTriggered: {
-            root.currentSlide = (root.currentSlide + 1) % 5;
+            root.currentSlide = (root.currentSlide + 1) % 6;
         }
     }
 
@@ -111,7 +111,7 @@ Rectangle {
                     spacing: 12
 
                     Text {
-                        text: "Advanced Telecom Security OS"
+                        text: "Advanced Telecom Security OS — v3.0.0"
                         color: "#f5aa35"
                         font.pixelSize: 22
                         font.bold: true
@@ -119,7 +119,7 @@ Rectangle {
                     }
 
                     Text {
-                        text: "Bootable Live & Installable Linux Environment for 4G/5G Network Auditing"
+                        text: "Ubuntu 24.04 LTS (Noble Numbat) • Real-Time Low-Latency Kernel (1000Hz)"
                         color: "#e8e6e3"
                         font.pixelSize: 13
                         Layout.alignment: Qt.AlignHCenter
@@ -128,7 +128,7 @@ Rectangle {
                     Item { height: 8 }
 
                     Text {
-                        text: "• Pre-loaded with 88+ specialized cellular & radio analysis tools\n• Configured for USRP, HackRF One, BladeRF, LimeSDR & RTL-SDR\n• Standardized training platform for TelcoSec Academy"
+                        text: "• Dual-Tier Distribution: Flagship Field Edition (5.0 GB) & Modular Lite Edition (1.8 GB)\n• Pre-loaded with 88 specialized cellular, SDR, 5G SA & radio analysis tools\n• Standardized training platform for TelcoSec Academy (app.telcosec.net)"
                         color: "#a0a5aa"
                         font.pixelSize: 12
                         lineHeight: 1.4
@@ -289,6 +289,44 @@ Rectangle {
                     }
                 }
             }
+
+            // Slide 6: Modular Metapackages & Ecosystem
+            Item {
+                anchors.fill: parent
+                opacity: root.currentSlide === 5 ? 1.0 : 0.0
+                Behavior on opacity { NumberAnimation { duration: 600 } }
+
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    spacing: 12
+
+                    Text {
+                        text: "Modular Metapackages & TelcoSec Academy"
+                        color: "#f5aa35"
+                        font.pixelSize: 22
+                        font.bold: true
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+
+                    Text {
+                        text: "telcosec-pkg CLI • meta.telcosec.net • 8 Domain Suites • Interactive Labs"
+                        color: "#e8e6e3"
+                        font.pixelSize: 13
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+
+                    Item { height: 8 }
+
+                    Text {
+                        text: "• Install specialized domains on-demand: 5g-sa, 4g-lte, sdr, sim, baseband, wireline\n• Dedicated telcosec CLI for SDR diagnostics, kernel tuning, and 5G SA startup\n• Direct integration with TelcoSec Academy interactive labs at app.telcosec.net"
+                        color: "#a0a5aa"
+                        font.pixelSize: 12
+                        lineHeight: 1.4
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+                }
+            }
         }
 
         Item { Layout.fillHeight: true }
@@ -299,7 +337,7 @@ Rectangle {
             spacing: 8
 
             Repeater {
-                model: 5
+                model: 6
                 Rectangle {
                     width: index === root.currentSlide ? 24 : 8
                     height: 8
