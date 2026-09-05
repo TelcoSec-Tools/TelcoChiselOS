@@ -188,6 +188,50 @@ echo "UHD images downloaded successfully."
 FIRSTRUN
 sudo chmod +x /usr/local/bin/uhd-download-images
 
+# Defer BladeRF FPGA images to first-run downloader
+echo "Creating BladeRF FPGA images first-run downloader..."
+sudo mkdir -p /usr/share/Nuand/bladeRF /lib/firmware/nuand
+cat << 'FIRSTRUN_BLADERF' | sudo tee /usr/local/bin/bladerf-download-images
+#!/bin/bash
+set -e
+echo "=== Downloading Nuand BladeRF FPGA Images & Firmware ==="
+TARGET_DIR="/usr/share/Nuand/bladeRF"
+FW_DIR="/lib/firmware/nuand"
+sudo mkdir -p "$TARGET_DIR" "$FW_DIR"
+
+BASE_URL="https://www.nuand.com/fpga"
+# Latest hosted images for BladeRF 2.0 micro (xA4, xA9) and BladeRF Classic (x40, x115)
+IMAGES=(
+  "v0.15.3/hostedxA4.rbf"
+  "v0.15.3/hostedxA9.rbf"
+  "v0.15.3/hostedx40.rbf"
+  "v0.15.3/hostedx115.rbf"
+)
+
+for img in "${IMAGES[@]}"; do
+  fname=$(basename "$img")
+  echo "Downloading $fname..."
+  curl -fsSL "${BASE_URL}/${img}" -o "${TARGET_DIR}/${fname}" || \
+    echo "  WARNING: Failed to download $fname (check network connectivity)"
+done
+
+# Create default hosted.rbf symlink pointing to hostedxA4.rbf
+if [ -f "${TARGET_DIR}/hostedxA4.rbf" ]; then
+  ln -sf "${TARGET_DIR}/hostedxA4.rbf" "${TARGET_DIR}/hosted.rbf"
+fi
+
+# Download latest FX3 firmware
+echo "Downloading BladeRF FX3 firmware..."
+curl -fsSL "https://www.nuand.com/fx3/bladeRF_fw_latest.img" -o "${TARGET_DIR}/bladeRF_fw.img" 2>/dev/null || true
+if [ -f "${TARGET_DIR}/bladeRF_fw.img" ]; then
+  cp -f "${TARGET_DIR}/bladeRF_fw.img" "${FW_DIR}/bladeRF.img" 2>/dev/null || true
+fi
+
+sudo chmod 644 "${TARGET_DIR}"/* 2>/dev/null || true
+echo "✓ BladeRF FPGA images and firmware installed in $TARGET_DIR"
+FIRSTRUN_BLADERF
+sudo chmod +x /usr/local/bin/bladerf-download-images
+
 # 7. Install GNU Radio ecosystem into conda env
 # gqrx-sdr, gr-osmosdr, gr-gsm removed from system apt (librtlsdr ABI conflict
 # between librtlsdr0/soname-0 and librtlsdr2/soname-2 in Ubuntu 24.04 Noble).

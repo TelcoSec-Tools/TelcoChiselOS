@@ -6,26 +6,34 @@ echo "=== Running TelcoSec Professional System Optimizations ==="
 # 1. Hardware Access & Udev Rules
 echo "Deploying hardware udev rules..."
 sudo mkdir -p /etc/udev/rules.d/
-if [ -f /tmp/udev/50-telcosec-hw.rules ]; then
+if [ -f /etc/udev/rules.d/50-telcosec-hw.rules ]; then
+  echo "  udev rules already provided by telcochisel-hardware-sdr package."
+elif [ -f /tmp/udev/50-telcosec-hw.rules ]; then
   sudo cp /tmp/udev/50-telcosec-hw.rules /etc/udev/rules.d/
   sudo chmod 644 /etc/udev/rules.d/50-telcosec-hw.rules
 fi
 
 # RTL-SDR: block the DVB-T kernel driver from grabbing the dongle
-if [ -f /tmp/modprobe/blacklist-rtlsdr.conf ]; then
+if [ -f /etc/modprobe.d/blacklist-rtlsdr.conf ]; then
+  echo "  RTL-SDR blacklist already provided by telcochisel-hardware-sdr package."
+elif [ -f /tmp/modprobe/blacklist-rtlsdr.conf ]; then
   sudo cp /tmp/modprobe/blacklist-rtlsdr.conf /etc/modprobe.d/blacklist-rtlsdr.conf
 fi
 
 # 2. PAM Real-time Scheduling Priority Limits
 echo "Deploying real-time limits and configuring groups..."
 sudo mkdir -p /etc/security/limits.d/
-if [ -f /tmp/security/99-realtime.conf ]; then
+if [ -f /etc/security/limits.d/99-telcochisel-rt.conf ]; then
+  echo "  Real-time limits already provided by telcochisel-base package."
+elif [ -f /tmp/security/99-realtime.conf ]; then
   sudo cp /tmp/security/99-realtime.conf /etc/security/limits.d/
   sudo chmod 644 /etc/security/limits.d/99-realtime.conf
 fi
-# Add the realtime group and add our users to it
-sudo groupadd -r realtime || true
-sudo usermod -aG realtime telcosec || true
+# Add the realtime, usrp, and plugdev groups and ensure telcosec user is enrolled
+sudo groupadd -r realtime 2>/dev/null || true
+sudo groupadd -r usrp 2>/dev/null || true
+sudo groupadd -r plugdev 2>/dev/null || true
+sudo usermod -aG realtime,usrp,plugdev telcosec 2>/dev/null || true
 
 # 3. Custom Desktop Menu & Tool Categories
 echo "Deploying custom XFCE tool menus and categories..."
@@ -137,8 +145,10 @@ fi
 
 # 6. SCTP Stack Optimizations
 echo "Deploying SCTP module loading and sysctl tuning..."
-# Enable auto-loading of the sctp kernel module at boot
-if [ -f /etc/modules ]; then
+# Enable auto-loading of the sctp kernel module at boot (if not already handled by telcochisel-base)
+if [ -f /etc/modules-load.d/telcochisel-sctp.conf ]; then
+  echo "  SCTP module auto-loading already configured by telcochisel-base package."
+elif [ -f /etc/modules ]; then
   if ! grep -q "^sctp$" /etc/modules 2>/dev/null; then
     echo "sctp" | sudo tee -a /etc/modules
   fi

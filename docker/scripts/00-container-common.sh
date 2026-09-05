@@ -46,6 +46,18 @@ UDEVADM
   mkdir -p /usr/local/sbin
   cp /usr/bin/udevadm /usr/local/sbin/udevadm
   export PATH="/usr/local/sbin:$PATH"
+
+  # Exclude docs, manpages, and info files to keep the container minimal
+  mkdir -p /etc/dpkg/dpkg.cfg.d
+  cat > /etc/dpkg/dpkg.cfg.d/01_nodoc << 'NODOC'
+path-exclude /usr/share/doc/*
+path-include /usr/share/doc/*/copyright
+path-exclude /usr/share/man/*
+path-exclude /usr/share/groff/*
+path-exclude /usr/share/info/*
+path-exclude /usr/share/lintian/*
+path-exclude /usr/share/linda/*
+NODOC
 }
 
 # Package names that only make sense for the live ISO / a desktop / a real

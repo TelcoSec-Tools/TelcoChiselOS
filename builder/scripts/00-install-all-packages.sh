@@ -134,18 +134,30 @@ else
   rm -f "$KISMET_KEY" /etc/apt/sources.list.d/kismet.list
 fi
 
-# TelcoSec Custom APT Repository (hosted on GitHub Pages)
-# Contains pre-compiled tools (UERANSIM, SCAT, OpenBTS, etc.) to replace source builds.
-TELCOSEC_KEY=/usr/share/keyrings/telcosec-archive-keyring.gpg
-TELCOSEC_LIST=/etc/apt/sources.list.d/telcosec.list
-TELCOSEC_URL="https://telcosec.github.io/apt"
-if wget -qO- "${TELCOSEC_URL}/Release.key" 2>/dev/null | \
-     gpg --dearmor --yes -o "$TELCOSEC_KEY" 2>/dev/null && [ -s "$TELCOSEC_KEY" ]; then
-  echo "deb [signed-by=${TELCOSEC_KEY}] ${TELCOSEC_URL}/ noble main" > "$TELCOSEC_LIST"
-  echo "  TelcoSec custom APT repo added."
+# TelcoChisel Official APT Repository (Cloudflare Edge CDN: meta.telcosec.net)
+# Distributes official metapackages, SDR hardware rules, and kernel tuning.
+TELCOSEC_KEY=/etc/apt/keyrings/telcochisel-archive-keyring.asc
+TELCOSEC_SOURCES=/etc/apt/sources.list.d/telcochisel.sources
+TELCOSEC_URL="https://meta.telcosec.net"
+TELCOSEC_FPR="6326A34C15FEF05FBD63518B4325182E2F0D9DB9"
+
+mkdir -p /etc/apt/keyrings
+if curl -fsSL "${TELCOSEC_URL}/public.gpg" -o "$TELCOSEC_KEY" 2>/dev/null && [ -s "$TELCOSEC_KEY" ] && \
+   verify_key_fpr "$TELCOSEC_KEY" "$TELCOSEC_FPR" "TelcoChisel"; then
+  chmod 0644 "$TELCOSEC_KEY"
+  cat > "$TELCOSEC_SOURCES" << 'EOF'
+Types: deb
+URIs: https://meta.telcosec.net
+Suites: noble
+Components: main
+Signed-By: /etc/apt/keyrings/telcochisel-archive-keyring.asc
+EOF
+  echo "  TelcoChisel official APT repo added (meta.telcosec.net, fingerprint verified)."
+  TELCOSEC_REPO_ENABLED=1
 else
-  echo "  WARNING: TelcoSec custom APT repo not available yet — advanced tools will build from source."
-  rm -f "$TELCOSEC_KEY" "$TELCOSEC_LIST"
+  echo "  WARNING: TelcoChisel custom APT repo not reachable or key verification failed — continuing with upstream/source builds."
+  rm -f "$TELCOSEC_KEY" "$TELCOSEC_SOURCES"
+  TELCOSEC_REPO_ENABLED=0
 fi
 
 # ─── 2. Single apt-get update ───────────────────────────────────────────────
@@ -189,6 +201,15 @@ apt_get_retry install -y -o Dpkg::Options::="--force-overwrite" \
   libsqlite3-dev \
   liblapacke-dev libblas-dev liblapack-dev \
   `# osmo-simtrace2 compiled from source in 06; only its build deps are above`
+
+# ─── 4b. Official TelcoChisel Metapackages ──────────────────────────────────
+# Installed while chroot service suppression is active so udevadm/sysctl postinst
+# hooks don't fail inside the chroot environment.
+if [ "${TELCOSEC_REPO_ENABLED:-0}" = "1" ] && [ -f /etc/apt/sources.list.d/telcochisel.sources ]; then
+  echo "  Installing official TelcoChisel metapackages (${PKGS_TELCOCHISEL_META[*]})..."
+  apt_get_retry install -y -o Dpkg::Options::="--force-overwrite" "${PKGS_TELCOCHISEL_META[@]}" || \
+    echo "  WARNING: TelcoChisel metapackage install failed (non-fatal)"
+fi
 
 # ─── 5. Purge repo-setup-only packages ──────────────────────────────────────
 # software-properties-common (~150 MB with its DBus/gir dependency closure)
@@ -271,6 +292,7 @@ export PATH="\$JAVA_HOME/bin:\$PATH"
 EOF
   chmod 644 /etc/profile.d/java.sh
 fi
+
 
 # ─── 10. Kismet (official repo — not in Ubuntu 24.04 universe) ──────────────
 if [ -f /etc/apt/sources.list.d/kismet.list ]; then
