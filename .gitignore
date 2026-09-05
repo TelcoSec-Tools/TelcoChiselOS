@@ -19,6 +19,9 @@ out/
 *.iso.sha256
 *.iso.md5
 *.iso.sig
+*.iso.build-info.json
+*.build-info.json
+*.part-*
 *.squashfs
 *.img
 
@@ -41,7 +44,7 @@ node_modules/
 docs/node_modules/
 docs/.nuxt/
 docs/.output/
-docs/dist/
+docs/dist
 .nitro/
 .cache/
 npm-debug.log*

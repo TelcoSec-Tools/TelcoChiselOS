@@ -89,7 +89,12 @@ jobs:
           echo "version=$VERSION"         >> "$GITHUB_OUTPUT"
           echo "is_nightly=$IS_NIGHTLY"   >> "$GITHUB_OUTPUT"
           echo "date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+          echo "iso_name=TelcoChisel-${VERSION}-amd64.iso" >> "$GITHUB_OUTPUT"
           echo "Resolved version: $VERSION (nightly=$IS_NIGHTLY)"
+
+      - name: Set ISO Environment Name
+        run: |
+          echo "ISO=TelcoChisel-${{ steps.version.outputs.version }}-amd64.iso" >> "$GITHUB_ENV"
 
       # ── Hosted-runner-only: purge preinstalled bloat to make room ────────────
       - name: Free Disk Space
@@ -173,7 +178,7 @@ jobs:
           SQUASHFS_LEVEL: "3"
           ISO_VERSION: ${{ steps.version.outputs.version }}
         run: |
-          sudo -E bash build-iso.sh
+          sudo -E bash build-iso.sh --version="${{ steps.version.outputs.version }}"
           sudo chown -R "$(id -u):$(id -g)" .
 
       # ── Post-build metadata ──────────────────────────────────────────────────
@@ -211,8 +216,9 @@ jobs:
       - name: Split ISO for artifact upload
         run: |
           mkdir -p /tmp/iso-chunks
-          split -b 1900M "$ISO" /tmp/iso-chunks/TelcoChisel-live.iso.part
+          split -b 1900M "$ISO" "/tmp/iso-chunks/${ISO}.part"
           cp "${ISO}.sha256" /tmp/iso-chunks/
+          cp -f "${ISO}.build-info.json" /tmp/iso-chunks/ 2>/dev/null || true
 
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
@@ -367,7 +373,7 @@ jobs:
           # nobody can download a partial/corrupt ISO mid-upload.
           rsync -avP --partial \
             -e "$SF_SSH" \
-            "$ISO" "${ISO}.sha256" "README.md" \
+            "$ISO" "${ISO}.sha256" "${ISO}.build-info.json" "TelcoChisel-live.iso" "TelcoChisel-live.iso.sha256" "README.md" \
             "$SF_TARGET:$SF_TMP/"
 
           # Publish: back up whatever's currently public (non-fatal — nothing
@@ -379,12 +385,21 @@ jobs:
           cd $SF_DIR
           -rename $ISO $ISO.old
           -rename ${ISO}.sha256 ${ISO}.sha256.old
+          -rename ${ISO}.build-info.json ${ISO}.build-info.json.old
+          -rename TelcoChisel-live.iso TelcoChisel-live.iso.old
+          -rename TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256.old
           -rename README.md README.md.old
           rename _upload_tmp/$ISO $ISO
           rename _upload_tmp/${ISO}.sha256 ${ISO}.sha256
+          rename _upload_tmp/${ISO}.build-info.json ${ISO}.build-info.json
+          rename _upload_tmp/TelcoChisel-live.iso TelcoChisel-live.iso
+          rename _upload_tmp/TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256
           rename _upload_tmp/README.md README.md
           -rm $ISO.old
           -rm ${ISO}.sha256.old
+          -rm ${ISO}.build-info.json.old
+          -rm TelcoChisel-live.iso.old
+          -rm TelcoChisel-live.iso.sha256.old
           -rm README.md.old
           -rmdir _upload_tmp
           SFTPEOF
@@ -417,7 +432,7 @@ jobs:
           # nobody can download a partial/corrupt ISO mid-upload.
           rsync -avP --partial \
             -e "$SF_SSH" \
-            "$ISO" "${ISO}.sha256" "README.md" \
+            "$ISO" "${ISO}.sha256" "${ISO}.build-info.json" "TelcoChisel-live.iso" "TelcoChisel-live.iso.sha256" "README.md" \
             "$SF_TARGET:$SF_TMP/"
 
           # Publish: back up whatever's currently public (non-fatal — nothing
@@ -429,12 +444,21 @@ jobs:
           cd $SF_DIR
           -rename $ISO $ISO.old
           -rename ${ISO}.sha256 ${ISO}.sha256.old
+          -rename ${ISO}.build-info.json ${ISO}.build-info.json.old
+          -rename TelcoChisel-live.iso TelcoChisel-live.iso.old
+          -rename TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256.old
           -rename README.md README.md.old
           rename _upload_tmp/$ISO $ISO
           rename _upload_tmp/${ISO}.sha256 ${ISO}.sha256
+          rename _upload_tmp/${ISO}.build-info.json ${ISO}.build-info.json
+          rename _upload_tmp/TelcoChisel-live.iso TelcoChisel-live.iso
+          rename _upload_tmp/TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256
           rename _upload_tmp/README.md README.md
           -rm $ISO.old
           -rm ${ISO}.sha256.old
+          -rm ${ISO}.build-info.json.old
+          -rm TelcoChisel-live.iso.old
+          -rm TelcoChisel-live.iso.sha256.old
           -rm README.md.old
           -rmdir _upload_tmp
           SFTPEOF
@@ -474,8 +498,8 @@ jobs:
           ### Download from GitHub (split parts)
           Download all \`.part-*\` files and the \`.sha256\` file, then:
           \`\`\`bash
-          cat TelcoChisel-live.iso.part-* > TelcoChisel-live.iso
-          sha256sum -c TelcoChisel-live.iso.sha256
+          cat ${ISO}.part-* > ${ISO}
+          sha256sum -c ${ISO}.sha256
           \`\`\`
 
           ### Changes since last release
@@ -503,11 +527,11 @@ jobs:
               --title "Nightly — ${DATE}" \
               --notes "$NOTES"
             gh release upload nightly \
-              ${ISO}.part-* "${ISO}.sha256" \
+              ${ISO}.part-* "${ISO}.sha256" "${ISO}.build-info.json" \
               --clobber
           else
             gh release create nightly \
-              ${ISO}.part-* "${ISO}.sha256" \
+              ${ISO}.part-* "${ISO}.sha256" "${ISO}.build-info.json" \
               --prerelease \
               --title "Nightly — ${DATE}" \
               --notes "$NOTES"
@@ -535,13 +559,14 @@ jobs:
             ### Download from GitHub (split parts)
             Download all `.part-*` files and the `.sha256` file, then:
             ```bash
-            cat TelcoChisel-live.iso.part-* > TelcoChisel-live.iso
-            sha256sum -c TelcoChisel-live.iso.sha256
+            cat ${{ env.ISO }}.part-* > ${{ env.ISO }}
+            sha256sum -c ${{ env.ISO }}.sha256
             ```
 
             > **Live boot credentials:** `telcosec:telcosec`
           files: |
             ${{ env.ISO }}.part-*
             ${{ env.ISO }}.sha256
+            ${{ env.ISO }}.build-info.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

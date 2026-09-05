@@ -44,7 +44,7 @@ conda config --remove channels defaults || true
 # 2. Create SDR Virtual Environment
 if ! conda info --envs | grep -q "telcosec-sdr"; then
   echo "Creating SDR Conda Environment..."
-  conda create -y --override-channels -c conda-forge -n telcosec-sdr python=3.11 cmake ninja pkg-config boost-cpp swig pybind11 libusb mako requests numpy ruamel.yaml setuptools
+  conda create -y --override-channels -c conda-forge -n telcosec-sdr python=3.11 cmake ninja pkg-config boost-cpp swig pybind11 libusb mako requests numpy ruamel.yaml setuptools soapysdr
 else
   echo "SDR Conda Environment already exists."
 fi
@@ -54,7 +54,7 @@ conda activate telcosec-sdr
 export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 export CMAKE_PREFIX_PATH="$CONDA_PREFIX"
 
-# 3. Clone all SDR source repos in parallel (fail loudly if any clone fails)
+# 3. Clone SDR source repos in parallel (fail loudly if any clone fails)
 echo "Cloning SDR source repositories..."
 mkdir -p /opt/telcosec/src
 declare -A CLONE_PIDS
@@ -66,8 +66,6 @@ _clone() {
     git clone --depth 1 "$url" "$dir" || echo "  [clone] FAILED: $url" >&2
   fi
 }
-_clone /opt/telcosec/src/SoapySDR      https://github.com/pothosware/SoapySDR.git &
-CLONE_PIDS[SoapySDR]=$!
 _clone /opt/telcosec/src/hackrf        https://github.com/greatscottgadgets/hackrf.git &
 CLONE_PIDS[hackrf]=$!
 _clone /opt/telcosec/src/uhd           https://github.com/EttusResearch/uhd.git &
@@ -113,11 +111,8 @@ _sdr_cmake_make() {
   return "$rc"
 }
 
-# 4. SoapySDR — must install before Soapy plugins (they need its headers/cmake)
-echo "Compiling SoapySDR (serial, required by plugins)..."
-_sdr_cmake_make "SoapySDR" /opt/telcosec/src/SoapySDR \
-  -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" ..
-(cd /opt/telcosec/src/SoapySDR/build && make install)
+# 4. SoapySDR core runtime & headers are provided directly by Conda
+echo "Configuring SoapySDR from Conda environment..."
 record_tool "SoapySDR" "${CONDA_PREFIX}/bin/SoapySDRUtil" "sdr"
 
 # SoapyBladeRF clone (depends on SoapySDR being installed above)
@@ -318,10 +313,18 @@ record_tool "kalibrate-rtl" "/usr/local/bin/kal" "2g"
 # also avoids the conditional symlink silently doing nothing when a gr-gsm
 # cmake build fails.
 for bin in gqrx gnuradio-companion; do
-  [ -f "${CONDA_PREFIX}/bin/${bin}" ] && \
-    sudo ln -sf "${CONDA_PREFIX}/bin/${bin}" "/usr/local/bin/${bin}"
+  if [ -f "${CONDA_PREFIX}/bin/${bin}" ]; then
+    sudo tee "/usr/local/bin/${bin}" > /dev/null << WRAPPER
+#!/bin/bash
+source /opt/telcosec/miniconda/etc/profile.d/conda.sh
+conda activate telcosec-sdr 2>/dev/null
+exec "${CONDA_PREFIX}/bin/${bin}" "\$@"
+WRAPPER
+    sudo chmod +x "/usr/local/bin/${bin}"
+  fi
 done
 record_tool "gqrx" "${CONDA_PREFIX}/bin/gqrx" "sdr"
+record_tool "gnuradio-companion" "${CONDA_PREFIX}/bin/gnuradio-companion" "sdr"
 
 # Only write the grgsm_* wrappers if the underlying conda binaries actually
 # exist — the gr-gsm build above is entirely best-effort (`|| true`), so

@@ -1,0 +1,8 @@
+﻿[Desktop Entry]
+Type=Application
+Name=OsmocomBB — GSM Mobile Station
+Comment=Osmocom GSM Baseband & Mobile Station Stack
+Exec=x-terminal-emulator -e "bash -c 'sudo osmocombb-install; exec bash'"
+Icon=phone
+Categories=TelcoSec-2G3G;
+Terminal=false

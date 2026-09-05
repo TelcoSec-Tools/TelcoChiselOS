@@ -61,9 +61,11 @@ PKGS_BASE=(
 )
 
 # ─── 02-install-sdr.sh ───────────────────────────────────────────────────────
+# Note: GNU Radio ecosystem (gnuradio, gqrx, gr-osmosdr) is installed inside
+# the dedicated telcosec-sdr Conda environment (see 02-install-sdr.sh) to resolve
+# the Noble librtlsdr ABI clash and avoid shipping duplicate multi-GB stacks.
 PKGS_SDR=(
   wget libusb-1.0-0-dev
-  gnuradio gnuradio-dev
   libfftw3-double3 libfftw3-dev libfftw3-bin
   autoconf automake libtool
   libsqlite3-dev libwxgtk3.2-dev freeglut3-dev
@@ -71,22 +73,23 @@ PKGS_SDR=(
 )
 
 # ─── 03-install-core-network.sh ──────────────────────────────────────────────
+# Build & protocol headers for core network stacks.
+# Note: libbladerf is covered in PKGS_SDR, libfftw3-dev is in PKGS_SDR,
+# and libboost-all-dev is declared in PKGS_ADVANCED.
 PKGS_CORE_NETWORK=(
   cmake ninja-build
   clang-15 lld-15 lldb-15
-  libfftw3-dev liblapacke-dev libblas-dev liblapack-dev
+  liblapacke-dev libblas-dev liblapack-dev
   libsctp-dev lksctp-tools
   libzmq3-dev libczmq-dev
   libjson-c-dev
   libglib2.0-dev
   libconfig-dev
   libyaml-cpp-dev
-  libboost-all-dev
   libssl-dev
   libmbedtls-dev
   libnuma-dev
   python3-yaml
-  libbladerf2 libbladerf-dev bladerf
 )
 
 # ─── 04-install-tools.sh ─────────────────────────────────────────────────────
@@ -204,6 +207,9 @@ PKGS_ADVANCED=(
 PKGS_TELCOCHISEL_META=(
   telcochisel-base
   telcochisel-hardware-sdr
+  telcochisel-tools-pstn-adsl
+  telcochisel-tools-ue
   telcochisel-meta-full
 )
+
 

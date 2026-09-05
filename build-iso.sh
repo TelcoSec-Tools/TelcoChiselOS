@@ -5,6 +5,7 @@ set -eo pipefail
 RESUME=false
 RESUME_FROM=0
 PACK_ONLY=false
+ISO_VERSION="${ISO_VERSION:-}"
 
 # ─── Build tuning (override via env) ──────────────────────────────────────────
 # SQUASHFS_LEVEL: zstd compression level (1-19). 3=fast/CI, 6=balanced, 19=max (Ubuntu standard).
@@ -15,25 +16,52 @@ CCACHE_DIR_HOST="${CCACHE_DIR:-/root/.ccache}"
 # APT_PROXY: apt-cacher-ng proxy URL, e.g. http://localhost:3142
 APT_PROXY="${APT_PROXY:-}"
 
-for arg in "$@"; do
-  case "$arg" in
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --version=*)
+      ISO_VERSION="${1#--version=}"
+      shift
+      ;;
+    --version)
+      if [ -n "$2" ] && [[ "$2" != --* ]]; then
+        ISO_VERSION="$2"
+        shift 2
+      else
+        echo "ERROR: --version requires an argument" >&2
+        exit 1
+      fi
+      ;;
     --resume)
       RESUME=true
+      shift
       ;;
     --resume-from=*)
       RESUME=true
-      RESUME_FROM="${arg#--resume-from=}"
+      RESUME_FROM="${1#--resume-from=}"
       # Strip leading zeros for numeric comparison, keep at least "0"
       RESUME_FROM=$(( 10#${RESUME_FROM} ))
+      shift
+      ;;
+    --resume-from)
+      if [ -n "$2" ] && [[ "$2" != --* ]]; then
+        RESUME=true
+        RESUME_FROM=$(( 10#${2} ))
+        shift 2
+      else
+        echo "ERROR: --resume-from requires a phase number" >&2
+        exit 1
+      fi
       ;;
     --pack-only)
       PACK_ONLY=true
+      shift
       ;;
     --help|-h)
       cat << 'HELP'
 Usage: sudo ./build-iso.sh [OPTIONS]
 
   (no options)           Full clean build — wipes chroot and starts fresh
+  --version=VER          Specify release version (e.g. v1.2.0, 1.2.0, nightly)
   --resume               Keep existing chroot; re-run all provisioning phases
   --resume-from=N        Keep existing chroot; skip phases before N
                            e.g. --resume-from=03  resumes from phase 03
@@ -43,6 +71,7 @@ Usage: sudo ./build-iso.sh [OPTIONS]
 
 Examples:
   sudo ./build-iso.sh                    # fresh full build
+  sudo ./build-iso.sh --version=1.2.0    # build versioned TelcoChisel-1.2.0-amd64.iso
   sudo ./build-iso.sh --resume           # re-run everything on existing chroot
   sudo ./build-iso.sh --resume-from=04   # skip 00-03, resume from 04 onward
   sudo ./build-iso.sh --pack-only        # just repack squashfs → ISO
@@ -51,14 +80,20 @@ HELP
       exit 0
       ;;
     *)
-      echo "ERROR: Unknown option: $arg  (try --help)"
+      echo "ERROR: Unknown option: $1  (try --help)"
       exit 1
       ;;
   esac
 done
 
+# Resolve version if unset
+if [ -z "$ISO_VERSION" ]; then
+  ISO_VERSION=$(git describe --tags --always 2>/dev/null || echo "1.0.0")
+fi
+
 # ─── Header ───────────────────────────────────────────────────────────────────
 echo "=== TelcoChisel ISO Builder ==="
+echo "    Version: $ISO_VERSION"
 if $PACK_ONLY; then
   echo "    Mode: pack-only (repack existing chroot)"
 elif $RESUME && [ "$RESUME_FROM" -gt 0 ]; then
@@ -112,9 +147,8 @@ fi
 ROOTFS="$WORKDIR/chroot"
 
 # Shared chroot service-suppression helpers (builder/scripts/lib/)
-# shellcheck source=builder/scripts/lib/chroot-suppress.sh
 source "$(pwd)/builder/scripts/lib/chroot-suppress.sh"
-IMAGE_NAME="TelcoChisel-live.iso"
+IMAGE_NAME="TelcoChisel-${ISO_VERSION}-amd64.iso"
 
 # ─── Mount cleanup ────────────────────────────────────────────────────────────
 cleanup() {
@@ -515,6 +549,61 @@ rm -rf /tmp/*
 CLEANUP
 fi
 
+# ─── OS Identity & Versioning ─────────────────────────────────────────────────
+echo "--> Stamping TelcoChisel OS version ($ISO_VERSION) into target system..."
+BUILD_DATE_UTC=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+CLEAN_VERSION="${ISO_VERSION#v}"
+
+# /etc/telcochisel-version
+cat > "$ROOTFS/etc/telcochisel-version" << EOF
+VERSION=${ISO_VERSION}
+VERSION_ID=${CLEAN_VERSION}
+BUILD_DATE_UTC=${BUILD_DATE_UTC}
+GIT_COMMIT=${GIT_COMMIT}
+ARCHITECTURE=amd64
+DISTRO=TelcoChisel
+BASE_DISTRO=Ubuntu 24.04 LTS (noble)
+EOF
+chmod 644 "$ROOTFS/etc/telcochisel-version"
+
+# /etc/os-release & /usr/lib/os-release
+cat > "$ROOTFS/etc/os-release" << EOF
+NAME="TelcoChisel OS"
+VERSION="${ISO_VERSION} (Noble Numbat)"
+ID=telcochisel
+ID_LIKE="ubuntu debian"
+PRETTY_NAME="TelcoChisel OS ${ISO_VERSION}"
+VERSION_ID="${CLEAN_VERSION}"
+HOME_URL="https://tschisel.telcosec.net"
+SUPPORT_URL="https://community.telcosec.net/"
+BUG_REPORT_URL="https://github.com/TelcoSec-Tools/TelcoChiselOS/issues"
+PRIVACY_POLICY_URL="https://telcosec.net/privacy"
+UBUNTU_CODENAME=noble
+EOF
+cp -f "$ROOTFS/etc/os-release" "$ROOTFS/usr/lib/os-release" 2>/dev/null || true
+
+# /etc/issue and /etc/issue.net
+cat > "$ROOTFS/etc/issue" << EOF
+TelcoChisel OS ${ISO_VERSION} \n \l
+
+EOF
+cat > "$ROOTFS/etc/issue.net" << EOF
+TelcoChisel OS ${ISO_VERSION}
+EOF
+
+# Update Calamares branding with current ISO_VERSION
+for desc in "$ROOTFS/etc/calamares/branding/telcosec/branding.desc" \
+            "$ROOTFS/usr/share/calamares/branding/telcosec/branding.desc"; do
+  if [ -f "$desc" ]; then
+    sed -i -e "s/^    version:.*/    version:             ${ISO_VERSION}/" \
+           -e "s/^    shortVersion:.*/    shortVersion:        ${CLEAN_VERSION}/" \
+           -e "s/^    versionedName:.*/    versionedName:       TelcoChisel OS ${ISO_VERSION}/" \
+           -e "s/^    shortVersionedName:.*/    shortVersionedName:  TelcoSec ${CLEAN_VERSION}/" \
+           "$desc"
+  fi
+done
+
 # ─── Unmount before packing ───────────────────────────────────────────────────
 cleanup
 trap - EXIT
@@ -569,7 +658,7 @@ chroot "$ROOTFS" dpkg-query -W --showformat='${Package}\t${Version}\n' \
 
 # ─── Create .disk/info required by Ubuntu casper ─────────────
 mkdir -p "$WORKDIR/image/.disk"
-echo "TelcoChisel Live CD" > "$WORKDIR/image/.disk/info"
+echo "TelcoChisel OS ${ISO_VERSION} Live CD" > "$WORKDIR/image/.disk/info"
 touch "$WORKDIR/image/.disk/base_installable"
 
 # ─── Kernel + initrd ──────────────────────────────────────────────────────────
@@ -602,7 +691,7 @@ if [ -f "builder/boot/grub_background.png" ]; then
 elif [ -f "$ROOTFS/usr/share/backgrounds/telcosec/logo.png" ]; then
   cp "$ROOTFS/usr/share/backgrounds/telcosec/logo.png" "$WORKDIR/image/boot/grub/logo.png"
 fi
-cat > "$WORKDIR/image/boot/grub/grub.cfg" << 'GRUB'
+cat > "$WORKDIR/image/boot/grub/grub.cfg" << GRUB
 set default=0
 set timeout=3
 
@@ -622,49 +711,48 @@ fi
 # Ubuntu 24.04 casper: boot=casper activates the live-boot scripts.
 # username/hostname are set here so casper's 10adduser hook picks them up.
 # noeject/noprompt: suppress casper's "remove disc and press enter" prompts.
-# Do NOT include: live-media-path (default /casper is correct),
-#   cdrom-detect/try-usb (debian-installer only), user-fullname (space issues).
-# Do NOT include: live-media=/dev/sr0 — that pins the medium to the optical
-#   drive and defeats casper's own auto-scan, so a USB stick (/dev/sdX) or a
-#   VM's virtio disk (/dev/vdX) fails with "Unable to find a medium". Casper's
-#   blkid-based scan (see the initramfs hooks above) finds the medium on its
-#   own across optical, USB, and virtio without this parameter.
 
-menuentry "TelcoChisel Live (Try without installing)" {
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (Try without installing)" {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel Live (i3 Tiling WM - Operational Mode)" {
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (i3 Tiling WM - Operational Mode)" {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper desktop=i3 noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
-menuentry "Try TelcoChisel (load to RAM)" {
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (Load to RAM)" {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 toram ---
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel Live (Install)" {
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (Install)" {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel only-ubiquity quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel Live (Safe Graphics)" {
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (Safe Graphics)" {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel nomodeset usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel Live (Debug — verbose boot)" {
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (Debug — verbose boot)" {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel debug systemd.log_level=debug usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
+
+if [ "\$grub_platform" = "efi" ]; then
+menuentry "UEFI Firmware Settings" {
+    fwsetup
+}
+fi
 GRUB
 
 # ─── Build ISO ────────────────────────────────────────────────────────────────
@@ -780,25 +868,58 @@ else
 fi
 rmdir "$ISO_CHECK_DIR" 2>/dev/null || true
 
-# ─── Checksum Generation ──────────────────────────────────────────────────────
+# ─── Checksum Generation & Compatibility Symlinks ─────────────────────────────
 # Fatal on failure — release tooling consumes the .sha256 file; shipping an
 # image without a verifiable checksum is worse than failing the build.
 echo "--> Generating SHA256 and MD5 checksums..."
 sha256sum "$IMAGE_NAME" > "${IMAGE_NAME}.sha256" || { echo "FATAL: sha256sum failed for $IMAGE_NAME" >&2; exit 1; }
 md5sum "$IMAGE_NAME" > "${IMAGE_NAME}.md5" || { echo "FATAL: md5sum failed for $IMAGE_NAME" >&2; exit 1; }
 SHA256_VAL=$(cut -d' ' -f1 < "${IMAGE_NAME}.sha256")
+ISO_SIZE=$(du -sh "$IMAGE_NAME" | cut -f1)
+
+# Maintain backward compatibility with scripts expecting TelcoChisel-live.iso
+if [ "$IMAGE_NAME" != "TelcoChisel-live.iso" ]; then
+  echo "--> Creating backward-compatible symlink TelcoChisel-live.iso -> $IMAGE_NAME..."
+  ln -sf "$IMAGE_NAME" "TelcoChisel-live.iso" 2>/dev/null || cp -f "$IMAGE_NAME" "TelcoChisel-live.iso"
+  cp -f "${IMAGE_NAME}.sha256" "TelcoChisel-live.iso.sha256"
+  cp -f "${IMAGE_NAME}.md5" "TelcoChisel-live.iso.md5"
+fi
+
+# ─── Build Metadata Manifest ──────────────────────────────────────────────────
+BUILD_INFO_FILE="${IMAGE_NAME}.build-info.json"
+cat > "$BUILD_INFO_FILE" << EOF
+{
+  "distro": "TelcoChisel OS",
+  "version": "${ISO_VERSION}",
+  "version_id": "${CLEAN_VERSION}",
+  "arch": "amd64",
+  "base": "Ubuntu 24.04 LTS (noble)",
+  "build_date_utc": "${BUILD_DATE_UTC}",
+  "git_commit": "${GIT_COMMIT}",
+  "kernel": "${kver}",
+  "iso_filename": "${IMAGE_NAME}",
+  "sha256": "${SHA256_VAL}",
+  "iso_size": "${ISO_SIZE}"
+}
+EOF
+if [ "$IMAGE_NAME" != "TelcoChisel-live.iso" ]; then
+  cp -f "$BUILD_INFO_FILE" "TelcoChisel-live.iso.build-info.json"
+fi
 
 # If executed via sudo, restore ownership to the invoking user
 if [ -n "${SUDO_UID:-}" ] && [ -n "${SUDO_GID:-}" ]; then
-  chown "${SUDO_UID}:${SUDO_GID}" "$IMAGE_NAME" "${IMAGE_NAME}.sha256" "${IMAGE_NAME}.md5" 2>/dev/null || true
+  chown -h "${SUDO_UID}:${SUDO_GID}" \
+    "$IMAGE_NAME" "${IMAGE_NAME}.sha256" "${IMAGE_NAME}.md5" "$BUILD_INFO_FILE" \
+    "TelcoChisel-live.iso" "TelcoChisel-live.iso.sha256" "TelcoChisel-live.iso.md5" "TelcoChisel-live.iso.build-info.json" 2>/dev/null || true
 fi
 
 # ─── Summary ──────────────────────────────────────────────────────────────────
 ELAPSED=$(( $(date +%s) - BUILD_START ))
-ISO_SIZE=$(du -sh "$IMAGE_NAME" | cut -f1)
 printf '\n╔══════════════════════════════════════════════════════╗\n'
 printf '║  %-52s║\n' "Build complete: $IMAGE_NAME"
+printf '║  %-52s║\n' "Version:        $ISO_VERSION"
 printf '║  %-52s║\n' "ISO size:       $ISO_SIZE"
 printf '║  %-52s║\n' "SHA256:         ${SHA256_VAL:0:16}..."
+printf '║  %-52s║\n' "Build info:     $BUILD_INFO_FILE"
 printf '║  %-52s║\n' "Total time:     $(( ELAPSED/60 ))m$(( ELAPSED%60 ))s"
 printf '╚══════════════════════════════════════════════════════╝\n'
