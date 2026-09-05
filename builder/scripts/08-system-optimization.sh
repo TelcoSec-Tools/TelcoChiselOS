@@ -394,6 +394,12 @@ if [ -f /tmp/scripts/bin/telcosec-create-usb ]; then
   sudo chmod 755 /usr/local/bin/telcosec-create-usb
 fi
 
+if [ -f /tmp/scripts/bin/telcosec-pkg ]; then
+  sudo cp -f /tmp/scripts/bin/telcosec-pkg /usr/local/bin/telcosec-pkg
+  sudo chmod 755 /usr/local/bin/telcosec-pkg
+  sudo ln -sf /usr/local/bin/telcosec-pkg /usr/local/bin/telcochisel-pkg
+fi
+
 # 11e. APT Repository Pinning
 echo "Deploying TelcoChisel APT repository pinning preferences..."
 sudo mkdir -p /etc/apt/preferences.d/

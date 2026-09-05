@@ -51,6 +51,7 @@ Commands:
   hardware | sdr       Enumerate and probe attached SDRs, modems, and SIM readers
   firmware             Inspect and manage offline SDR FPGA bitstreams (BladeRF, USRP)
   profile [mode]       Switch operational profiles (lab | field | status)
+  pkg [action]         Official metapackage manager (list | install | remove | info | check)
   5g <action>          5G Standalone core & RAN manager (start | stop | status | add-sub)
   scan <protocol>      Interactive protocol assessment wizard (sctp | sip | diameter | ss7 | adsl)
   academy              Access TelcoSec Academy interactive labs & credentials
@@ -306,6 +307,19 @@ cmd_academy() {
   fi
 }
 
+cmd_pkg() {
+  if command -v telcosec-pkg >/dev/null 2>&1; then
+    exec telcosec-pkg "$@"
+  elif [ -f "$(dirname "$0")/telcosec-pkg" ]; then
+    exec "$(dirname "$0")/telcosec-pkg" "$@"
+  elif [ -f "/usr/local/bin/telcosec-pkg" ]; then
+    exec /usr/local/bin/telcosec-pkg "$@"
+  else
+    echo -e "${RED}Error: telcosec-pkg not found on system.${RESET}" >&2
+    exit 1
+  fi
+}
+
 # Subcommand dispatch
 action="${1:-help}"
 shift || true
@@ -322,6 +336,9 @@ case "$action" in
     ;;
   profile)
     cmd_profile "$@"
+    ;;
+  pkg|metapkg|packages)
+    cmd_pkg "$@"
     ;;
   5g)
     cmd_5g "$@"
