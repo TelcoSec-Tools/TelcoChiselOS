@@ -53,7 +53,31 @@ sudo make install
 | `telcosec docs` | | Open local offline documentation (`/usr/share/doc/telcosec/index.html`) or online docs portal. |
 | `telcosec academy`| | Launch TelcoSec Academy interactive field labs bridge (`app.telcosec.net`). |
 | `telcosec feedback`| `review` | Open SourceForge user reviews and community support channels. |
+| `telcosec completion` | `bash`, `zsh`, `fish` | Output shell autocompletion script. |
 | `telcosec version` | `-v`, `--version` | Display version, build commit, and kernel environment. |
+
+---
+
+## Shell Autocompletion
+
+`telcosec` provides built-in autocompletion for **Bash**, **Zsh**, and **Fish**:
+
+```bash
+# Bash (current session)
+source <(telcosec completion bash)
+
+# Bash (permanent install)
+telcosec completion bash | sudo tee /etc/bash_completion.d/telcosec > /dev/null
+
+# Zsh (current session)
+source <(telcosec completion zsh)
+
+# Zsh (permanent install)
+telcosec completion zsh > ~/.zsh/completion/_telcosec
+
+# Fish (permanent install)
+telcosec completion fish > ~/.config/fish/completions/telcosec.fish
+```
 
 ---
 
