@@ -289,14 +289,16 @@
                         </a>
                     </li>
                     <li>
-                        <a class="nav-link" data-target="builder" id="navLinkBuilder" href="#builder">
+                        <a class="nav-link" data-target="scenarios" id="navLinkScenarios" href="#scenarios">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path
-                                    d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
-                                </path>
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="22" y1="12" x2="18" y2="12"></line>
+                                <line x1="6" y1="12" x2="2" y2="12"></line>
+                                <line x1="12" y1="6" x2="12" y2="2"></line>
+                                <line x1="12" y1="22" x2="12" y2="18"></line>
                             </svg>
-                            ISO Builder
+                            Red Team Scenarios
                         </a>
                     </li>
                 </ul>
@@ -910,146 +912,209 @@ sudo 5ghoul-run --Attack.Name=NAS_5GS_Fuzz --UE.IMSI=001011234567890</code></pre
                 </div>
             </section>
 
-            <!-- SECTION: BUILDER -->
-            <section id="builder" class="content-section">
-                <div class="section-header" data-label="// ISO Build Pipeline :: Ubuntu 24.04">
-                    <h2>Developer Guide — Building the TelcoChisel Live ISO</h2>
-                    <p class="subtitle">Build the bootable Ubuntu 24.04 ISO from source on any Ubuntu/Debian host or
-                        WSL2</p>
+            <!-- SECTION: SCENARIOS -->
+            <section id="scenarios" class="content-section">
+                <div class="section-header" data-label="// Operations :: Telecom Red Teaming">
+                    <h2>Telecom Red Teaming Scenarios &amp; Assessment Playbooks</h2>
+                    <p class="subtitle">Production-grade assessment playbooks, protocol fuzzing methodologies, and live terminal command suites for telecom operators and security auditors.</p>
+                </div>
+
+                <div class="callout callout-warning">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <div class="callout-body">
+                        <div class="callout-title">Operational Safety &amp; Legal Authorization</div>
+                        <div class="callout-content">
+                            All telecom red team scenarios must be conducted strictly within authorized engagement scope, inside RF-shielded enclosures (Faraday cages or direct coaxial cabling with 30dB attenuators), or against private laboratory testbeds (e.g. Open5GS, srsRAN, my5G-RANTester). Never transmit unauthorized RF or disrupt commercial subscriber networks.
+                        </div>
+                    </div>
                 </div>
 
                 <p>
-                    TelcoChisel uses an automated bash orchestration build chain to bootstrap, configure, and output
-                    bootable XFCE live desktop images.
+                    TelcoChisel is purpose-built for end-to-end telecom penetration testing — spanning physical Layer 1 RF broadcasts and SIM smartcards up to 5G Service-Based Architecture (SBA) and carrier VoIP trunks. Use the structured playbooks below to perform repeatable, audit-ready security assessments.
                 </p>
 
-                <h3>1. Setup Compilation Host</h3>
-                <p>
-                    The build environment must be run on a native Ubuntu or Debian host machine (or inside a WSL2
-                    container with systemd enabled). You need approximately 20 GB of free storage.
-                </p>
-                <div class="terminal-block">
-                    <div class="terminal-header">
-                        <div class="terminal-dots"><span class="terminal-dot red"></span><span
-                                class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
-                        <div class="terminal-title">Install Host Dependencies</div>
+                <!-- Scenarios Cards -->
+                <div style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px;">
+
+                    <!-- Scenario 1 -->
+                    <div class="card highlight-teal" style="padding: 24px;">
+                        <span class="tag tag-5g" style="margin-bottom: 8px; display: inline-block;">5G Core / Cloud-Native</span>
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; color: #fff;">5G Standalone Core Resilience &amp; Multi-UE Stress Testing</h3>
+                        <p class="card-desc" style="font-size: 0.95rem; margin-bottom: 16px;">
+                            Audit 5G Standalone Core Network functions (AMF, SMF, UPF) against high-concurrency registration storms, state exhaustion, and NAS protocol fuzzing.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 14px; border-radius: 4px; border: 1px solid var(--bdr); margin-bottom: 16px; font-size: 0.88rem; line-height: 1.5;">
+                            <div><strong style="color: var(--accent-teal);">Objective:</strong> Evaluate AMF/SMF resilience against synthetic connection surges and audit GTP-U data plane handling under load.</div>
+                            <div style="margin-top: 6px;"><strong style="color: #ff88cc;">Threat Model:</strong> Rogue or compromised CPE/IoT botnets initiating synchronized mass-registration storms on control planes.</div>
+                        </div>
+                        <div style="margin-bottom: 16px; font-size: 0.85rem;">
+                            <strong>Toolchain:</strong> <span class="tag tag-ran">my5G-RANTester</span> <span class="tag tag-ran">UERANSIM</span> <span class="tag tag-ran">Open5GS</span> <span class="tag tag-ran">Wireshark</span>
+                        </div>
+                        <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; margin-bottom: 8px;">Execution Commands</h4>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>tshark -i any -f 'sctp port 38412' -Y 'ngap' -V</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'tshark -i any -f 'sctp port 38412' -Y 'ngap' -V')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>my5g-rantester load-test -n 100 -d 30</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'my5g-rantester load-test -n 100 -d 30')">Copy</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="terminal-body">
-                        <pre><code># Update and install build packages
-sudo apt-get update
-sudo apt-get install -y debootstrap squashfs-tools grub-pc-bin grub-efi-amd64-bin xorriso mtools zstd</code></pre>
-                        <button class="terminal-copy-btn"
-                            onclick="copyCommand(this, 'sudo apt-get update\nsudo apt-get install -y debootstrap squashfs-tools grub-pc-bin grub-efi-amd64-bin xorriso mtools zstd')">Copy</button>
+
+                    <!-- Scenario 2 -->
+                    <div class="card highlight-teal" style="padding: 24px;">
+                        <span class="tag tag-sdr" style="margin-bottom: 8px; display: inline-block;">Over-the-Air RF / Physical</span>
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; color: #fff;">Over-the-Air Cellular RF Reconnaissance &amp; Broadcast Auditing</h3>
+                        <p class="card-desc" style="font-size: 0.95rem; margin-bottom: 16px;">
+                            Perform passive cellular spectrum discovery, decode System Information Blocks (SIB/MIB), map carrier frequencies, and audit broadcast parameters without transmitting.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 14px; border-radius: 4px; border: 1px solid var(--bdr); margin-bottom: 16px; font-size: 0.88rem; line-height: 1.5;">
+                            <div><strong style="color: var(--accent-teal);">Objective:</strong> Identify active 2G/4G/5G carriers, extract public broadcast parameters (PLMN, TAC, Cell ID), and verify signal integrity.</div>
+                            <div style="margin-top: 6px;"><strong style="color: #ff88cc;">Threat Model:</strong> Adversaries mapping cell topology and carrier aggregation bands to plan rogue cell attacks.</div>
+                        </div>
+                        <div style="margin-bottom: 16px; font-size: 0.85rem;">
+                            <strong>Toolchain:</strong> <span class="tag tag-sdr">LTESniffer</span> <span class="tag tag-sdr">LTE-CellScanner</span> <span class="tag tag-sdr">Modmobmap</span> <span class="tag tag-sdr">kalibrate-gsm</span>
+                        </div>
+                        <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; margin-bottom: 8px;">Execution Commands</h4>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>LTE-CellSearch --freq-start 1805e6 --freq-end 1880e6</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'LTE-CellSearch --freq-start 1805e6 --freq-end 1880e6')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>ltesniffer -A 1 -f 1842.5e6 -g 35 -o /tmp/lte_recon.pcap</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'ltesniffer -A 1 -f 1842.5e6 -g 35 -o /tmp/lte_recon.pcap')">Copy</button>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Scenario 3 -->
+                    <div class="card highlight-teal" style="padding: 24px;">
+                        <span class="tag tag-lte" style="margin-bottom: 8px; display: inline-block;">Cellular Lab Simulation</span>
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; color: #fff;">Rogue Base Station &amp; Downgrade Attack Simulation (Isolated Lab)</h3>
+                        <p class="card-desc" style="font-size: 0.95rem; margin-bottom: 16px;">
+                            Simulate rogue base station and cell reselection vectors in an isolated RF enclosure to evaluate mobile handset cipher suite negotiation and fallback security.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 14px; border-radius: 4px; border: 1px solid var(--bdr); margin-bottom: 16px; font-size: 0.88rem; line-height: 1.5;">
+                            <div><strong style="color: var(--accent-teal);">Objective:</strong> Assess handset behavior when exposed to priority rogue cells and verify whether the UE alerts on NULL ciphering (EEA0 / GEA0).</div>
+                            <div style="margin-top: 6px;"><strong style="color: #ff88cc;">Threat Model:</strong> IMSI catchers coercing handsets into unencrypted legacy protocols (GSM A5/0 or LTE EEA0).</div>
+                        </div>
+                        <div style="margin-bottom: 16px; font-size: 0.85rem;">
+                            <strong>Toolchain:</strong> <span class="tag tag-ran">srsRAN</span> <span class="tag tag-ran">Open5GS</span> <span class="tag tag-ran">YateBTS</span> <span class="tag tag-ran">Wireshark</span>
+                        </div>
+                        <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; margin-bottom: 8px;">Execution Commands</h4>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>sudo srsenb /etc/srsran/enb.conf</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'sudo srsenb /etc/srsran/enb.conf')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>tshark -i lo -f 'udp port 4729' -Y 'gsm_a || lte_rrc'</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'tshark -i lo -f 'udp port 4729' -Y 'gsm_a || lte_rrc'')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scenario 4 -->
+                    <div class="card highlight-teal" style="padding: 24px;">
+                        <span class="tag tag-ue" style="margin-bottom: 8px; display: inline-block;">Firmware &amp; Diagnostic Port</span>
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; color: #fff;">Baseband Diagnostic Extraction &amp; Firmware Reverse Engineering</h3>
+                        <p class="card-desc" style="font-size: 0.95rem; margin-bottom: 16px;">
+                            Extract real-time cellular signaling telemetry over USB diagnostic interfaces and emulate baseband task architectures inside virtual execution environments.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 14px; border-radius: 4px; border: 1px solid var(--bdr); margin-bottom: 16px; font-size: 0.88rem; line-height: 1.5;">
+                            <div><strong style="color: var(--accent-teal);">Objective:</strong> Capture low-level layer 1/2/3 modem telemetry over Qualcomm DIAG or MediaTek serial interfaces and fuzz baseband tasks.</div>
+                            <div style="margin-top: 6px;"><strong style="color: #ff88cc;">Threat Model:</strong> Remote code execution vulnerabilities in commercial baseband firmware via malformed over-the-air frames.</div>
+                        </div>
+                        <div style="margin-bottom: 16px; font-size: 0.85rem;">
+                            <strong>Toolchain:</strong> <span class="tag tag-ue">QCSuper</span> <span class="tag tag-ue">SCAT</span> <span class="tag tag-ue">FirmWire</span> <span class="tag tag-ue">MTKClient</span>
+                        </div>
+                        <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; margin-bottom: 8px;">Execution Commands</h4>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>qcsuper --usb-modem /dev/ttyUSB0 --wireshark-live</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'qcsuper --usb-modem /dev/ttyUSB0 --wireshark-live')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>firmwire --shannon --firmware modem.bin --snapshot snapshot.raw</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'firmwire --shannon --firmware modem.bin --snapshot snapshot.raw')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scenario 5 -->
+                    <div class="card highlight-teal" style="padding: 24px;">
+                        <span class="tag tag-sim" style="margin-bottom: 8px; display: inline-block;">SIM / USIM / eSIM Security</span>
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; color: #fff;">Smartcard &amp; eSIM Profile Security Auditing</h3>
+                        <p class="card-desc" style="font-size: 0.95rem; margin-bottom: 16px;">
+                            Audit UICC/USIM file systems over ISO-7816 smartcard readers, inspect subscriber Elementary Files, and audit GSMA RSP SGP.22 eSIM Local Profile Assistant sessions.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 14px; border-radius: 4px; border: 1px solid var(--bdr); margin-bottom: 16px; font-size: 0.88rem; line-height: 1.5;">
+                            <div><strong style="color: var(--accent-teal);">Objective:</strong> Audit physical and embedded SIM profiles, inspect authentication algorithms (Milenage/TUAK), and verify PIN/PUK protections.</div>
+                            <div style="margin-top: 6px;"><strong style="color: #ff88cc;">Threat Model:</strong> Rogue SIM applets (STK), weak administrative keys (ADM1), or malicious eSIM profiles extracted via untrusted LPA.</div>
+                        </div>
+                        <div style="margin-bottom: 16px; font-size: 0.85rem;">
+                            <strong>Toolchain:</strong> <span class="tag tag-sim">pySim</span> <span class="tag tag-sim">lpac</span> <span class="tag tag-sim">pcscd</span> <span class="tag tag-sim">SIMtrace 2</span>
+                        </div>
+                        <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; margin-bottom: 8px;">Execution Commands</h4>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>sudo pySim-shell.py -p 0</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'sudo pySim-shell.py -p 0')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>lpac profile list</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'lpac profile list')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scenario 6 -->
+                    <div class="card highlight-teal" style="padding: 24px;">
+                        <span class="tag tag-network" style="margin-bottom: 8px; display: inline-block;">Wireline &amp; Carrier Telephony</span>
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; color: #fff;">Carrier Broadband &amp; VoIP Trunk Penetration Testing</h3>
+                        <p class="card-desc" style="font-size: 0.95rem; margin-bottom: 16px;">
+                            Audit fixed wireline ISP access concentrators, test PPPoE MS-CHAPv2 authentication resilience, inspect TR-069 ACS endpoints, and perform VoIP stress testing.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 14px; border-radius: 4px; border: 1px solid var(--bdr); margin-bottom: 16px; font-size: 0.88rem; line-height: 1.5;">
+                            <div><strong style="color: var(--accent-teal);">Objective:</strong> Audit authentication across PPPoE/Radius access concentrators, evaluate TR-069 CWMP management endpoints, and test SIP flood limits.</div>
+                            <div style="margin-top: 6px;"><strong style="color: #ff88cc;">Threat Model:</strong> Adversaries exploiting TR-069 remote CPE management interfaces or cracking weak broadband credentials to gain transit.</div>
+                        </div>
+                        <div style="margin-bottom: 16px; font-size: 0.85rem;">
+                            <strong>Toolchain:</strong> <span class="tag tag-network">Asleap</span> <span class="tag tag-network">SIPVicious</span> <span class="tag tag-network">SIPp</span> <span class="tag tag-network">Scapy</span>
+                        </div>
+                        <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; margin-bottom: 8px;">Execution Commands</h4>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>asleap -r pppoe_capture.pcap -W /usr/share/wordlists/telecom-passwords.txt</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'asleap -r pppoe_capture.pcap -W /usr/share/wordlists/telecom-passwords.txt')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>sipp -sn uac -r 50 -rp 1000 -m 500 192.168.1.1:5060</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'sipp -sn uac -r 50 -rp 1000 -m 500 192.168.1.1:5060')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-
-                <h3>2. Run the Build Pipeline</h3>
-                <p>
-                    Clone this repository, review configurations inside <code class="inline-code">builder/</code>, and
-                    execute the master build script.
-                </p>
-                <div class="terminal-block">
-                    <div class="terminal-header">
-                        <div class="terminal-dots"><span class="terminal-dot red"></span><span
-                                class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
-                        <div class="terminal-title">Compile Live ISO</div>
-                    </div>
-                    <div class="terminal-body">
-                        <pre><code># Execute compilation
-sudo ./build-iso.sh</code></pre>
-                        <button class="terminal-copy-btn"
-                            onclick="copyCommand(this, 'sudo ./build-iso.sh')">Copy</button>
-                    </div>
-                </div>
-
-                <h3>3. Pipeline Phase Execution Order</h3>
-                <p>
-                    The orchestrator bootstraps a minimal chroot container and runs provisioning scripts sequentially.
-                    Do not alter their index prefixes, as each step relies on outputs of the previous scripts:
-                </p>
-                <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.95rem;">
-                    <thead>
-                        <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
-                            <th style="padding: 12px; color: #ffffff;">Script File</th>
-                            <th style="padding: 12px; color: #ffffff;">Provisioning Operation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                00-install-all-packages.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Pre-downloads all apt packages to
-                                speed up provisioning.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                01-install-base.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Installs XFCE, LightDM,
-                                Firefox, base compilers, and sets the live boot user.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                02-install-sdr.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Creates Conda environment; compiles
-                                UHD, HackRF, and BladeRF SDR drivers.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                03-install-core-network.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Compiles and sets up the srsRAN
-                                simulation suite.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                04-install-tools.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Deploys Wireshark, SigPloit,
-                                Diafuzzer, SIPVicious, Scapy, softphones, and dictionaries.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                05-desktop-customization.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Sets desktop custom wallpapers,
-                                icons, Firefox bookmarks toolbar, and start documentation page.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                06-install-ue-analysis.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Deploys FirmWire baseband QEMU
-                                environment, QCSuper, and card programming scripts.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                07-install-installer.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Integrates the Calamares installer
-                                engine with customized TelcoSec branding graphics.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                08-system-optimization.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Injects the low-latency udev
-                                configs, SCTP limits, CPU isolation limits, and CA certificates.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                09-install-5ghoul.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Deploys the 5Ghoul ogstun virtual
-                                network adapters and compilation frameworks.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                10-install-telecom-advanced.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Clones and builds advanced telecom
-                                tools to /opt/telcosec in parallel (UERANSIM, SCAT, kalibrate-gsm, YateBTS, OpenBTS,
-                                srsGUI, LTE-CellScanner, LTESniffer, gtp5g).</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 12px; font-family: monospace; color: var(--accent-teal);">
-                                11-install-device-tools.sh</td>
-                            <td style="padding: 12px; color: var(--text-secondary);">Installs Samsung, Qualcomm, and
-                                MediaTek device wrapper scripts to /usr/local/bin.</td>
-                        </tr>
-                    </tbody>
-                </table>
             </section>
 
             <!-- SECTION: PROJECTS -->

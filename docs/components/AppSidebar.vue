@@ -109,11 +109,15 @@
           </a>
         </li>
         <li>
-          <a class="nav-link" :class="{ active: activeSection === 'builder' }" href="#builder" @click.prevent="emit('navigate', 'builder')">
+          <a class="nav-link" :class="{ active: activeSection === 'scenarios' }" href="#scenarios" @click.prevent="emit('navigate', 'scenarios')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="22" y1="12" x2="18" y2="12"></line>
+              <line x1="6" y1="12" x2="2" y2="12"></line>
+              <line x1="12" y1="6" x2="12" y2="2"></line>
+              <line x1="12" y1="22" x2="12" y2="18"></line>
             </svg>
-            ISO Builder
+            Red Team Scenarios
           </a>
         </li>
         <li>

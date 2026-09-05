@@ -1,58 +1,59 @@
 export const featuresCatalog = [
   {
-    name: "Real-time Scheduling",
+    name: "Real-Time DSP Engine & Zero-Drop Scheduling",
     slug: "realtime-scheduling",
     category: "kernel",
-    desc: "PAM limits granting the telcosec user SCHED_RR priority 99 and unlimited memory locking — essential for GNU Radio and srsRAN to avoid sample drops.",
-    cmd: "grep -r realtime /etc/security/limits.d/ && chrt -m"
+    desc: "Pre-configured real-time SCHED_RR scheduling priorities and unlimited memory locking (RLIMIT_MEMLOCK), ensuring zero sample under/overruns during high-throughput 5G NR and LTE multi-carrier signal captures.",
+    cmd: "ulimit -r -l && chrt -m"
   },
   {
-    name: "SCTP Stack Tuning",
+    name: "High-Concurrency SCTP Signaling Engine",
     slug: "sctp-stack-tuning",
     category: "network",
-    desc: "Kernel sysctl optimizations for SCTP buffer sizes, RTO values, and retransmission limits — tuned for high-speed SIGTRAN, S1AP, NGAP, and Diameter scanning.",
+    desc: "Kernel transport optimization for high-density SCTP streams, retransmission backoff, and 64 MB socket buffers — optimized for high-rate SIGTRAN (M3UA/SUA), Diameter, S1AP, and NGAP signaling assessments.",
     cmd: "sysctl net.sctp.rto_min net.sctp.association_max_retrans && lsmod | grep sctp"
   },
   {
-    name: "Low-Latency USB & GRUB",
-    slug: "usb-low-latency",
-    category: "kernel",
-    desc: "udev autosuspend disable rules for USRP B210 and HackRF, plus GRUB kernel parameters (mitigations=off, clocksource=tsc) for stable 5G NR signal streaming.",
-    cmd: "cat /etc/default/grub.d/99-telcosec-rt.cfg && cat /etc/udev/rules.d/51-usb-latency.rules"
-  },
-  {
-    name: "Kernel Security Hardening",
-    slug: "kernel-hardening",
-    category: "security",
-    desc: "sysctl parameters enabling ASLR, kptr restriction, dmesg access control, ICMP redirect blocking, reverse path filtering, and TCP SYN cookie protection.",
-    cmd: "sysctl kernel.randomize_va_space kernel.dmesg_restrict net.ipv4.conf.all.accept_redirects"
-  },
-  {
-    name: "udev Hardware Access Rules",
-    slug: "udev-hardware-access",
+    name: "Universal Non-Root SDR Hardware Access",
+    slug: "sdr-hardware-access",
     category: "hardware",
-    desc: "The 50-telcosec-hw.rules file mapping all SDR transceivers, SIMtrace 2, Samsung/Qualcomm/MediaTek devices to the plugdev group for non-root USB access.",
-    cmd: "cat /etc/udev/rules.d/50-telcosec-hw.rules && groups telcosec"
+    desc: "Automated hardware arbitration granting unprivileged access to Ettus USRP (B200/B210/X300), HackRF One, Nuand BladeRF, LimeSDR, RTL-SDR, Airspy, and PlutoSDR with USB autosuspend disabled.",
+    cmd: "SoapySDRUtil --find"
   },
   {
-    name: "Wireshark Telecom Profiles",
+    name: "Cellular Diagnostic Port & Baseband Interface",
+    slug: "baseband-diag-access",
+    category: "hardware",
+    desc: "Dedicated serial and USB diagnostic interface arbitration for Qualcomm EDL (9008) / DIAG ports, MediaTek PreLoader / BROM modes, Samsung Odin / Shannon interfaces, and Osmocom SIMtrace 2.",
+    cmd: "qcsuper --help && scat --help"
+  },
+  {
+    name: "Pre-Tuned Telecom Protocol Dissection",
     slug: "wireshark-profiles",
     category: "tools",
-    desc: "Pre-configured Wireshark dissector profile with GSMTAP, 5G NAS, Diameter, GTP, and SCTP column layouts plus custom Lua plugins deployed system-wide.",
-    cmd: "wireshark --version && ls /usr/share/wireshark/plugins/"
+    desc: "Production-ready Wireshark and TShark protocol dissector profiles pre-configured for GSMTAP, 3GPP NAS-5GS, NGAP, S1AP, PFCP, GTPv1/v2-U, Diameter, and SS7/SIGTRAN decoding.",
+    cmd: "tshark -G protocols | grep -E 'gsm|nas_5gs|s1ap|ngap'"
   },
   {
-    name: "Firewall & Network Privacy",
-    slug: "firewall-network-hardening",
-    category: "security",
-    desc: "UFW firewall with deny-incoming default, SSH allow, Bluetooth blocked by rfkill, LLMNR/mDNS disabled in resolved, and restrictive umask 027 for all sessions.",
-    cmd: "sudo ufw status verbose && systemd-resolve --status | grep -E 'LLMNR|MulticastDNS'"
-  },
-  {
-    name: "Conda SDR Sandbox",
+    name: "Isolated RF & DSP Conda Sandbox",
     slug: "conda-sdr-sandbox",
     category: "environment",
-    desc: "Isolated Conda virtual environment (telcosec-sdr) housing GNU Radio, UHD, SoapySDR, HackRF, BladeRF, and LimeSDR libraries — separate from system Python.",
-    cmd: "conda activate telcosec-sdr && SoapySDRUtil --find && python3 -c 'import gnuradio; print(gnuradio.__version__)'"
+    desc: "Dedicated virtualized environment (telcosec-sdr) isolating GNU Radio 3.10, Gqrx, UHD, and vendor-neutral SoapySDR drivers from system Python to ensure zero dependency collisions.",
+    cmd: "conda activate telcosec-sdr && python3 -c 'import gnuradio; print(gnuradio.__version__)'"
+  },
+  {
+    name: "Modular 10-Tier Metapackage Architecture",
+    slug: "modular-metapackages",
+    category: "system",
+    desc: "Granular Debian metapackages hosted via Cloudflare Pages edge CDN (meta.telcosec.net), enabling targeted tool deployment across SDR, 2G/3G, 4G, 5G, SIM, Mobile UE, and Wireline/PSTN domains.",
+    cmd: "apt-cache search telcochisel-"
+  },
+  {
+    name: "Wireline Broadband & VoIP Telephony Suite",
+    slug: "wireline-broadband-suite",
+    category: "network",
+    desc: "Integrated wireline telecommunications toolchain covering PPPoE session auditing, VLAN 802.1Q injection, TR-069 CWMP emulation, DOCSIS cable modem security, and SIP/VoIP signaling stress testing.",
+    cmd: "pppoe -h && sipp -h"
   }
-]
+];
+
