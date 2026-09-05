@@ -70,6 +70,7 @@ sudo make install
 | `telcosec 10g` | `status`, `tune <iface>`, `setup <iface> [preset]`, `probe [ip]` | 10Gbps SFP+ interface optimization for Ettus USRP X310/N310 transceivers. |
 | `telcosec firmware` | | Inspect local offline FPGA bitstream caches for BladeRF (`.rbf`) and USRP (`.bin`). |
 | `telcosec profile` | `lab`, `field`, `status` | Switch operational profiles (Lab Mode vs Field Mode). |
+| `telcosec pkg` | `list [--json]`, `info <alias>`, `install <alias>`, `remove <alias>`, `check`, `repo [status\|enable]` | Official 10-tier modular metapackage manager connecting to meta.telcosec.net. |
 | `telcosec 5g-sa` | `start`, `stop`, `status`, `add-sub` | Manage local Open5GS 5G Standalone core network and provision test SIMs. |
 | `telcosec scan` | `sctp`, `sip`, `asleap` | Launch telecom signaling assessment wizards and scanners. |
 | `telcosec search` | `<query>` | Search the 88 installed telecom tools and desktop entries by keyword. |

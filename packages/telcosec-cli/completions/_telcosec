@@ -18,6 +18,7 @@ _telcosec() {
         '10g:10Gbps network SDR interface optimization (MTU 9000, ring buffers)'
         'firmware:Inspect and manage offline SDR FPGA bitstreams (BladeRF, USRP)'
         'profile:Switch operational profiles (lab vs field)'
+        'pkg:Official metapackage manager (list, info, install, remove, repo)'
         '5g-sa:5G Standalone core & RAN lifecycle manager (Open5GS)'
         'scan:Interactive telecom protocol assessment wizard (sctp, sip, asleap)'
         'academy:Access TelcoSec Academy interactive labs & credentials'
@@ -37,6 +38,47 @@ _telcosec() {
             ;;
         args)
             case $words[1] in
+                pkg|package|packages)
+                    local -a pkg_subcmds metapackages
+                    pkg_subcmds=(
+                        'list:List all available and installed metapackage suites'
+                        'info:Display tool manifest and dependency breakdown'
+                        'install:Deploy a modular metapackage suite to system'
+                        'remove:Remove a metapackage suite from system'
+                        'check:Verify installed metapackage integrity and dpkg state'
+                        'repo:Inspect or configure meta.telcosec.net repository'
+                    )
+                    metapackages=(
+                        'base:Core OS kernel latency tuning, PAM limits, SCTP stack'
+                        'hardware:SDR USB udev rules & FPGA bitstream loaders'
+                        'sdr:RF signal analysis, DSP flowgraphs & Satcom suite'
+                        '2g-3g:Cellular 2G/3G Osmocom infrastructure & OpenBTS'
+                        '4g:4G LTE eNodeB/EPC simulation & protocol audit'
+                        '5g:5G SA Core (Open5GS), UERANSIM & 5Ghoul fuzzer'
+                        'sim:SIM & eSIM auditing suite (pySim, SIMtrace 2, lpac)'
+                        'wireline:Wireline broadband, VoIP, QinQ & mausezahn'
+                        'ue:Mobile UE & baseband diagnostics (SCAT, QCSuper)'
+                        'full:Complete TelcoChisel telecom distribution (88 tools)'
+                    )
+                    if (( CURRENT == 2 )); then
+                        _describe -t pkg_subcmds 'pkg action' pkg_subcmds
+                        _describe -t metapackages 'metapackage suite' metapackages
+                    elif (( CURRENT == 3 )); then
+                        case $words[2] in
+                            info|install|remove|purge|show)
+                                _describe -t metapackages 'metapackage suite' metapackages
+                                ;;
+                            list|ls)
+                                _arguments '--json[Output results as JSON]'
+                                ;;
+                            repo)
+                                local -a repo_subcmds
+                                repo_subcmds=('status:Check repository sources and CDN reachability' 'enable:Enroll system in official APT repo')
+                                _describe -t repo_subcmds 'repo action' repo_subcmds
+                                ;;
+                        esac
+                    fi
+                    ;;
                 sdr)
                     local -a sdr_subcmds
                     sdr_subcmds=(
