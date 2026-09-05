@@ -63,6 +63,24 @@ brew install telcosec-tools/tap/telcosec
 brew install --HEAD telcosec-tools/tap/telcosec
 ```
 
+### Docker & Container Image (Multi-Architecture)
+
+Official multi-architecture container images (`linux/amd64` and `linux/arm64`) are automatically published to the GitHub Container Registry:
+
+```bash
+# Pull and run directly
+docker run --rm -it ghcr.io/telcosec-tools/telcosec-cli version
+
+# Comprehensive telecom environment audit
+docker run --rm -it ghcr.io/telcosec-tools/telcosec-cli check
+
+# Decode SIM smartcard ATR
+docker run --rm -it ghcr.io/telcosec-tools/telcosec-cli sim atr 3B9F95801FC78031E073FE211B674A4C7380110043
+
+# Host hardware diagnostics (with direct USB SDR and smartcard passthrough)
+docker run --rm -it --privileged --net=host -v /dev:/dev -v /sys:/sys ghcr.io/telcosec-tools/telcosec-cli hardware
+```
+
 ### Manual Debian Package Installation (.deb)
 
 Pre-built multi-architecture `.deb` packages (`amd64` and `arm64`) are available on the [GitHub Releases](https://github.com/TelcoSec-Tools/telcosec-cli/releases) page:

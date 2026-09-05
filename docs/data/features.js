@@ -59,7 +59,7 @@ export const featuresCatalog = [
     name: "Unified Operator CLI Suite",
     slug: "telcosec-operator-cli",
     category: "tools",
-    desc: "Centralized operator CLI (telcosec) providing one-touch environment diagnostics, hardware discovery, 10-tier metapackage management (telcosec pkg), smartcard/SIM/eSIM auditing (telcosec sim), 5G Core orchestration, and cross-platform installation via APT and Homebrew (brew install telcosec-tools/tap/telcosec).",
+    desc: "Centralized operator CLI (telcosec) providing one-touch environment diagnostics, hardware discovery, 10-tier metapackage management (telcosec pkg), smartcard/SIM/eSIM auditing (telcosec sim), 5G Core orchestration, and cross-platform deployment via APT, Homebrew, and Docker (ghcr.io/telcosec-tools/telcosec-cli).",
     cmd: "telcosec status && telcosec pkg list && telcosec sim status"
   },
   {
