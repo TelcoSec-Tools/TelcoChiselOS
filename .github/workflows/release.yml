@@ -37,6 +37,7 @@ env:
   SF_PROJECT: telcochisel
   SF_HOST: frs.sourceforge.net
   SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+  SF_API_KEY: ${{ secrets.SF_API_KEY }}
 
 jobs:
   build:
@@ -469,6 +470,27 @@ jobs:
           SFTPEOF
           sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_publish "$SF_TARGET"
           echo "✓ SF versioned → https://sourceforge.net/projects/$SF_PROJECT/files/$VERSION/"
+
+      - name: Pin Default Download on SourceForge
+        if: steps.version.outputs.is_nightly == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if [ -n "${SF_API_KEY:-}" ]; then
+            echo "Setting default download on SourceForge for ${VERSION}/TelcoChisel-live.iso..."
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X PUT \
+              -H "Accept: application/json" \
+              -d "default=windows&default=mac&default=linux&default=bsd&default=solaris&default=others" \
+              -d "api_key=${SF_API_KEY}" \
+              "https://sourceforge.net/projects/${SF_PROJECT}/files/${VERSION}/TelcoChisel-live.iso")
+            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
+              echo "✓ Successfully pinned ${VERSION}/TelcoChisel-live.iso as default download on SourceForge"
+            else
+              echo "⚠️ SourceForge Release API returned HTTP $HTTP_CODE (non-fatal)"
+            fi
+          else
+            echo "ℹ️ SF_API_KEY not set — skipping automated default download update"
+          fi
 
       # ── GitHub Releases ──────────────────────────────────────────────────────
       - name: Split ISO for GitHub Release
