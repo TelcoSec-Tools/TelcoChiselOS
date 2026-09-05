@@ -198,21 +198,32 @@ telcosec-sdr firmware status
 TelcoChisel features a **10-tier modular metapackage architecture** hosted via Cloudflare Pages edge CDN (`meta.telcosec.net`). Operators can inspect, install, remove, and verify specialized tool suites on-demand using the dedicated **`telcosec-pkg`** utility.
 
 ```bash
-# List all 10 official metapackages with installation status
+# List all 10 official metapackages with installation status (supports --json)
 telcosec-pkg list
+
+# Inspect exact tool manifests included in a package tier
+telcosec-pkg tools 5g
+telcosec-pkg tools wireline
+
+# Search across metapackages, tool manifests, and descriptions
+telcosec-pkg search sdr
+telcosec-pkg search voip
 
 # Install modular tool suites using intelligent aliases
 sudo telcosec-pkg install 5g
 sudo telcosec-pkg install sdr sim
 sudo telcosec-pkg install wireline
 
+# Upgrade installed metapackages with latest upstream fixes
+sudo telcosec-pkg upgrade
+
 # Inspect package dependencies and installed footprint
 telcosec-pkg info 5g
 
-# Audit system dependencies and library linkages
+# Audit system dependencies, pinning priority, and library linkages
 telcosec-pkg check
 
-# Verify official repository connectivity and GPG keyring
+# Verify official repository connectivity, APT pinning, and GPG keyring
 telcosec-pkg repo status
 ```
 
@@ -220,16 +231,16 @@ telcosec-pkg repo status
 
 | Metapackage | Aliases | Target Domain & Scope |
 | :--- | :--- | :--- |
-| **`telcochisel-base`** | `base` | Core system utilities, udev rules, real-time scheduling limits, and terminal tooling. |
-| **`telcochisel-hardware-sdr`** | `sdr-hw`, `hardware` | Kernel drivers, FPGA bitstreams, and host libraries for USRP, HackRF, BladeRF, LimeSDR, RTL-SDR. |
-| **`telcochisel-tools-sdr`** | `sdr`, `rf` | DSP frameworks and RF capture suites (GNU Radio 3.10, Gqrx, SoapySDR, Kalibrate). |
-| **`telcochisel-tools-2g-3g`** | `2g`, `3g`, `gsm` | Legacy cellular stacks (OsmocomBB, OpenBTS, YateBTS, gr-gsm, OsmoGSM). |
+| **`telcochisel-base`** | `base`, `tuning` | Core system utilities, udev rules, real-time scheduling limits, and terminal tooling. |
+| **`telcochisel-hardware-sdr`** | `hardware`, `sdr-hw`, `fpga` | Kernel drivers, FPGA bitstreams, and host libraries for USRP, HackRF, BladeRF, LimeSDR, RTL-SDR. |
+| **`telcochisel-tools-sdr`** | `sdr`, `rf`, `satcom`, `ntn`, `dsp` | DSP frameworks and RF capture suites (GNU Radio 3.10, Gqrx, Inspectrum, URH, Gpredict, gr-gsm). |
+| **`telcochisel-tools-2g-3g`** | `2g-3g`, `2g`, `3g`, `gsm` | Legacy cellular stacks (OsmocomBB, OpenBTS, YateBTS, gr-gsm, OsmoGSM). |
 | **`telcochisel-tools-4g`** | `4g`, `lte` | LTE RAN auditing, downlink sniffers, and software UE tools (srsRAN, srsUE, LTE-CellScanner, LTESniffer). |
-| **`telcochisel-tools-5g`** | `5g`, `nr` | 5G Standalone core & RAN simulation (UERANSIM, Open5GS, GTP5G, OAI UE, my5G-RANTester, 5Ghoul). |
-| **`telcochisel-tools-sim`** | `sim`, `esim` | Smartcard auditing, APDU sniffing, and eSIM LPA profiles (SIMtrace 2, pySim-shell, lpac, SIMurai, SIMtester). |
-| **`telcochisel-tools-pstn-adsl`** | `pstn`, `adsl`, `wireline`, `voip` | Wireline broadband, PPPoE, DOCSIS, VLAN, SNMP, and VoIP/SIP assessment suites. |
-| **`telcochisel-tools-ue`** | `ue`, `mobile` | Baseband firmware analysis, Qualcomm DIAG, Samsung Shannon, and MediaTek BROM tools. |
-| **`telcochisel-meta-full`** | `full`, `all` | Umbrella metapackage installing the entire 88-tool telecommunications security suite. |
+| **`telcochisel-tools-5g`** | `5g`, `nr`, `sba`, `sbi`, `5gcore` | 5G Standalone core & RAN simulation (UERANSIM, Open5GS, GTP5G, OAI UE, my5G-RANTester, mitmproxy, 5Ghoul). |
+| **`telcochisel-tools-sim`** | `sim`, `esim`, `smartcard`, `atr` | Smartcard auditing, APDU sniffing, and eSIM LPA profiles (SIMtrace 2, pySim-shell, lpac, SIMurai, OpenSC). |
+| **`telcochisel-tools-pstn-adsl`** | `wireline`, `pstn`, `adsl`, `voip`, `broadband`, `qinq` | Wireline broadband, PPPoE, DOCSIS, VLAN, SNMP, and VoIP/SIP assessment suites (mausezahn, voiphopper, rtpbleed). |
+| **`telcochisel-tools-ue`** | `ue`, `mobile`, `modem`, `diag`, `shannon` | Baseband firmware analysis, Qualcomm DIAG, Samsung Shannon, and MediaTek BROM tools (QCSuper, SCAT, FirmWire). |
+| **`telcochisel-meta-full`** | `full`, `all`, `complete` | Umbrella metapackage installing the entire 88-tool telecommunications security suite. |
 
 ---
 

@@ -11,10 +11,11 @@
 # =============================================================================
 set -euo pipefail
 
-VERSION="1.1.0"
+VERSION="1.2.0"
 TELCOSEC_URL="https://meta.telcosec.net"
 TELCOSEC_KEY="/etc/apt/keyrings/telcochisel-archive-keyring.asc"
 TELCOSEC_SOURCES="/etc/apt/sources.list.d/telcochisel.sources"
+TELCOSEC_PREF="/etc/apt/preferences.d/99-telcochisel.pref"
 TELCOSEC_FPR="6326A34C15FEF05FBD63518B4325182E2F0D9DB9"
 
 # Terminal styling
@@ -65,35 +66,147 @@ get_pkg_alias() {
 
 get_pkg_desc() {
   case "$1" in
-    telcochisel-base)             echo "Core OS kernel latency tuning, PAM limits & realtime groups" ;;
-    telcochisel-hardware-sdr)     echo "SDR USB udev rules & FPGA bitstream loaders (BladeRF, USRP, Lime)" ;;
-    telcochisel-tools-sdr)         echo "RF analysis suite (GNU Radio, Gqrx, inspectrum, URH, SigMF)" ;;
-    telcochisel-tools-2g-3g)       echo "Cellular 2G/3G Osmocom infrastructure, YateBTS & gr-gsm" ;;
-    telcochisel-tools-4g)          echo "4G LTE eNodeB/EPC simulation & protocol audit (srsRAN, Open5GS)" ;;
-    telcochisel-tools-5g)          echo "5G SA Core (Open5GS), gNodeB & 5Ghoul fuzzer over rogue gNB" ;;
-    telcochisel-tools-sim)         echo "SIM & eSIM auditing suite (pySim-shell, SIMtrace 2, lpac, SIMurai)" ;;
-    telcochisel-tools-pstn-adsl)   echo "PSTN/ISDN signaling, Asterisk, SIPp, VoIP & ADSL broadband testing" ;;
-    telcochisel-tools-ue)          echo "Mobile User Equipment & baseband diagnostics (UERANSIM, SCAT, QCSuper)" ;;
-    telcochisel-meta-full)         echo "Complete TelcoChisel telecom security distribution umbrella" ;;
+    telcochisel-base)             echo "Core OS kernel latency tuning, PAM limits, SCTP stack & wordlists" ;;
+    telcochisel-hardware-sdr)     echo "SDR USB udev rules & FPGA bitstream loaders (BladeRF, USRP, Lime, Pluto)" ;;
+    telcochisel-tools-sdr)         echo "RF analysis & Satcom suite (GNU Radio, Gqrx, Inspectrum, URH, Gpredict, gr-gsm)" ;;
+    telcochisel-tools-2g-3g)       echo "Cellular 2G/3G Osmocom infrastructure, YateBTS, OpenBTS & gr-gsm" ;;
+    telcochisel-tools-4g)          echo "4G LTE eNodeB/EPC simulation & protocol audit (srsRAN, Open5GS, LTESniffer)" ;;
+    telcochisel-tools-5g)          echo "5G SA Core (Open5GS), UERANSIM, mitmproxy (5G SBI) & 5Ghoul fuzzer" ;;
+    telcochisel-tools-sim)         echo "SIM & eSIM auditing suite (pySim-shell, SIMtrace 2, lpac, SIMurai, OpenSC, pcsc-tools)" ;;
+    telcochisel-tools-pstn-adsl)   echo "Wireline broadband, QinQ, mausezahn, voiphopper, rtpbleed, sipsak, SIPp, DOCSIS" ;;
+    telcochisel-tools-ue)          echo "Mobile UE & baseband diagnostics (UERANSIM, SCAT, QCSuper, FirmWire, MTKClient)" ;;
+    telcochisel-meta-full)         echo "Complete TelcoChisel telecom security distribution umbrella (88 tools)" ;;
     *)                             echo "Custom or third-party metapackage" ;;
   esac
+}
+
+get_pkg_tools_raw() {
+  case "$1" in
+    telcochisel-base)
+      echo "Low-latency RT scheduling limits (limits.d/99-realtime.conf)"
+      echo "SCTP kernel module autoloading & buffer tuning (sysctl 64MB)"
+      echo "Core CLI analysis utilities (tshark, Scapy, nmap, tcpdump, sctpscan)"
+      echo "Curated telecommunications wordlists (/usr/share/wordlists/telecom)"
+      ;;
+    telcochisel-hardware-sdr)
+      echo "UHD & USRP USB 3.0/Ethernet driver libraries (libuhd, uhd-host)"
+      echo "HackRF One host tools & CPLD firmware (hackrf_info, hackrf_transfer)"
+      echo "BladeRF 2.0 micro FPGA bitstream loader & CLI (bladeRF-cli, libbladeRF)"
+      echo "LimeSuite USB/PCIe transceiver driver (LimeUtil, SoapyLime)"
+      echo "RTL-SDR dongle drivers & direct sampling (rtl_sdr, rtl_tcp, rtl_test)"
+      echo "ADALM-Pluto IIO drivers (libiio, SoapyPlutoSDR)"
+      echo "Non-root USB access rules (/etc/udev/rules.d/50-telcosec-hw.rules)"
+      ;;
+    telcochisel-tools-sdr)
+      echo "GNU Radio 3.10 DSP development framework & flowchart GUI (gnuradio-companion)"
+      echo "GQRX Software Defined Radio real-time spectrum receiver (gqrx)"
+      echo "SoapySDR vendor-neutral hardware abstraction layer (SoapySDRUtil)"
+      echo "URH (Universal Radio Hacker) wireless protocol reverse engineering & replay (urh)"
+      echo "Inspectrum offline I/Q spectrogram visualizer & symbol analyzer (inspectrum)"
+      echo "Gpredict real-time satellite tracking & Doppler shift prediction (gpredict)"
+      echo "Kalibrate local oscillator frequency calibration (kal -s GSM900 / kal -s LTE)"
+      echo "gr-gsm air-interface dissector flowgraphs (grgsm_livemon)"
+      ;;
+    telcochisel-tools-2g-3g)
+      echo "OsmocomBB Calypso mobile baseband firmware stack (osmocon)"
+      echo "OpenBTS GSM base transceiver station software (openbts)"
+      echo "YateBTS 2G GSM cellular radio access network (yatebts)"
+      echo "Osmocom GSM Network-in-the-Box & signaling core (osmo-nitb, osmo-bts)"
+      echo "Kalibrate-GSM carrier frequency beacon scanner (kal)"
+      ;;
+    telcochisel-tools-4g)
+      echo "srsRAN 4G LTE eNodeB software radio stack (srsenb)"
+      echo "srsUE software User Equipment simulator for LTE (srsue)"
+      echo "LTE-CellScanner OpenCL-accelerated carrier search (CellSearch)"
+      echo "LTESniffer real-time passive LTE downlink sniffer & RRC dissector (ltesniffer)"
+      echo "Open5GS LTE Evolved Packet Core (EPC: MME, SGW, PGW, HSS)"
+      ;;
+    telcochisel-tools-5g)
+      echo "Open5GS 5G Standalone (SA) Core Network (AMF, SMF, UPF, NRF, UDM, AUSF, PCF, NSSF)"
+      echo "UERANSIM 5G SA gNodeB & multi-UE simulator (nr-gnb, nr-ue, nr-cli)"
+      echo "my5G-RANTester high-concurrency 5G RAN load and stress testing suite (my5g-rantester)"
+      echo "mitmproxy (5G SBI) HTTP/2 & mTLS proxy for 5G Service-Based Architecture (mitmproxy, mitmweb)"
+      echo "5Ghoul 5G NR Rogue gNodeB baseband exploit fuzzer (5ghoul-run)"
+      echo "GTP5G accelerated kernel module for 5G user-plane forwarding (gtp5g)"
+      echo "OAI UE OpenAirInterface 5G NR user equipment stack"
+      ;;
+    telcochisel-tools-sim)
+      echo "Osmocom SIMtrace 2 USB smartcard APDU sniffer & emulator (simtrace2-list)"
+      echo "pySim-shell interactive UICC/SIM filesystem explorer & profile programmer (pySim-shell)"
+      echo "lpac command-line GSMA SGP.22 eSIM Local Profile Assistant (lpac)"
+      echo "SIMurai (swsim) software UICC simulator speaking ISO 7816 over TCP (simurai)"
+      echo "SIMtester SIM card cryptographic attack and parameter auditor (simtester)"
+      echo "pcsc-tools real-time smartcard reader prober & ATR decoder (pcsc_scan)"
+      echo "OpenSC PKCS#11 cryptographic token and smartcard security suite (pkcs11-tool)"
+      echo "pcscd CCID smartcard daemon subsystem (systemctl status pcscd)"
+      ;;
+    telcochisel-tools-pstn-adsl)
+      echo "mausezahn (mz) carrier-grade packet crafter (802.1Q, QinQ, MPLS)"
+      echo "voiphopper Cisco CDP/LLDP-MED VoIP Voice VLAN hopping engine (voiphopper)"
+      echo "rtpbleed silent RTP media stream proxy bleeding scanner & audio extractor (rtpbleed)"
+      echo "sipsak SIP swiss army knife for OPTIONS ping, traceroute & stress tests (sipsak)"
+      echo "SIPVicious SIP PBX discovery, extension audit, and password cracker (svmap, svwar, svcrack)"
+      echo "SIPp high-throughput SIP call generator and performance tester (sipp)"
+      echo "RouterSploit embedded CPE router and DSL modem exploitation framework (routersploit)"
+      echo "asleap PPPoE MS-CHAPv2 dictionary attack and offline hash cracker (asleap)"
+      echo "docsis binary cable modem configuration compiler & decompiler (docsis)"
+      echo "snmp-check SNMP device enumerator for mapping routing tables and MIBs (snmp-check)"
+      echo "pppoe-discovery & rp-pppoe broadband access concentrator testing tools"
+      echo "Twinkle, Baresip, Linphone VoIP softphone and terminal clients"
+      echo "Asterisk & DAHDI telephony exchange and ISDN protocol stacks"
+      ;;
+    telcochisel-tools-ue)
+      echo "FirmWire Samsung Shannon & MediaTek baseband firmware emulator (firmwire)"
+      echo "QCSuper Qualcomm DIAG diagnostic frame analyzer & PCAP generator (qcsuper)"
+      echo "SCAT Samsung & Qualcomm diagnostic parser with OTA RRC/NAS decoding (scat)"
+      echo "MTKClient MediaTek BROM exploit toolkit, flasher, and partition manager (mtk)"
+      echo "Balong-Flash & Balongtool Huawei modem firmware and NVRAM utilities (balong-flash)"
+      echo "EDL Qualcomm Emergency Download mode programmer and memory dumper (edl)"
+      echo "Heimdall cross-platform Samsung Galaxy partition and modem flasher (heimdall)"
+      echo "at-console interactive Hayes AT command terminal with cellular macros"
+      echo "atinout batch command executor for cellular diagnostic serial ports"
+      echo "Gammu cellular modem information extraction & SMS/PDU engine (gammu)"
+      echo "ADB & Fastboot Android debug bridge and bootloader interfaces"
+      ;;
+    telcochisel-meta-full)
+      echo "Complete TelcoChisel umbrella metapackage deploying all 88 telecom security tools"
+      echo "Aggregates base, hardware, sdr, 2g-3g, 4g, 5g, sim, wireline, and ue suites"
+      ;;
+    *)
+      echo "Standard packages and dependencies managed by APT."
+      ;;
+  esac
+}
+
+print_pkg_tools() {
+  local pkg="$1"
+  local alias desc
+  alias=$(get_pkg_alias "$pkg")
+  desc=$(get_pkg_desc "$pkg")
+  echo -e "  ${BOLD}${CYAN}${pkg}${RESET} (alias: ${BOLD}${YELLOW}${alias}${RESET})"
+  echo -e "  ${DIM}${desc}${RESET}"
+  echo -e "  ${BOLD}Included Tools & Capabilities:${RESET}"
+  get_pkg_tools_raw "$pkg" | while read -r tool_line; do
+    echo -e "    ${GREEN}•${RESET} ${tool_line}"
+  done
+  echo ""
 }
 
 resolve_alias() {
   local input="$1"
   case "$input" in
-    base|system)                                  echo "telcochisel-base" ;;
-    hw|hardware|sdr-hw|firmware)                  echo "telcochisel-hardware-sdr" ;;
-    sdr|rf|spectrum)                              echo "telcochisel-tools-sdr" ;;
-    2g|3g|gsm|osmocom)                            echo "telcochisel-tools-2g-3g" ;;
-    4g|lte|enodeb)                                echo "telcochisel-tools-4g" ;;
-    5g|nr|sa|5ghoul)                              echo "telcochisel-tools-5g" ;;
-    sim|esim|uicc|card)                           echo "telcochisel-tools-sim" ;;
-    pstn|adsl|vdsl|wireline|voip|sip|asterisk)    echo "telcochisel-tools-pstn-adsl" ;;
-    ue|mobile|ueransim|baseband)                  echo "telcochisel-tools-ue" ;;
-    full|all|meta-full|everything)                echo "telcochisel-meta-full" ;;
-    telcochisel-*)                                echo "$input" ;;
-    *)                                            echo "telcochisel-${input}" ;;
+    base|system|kernel|tuning)                                        echo "telcochisel-base" ;;
+    hw|hardware|sdr-hw|firmware|fpga)                                 echo "telcochisel-hardware-sdr" ;;
+    sdr|rf|spectrum|satcom|ntn|dsp)                                   echo "telcochisel-tools-sdr" ;;
+    2g|3g|gsm|osmocom|bts)                                            echo "telcochisel-tools-2g-3g" ;;
+    4g|lte|enodeb)                                                    echo "telcochisel-tools-4g" ;;
+    5g|nr|sa|5ghoul|sba|sbi|core|5gcore)                              echo "telcochisel-tools-5g" ;;
+    sim|esim|uicc|card|smartcard|atr)                                 echo "telcochisel-tools-sim" ;;
+    pstn|adsl|vdsl|wireline|voip|sip|asterisk|broadband|qinq|isdn)    echo "telcochisel-tools-pstn-adsl" ;;
+    ue|mobile|ueransim|baseband|modem|diag|shannon|qualcomm)          echo "telcochisel-tools-ue" ;;
+    full|all|meta-full|everything|complete)                           echo "telcochisel-meta-full" ;;
+    telcochisel-*)                                                    echo "$input" ;;
+    *)                                                                echo "telcochisel-${input}" ;;
   esac
 }
 
@@ -120,18 +233,25 @@ Commands:
   install <pkg|alias...>     Install one or more metapackages with recommendations
   remove <pkg|alias...>      Remove one or more metapackages (-a/--autoremove supported)
   purge <pkg|alias...>       Purge metapackages and configuration files
+  upgrade [pkg|alias...]     Refresh index and upgrade installed metapackages
   info <pkg|alias>           Show detailed package metadata, dependencies and tools
+  tools [pkg|alias]          Inspect exact tool manifests included in metapackage tiers
+  search <query>             Search metapackages, tool manifests and APT repositories
   check | verify             Audit health of installed metapackages and dependencies
   repo [status|enable]       Check or configure official APT repo (meta.telcosec.net)
   version                    Display version and APT repository status
 
 Shorthand Aliases:
   base, hardware, sdr, 2g-3g, 4g, 5g, sim, wireline, ue, full
+  (Intuitive aliases: satcom, ntn, sba, sbi, broadband, qinq, smartcard, modem)
 
 Examples:
   telcosec-pkg list
+  telcosec-pkg tools 5g
+  telcosec-pkg search voip
   telcosec-pkg install 5g ue
   telcosec-pkg install wireline
+  telcosec-pkg upgrade
   telcosec-pkg info sdr
   telcosec-pkg check
   telcosec-pkg remove 2g-3g --autoremove
@@ -218,11 +338,11 @@ cmd_list() {
     case "$status_code" in
       installed)
         status_label="${GREEN}[INSTALLED]${RESET}"
-        ((installed_count++))
+        installed_count=$((installed_count + 1))
         ;;
       upgradable)
         status_label="${CYAN}[UPGRADABLE]${RESET}"
-        ((installed_count++))
+        installed_count=$((installed_count + 1))
         ;;
       not-installed)
         status_label="${YELLOW}[AVAILABLE]${RESET}"
@@ -355,7 +475,126 @@ cmd_info() {
     echo -e "${YELLOW}Package '${target}' not found in local dpkg database or configured APT repositories.${RESET}"
     echo -e "Run 'telcosec-pkg repo status' to check your repository configuration."
   fi
+
   echo ""
+  echo -e "  ${BOLD}Tool Manifest & Domain Capabilities:${RESET}"
+  get_pkg_tools_raw "$target" | while read -r tool_line; do
+    echo -e "    ${GREEN}•${RESET} ${tool_line}"
+  done
+  echo ""
+}
+
+cmd_tools() {
+  banner
+  if [ "$#" -gt 0 ]; then
+    local target
+    target=$(resolve_alias "$1")
+    echo -e "${BOLD}Tool Manifest for:${RESET} ${CYAN}${target}${RESET}\n"
+    print_pkg_tools "$target"
+  else
+    echo -e "${BOLD}TelcoChisel Complete 10-Tier Tool Manifest:${RESET}\n"
+    for pkg in "${METAPACKAGES[@]}"; do
+      print_pkg_tools "$pkg"
+    done
+  fi
+}
+
+cmd_search() {
+  if [ "$#" -eq 0 ]; then
+    echo -e "${RED}Error: Specify a search query term.${RESET}"
+    echo "Example: telcosec-pkg search sdr"
+    exit 1
+  fi
+
+  local query="$1"
+  banner
+  echo -e "${BOLD}Searching TelcoChisel Metapackages & Tool Manifests for:${RESET} '${CYAN}${query}${RESET}'\n"
+
+  local match_found=0
+
+  for pkg in "${METAPACKAGES[@]}"; do
+    local alias desc tools_matches pkg_matched=0
+    alias=$(get_pkg_alias "$pkg")
+    desc=$(get_pkg_desc "$pkg")
+
+    # Check package name, alias, and description
+    if echo "$pkg $alias $desc" | grep -iq "$query"; then
+      pkg_matched=1
+    fi
+
+    # Check tools within manifest
+    tools_matches=$(get_pkg_tools_raw "$pkg" | grep -i "$query" || true)
+
+    if [ "$pkg_matched" -eq 1 ] || [ -n "$tools_matches" ]; then
+      match_found=1
+      echo -e "  ${BOLD}${CYAN}${pkg}${RESET} (alias: ${YELLOW}${alias}${RESET})"
+      echo -e "  ${DIM}${desc}${RESET}"
+      if [ -n "$tools_matches" ]; then
+        echo -e "  ${BOLD}Matching Tools:${RESET}"
+        echo "$tools_matches" | while read -r line; do
+          echo -e "    ${GREEN}•${RESET} ${line}"
+        done
+      fi
+      echo ""
+    fi
+  done
+
+  # Also query APT cache if available for any specific debian packages
+  if command -v apt-cache >/dev/null 2>&1; then
+    local apt_matches
+    apt_matches=$(apt-cache search "$query" 2>/dev/null | grep -E '^telcochisel-' || true)
+    if [ -n "$apt_matches" ]; then
+      echo -e "  ${BOLD}Matching APT Packages:${RESET}"
+      echo "$apt_matches" | while read -r line; do
+        echo -e "    ${BLUE}→${RESET} ${line}"
+      done
+      echo ""
+    fi
+  fi
+
+  if [ "$match_found" -eq 0 ]; then
+    echo -e "  ${YELLOW}No matching TelcoChisel metapackages or tools found for '${query}'.${RESET}"
+    echo -e "  Use ${BOLD}telcosec-pkg tools${RESET} to browse all available tools."
+  fi
+}
+
+cmd_upgrade() {
+  require_root
+
+  banner
+  echo -e "${BOLD}=== Upgrading TelcoChisel Metapackages ===${RESET}\n"
+
+  # Refresh repository indexes first
+  echo -e "${BOLD}Refreshing TelcoChisel package lists...${RESET}"
+  $SUDO apt-get update -o Dir::Etc::sourcelist="sources.list.d/telcochisel.sources" 2>/dev/null || $SUDO apt-get update
+
+  local pkgs_to_upgrade=()
+
+  if [ "$#" -gt 0 ]; then
+    for arg in "$@"; do
+      pkgs_to_upgrade+=("$(resolve_alias "$arg")")
+    done
+  else
+    # Find all currently installed telcochisel metapackages
+    for pkg in "${METAPACKAGES[@]}"; do
+      local status
+      status=$(get_package_status "$pkg")
+      if [ "$status" = "installed" ] || [ "$status" = "upgradable" ]; then
+        pkgs_to_upgrade+=("$pkg")
+      fi
+    done
+  fi
+
+  if [ "${#pkgs_to_upgrade[@]}" -eq 0 ]; then
+    echo -e "${YELLOW}No installed TelcoChisel metapackages detected to upgrade.${RESET}"
+    echo -e "Install packages using: ${BOLD}telcosec-pkg install <alias>${RESET}"
+    return 0
+  fi
+
+  echo -e "${BOLD}Target Metapackages for Upgrade:${RESET} ${CYAN}${pkgs_to_upgrade[*]}${RESET}\n"
+  $SUDO apt-get install --only-upgrade -y --install-recommends -o Dpkg::Options::="--force-overwrite" "${pkgs_to_upgrade[@]}"
+
+  echo -e "\n${GREEN}✓ Metapackage upgrade completed successfully.${RESET}"
 }
 
 cmd_check() {
@@ -367,42 +606,76 @@ cmd_check() {
 
   # 1. dpkg database audit
   echo -e "Checking dpkg package database integrity..."
-  if dpkg -C >/dev/null 2>&1; then
-    echo -e "  ${GREEN}✓ dpkg database is clean (no half-configured packages)${RESET}"
+  if command -v dpkg >/dev/null 2>&1; then
+    if dpkg -C >/dev/null 2>&1; then
+      echo -e "  ${GREEN}✓ dpkg database is clean (no half-configured packages)${RESET}"
+    else
+      echo -e "  ${RED}✗ dpkg reported half-configured or damaged packages${RESET}"
+      broken=$((broken + 1))
+    fi
   else
-    echo -e "  ${RED}✗ dpkg reported half-configured or damaged packages${RESET}"
-    ((broken++))
+    echo -e "  ${YELLOW}⚠ dpkg package manager not present on this host${RESET}"
   fi
 
   # 2. apt-get check
   echo -e "Checking APT dependency tree..."
-  if apt-get check >/dev/null 2>&1; then
-    echo -e "  ${GREEN}✓ Dependency tree is consistent (no unmet dependencies)${RESET}"
+  if command -v apt-get >/dev/null 2>&1; then
+    if apt-get check >/dev/null 2>&1; then
+      echo -e "  ${GREEN}✓ Dependency tree is consistent (no unmet dependencies)${RESET}"
+    else
+      echo -e "  ${RED}✗ Unmet dependencies detected${RESET}"
+      broken=$((broken + 1))
+    fi
   else
-    echo -e "  ${RED}✗ Unmet dependencies detected${RESET}"
-    ((broken++))
+    echo -e "  ${YELLOW}⚠ apt-get utility not present on this host${RESET}"
   fi
 
-  # 3. Audit each installed metapackage
+  # 3. APT repository & pinning audit
+  echo -e "Auditing APT repository configuration and pinning..."
+  if [ -f "$TELCOSEC_SOURCES" ]; then
+    echo -e "  ${GREEN}✓ Repository source list exists (${TELCOSEC_SOURCES})${RESET}"
+  else
+    echo -e "  ${YELLOW}⚠ Repository source list missing (${TELCOSEC_SOURCES})${RESET}"
+  fi
+
+  if [ -s "$TELCOSEC_KEY" ]; then
+    local key_perm
+    key_perm=$(stat -c "%a" "$TELCOSEC_KEY" 2>/dev/null || echo "unknown")
+    echo -e "  ${GREEN}✓ GPG keyring present (${TELCOSEC_KEY}, mode ${key_perm})${RESET}"
+  else
+    echo -e "  ${RED}✗ GPG keyring missing or empty (${TELCOSEC_KEY})${RESET}"
+    broken=$((broken + 1))
+  fi
+
+  if [ -f "$TELCOSEC_PREF" ]; then
+    echo -e "  ${GREEN}✓ Package pinning policy active (${TELCOSEC_PREF})${RESET}"
+  else
+    echo -e "  ${YELLOW}⚠ Package pinning policy not configured (${TELCOSEC_PREF})${RESET}"
+    echo -e "    Run ${BOLD}sudo telcosec-pkg repo enable${RESET} to configure high-priority pinning."
+  fi
+
+  # 4. Audit each installed metapackage
   echo -e "\nAuditing installed TelcoChisel metapackages:"
-  for pkg in "${METAPACKAGES[@]}"; do
-    if dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "install ok installed"; then
-      local ver
-      ver=$(dpkg-query -W -f='${Version}' "$pkg")
-      echo -e "  ${GREEN}✓${RESET} ${BOLD}${pkg}${RESET} (v${ver}): Healthy"
-      ((verified++))
-    fi
-  done
+  if command -v dpkg-query >/dev/null 2>&1; then
+    for pkg in "${METAPACKAGES[@]}"; do
+      if dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "install ok installed"; then
+        local ver
+        ver=$(dpkg-query -W -f='${Version}' "$pkg")
+        echo -e "  ${GREEN}✓${RESET} ${BOLD}${pkg}${RESET} (v${ver}): Healthy"
+        verified=$((verified + 1))
+      fi
+    done
+  fi
 
   echo ""
   if [ "$verified" -eq 0 ]; then
     echo -e "  ${YELLOW}Notice: No official TelcoChisel metapackages are currently tracked by dpkg.${RESET}"
     echo -e "  Install the base or full suite with: ${BOLD}telcosec-pkg install full${RESET}"
   elif [ "$broken" -eq 0 ]; then
-    echo -e "  ${GREEN}Audit Result: All ${verified} installed metapackages are healthy and satisfied.${RESET}"
+    echo -e "  ${GREEN}Audit Result: All ${verified} installed metapackages and repository settings are healthy.${RESET}"
   else
-    echo -e "  ${RED}Audit Result: Detected ${broken} dependency issues.${RESET}"
-    echo -e "  Remediation: Run ${BOLD}sudo apt-get --fix-broken install -y${RESET}"
+    echo -e "  ${RED}Audit Result: Detected ${broken} issues.${RESET}"
+    echo -e "  Remediation: Run ${BOLD}sudo apt-get --fix-broken install -y${RESET} or re-run ${BOLD}sudo telcosec-pkg repo enable${RESET}"
   fi
 }
 
@@ -416,6 +689,7 @@ cmd_repo() {
       echo -e "  Repository URL   : ${CYAN}${TELCOSEC_URL}${RESET}"
       echo -e "  Sources File     : ${TELCOSEC_SOURCES}"
       echo -e "  Keyring Path     : ${TELCOSEC_KEY}"
+      echo -e "  Pinning File     : ${TELCOSEC_PREF}"
       echo -e "  Expected Fingerprint : ${TELCOSEC_FPR}"
 
       if [ -f "$TELCOSEC_SOURCES" ]; then
@@ -436,14 +710,27 @@ cmd_repo() {
       else
         echo -e "  GPG Keyring      : ${RED}Missing${RESET}"
       fi
+
+      if [ -f "$TELCOSEC_PREF" ]; then
+        echo -e "  APT Pinning      : ${GREEN}Active (1001 / 990)${RESET}"
+      else
+        echo -e "  APT Pinning      : ${YELLOW}Not Configured${RESET}"
+      fi
       ;;
 
     enable)
       require_root
       echo -e "Configuring official TelcoChisel APT repository (${TELCOSEC_URL})..."
-      $SUDO mkdir -p /etc/apt/keyrings /etc/apt/sources.list.d
+      $SUDO mkdir -p /etc/apt/keyrings /etc/apt/sources.list.d /etc/apt/preferences.d
 
+      local key_downloaded=0
       if curl -fsSL "${TELCOSEC_URL}/public.gpg" -o "$TELCOSEC_KEY" 2>/dev/null && [ -s "$TELCOSEC_KEY" ]; then
+        key_downloaded=1
+      elif curl -fsSL "${TELCOSEC_URL}/telcosec.gpg" -o "$TELCOSEC_KEY" 2>/dev/null && [ -s "$TELCOSEC_KEY" ]; then
+        key_downloaded=1
+      fi
+
+      if [ "$key_downloaded" -eq 1 ]; then
         $SUDO chmod 0644 "$TELCOSEC_KEY"
         cat << 'EOF' | $SUDO tee "$TELCOSEC_SOURCES" >/dev/null
 Types: deb
@@ -452,9 +739,19 @@ Suites: noble
 Components: main
 Signed-By: /etc/apt/keyrings/telcochisel-archive-keyring.asc
 EOF
-        echo -e "${GREEN}✓ TelcoChisel repository enabled and pinned.${RESET}"
+        cat << 'EOF' | $SUDO tee "$TELCOSEC_PREF" >/dev/null
+Package: telcochisel-*
+Pin: origin meta.telcosec.net
+Pin-Priority: 1001
+
+Package: *
+Pin: origin meta.telcosec.net
+Pin-Priority: 990
+EOF
+        $SUDO chmod 0644 "$TELCOSEC_PREF"
+        echo -e "${GREEN}✓ TelcoChisel repository enabled and pinned with priority 1001.${RESET}"
       else
-        echo -e "${RED}Error: Failed to fetch signing key from ${TELCOSEC_URL}/public.gpg${RESET}" >&2
+        echo -e "${RED}Error: Failed to fetch signing key from ${TELCOSEC_URL}/public.gpg or /telcosec.gpg${RESET}" >&2
         exit 1
       fi
       ;;
@@ -491,8 +788,17 @@ case "$COMMAND" in
   purge)
     cmd_purge "$@"
     ;;
+  upgrade|update-pkgs)
+    cmd_upgrade "$@"
+    ;;
   info|show|desc)
     cmd_info "$@"
+    ;;
+  tools|manifest|manifests)
+    cmd_tools "$@"
+    ;;
+  search|find)
+    cmd_search "$@"
     ;;
   check|verify|audit)
     cmd_check "$@"
