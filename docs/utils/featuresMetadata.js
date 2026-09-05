@@ -280,6 +280,30 @@ export const featuresMetadata = {
       { q: "How do Wireshark colorfilters improve telecom analysis?", a: "They highlight critical signaling messages (5G NAS Registration/Security, NGAP Initial Context, SCTP ABORT/SHUTDOWN, Diameter Errors, and GTP-C Path Failures) with distinct color palettes." },
       { q: "Can 'telcosec-create-usb' format both UEFI and Legacy BIOS drives?", a: "Yes. It creates a hybrid partition layout containing an EFI System Partition (FAT32) and an ext4/LUKS persistence partition." }
     ]
+  },
+
+  "sdr-driver-manager": {
+    keywords: [
+      "telcosec-sdr driver manager",
+      "10Gbps SDR network tuning",
+      "USRP X310 N310 10GbE jumbo frames",
+      "usbfs_memory_mb SDR buffer tuning",
+      "UHD FPGA bitstream manager Linux"
+    ],
+    overview: "High-rate Software Defined Radio transceivers demand specialized hardware and network driver orchestration. TelcoChisel provides `telcosec-sdr` (symlinked to `telcochisel-sdr`), a dedicated management utility covering both USB-connected transceivers (USRP B200/B210, HackRF One, BladeRF, LimeSDR, RTL-SDR, PlutoSDR) and 10Gbps high-throughput networked SDRs (USRP X300/X310, N300/N310, N320, X410). It automates kernel USB buffer allocation (usbfs_memory_mb=1000), 10GbE network tuning (MTU 9000 jumbo frames, 4096 ring descriptors, 64MB socket buffers), FPGA image management, and throughput benchmarking.",
+    config: [
+      "Audit all installed SDR drivers, USB devices, and 10GbE NICs:\ntelcosec-sdr status",
+      "Tune USB buffer allocation (1000MB) and disable power autosuspend:\nsudo telcosec-sdr usb tune",
+      "Configure and optimize a 10GbE network interface for USRP X310/N310 streaming:\nsudo telcosec-sdr 10g tune eth0",
+      "Set static IP configuration presets for USRP 10GbE subnets (192.168.10.x/30.x/40.x):\nsudo telcosec-sdr 10g setup eth0 x310-port1",
+      "Audit or download latest UHD FPGA bitstream images:\nsudo telcosec-sdr firmware download"
+    ],
+    troubleshooting: "If high-rate sample streaming reports overflow 'O' or packet drop errors over 10GbE, verify that MTU 9000 is negotiated on the NIC (`ip link show <iface>`), ring buffers are set to 4096 (`ethtool -g <iface>`), and socket buffer sysctls are tuned: `sudo telcosec-sdr 10g tune <iface>`.",
+    faq: [
+      { q: "Why is MTU 9000 (Jumbo Frames) critical for 10Gbps SDRs?", a: "Standard Ethernet MTU of 1500 bytes causes extreme packet interrupt overhead at 100-200 MSps I/Q sample rates. Jumbo frames (MTU 9000) reduce CPU packet processing overhead by over 80%, eliminating buffer overflows." },
+      { q: "What does 'telcosec-sdr usb tune' do?", a: "It raises /sys/module/usbcore/parameters/usbfs_memory_mb to 1000 MB, updates /etc/default/grub for reboot persistence, and disables USB power autosuspend across connected transceivers." },
+      { q: "Can 'telcosec-sdr' manage FPGA bitstreams for offline labs?", a: "Yes. Running 'telcosec-sdr firmware download' uses uhd_images_downloader to cache all FPGA images locally into /usr/share/uhd/images, enabling complete offline field operation." }
+    ]
   }
 
 };

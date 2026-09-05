@@ -83,10 +83,50 @@ telcosec academy
 | :--- | :--- | :--- |
 | `telcosec status` | — | System diagnostic report: kernel version, real-time priority (`SCHED_RR`), USB memory limits, SCTP status, cellular services, and smartcard reader daemons. |
 | `telcosec hardware` | — | Automated detection of USRP, HackRF, BladeRF, LimeSDR, RTL-SDR, Airspy, PlutoSDR, and Osmocom SIMtrace / CCID readers. |
+| `telcosec sdr` | `status`, `list`, `usb`, `10g`, `firmware` | Delegates to `telcosec-sdr` for comprehensive USB and 10Gbps transceiver management. |
+| `telcosec 10g` | `status`, `tune`, `setup`, `probe` | Direct shortcut to optimize 10GbE network interfaces (MTU 9000, 4096 rings, 64MB buffers) and configure USRP X310/N310 IP links. |
 | `telcosec 5g` | `status`, `start`, `stop`, `logs` | Orchestration for Open5GS 5G SA Core services and UERANSIM gNB/UE emulation with pre-configured PLMN `001/01`. |
 | `telcosec scan` | `gsm`, `lte`, `sctp` | Guided cellular frequency survey and high-speed SCTP signaling endpoint discovery. |
 | `telcosec pkg` | `list`, `install`, `remove`, `info`, `check`, `repo` | Delegates to `telcosec-pkg` for modular metapackage management. |
 | `telcosec academy` | — | Opens direct terminal funnels and learning links to TelcoSec Academy hands-on browser labs (`app.telcosec.net`). |
+
+---
+
+## SDR Driver & Hardware Manager (`telcosec-sdr`)
+
+TelcoChisel includes **`telcosec-sdr`** (symlinked to `telcochisel-sdr`), a dedicated management utility to inspect, tune, and maintain all installed SDR driver stacks across both **USB-connected transceivers** and **10Gbps high-throughput networked SDRs**.
+
+```bash
+# Comprehensive audit of all installed driver stacks (UHD, HackRF, BladeRF, LimeSuite, RTL-SDR, SoapySDR)
+telcosec-sdr status
+
+# Matrix of supported transceivers, bus types, and maximum sample rates
+telcosec-sdr list
+
+# USB diagnostics: check bus speeds, udev permissions, and power autosuspend
+telcosec-sdr usb status
+
+# Optimize USB buffer memory (usbfs_memory_mb=1000) and blacklist conflicting DVB-T drivers
+sudo telcosec-sdr usb tune
+
+# Power-cycle or reset an uninitialized/hung USB transceiver
+sudo telcosec-sdr usb reset
+
+# 10GbE Network diagnostics: check SFP+ link state, MTU, ring buffers, and socket limits
+telcosec-sdr 10g status
+
+# Optimize 10GbE interface for zero-drop streaming (MTU 9000, 4096 rings, 64MB socket buffers)
+sudo telcosec-sdr 10g tune enp3s0f0
+
+# One-step USRP network setup (presets: x310-0, x310-1, n310-0, n310-1)
+sudo telcosec-sdr 10g setup enp3s0f0 x310-0
+
+# Probe network for attached USRP devices via broadcast or specific IP
+telcosec-sdr 10g probe 192.168.30.2
+
+# Inspect local offline FPGA bitstream and firmware caches
+telcosec-sdr firmware status
+```
 
 ---
 

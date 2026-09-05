@@ -752,6 +752,40 @@ telcosec-profile</code></pre>
                         <button class="terminal-copy-btn" onclick="copyCommand(this, 'sudo telcosec-create-usb /dev/sdX\ntelcosec-download-openapi\ntelcosec-profile')">Copy</button>
                     </div>
                 </div>
+
+                <h3>8. SDR Driver &amp; Hardware Manager (`telcosec-sdr`)</h3>
+                <p>
+                    TelcoChisel bundles a dedicated SDR management utility, <code class="inline-code">telcosec-sdr</code> (symlinked to <code class="inline-code">telcochisel-sdr</code>), designed to audit, tune, and maintain all SDR driver stacks across both <strong>USB transceivers</strong> (USRP B210, HackRF, BladeRF, LimeSDR, RTL-SDR) and <strong>10Gbps Ethernet transceivers</strong> (USRP X310, N310):
+                </p>
+                <div class="terminal-block">
+                    <div class="terminal-header">
+                        <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+                        <div class="terminal-title">SDR Driver &amp; 10GbE Network Management</div>
+                    </div>
+                    <div class="terminal-body">
+                        <pre><code># Full audit of installed SDR drivers (UHD, HackRF, BladeRF, LimeSuite, RTL-SDR, SoapySDR)
+telcosec-sdr status
+
+# Optimize USB buffer memory (usbfs_memory_mb=1000) & disable autosuspend
+sudo telcosec-sdr usb tune
+
+# Power-cycle / reset hung or uninitialized USB transceivers
+sudo telcosec-sdr usb reset
+
+# Inspect 10GbE NIC link state, MTU, ring buffers, and socket limits
+telcosec-sdr 10g status
+
+# Optimize 10GbE NIC for zero-drop streaming (MTU 9000, 4096 rings, 64MB socket buffers)
+sudo telcosec-sdr 10g tune enp3s0f0
+
+# One-step USRP network setup (presets: x310-0, x310-1, n310-0, n310-1)
+sudo telcosec-sdr 10g setup enp3s0f0 x310-0
+
+# Probe network for attached USRP devices
+telcosec-sdr 10g probe</code></pre>
+                        <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec-sdr status\nsudo telcosec-sdr usb tune\ntelcosec-sdr 10g status\nsudo telcosec-sdr 10g tune enp3s0f0')">Copy</button>
+                    </div>
+                </div>
             </section>
 
             <!-- SECTION: TOOLS -->

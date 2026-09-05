@@ -400,6 +400,12 @@ if [ -f /tmp/scripts/bin/telcosec-pkg ]; then
   sudo ln -sf /usr/local/bin/telcosec-pkg /usr/local/bin/telcochisel-pkg
 fi
 
+if [ -f /tmp/scripts/bin/telcosec-sdr ]; then
+  sudo cp -f /tmp/scripts/bin/telcosec-sdr /usr/local/bin/telcosec-sdr
+  sudo chmod 755 /usr/local/bin/telcosec-sdr
+  sudo ln -sf /usr/local/bin/telcosec-sdr /usr/local/bin/telcochisel-sdr
+fi
+
 # 11e. APT Repository Pinning
 echo "Deploying TelcoChisel APT repository pinning preferences..."
 sudo mkdir -p /etc/apt/preferences.d/

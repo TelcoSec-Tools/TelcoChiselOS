@@ -1,0 +1,816 @@
+#!/bin/bash
+# ==============================================================================
+# /usr/local/bin/telcosec-sdr — Official TelcoChisel SDR Driver & Hardware Manager
+#
+# Manages Software Defined Radio (SDR) driver stacks, kernel parameters,
+# USB autosuspend/usbfs memory limits, and 10Gbps SFP+ network optimizations
+# for high-bandwidth cellular transceivers (USRP, HackRF, BladeRF, LimeSDR, RTL-SDR).
+#
+# Maintainer: TelcoSec Engineering <ops@telcosec.net>
+# Web:        https://chisel.telcosec.net
+# License:    Apache 2.0
+# ==============================================================================
+
+set -euo pipefail
+
+VERSION="1.2.0"
+
+# Color definitions
+if [ -t 1 ]; then
+  RED='\033[0;31m'
+  GREEN='\033[0;32m'
+  YELLOW='\033[1;33m'
+  BLUE='\033[0;34m'
+  CYAN='\033[0;36m'
+  MAGENTA='\033[0;35m'
+  WHITE='\033[1;37m'
+  BOLD='\033[1m'
+  DIM='\033[2m'
+  RESET='\033[0m'
+else
+  RED=''
+  GREEN=''
+  YELLOW=''
+  BLUE=''
+  CYAN=''
+  MAGENTA=''
+  WHITE=''
+  BOLD=''
+  DIM=''
+  RESET=''
+fi
+
+JSON_MODE=0
+
+# Ensure Conda environment paths are accessible
+if [ -f "/opt/telcosec/miniconda/etc/profile.d/conda.sh" ]; then
+  # shellcheck source=/dev/null
+  source "/opt/telcosec/miniconda/etc/profile.d/conda.sh" 2>/dev/null || true
+  conda activate telcosec-sdr 2>/dev/null || true
+fi
+
+# Supported hardware device registry: vendor:product -> Name
+declare -A USB_SDR_REGISTRY=(
+  ["2500:0020"]="Ettus USRP B200 / B210"
+  ["2500:0021"]="Ettus USRP B200mini"
+  ["2500:0022"]="Ettus USRP B205mini"
+  ["3923:7813"]="NI USRP-2900"
+  ["3923:7814"]="NI USRP-2901"
+  ["1d50:6089"]="Great Scott Gadgets HackRF One"
+  ["1d50:604b"]="Great Scott Gadgets HackRF Jawbreaker"
+  ["1d50:cc15"]="Great Scott Gadgets Rad1o"
+  ["2cf0:5250"]="Nuand BladeRF 2.0 micro"
+  ["2cf0:5246"]="Nuand BladeRF x40 / x115"
+  ["1d50:6108"]="MyriadRF LimeSDR USB"
+  ["0403:601f"]="MyriadRF LimeSDR Mini"
+  ["0bda:2838"]="Realtek RTL2838 / RTL-SDR"
+  ["0bda:2832"]="Realtek RTL2832U"
+  ["1d50:60a1"]="Airspy R2 / Mini"
+  ["03eb:800c"]="Airspy HF+"
+  ["0456:b673"]="Analog Devices ADALM-PLUTO"
+  ["0456:b674"]="Analog Devices ADALM-PLUTO (DFU)"
+)
+
+# ------------------------------------------------------------------------------
+# Helpers
+# ------------------------------------------------------------------------------
+banner() {
+  if [ "$JSON_MODE" -eq 1 ]; then return; fi
+  echo -e "${CYAN}${BOLD}"
+  echo "  ╔════════════════════════════════════════════════════════════════╗"
+  echo "  ║          TelcoChisel SDR Driver & Hardware Manager             ║"
+  echo "  ║          USB & 10Gbps Transceiver Optimization Suite           ║"
+  echo "  ╚════════════════════════════════════════════════════════════════╝"
+  echo -e "${RESET}"
+}
+
+usage() {
+  cat << EOF
+TelcoChisel SDR Driver & Hardware Manager v${VERSION}
+
+Usage:
+  telcosec-sdr [command] [options]
+
+Core Commands:
+  status                     Comprehensive audit of SDR drivers, USB limits, and 10GbE
+  list                       List supported SDR transceivers and driver modules
+  check                      Quick health verification of all installed SDR tools
+
+USB SDR Management:
+  usb status                 Enumerate attached USB SDRs, bus speeds, and power state
+  usb tune                   Optimize USB buffer limits (usbfs_memory_mb) & autosuspend
+  usb reset [device]         Power-cycle or reset connected USB transceiver
+
+10Gbps & Network SDR Management (USRP X310 / N310):
+  10g status                 Inspect 10GbE NICs, link state, MTU, ring buffers & sysctl
+  10g tune <iface>           Optimize interface: MTU 9000, 4096 rings, 64MB socket buffers
+  10g setup <iface> [preset] One-step config for USRP (presets: x310-0, x310-1, n310-0, n310-1)
+  10g probe [ip]             Probe network for USRP devices via UHD and broadcast
+
+Firmware & FPGA Bitstreams:
+  firmware status            Inspect local offline FPGA bitstream and firmware caches
+  firmware download          Trigger on-demand download of FPGA images (UHD / BladeRF)
+
+Performance & Benchmarking:
+  benchmark [usb|10g] [args] Run UHD benchmark_rate to check for dropped samples (O/U/D)
+
+Options:
+  --json                     Output results in machine-readable JSON format
+  -h, --help                 Show this help manual
+  -v, --version              Show version information
+
+EOF
+}
+
+# ------------------------------------------------------------------------------
+# Driver Stacks Audit
+# ------------------------------------------------------------------------------
+check_driver() {
+  local name="$1"
+  local cmd="$2"
+  local ver_cmd="$3"
+  
+  local installed=0
+  local version="not detected"
+  local path=""
+
+  if command -v "$cmd" &>/dev/null; then
+    installed=1
+    path="$(command -v "$cmd")"
+    version=$(eval "$ver_cmd" 2>/dev/null | head -1 | tr -d '\r\n')
+  elif [ -f "/opt/telcosec/miniconda/envs/telcosec-sdr/bin/$cmd" ]; then
+    installed=1
+    path="/opt/telcosec/miniconda/envs/telcosec-sdr/bin/$cmd"
+    version=$(eval "$path $ver_cmd" 2>/dev/null | head -1 | tr -d '\r\n')
+  fi
+
+  echo "${installed}|${path}|${version}"
+}
+
+cmd_status() {
+  if [ "$JSON_MODE" -eq 1 ]; then
+    cmd_status_json
+    return
+  fi
+
+  banner
+  echo -e "${BOLD}=== SDR Driver Frameworks & Stacks ===${RESET}"
+
+  # UHD
+  local uhd_info
+  uhd_info=$(check_driver "UHD" "uhd_find_devices" "--version")
+  IFS='|' read -r uhd_inst uhd_path uhd_ver <<< "$uhd_info"
+  if [ "$uhd_inst" -eq 1 ]; then
+    echo -e "  [${GREEN}OK${RESET}] UHD (Ettus USRP)       : ${GREEN}Installed${RESET} (${uhd_ver}) [${DIM}${uhd_path}${RESET}]"
+  else
+    echo -e "  [${RED}MISSING${RESET}] UHD (Ettus USRP)  : Not found"
+  fi
+
+  # HackRF
+  local hackrf_info
+  hackrf_info=$(check_driver "HackRF" "hackrf_info" "-v")
+  IFS='|' read -r hrf_inst hrf_path hrf_ver <<< "$hackrf_info"
+  if [ "$hrf_inst" -eq 1 ]; then
+    echo -e "  [${GREEN}OK${RESET}] HackRF Host Tools      : ${GREEN}Installed${RESET} (${hrf_ver}) [${DIM}${hrf_path}${RESET}]"
+  else
+    echo -e "  [${RED}MISSING${RESET}] HackRF Host Tools : Not found"
+  fi
+
+  # BladeRF
+  local bladerf_info
+  bladerf_info=$(check_driver "BladeRF" "bladeRF-cli" "--version")
+  IFS='|' read -r brf_inst brf_path brf_ver <<< "$bladerf_info"
+  if [ "$brf_inst" -eq 1 ]; then
+    echo -e "  [${GREEN}OK${RESET}] Nuand BladeRF Host     : ${GREEN}Installed${RESET} (${brf_ver}) [${DIM}${brf_path}${RESET}]"
+  else
+    echo -e "  [${RED}MISSING${RESET}] Nuand BladeRF Host: Not found"
+  fi
+
+  # LimeSuite
+  local lime_info
+  lime_info=$(check_driver "LimeSuite" "LimeUtil" "--info | grep 'Version:' | head -1")
+  IFS='|' read -r lime_inst lime_path lime_ver <<< "$lime_info"
+  if [ "$lime_inst" -eq 1 ]; then
+    echo -e "  [${GREEN}OK${RESET}] LimeSuite (LimeSDR)    : ${GREEN}Installed${RESET} (${lime_ver}) [${DIM}${lime_path}${RESET}]"
+  else
+    echo -e "  [${RED}MISSING${RESET}] LimeSuite (LimeSDR): Not found"
+  fi
+
+  # RTL-SDR
+  local rtl_info
+  rtl_info=$(check_driver "RTL-SDR" "rtl_test" "-h | grep 'rtl_test' | head -1")
+  IFS='|' read -r rtl_inst rtl_path rtl_ver <<< "$rtl_info"
+  if [ "$rtl_inst" -eq 1 ]; then
+    echo -e "  [${GREEN}OK${RESET}] RTL-SDR Tools          : ${GREEN}Installed${RESET} [${DIM}${rtl_path}${RESET}]"
+  else
+    echo -e "  [${RED}MISSING${RESET}] RTL-SDR Tools     : Not found"
+  fi
+
+  # SoapySDR
+  local soapy_info
+  soapy_info=$(check_driver "SoapySDR" "SoapySDRUtil" "--info | grep 'Lib Version:' | head -1")
+  IFS='|' read -r soapy_inst soapy_path soapy_ver <<< "$soapy_info"
+  if [ "$soapy_inst" -eq 1 ]; then
+    echo -e "  [${GREEN}OK${RESET}] SoapySDR Abstraction   : ${GREEN}Installed${RESET} (${soapy_ver}) [${DIM}${soapy_path}${RESET}]"
+    local modules
+    modules=$(SoapySDRUtil --info 2>/dev/null | awk '/Available factories/{flag=1;next}/^$/{flag=0}flag' | tr '\n' ' ' || true)
+    if [ -n "$modules" ]; then
+      echo -e "       ${DIM}Loaded Modules : ${modules}${RESET}"
+    fi
+  else
+    echo -e "  [${RED}MISSING${RESET}] SoapySDR           : Not found"
+  fi
+
+  # Conda Environment
+  echo ""
+  echo -e "${BOLD}=== RF & DSP Python Conda Environment ===${RESET}"
+  if [ -d "/opt/telcosec/miniconda/envs/telcosec-sdr" ]; then
+    echo -e "  [${GREEN}OK${RESET}] Environment 'telcosec-sdr' : ${GREEN}Available${RESET} (/opt/telcosec/miniconda/envs/telcosec-sdr)"
+    if python3 -c "import gnuradio; print(gnuradio.__version__)" &>/dev/null; then
+      local gnuradio_ver
+      gnuradio_ver=$(python3 -c "import gnuradio; print(gnuradio.__version__)" 2>/dev/null)
+      echo -e "  [${GREEN}OK${RESET}] GNU Radio Python Bindings  : ${GREEN}Active${RESET} (v${gnuradio_ver})"
+    fi
+  else
+    echo -e "  [${YELLOW}WARN${RESET}] Environment 'telcosec-sdr' : Missing or not activated"
+  fi
+
+  # USB Subsystem Summary
+  echo ""
+  cmd_usb_status
+
+  # 10GbE Subsystem Summary
+  echo ""
+  cmd_10g_status
+}
+
+cmd_status_json() {
+  local usbfs_mb=0
+  if [ -f /sys/module/usbcore/parameters/usbfs_memory_mb ]; then
+    usbfs_mb=$(cat /sys/module/usbcore/parameters/usbfs_memory_mb)
+  fi
+
+  local rmem_max=0
+  local wmem_max=0
+  rmem_max=$(sysctl -n net.core.rmem_max 2>/dev/null || echo 0)
+  wmem_max=$(sysctl -n net.core.wmem_max 2>/dev/null || echo 0)
+
+  cat << EOF
+{
+  "version": "${VERSION}",
+  "tools": {
+    "uhd": $(command -v uhd_find_devices &>/dev/null && echo "true" || echo "false"),
+    "hackrf": $(command -v hackrf_info &>/dev/null && echo "true" || echo "false"),
+    "bladerf": $(command -v bladeRF-cli &>/dev/null && echo "true" || echo "false"),
+    "limesuite": $(command -v LimeUtil &>/dev/null && echo "true" || echo "false"),
+    "rtlsdr": $(command -v rtl_test &>/dev/null && echo "true" || echo "false"),
+    "soapysdr": $(command -v SoapySDRUtil &>/dev/null && echo "true" || echo "false")
+  },
+  "usb": {
+    "usbfs_memory_mb": ${usbfs_mb},
+    "plugdev_member": $(id -nG 2>/dev/null | grep -qw "plugdev" && echo "true" || echo "false")
+  },
+  "network_10g": {
+    "rmem_max": ${rmem_max},
+    "wmem_max": ${wmem_max}
+  }
+}
+EOF
+}
+
+# ------------------------------------------------------------------------------
+# USB SDR Management
+# ------------------------------------------------------------------------------
+cmd_usb_status() {
+  if [ "$JSON_MODE" -ne 1 ]; then
+    echo -e "${BOLD}=== USB SDR Transceiver Subsystem ===${RESET}"
+  fi
+
+  # 1. Check usbfs_memory_mb
+  local usbfs_mb="N/A"
+  if [ -f /sys/module/usbcore/parameters/usbfs_memory_mb ]; then
+    usbfs_mb=$(cat /sys/module/usbcore/parameters/usbfs_memory_mb)
+    if [ "$usbfs_mb" -ge 1000 ]; then
+      echo -e "  [${GREEN}OK${RESET}] USB Buffer Memory (usbfs)  : ${GREEN}${usbfs_mb} MB${RESET} (sufficient for high-rate I/Q)"
+    elif [ "$usbfs_mb" -gt 0 ]; then
+      echo -e "  [${YELLOW}WARN${RESET}] USB Buffer Memory (usbfs): ${YELLOW}${usbfs_mb} MB${RESET} (recommend >= 1000 MB for B210/BladeRF; run: sudo telcosec-sdr usb tune)"
+    else
+      echo -e "  [${RED}LOW${RESET}] USB Buffer Memory (usbfs) : ${RED}${usbfs_mb} MB${RESET} (sample drops likely; run: sudo telcosec-sdr usb tune)"
+    fi
+  fi
+
+  # 2. Check group permissions
+  if id -nG 2>/dev/null | grep -qw "plugdev"; then
+    echo -e "  [${GREEN}OK${RESET}] Hardware Group Permissions : ${GREEN}User belongs to 'plugdev'${RESET}"
+  else
+    echo -e "  [${YELLOW}WARN${RESET}] Hardware Group Permissions: User is NOT in 'plugdev' (run: sudo usermod -aG plugdev \$USER)"
+  fi
+
+  # 3. Discover attached devices
+  echo -e "  ${CYAN}Attached USB SDR Hardware:${RESET}"
+  local found_usb=0
+  while read -r line; do
+    if [ -z "$line" ]; then continue; fi
+    local vidpid
+    vidpid=$(echo "$line" | awk '{print $6}')
+    local bus dev
+    bus=$(echo "$line" | awk '{print $2}')
+    dev=$(echo "$line" | awk '{print $4}' | tr -d ':')
+    
+    if [[ -n "${USB_SDR_REGISTRY[$vidpid]:-}" ]]; then
+      found_usb=1
+      local dev_name="${USB_SDR_REGISTRY[$vidpid]}"
+      
+      # Determine USB speed from sysfs if accessible
+      local speed="unknown"
+      local sysfs_speed_file="/sys/bus/usb/devices/${bus}-${dev}/speed"
+      if [ -f "$sysfs_speed_file" ]; then
+        speed=$(cat "$sysfs_speed_file")
+        speed="${speed} Mbps"
+      fi
+
+      echo -e "    * ${GREEN}${dev_name}${RESET} [VID:PID ${vidpid}] on Bus ${bus} Dev ${dev} (${speed})"
+    fi
+  done < <(lsusb 2>/dev/null || true)
+
+  if [ "$found_usb" -eq 0 ]; then
+    echo -e "    ${DIM}(No known USB SDR transceivers detected via lsusb)${RESET}"
+  fi
+}
+
+cmd_usb_tune() {
+  banner
+  echo -e "${BOLD}=== Optimizing USB SDR Subsystem ===${RESET}\n"
+
+  if [ "$(id -u)" -ne 0 ]; then
+    echo -e "${RED}Error: Root privileges required for USB tuning. Run with sudo.${RESET}" >&2
+    exit 1
+  fi
+
+  # 1. Set usbfs_memory_mb
+  if [ -f /sys/module/usbcore/parameters/usbfs_memory_mb ]; then
+    echo 1000 > /sys/module/usbcore/parameters/usbfs_memory_mb
+    echo -e "  [${GREEN}OK${RESET}] Set /sys/module/usbcore/parameters/usbfs_memory_mb = 1000 MB"
+  fi
+
+  # Ensure persistent setting across reboots in /etc/modprobe.d
+  cat << 'EOF' > /etc/modprobe.d/telcosec-sdr-usb.conf
+# Set USB buffer allocation to 1000 MB for zero-drop SDR sample streaming
+options usbcore usbfs_memory_mb=1000
+EOF
+  echo -e "  [${GREEN}OK${RESET}] Persisted usbcore.usbfs_memory_mb=1000 in /etc/modprobe.d/telcosec-sdr-usb.conf"
+
+  # 2. Disable USB autosuspend on all SDR devices
+  local count=0
+  for dev_dir in /sys/bus/usb/devices/*; do
+    if [ -f "${dev_dir}/idVendor" ] && [ -f "${dev_dir}/idProduct" ]; then
+      local vid pid
+      vid=$(cat "${dev_dir}/idVendor")
+      pid=$(cat "${dev_dir}/idProduct")
+      local vidpid="${vid}:${pid}"
+
+      if [[ -n "${USB_SDR_REGISTRY[$vidpid]:-}" ]]; then
+        if [ -f "${dev_dir}/power/control" ]; then
+          echo on > "${dev_dir}/power/control" 2>/dev/null || true
+        fi
+        if [ -f "${dev_dir}/power/autosuspend_delay_ms" ]; then
+          echo 0 > "${dev_dir}/power/autosuspend_delay_ms" 2>/dev/null || true
+        fi
+        count=$((count + 1))
+        echo -e "  [${GREEN}OK${RESET}] Disabled autosuspend on ${USB_SDR_REGISTRY[$vidpid]} (${vidpid})"
+      fi
+    fi
+  done
+
+  # 3. Blacklist conflicting DVB-T kernel TV drivers (ensures RTL-SDR works)
+  cat << 'EOF' > /etc/modprobe.d/telcosec-sdr-blacklist.conf
+# Blacklist conflicting DVB-T television drivers so RTL-SDR works in user-space
+blacklist dvb_usb_rtl28xxu
+blacklist rtl2832
+blacklist rtl2830
+blacklist dvb_usb_v2
+blacklist dvb_core
+EOF
+  echo -e "  [${GREEN}OK${RESET}] Blacklisted kernel DVB-T TV tuner drivers in /etc/modprobe.d/telcosec-sdr-blacklist.conf"
+
+  echo -e "\n${GREEN}✓ USB SDR Subsystem tuned successfully!${RESET}\n"
+}
+
+cmd_usb_reset() {
+  local target="${1:-}"
+  banner
+  echo -e "${BOLD}=== USB SDR Hardware Reset ===${RESET}\n"
+
+  if [ "$(id -u)" -ne 0 ]; then
+    echo -e "${RED}Error: Root privileges required to reset USB devices. Run with sudo.${RESET}" >&2
+    exit 1
+  fi
+
+  local reset_count=0
+  for dev_dir in /sys/bus/usb/devices/*; do
+    if [ -f "${dev_dir}/idVendor" ] && [ -f "${dev_dir}/idProduct" ]; then
+      local vid pid
+      vid=$(cat "${dev_dir}/idVendor")
+      pid=$(cat "${dev_dir}/idProduct")
+      local vidpid="${vid}:${pid}"
+
+      if [[ -n "${USB_SDR_REGISTRY[$vidpid]:-}" ]]; then
+        if [ -z "$target" ] || [[ "${USB_SDR_REGISTRY[$vidpid]}" =~ $target ]] || [ "$vidpid" == "$target" ]; then
+          local bname
+          bname=$(basename "$dev_dir")
+          echo -e "Resetting ${USB_SDR_REGISTRY[$vidpid]} [${bname}]..."
+          if [ -f "/sys/bus/usb/drivers/usb/unbind" ] && [ -f "/sys/bus/usb/drivers/usb/bind" ]; then
+            echo "$bname" > /sys/bus/usb/drivers/usb/unbind 2>/dev/null || true
+            sleep 1
+            echo "$bname" > /sys/bus/usb/drivers/usb/bind 2>/dev/null || true
+            echo -e "  [${GREEN}OK${RESET}] Power-cycled bus node ${bname}"
+            reset_count=$((reset_count + 1))
+          fi
+        fi
+      fi
+    fi
+  done
+
+  if [ "$reset_count" -eq 0 ]; then
+    echo -e "${YELLOW}No matching active USB SDR transceivers found to reset.${RESET}"
+  else
+    echo -e "\n${GREEN}✓ Reset ${reset_count} device(s). Re-enumerating...${RESET}"
+    sleep 1
+    cmd_usb_status
+  fi
+}
+
+# ------------------------------------------------------------------------------
+# 10Gbps & Network SDR Management (USRP X310 / N310)
+# ------------------------------------------------------------------------------
+cmd_10g_status() {
+  if [ "$JSON_MODE" -ne 1 ]; then
+    echo -e "${BOLD}=== 10Gbps & Ethernet SDR Networking Subsystem ===${RESET}"
+  fi
+
+  # 1. Check socket memory limits
+  local rmem_max wmem_max
+  rmem_max=$(sysctl -n net.core.rmem_max 2>/dev/null || echo 0)
+  wmem_max=$(sysctl -n net.core.wmem_max 2>/dev/null || echo 0)
+  
+  local target_mem=67108864 # 64 MB
+  if [ "$rmem_max" -ge "$target_mem" ] && [ "$wmem_max" -ge "$target_mem" ]; then
+    echo -e "  [${GREEN}OK${RESET}] Socket Buffers (rmem/wmem) : ${GREEN}${rmem_max} bytes${RESET} (>= 64 MB, optimal for 10GbE)"
+  else
+    echo -e "  [${YELLOW}WARN${RESET}] Socket Buffers (rmem/wmem): ${YELLOW}${rmem_max} / ${wmem_max}${RESET} (recommend 67108864; run: sudo telcosec-sdr 10g tune)"
+  fi
+
+  # 2. Check CPU frequency governor
+  if [ -f /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ]; then
+    local gov
+    gov=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
+    if [ "$gov" == "performance" ]; then
+      echo -e "  [${GREEN}OK${RESET}] CPU Scaling Governor       : ${GREEN}performance${RESET} (zero frequency throttle)"
+    else
+      echo -e "  [${YELLOW}INFO${RESET}] CPU Scaling Governor       : ${YELLOW}${gov}${RESET} (run 'sudo telcosec-sdr 10g tune' to set performance)"
+    fi
+  fi
+
+  # 3. Detect 10GbE / High-Speed Network Interfaces
+  echo -e "  ${CYAN}Detected Network Interfaces:${RESET}"
+  local found_iface=0
+  for iface in $(ip -o link show 2>/dev/null | awk -F': ' '{print $2}' | grep -vE '^(lo|docker|veth|br-|tap|tun)'); do
+    found_iface=1
+    local mtu state speed="unknown"
+    mtu=$(ip link show "$iface" 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="mtu") print $(i+1)}')
+    state=$(ip link show "$iface" 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="state") print $(i+1)}')
+    
+    if command -v ethtool &>/dev/null; then
+      local eth_speed
+      eth_speed=$(ethtool "$iface" 2>/dev/null | grep "Speed:" | awk '{print $2}' || true)
+      if [ -n "$eth_speed" ] && [ "$eth_speed" != "Unknown!" ]; then
+        speed="$eth_speed"
+      fi
+    fi
+
+    local ip_addr
+    ip_addr=$(ip -4 addr show "$iface" 2>/dev/null | awk '/inet /{print $2}' | head -1 || echo "none")
+
+    local status_color="${YELLOW}"
+    if [ "$mtu" -ge 9000 ]; then
+      status_color="${GREEN}"
+    fi
+
+    echo -e "    * ${BOLD}${iface}${RESET}: State ${state} | Speed ${speed} | MTU ${status_color}${mtu}${RESET} | IP ${ip_addr}"
+  done
+
+  if [ "$found_iface" -eq 0 ]; then
+    echo -e "    ${DIM}(No physical network interfaces detected)${RESET}"
+  fi
+}
+
+cmd_10g_tune() {
+  local iface="${1:-}"
+  banner
+  echo -e "${BOLD}=== 10Gbps Ethernet SDR Interface Optimization ===${RESET}\n"
+
+  if [ "$(id -u)" -ne 0 ]; then
+    echo -e "${RED}Error: Root privileges required to tune network interfaces. Run with sudo.${RESET}" >&2
+    exit 1
+  fi
+
+  if [ -z "$iface" ]; then
+    echo -e "${YELLOW}Please specify target network interface (e.g. eth0, enp3s0f0, eno1).${RESET}"
+    echo "Available interfaces:"
+    ip -o link show | awk -F': ' '{print "  * " $2}' | grep -vE ' (lo|docker|veth|br-)'
+    exit 1
+  fi
+
+  if ! ip link show "$iface" &>/dev/null; then
+    echo -e "${RED}Error: Interface '$iface' not found.${RESET}" >&2
+    exit 1
+  fi
+
+  echo "Applying high-throughput 10Gbps tuning to '$iface'..."
+
+  # 1. Set MTU 9000 (Jumbo Frames)
+  ip link set "$iface" mtu 9000
+  echo -e "  [${GREEN}OK${RESET}] Configured Jumbo Frames (MTU 9000) on ${iface}"
+
+  # 2. Maximize RX/TX Ring Descriptors to 4096 if supported
+  if command -v ethtool &>/dev/null; then
+    ethtool -G "$iface" rx 4096 tx 4096 2>/dev/null && \
+      echo -e "  [${GREEN}OK${RESET}] Set Ring Buffers (rx 4096 tx 4096) on ${iface}" || \
+      echo -e "  [${DIM}SKIP${RESET}] Ring buffer resizing not supported by driver on ${iface}"
+
+    # Disable Ethernet Flow Control to avoid blocking high-rate I/Q packets
+    ethtool -A "$iface" rx off tx off 2>/dev/null && \
+      echo -e "  [${GREEN}OK${RESET}] Disabled Ethernet Flow Control (PAUSE frames) on ${iface}" || true
+  fi
+
+  # 3. Kernel socket buffers optimization
+  cat << 'EOF' > /etc/sysctl.d/99-telcosec-sdr-10g.conf
+# High-concurrency socket memory buffers for 10GbE / 25GbE SDR sample streaming
+net.core.rmem_max = 67108864
+net.core.wmem_max = 67108864
+net.core.rmem_default = 33554432
+net.core.wmem_default = 33554432
+net.core.netdev_max_backlog = 10000
+EOF
+  sysctl -p /etc/sysctl.d/99-telcosec-sdr-10g.conf >/dev/null
+  echo -e "  [${GREEN}OK${RESET}] Applied 64 MB socket memory thresholds (net.core.rmem_max/wmem_max)"
+
+  # 4. CPU governor to performance
+  if [ -d /sys/devices/system/cpu/cpu0/cpufreq ]; then
+    for gov_file in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+      echo performance > "$gov_file" 2>/dev/null || true
+    done
+    echo -e "  [${GREEN}OK${RESET}] Configured CPU scaling governors to 'performance'"
+  fi
+
+  echo -e "\n${GREEN}✓ Interface '$iface' tuned for 10Gbps SDR streaming!${RESET}\n"
+}
+
+cmd_10g_setup() {
+  local iface="${1:-}"
+  local preset="${2:-x310-0}"
+  local custom_ip="${3:-}"
+
+  banner
+  echo -e "${BOLD}=== 10Gbps USRP Network Quick Setup ===${RESET}\n"
+
+  if [ "$(id -u)" -ne 0 ]; then
+    echo -e "${RED}Error: Root privileges required for IP configuration. Run with sudo.${RESET}" >&2
+    exit 1
+  fi
+
+  if [ -z "$iface" ]; then
+    echo -e "${YELLOW}Usage: sudo telcosec-sdr 10g setup <iface> [preset|ip]${RESET}"
+    echo "Presets:"
+    echo "  x310-0    USRP X310 SFP+ Port 0 (Host: 192.168.30.1/24 -> SDR: 192.168.30.2)"
+    echo "  x310-1    USRP X310 SFP+ Port 1 (Host: 192.168.40.1/24 -> SDR: 192.168.40.2)"
+    echo "  n310-0    USRP N310 SFP+ Port 0 (Host: 192.168.10.1/24 -> SDR: 192.168.10.2)"
+    echo "  n310-1    USRP N310 SFP+ Port 1 (Host: 192.168.20.1/24 -> SDR: 192.168.20.2)"
+    exit 1
+  fi
+
+  local host_ip=""
+  local target_usrp_ip=""
+
+  case "$preset" in
+    x310-0)
+      host_ip="192.168.30.1/24"
+      target_usrp_ip="192.168.30.2"
+      ;;
+    x310-1)
+      host_ip="192.168.40.1/24"
+      target_usrp_ip="192.168.40.2"
+      ;;
+    n310-0)
+      host_ip="192.168.10.1/24"
+      target_usrp_ip="192.168.10.2"
+      ;;
+    n310-1)
+      host_ip="192.168.20.1/24"
+      target_usrp_ip="192.168.20.2"
+      ;;
+    *)
+      if [ -n "$custom_ip" ]; then
+        host_ip="$custom_ip"
+      else
+        host_ip="$preset"
+      fi
+      ;;
+  esac
+
+  echo "Configuring $iface for USRP with Host IP $host_ip..."
+  ip link set "$iface" up
+  ip link set "$iface" mtu 9000
+  ip addr flush dev "$iface"
+  ip addr add "$host_ip" dev "$iface"
+
+  # Run interface tuning
+  cmd_10g_tune "$iface" >/dev/null
+
+  echo -e "\n${GREEN}✓ Interface '$iface' configured with ${host_ip} (MTU 9000).${RESET}"
+  if [ -n "$target_usrp_ip" ]; then
+    echo -e "Expected USRP Device IP : ${CYAN}${target_usrp_ip}${RESET}"
+    echo -e "Testing connectivity..."
+    if ping -c 1 -W 2 "$target_usrp_ip" &>/dev/null; then
+      echo -e "  [${GREEN}PING OK${RESET}] USRP at ${target_usrp_ip} responded!"
+    else
+      echo -e "  [${YELLOW}NO PING${RESET}] USRP at ${target_usrp_ip} not responding yet (check SFP+ cable)."
+    fi
+  fi
+}
+
+cmd_10g_probe() {
+  local target_ip="${1:-}"
+  banner
+  echo -e "${BOLD}=== Probing Network for USRP Transceivers ===${RESET}\n"
+
+  if [ -n "$target_ip" ]; then
+    echo "Probing USRP at specific IP: $target_ip..."
+    uhd_find_devices --args="addr=${target_ip}" 2>/dev/null || echo "No device found at $target_ip."
+  else
+    echo "Broadcasting UHD network discovery packets across local subnets..."
+    uhd_find_devices 2>/dev/null || echo "No network USRP devices responded to discovery broadcast."
+  fi
+}
+
+# ------------------------------------------------------------------------------
+# Firmware & Bitstreams Management
+# ------------------------------------------------------------------------------
+cmd_firmware() {
+  local sub="${1:-status}"
+  banner
+  echo -e "${BOLD}=== SDR Firmware & FPGA Bitstreams ===${RESET}\n"
+
+  case "$sub" in
+    status)
+      echo -e "${CYAN}1. Ettus Research USRP FPGA Images (/usr/share/uhd/images):${RESET}"
+      if [ -d "/usr/share/uhd/images" ] && [ "$(ls -A /usr/share/uhd/images 2>/dev/null)" ]; then
+        local count
+        count=$(find /usr/share/uhd/images -type f | wc -l)
+        echo -e "  [${GREEN}OK${RESET}] ${count} FPGA/firmware files present (offline ready)."
+        find /usr/share/uhd/images -maxdepth 1 -name "*.bin" 2>/dev/null | head -5 | awk '{print "    * " $0}' || true
+      else
+        echo -e "  [${YELLOW}WARN${RESET}] No UHD images installed. Run: sudo telcosec-sdr firmware download"
+      fi
+
+      echo -e "\n${CYAN}2. Nuand BladeRF FPGA Bitstreams (/usr/share/Nuand/bladeRF):${RESET}"
+      if [ -d "/usr/share/Nuand/bladeRF" ] && [ "$(ls -A /usr/share/Nuand/bladeRF 2>/dev/null)" ]; then
+        for rbf in hostedxA4.rbf hostedxA9.rbf hostedx40.rbf hostedx115.rbf; do
+          if [ -f "/usr/share/Nuand/bladeRF/${rbf}" ]; then
+            echo -e "  [${GREEN}OK${RESET}] ${rbf} present"
+          else
+            echo -e "  [${YELLOW}MISSING${RESET}] ${rbf}"
+          fi
+        done
+      else
+        echo -e "  [${YELLOW}WARN${RESET}] No BladeRF bitstreams installed. Run: sudo telcosec-sdr firmware download"
+      fi
+      ;;
+
+    download|update)
+      echo "Triggering on-demand firmware downloaders..."
+      if [ -x "/usr/local/bin/uhd-download-images" ]; then
+        echo "Running uhd-download-images..."
+        sudo /usr/local/bin/uhd-download-images --types b2xx || true
+      fi
+      if [ -x "/usr/local/bin/bladerf-download-images" ]; then
+        echo "Running bladerf-download-images..."
+        sudo /usr/local/bin/bladerf-download-images || true
+      fi
+      ;;
+  esac
+}
+
+# ------------------------------------------------------------------------------
+# Benchmark Mode
+# ------------------------------------------------------------------------------
+cmd_benchmark() {
+  local mode="${1:-usb}"
+  shift || true
+  banner
+  echo -e "${BOLD}=== SDR Hardware Throughput & Sample Rate Benchmark ===${RESET}\n"
+
+  if ! command -v benchmark_rate &>/dev/null; then
+    echo -e "${RED}Error: 'benchmark_rate' from UHD not found in PATH or Conda environment.${RESET}" >&2
+    exit 1
+  fi
+
+  case "$mode" in
+    usb)
+      echo "Running benchmark on USB USRP (rate 30.72 MS/s for LTE 20MHz)..."
+      benchmark_rate --rx_rate 30.72e6 --tx_rate 30.72e6 "$@"
+      ;;
+    10g)
+      echo "Running benchmark on 10GbE USRP (rate 100 MS/s for 5G NR 100MHz)..."
+      benchmark_rate --rx_rate 100e6 --tx_rate 100e6 "$@"
+      ;;
+    *)
+      benchmark_rate "$mode" "$@"
+      ;;
+  esac
+}
+
+# ------------------------------------------------------------------------------
+# List Supported Hardware Matrix
+# ------------------------------------------------------------------------------
+cmd_list() {
+  banner
+  echo -e "${BOLD}Supported SDR Hardware Matrix & Driver Architecture${RESET}\n"
+  printf "  %-32s | %-12s | %-16s | %-16s\n" "Hardware Model" "Transport" "Primary Driver" "Typical Max Rate"
+  echo "  ---------------------------------+--------------+------------------+------------------"
+  printf "  %-32s | %-12s | %-16s | %-16s\n" "Ettus USRP B200 / B210" "USB 3.0" "UHD / SoapyUHD" "61.44 MS/s"
+  printf "  %-32s | %-12s | %-16s | %-16s\n" "Ettus USRP B200mini / B205mini" "USB 3.0" "UHD / SoapyUHD" "61.44 MS/s"
+  printf "  %-32s | %-12s | %-16s | %-16s\n" "Ettus USRP X300 / X310" "10GbE / SFP+" "UHD / SoapyUHD" "200.00 MS/s"
+  printf "  %-32s | %-12s | %-16s | %-16s\n" "Ettus USRP N300 / N310 / N320" "10GbE / SFP+" "UHD / SoapyUHD" "153.60 MS/s"
+  printf "  %-32s | %-12s | %-16s | %-16s\n" "Ettus USRP X410" "100GbE/QSFP28" "UHD / DPDK" "400.00 MS/s"
+  printf "  %-32s | %-12s | %-16s | %-16s\n" "Nuand BladeRF 2.0 micro (xA4/9)" "USB 3.0" "libbladeRF / Soapy" "61.44 MS/s"
+  printf "  %-32s | %-12s | %-16s | %-16s\n" "Great Scott Gadgets HackRF One" "USB 2.0" "libhackrf / Soapy" "20.00 MS/s"
+  printf "  %-32s | %-12s | %-16s | %-16s\n" "MyriadRF LimeSDR USB / Mini" "USB 3.0" "LimeSuite / Soapy" "61.44 MS/s"
+  printf "  %-32s | %-12s | %-16s | %-16s\n" "Realtek RTL2838 / RTL-SDR" "USB 2.0" "librtlsdr / Soapy" "3.20 MS/s (RX)"
+  printf "  %-32s | %-12s | %-16s | %-16s\n" "Analog Devices ADALM-PLUTO" "USB 2.0 / Eth" "libiio / Soapy" "20.00 MS/s"
+  echo ""
+}
+
+# ------------------------------------------------------------------------------
+# Main Dispatcher
+# ------------------------------------------------------------------------------
+main() {
+  local cmd="${1:-status}"
+  shift || true
+
+  case "$cmd" in
+    --json)
+      JSON_MODE=1
+      main "${1:-status}" "${@:2}"
+      ;;
+    status)
+      cmd_status
+      ;;
+    list)
+      cmd_list
+      ;;
+    check)
+      cmd_status
+      ;;
+    usb)
+      local sub="${1:-status}"
+      shift || true
+      case "$sub" in
+        status) cmd_usb_status ;;
+        tune)   cmd_usb_tune ;;
+        reset)  cmd_usb_reset "$@" ;;
+        *)      cmd_usb_status ;;
+      esac
+      ;;
+    10g|10gbe|network)
+      local sub="${1:-status}"
+      shift || true
+      case "$sub" in
+        status) cmd_10g_status ;;
+        tune)   cmd_10g_tune "$@" ;;
+        setup)  cmd_10g_setup "$@" ;;
+        probe)  cmd_10g_probe "$@" ;;
+        *)      cmd_10g_status ;;
+      esac
+      ;;
+    firmware)
+      cmd_firmware "$@"
+      ;;
+    benchmark)
+      cmd_benchmark "$@"
+      ;;
+    -v|--version)
+      echo "telcosec-sdr v${VERSION}"
+      ;;
+    -h|--help|help)
+      usage
+      ;;
+    *)
+      echo -e "${RED}Unknown command: '${cmd}'${RESET}\n" >&2
+      usage
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

@@ -82,7 +82,15 @@ export const featuresCatalog = [
     category: "hardware",
     desc: "Field utilities including telcosec-create-usb for automated LUKS encrypted persistence and telcosec-download-openapi for offline 3GPP Rel 15-18 SBA OpenAPI schema caching.",
     cmd: "which telcosec-create-usb telcosec-download-openapi"
+  },
+  {
+    name: "SDR Driver & 10GbE Network Manager",
+    slug: "sdr-driver-manager",
+    category: "hardware",
+    desc: "Dedicated SDR driver and hardware management utility (telcosec-sdr) supporting USB SDRs and 10Gbps Ethernet transceivers (USRP X310/N310), MTU 9000 tuning, ring buffers, and FPGA bitstreams.",
+    cmd: "telcosec-sdr status && telcosec-sdr 10g status"
   }
 ];
+
 
 
