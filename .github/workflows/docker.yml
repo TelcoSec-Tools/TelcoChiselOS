@@ -1,7 +1,17 @@
 name: Build and Publish Docker Images
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Version tag to publish (e.g. v3.0.0 or latest)'
+        required: false
+        default: 'latest'
+      update_descriptions:
+        description: 'Sync Markdown documentation to Docker Hub repository overview'
+        type: boolean
+        required: false
+        default: true
   push:
     tags: ['v*.*.*']
 
@@ -41,6 +51,8 @@ jobs:
           OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             VERSION="${GITHUB_REF_NAME}"
+          elif [ -n "${{ github.event.inputs.version_tag }}" ] && [ "${{ github.event.inputs.version_tag }}" != "latest" ]; then
+            VERSION="${{ github.event.inputs.version_tag }}"
           else
             VERSION="nightly-$(git rev-parse --short HEAD)"
           fi
@@ -92,7 +104,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=telcochisel-base
 
       - name: Update Docker Hub Description for base
-        if: steps.meta.outputs.has_dockerhub == 'true'
+        if: steps.meta.outputs.has_dockerhub == 'true' && github.event.inputs.update_descriptions != 'false'
         uses: peter-evans/dockerhub-description@v4
         continue-on-error: true
         with:
@@ -168,7 +180,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=telcochisel-${{ matrix.image }}
 
       - name: Update Docker Hub Description for ${{ matrix.image }}
-        if: needs.base.outputs.has_dockerhub == 'true'
+        if: needs.base.outputs.has_dockerhub == 'true' && github.event.inputs.update_descriptions != 'false'
         uses: peter-evans/dockerhub-description@v4
         continue-on-error: true
         with:
