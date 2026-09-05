@@ -1,0 +1,25 @@
+Source: telcosec-cli
+Section: net
+Priority: optional
+Maintainer: TelcoSec Engineering <ops@telcosec.net>
+Build-Depends: debhelper-compat (= 13), golang-any | golang-go:native (>= 1.22)
+Standards-Version: 4.6.2
+Homepage: https://chisel.telcosec.net
+Vcs-Git: https://github.com/TelcoSec-Tools/telcosec-cli.git
+
+Package: telcosec-cli
+Architecture: any
+Depends: ${misc:Depends}
+Provides: telcochisel
+Description: Unified Telecom Security Operator CLI and diagnostics suite
+ The telcosec command center is a zero-dependency static operator CLI
+ for telecommunications security research, baseband analysis, and Software
+ Defined Radio (SDR) hardware diagnostics.
+ .
+ Key features:
+  * Kernel real-time latency and PAM limits telemetry
+  * High-throughput USBFS buffer management for continuous MSPS SDRs
+  * 10GbE network optimization (MTU 9000, 4096 ring descriptors, 64MB socket buffers)
+  * Open5GS 5G Standalone core lifecycle and subscriber provisioning
+  * Embedded shell autocompletion for Bash, Zsh, and Fish
+  * Offline telecom tools catalog search across 88 security suites
