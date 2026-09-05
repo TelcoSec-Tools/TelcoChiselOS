@@ -612,6 +612,22 @@ const toolsCatalog = [
             "desc": "Operational security profile switcher to toggle between Lab Mode (SDR low-latency, rp_filter=0) and Field Mode (hardened firewall, strict rp_filter, rate-limited SSH).",
             "path": "/usr/local/bin/telcosec-profile",
             "cmd": "sudo telcosec-profile status"
+    },
+    {
+            "name": "my5G-RANTester",
+            "category": "5g",
+            "status": "ready",
+            "desc": "Scalable 5G Standalone multi-UE and gNodeB simulator for load testing and traffic generation over N1, N2, and N3 interfaces.",
+            "path": "/usr/local/bin/my5g-rantester",
+            "cmd": "my5g-rantester --help"
+    },
+    {
+            "name": "OsmocomBB",
+            "category": "2g",
+            "status": "ready",
+            "desc": "Osmocom GSM Mobile Station baseband protocol stack, providing layer 1-3 mobile phone emulation and CCCH/BCCH channel scanning.",
+            "path": "/usr/local/bin/osmocombb-install",
+            "cmd": "sudo osmocombb-install"
     }
 ];
 
