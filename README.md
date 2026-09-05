@@ -89,10 +89,17 @@ flowchart TD
 
 ## Quick Start & Download
 
-Download the latest bootable ISO (`TelcoChisel-live.iso`, ~4.6 GB):
+TelcoChisel is distributed in two official editions:
 
-* **[Direct Download (SourceForge FRS)](https://sourceforge.net/projects/telcochisel/files/latest/download)** — Single-file, high-speed, resumable download.
-* **[GitHub Releases Mirror](https://github.com/TelcoSec-Tools/TelcoChiselOS/releases)** — Multi-part archives with SHA-256 verification.
+| Edition | ISO Image | Size | Included Toolsets | Recommended Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **Flagship Field Edition** *(Default)* | `TelcoChisel-3.0.0-amd64.iso` | **~5.0 GB** | All 88 telecom security tools, Low-Latency kernel, GNU Radio 3.10, Open5GS, 5Ghoul, UHD FPGA bitstreams, and SDR drivers. | 100% offline air-gapped field audits, SCIFs, Faraday cages, and bare-metal live engagements. |
+| **Modular Lite Edition** | `TelcoChisel-3.0.0-lite-amd64.iso` | **~1.8 GB** | Base XFCE desktop, Low-Latency kernel, Wireshark, Python runtime, and `telcosec-pkg` CLI client. | Bandwidth-constrained deployments, VMs, cloud lab testing, and operators installing modular suites on-demand. |
+
+### Download Mirrors
+* **[Direct Download (SourceForge FRS)](https://sourceforge.net/projects/telcochisel/files/latest/download)** — High-speed, resumable download of the Flagship Field Edition.
+* **[SourceForge All Files & Lite Edition](https://sourceforge.net/projects/telcochisel/files/)** — Browse all editions, checksums, and `.build-info.json` manifests.
+* **[GitHub Releases Mirror](https://github.com/TelcoSec-Tools/TelcoChiselOS/releases)** — Multi-part archives with SHA-256 and MD5 verification.
 
 ### Writing to USB
 ```bash
@@ -518,23 +525,29 @@ For complete details on building container images, Compose usage, and limitation
 ### Build Commands
 
 ```bash
-# 1. Full clean build (creates TelcoChisel-live.iso in repo root)
+# 1. Flagship Field Edition (Full ~5.0 GB — default, all 88 tools)
 sudo ./build-iso.sh
 
-# 2. Resume build on existing chroot (skips debootstrap)
+# 2. Modular Lite Edition (~1.8 GB — base XFCE + Low-Latency kernel + telcosec-pkg)
+sudo ./build-iso.sh --lite
+
+# 3. Resume build on existing chroot (skips debootstrap)
 sudo ./build-iso.sh --resume
 
-# 3. Resume from a specific phase (e.g., from phase 05 onward)
+# 4. Resume from a specific phase (e.g., from phase 05 onward)
 sudo ./build-iso.sh --resume-from=05
 
-# 4. Pack only (repack existing chroot into squashfs and ISO)
+# 5. Pack only (repack existing chroot into squashfs and ISO)
 sudo ./build-iso.sh --pack-only
 ```
 
 ### Windows & WSL Helper (Preferred on Windows)
 ```bash
-# Run full build via WSL (auto-detects Ubuntu or kali-linux)
+# Run Flagship Field Edition build via WSL (auto-detects Ubuntu or kali-linux)
 bash build-wsl.sh
+
+# Run Modular Lite Edition build via WSL (~1.8 GB)
+bash build-wsl.sh --lite
 
 # Resume build in WSL
 bash build-wsl.sh --resume

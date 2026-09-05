@@ -2,7 +2,9 @@
 # build-wsl.sh — Build TelcoChisel ISO inside WSL kali-linux
 #
 # Usage (from Git Bash or any shell on the Windows host):
-#   ./build-wsl.sh                       # full clean build
+#   ./build-wsl.sh                       # full Field Edition clean build (~5.0 GB)
+#   ./build-wsl.sh --lite                # modular Lite Edition build (~1.8 GB)
+#   ./build-wsl.sh --flavor=lite         # modular Lite Edition build
 #   ./build-wsl.sh --resume              # keep chroot, re-run all phases
 #   ./build-wsl.sh --resume-from=04      # skip phases 00-03, resume from 04
 #   ./build-wsl.sh --pack-only           # repack squashfs → ISO only
@@ -33,12 +35,21 @@ fi
 # ── Forward args straight to build-iso.sh ─────────────────────────────────────
 BUILD_ARGS="$*"
 
-# ── Environment variables to forward ──────────────────────────────────────────
+# ── Environment variables & flavor detection ──────────────────────────────────
+BUILD_FLAVOR="full"
+for arg in "$@"; do
+    case "$arg" in
+        --flavor=*) BUILD_FLAVOR="${arg#--flavor=}" ;;
+        --lite)     BUILD_FLAVOR="lite" ;;
+        --full)     BUILD_FLAVOR="full" ;;
+    esac
+done
+
 if [ -z "${ISO_VERSION:-}" ]; then
     ISO_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || git describe --tags --always 2>/dev/null || echo "3.0.0")
     ISO_VERSION="${ISO_VERSION#v}"
 fi
-ENV_PREFIX="ISO_VERSION=${ISO_VERSION} SQUASHFS_LEVEL=${SQUASHFS_LEVEL:-6}"
+ENV_PREFIX="BUILD_FLAVOR=${BUILD_FLAVOR} ISO_VERSION=${ISO_VERSION} SQUASHFS_LEVEL=${SQUASHFS_LEVEL:-6}"
 [ "${USE_CCACHE:-0}" = "1" ] && ENV_PREFIX="$ENV_PREFIX USE_CCACHE=1"
 
 # ── Banner ────────────────────────────────────────────────────────────────────
@@ -46,6 +57,7 @@ echo ""
 echo "  TelcoChisel ISO Builder — WSL kali-linux"
 echo "  Repo   : $SCRIPT_DIR"
 echo "  WSL    : $WSL_PATH"
+echo "  Flavor : $BUILD_FLAVOR"
 echo "  Args   : ${BUILD_ARGS:-(full clean build)}"
 echo "  zstd   : level ${SQUASHFS_LEVEL:-6}"
 echo ""
@@ -94,14 +106,18 @@ SEC=$(( ELAPSED % 60 ))
 echo ""
 if [ "$EXIT_CODE" -eq 0 ]; then
     echo "  Build complete in ${MIN}m ${SEC}s"
-    ISO_NAME="TelcoChisel-${ISO_VERSION}-amd64.iso"
+    if [ "$BUILD_FLAVOR" = "lite" ]; then
+        ISO_NAME="TelcoChisel-${ISO_VERSION}-lite-amd64.iso"
+    else
+        ISO_NAME="TelcoChisel-${ISO_VERSION}-amd64.iso"
+    fi
     ISO="$SCRIPT_DIR/$ISO_NAME"
     if [ ! -f "$ISO" ]; then
         ISO="$SCRIPT_DIR/TelcoChisel-live.iso"
     fi
     if [ -f "$ISO" ]; then
         SIZE=$(du -mL "$ISO" 2>/dev/null | cut -f1 || du -m "$ISO" 2>/dev/null | cut -f1 || echo 0)
-        echo "  ISO: $ISO (${SIZE} MB)"
+        echo "  ISO: $ISO (${SIZE} MB) [Flavor: $BUILD_FLAVOR]"
     fi
 else
     echo "  Build FAILED (exit $EXIT_CODE) after ${MIN}m ${SEC}s"

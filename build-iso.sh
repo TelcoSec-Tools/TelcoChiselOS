@@ -15,6 +15,7 @@ USE_CCACHE="${USE_CCACHE:-0}"
 CCACHE_DIR_HOST="${CCACHE_DIR:-/root/.ccache}"
 # APT_PROXY: apt-cacher-ng proxy URL, e.g. http://localhost:3142
 APT_PROXY="${APT_PROXY:-}"
+BUILD_FLAVOR="${BUILD_FLAVOR:-full}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -30,6 +31,27 @@ while [ $# -gt 0 ]; do
         echo "ERROR: --version requires an argument" >&2
         exit 1
       fi
+      ;;
+    --flavor=*)
+      BUILD_FLAVOR="${1#--flavor=}"
+      shift
+      ;;
+    --flavor)
+      if [ -n "$2" ] && [[ "$2" != --* ]]; then
+        BUILD_FLAVOR="$2"
+        shift 2
+      else
+        echo "ERROR: --flavor requires an argument (full or lite)" >&2
+        exit 1
+      fi
+      ;;
+    --lite)
+      BUILD_FLAVOR="lite"
+      shift
+      ;;
+    --full)
+      BUILD_FLAVOR="full"
+      shift
       ;;
     --resume)
       RESUME=true
@@ -61,6 +83,10 @@ while [ $# -gt 0 ]; do
 Usage: sudo ./build-iso.sh [OPTIONS]
 
   (no options)           Full clean build — wipes chroot and starts fresh
+  --flavor=FLAVOR        Build flavor: full (default, all 88 tools offline) or
+                           lite (~1.8 GB, base desktop + telcosec-pkg)
+  --lite                 Shortcut for --flavor=lite
+  --full                 Shortcut for --flavor=full
   --version=VER          Specify release version (e.g. v1.2.0, 1.2.0, nightly)
   --resume               Keep existing chroot; re-run all provisioning phases
   --resume-from=N        Keep existing chroot; skip phases before N
@@ -70,8 +96,9 @@ Usage: sudo ./build-iso.sh [OPTIONS]
                            squashfs + ISO (useful for re-signing or re-branding)
 
 Examples:
-  sudo ./build-iso.sh                    # fresh full build
-  sudo ./build-iso.sh --version=1.2.0    # build versioned TelcoChisel-1.2.0-amd64.iso
+  sudo ./build-iso.sh                    # fresh full Field Edition build (~5.0 GB)
+  sudo ./build-iso.sh --lite             # build Modular Lite Edition ISO (~1.8 GB)
+  sudo ./build-iso.sh --version=3.0.0    # build versioned TelcoChisel-3.0.0-amd64.iso
   sudo ./build-iso.sh --resume           # re-run everything on existing chroot
   sudo ./build-iso.sh --resume-from=04   # skip 00-03, resume from 04 onward
   sudo ./build-iso.sh --pack-only        # just repack squashfs → ISO
@@ -86,6 +113,18 @@ HELP
   esac
 done
 
+if [ "$BUILD_FLAVOR" != "full" ] && [ "$BUILD_FLAVOR" != "lite" ]; then
+  echo "ERROR: Unsupported flavor '$BUILD_FLAVOR'. Valid options: full, lite." >&2
+  exit 1
+fi
+export BUILD_FLAVOR
+
+if [ "$BUILD_FLAVOR" = "lite" ]; then
+  DISTRO_FLAVOR_LABEL="Lite Edition"
+else
+  DISTRO_FLAVOR_LABEL="Field Edition"
+fi
+
 # Resolve version if unset
 if [ -z "$ISO_VERSION" ]; then
   git config --global --add safe.directory "$PWD" 2>/dev/null || true
@@ -97,6 +136,7 @@ ISO_VERSION="${ISO_VERSION#v}"
 # ─── Header ───────────────────────────────────────────────────────────────────
 echo "=== TelcoChisel ISO Builder ==="
 echo "    Version: $ISO_VERSION"
+echo "    Flavor:  $BUILD_FLAVOR ($DISTRO_FLAVOR_LABEL)"
 if $PACK_ONLY; then
   echo "    Mode: pack-only (repack existing chroot)"
 elif $RESUME && [ "$RESUME_FROM" -gt 0 ]; then
@@ -151,7 +191,11 @@ ROOTFS="$WORKDIR/chroot"
 
 # Shared chroot service-suppression helpers (builder/scripts/lib/)
 source "$(pwd)/builder/scripts/lib/chroot-suppress.sh"
-IMAGE_NAME="TelcoChisel-${ISO_VERSION}-amd64.iso"
+if [ "$BUILD_FLAVOR" = "lite" ]; then
+  IMAGE_NAME="TelcoChisel-${ISO_VERSION}-lite-amd64.iso"
+else
+  IMAGE_NAME="TelcoChisel-${ISO_VERSION}-amd64.iso"
+fi
 
 # ─── Mount cleanup ────────────────────────────────────────────────────────────
 cleanup() {
@@ -337,19 +381,30 @@ if ! $PACK_ONLY; then
       /bin/bash -e "/tmp/scripts/$1"
   }
 
-  _phase  0 "00 · Consolidated package install"    chroot_run 00-install-all-packages.sh
-  _phase  1 "01 · Base system + desktop"           chroot_run 01-install-base.sh
-  _phase  2 "02 · SDR drivers + conda env"         chroot_run 02-install-sdr.sh
-  _phase  3 "03 · Core network (srsRAN/Open5GS)"   chroot_run 03-install-core-network.sh
-  _phase  4 "04 · Security tools"                  chroot_run 04-install-tools.sh
-  _phase  5 "06 · UE analysis + baseband"          chroot_run 06-install-ue-analysis.sh
-  _phase  6 "05 · Desktop customization"           chroot_run 05-desktop-customization.sh
-  _phase  7 "07 · Calamares installer"             chroot_run 07-install-installer.sh
-  _phase  8 "08 · System optimization"             chroot_run 08-system-optimization.sh
-  _phase  9 "09 · 5Ghoul helpers"                  chroot_run 09-install-5ghoul.sh
-  _phase 10 "10 · Advanced telecom tools"          chroot_run 10-install-telecom-advanced.sh
-  _phase 11 "11 · Device flash tools"              chroot_run 11-install-device-tools.sh
-  _phase 12 "12 · Install Dashboard"               chroot_run 12-install-dashboard.sh
+  if [ "$BUILD_FLAVOR" = "lite" ]; then
+    echo "--> Running provisioning scripts (Lite Edition: base desktop + installer + telcosec-pkg)..."
+    _phase  0 "00 · Consolidated package install"    chroot_run 00-install-all-packages.sh
+    _phase  1 "01 · Base system + desktop"           chroot_run 01-install-base.sh
+    _phase  6 "05 · Desktop customization"           chroot_run 05-desktop-customization.sh
+    _phase  7 "07 · Calamares installer"             chroot_run 07-install-installer.sh
+    _phase  8 "08 · System optimization"             chroot_run 08-system-optimization.sh
+    _phase 12 "12 · Install Dashboard & CLI"         chroot_run 12-install-dashboard.sh
+  else
+    echo "--> Running provisioning scripts (Field Full Edition: all 88 telecom tools)..."
+    _phase  0 "00 · Consolidated package install"    chroot_run 00-install-all-packages.sh
+    _phase  1 "01 · Base system + desktop"           chroot_run 01-install-base.sh
+    _phase  2 "02 · SDR drivers + conda env"         chroot_run 02-install-sdr.sh
+    _phase  3 "03 · Core network (srsRAN/Open5GS)"   chroot_run 03-install-core-network.sh
+    _phase  4 "04 · Security tools"                  chroot_run 04-install-tools.sh
+    _phase  5 "06 · UE analysis + baseband"          chroot_run 06-install-ue-analysis.sh
+    _phase  6 "05 · Desktop customization"           chroot_run 05-desktop-customization.sh
+    _phase  7 "07 · Calamares installer"             chroot_run 07-install-installer.sh
+    _phase  8 "08 · System optimization"             chroot_run 08-system-optimization.sh
+    _phase  9 "09 · 5Ghoul helpers"                  chroot_run 09-install-5ghoul.sh
+    _phase 10 "10 · Advanced telecom tools"          chroot_run 10-install-telecom-advanced.sh
+    _phase 11 "11 · Device flash tools"              chroot_run 11-install-device-tools.sh
+    _phase 12 "12 · Install Dashboard"               chroot_run 12-install-dashboard.sh
+  fi
 
   # ── Tool build manifest summary ─────────────────────────────────────────────
   # Print PASS/FAIL results for every tool instrumented with record_tool().
@@ -531,6 +586,13 @@ find /opt/telcosec /usr/local/lib /root /home /usr/lib/python3* -type d -name '*
 # ── Java/Maven local repository (~250 MB) ─────────────────────────────────
 rm -rf /root/.m2 /home/telcosec/.m2 2>/dev/null || true
 
+# ── Redundant LLVM & Compiler Cache Trimming ──────────────────────────────
+if dpkg -s llvm-16 >/dev/null 2>&1 && dpkg -s llvm-15 >/dev/null 2>&1; then
+  apt-get purge -y llvm-15 llvm-15-runtime clang-15 2>/dev/null || true
+fi
+rm -rf /root/go/pkg /root/.cache/go-build /root/.cargo/registry 2>/dev/null || true
+rm -rf /root/.cache/pip /home/*/.cache/pip 2>/dev/null || true
+
 # ── Cross-compiler sysroots and debug libraries ────────────────────────────
 # arm-none-eabi and mipsel headers/specs not needed at runtime (~200 MB)
 find /usr/lib/gcc-cross -name '*.o' -delete 2>/dev/null || true
@@ -567,6 +629,8 @@ CLEAN_VERSION="${ISO_VERSION#v}"
 cat > "$ROOTFS/etc/telcochisel-version" << EOF
 VERSION=${ISO_VERSION}
 VERSION_ID=${CLEAN_VERSION}
+FLAVOR=${BUILD_FLAVOR}
+FLAVOR_LABEL=${DISTRO_FLAVOR_LABEL}
 BUILD_DATE_UTC=${BUILD_DATE_UTC}
 GIT_COMMIT=${GIT_COMMIT}
 ARCHITECTURE=amd64
@@ -578,11 +642,13 @@ chmod 644 "$ROOTFS/etc/telcochisel-version"
 # /etc/os-release & /usr/lib/os-release
 cat > "$ROOTFS/etc/os-release" << EOF
 NAME="TelcoChisel OS"
-VERSION="${ISO_VERSION} (Noble Numbat)"
+VERSION="${ISO_VERSION} (${DISTRO_FLAVOR_LABEL}, Noble Numbat)"
 ID=telcochisel
 ID_LIKE="ubuntu debian"
-PRETTY_NAME="TelcoChisel OS ${ISO_VERSION}"
+PRETTY_NAME="TelcoChisel OS ${ISO_VERSION} (${DISTRO_FLAVOR_LABEL})"
 VERSION_ID="${CLEAN_VERSION}"
+VARIANT="${DISTRO_FLAVOR_LABEL}"
+VARIANT_ID="${BUILD_FLAVOR}"
 HOME_URL="https://chisel.telcosec.net"
 SUPPORT_URL="https://community.telcosec.net/"
 BUG_REPORT_URL="https://github.com/TelcoSec-Tools/TelcoChiselOS/issues"
@@ -593,21 +659,21 @@ cp -f "$ROOTFS/etc/os-release" "$ROOTFS/usr/lib/os-release" 2>/dev/null || true
 
 # /etc/issue and /etc/issue.net
 cat > "$ROOTFS/etc/issue" << EOF
-TelcoChisel OS ${ISO_VERSION} \n \l
+TelcoChisel OS ${ISO_VERSION} (${DISTRO_FLAVOR_LABEL}) \n \l
 
 EOF
 cat > "$ROOTFS/etc/issue.net" << EOF
-TelcoChisel OS ${ISO_VERSION}
+TelcoChisel OS ${ISO_VERSION} (${DISTRO_FLAVOR_LABEL})
 EOF
 
-# Update Calamares branding with current ISO_VERSION
+# Update Calamares branding with current ISO_VERSION and flavor
 for desc in "$ROOTFS/etc/calamares/branding/telcosec/branding.desc" \
             "$ROOTFS/usr/share/calamares/branding/telcosec/branding.desc"; do
   if [ -f "$desc" ]; then
     sed -i -e "s/^    version:.*/    version:             ${ISO_VERSION}/" \
            -e "s/^    shortVersion:.*/    shortVersion:        ${CLEAN_VERSION}/" \
-           -e "s/^    versionedName:.*/    versionedName:       TelcoChisel OS ${ISO_VERSION}/" \
-           -e "s/^    shortVersionedName:.*/    shortVersionedName:  TelcoSec ${CLEAN_VERSION}/" \
+           -e "s/^    versionedName:.*/    versionedName:       TelcoChisel OS ${ISO_VERSION} (${DISTRO_FLAVOR_LABEL})/" \
+           -e "s/^    shortVersionedName:.*/    shortVersionedName:  TelcoSec ${CLEAN_VERSION} ${DISTRO_FLAVOR_LABEL}/" \
            "$desc"
   fi
 done
@@ -740,7 +806,7 @@ fi
 # username/hostname are set here so casper's 10adduser hook picks them up.
 # noeject/noprompt: suppress casper's "remove disc and press enter" prompts.
 
-menuentry "TelcoChisel OS ${ISO_VERSION} Live (Low-Latency Kernel - Default for SDR & 5G)" {
+menuentry "TelcoChisel OS ${ISO_VERSION} ${DISTRO_FLAVOR_LABEL} Live (Low-Latency Kernel - Default for SDR & 5G)" {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
@@ -937,6 +1003,8 @@ cat > "$BUILD_INFO_FILE" << EOF
   "distro": "TelcoChisel OS",
   "version": "${ISO_VERSION}",
   "version_id": "${CLEAN_VERSION}",
+  "flavor": "${BUILD_FLAVOR}",
+  "flavor_label": "${DISTRO_FLAVOR_LABEL}",
   "arch": "amd64",
   "base": "Ubuntu 24.04 LTS (noble)",
   "build_date_utc": "${BUILD_DATE_UTC}",

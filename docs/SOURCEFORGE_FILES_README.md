@@ -6,9 +6,16 @@
 ---
 
 ### Latest Release: TelcoChisel v3.0.0
-- **File:** `TelcoChisel-live.iso` (5.8 GB)
-- **Base:** Ubuntu 24.04 LTS (Noble Numbat)
-- **Kernel:** Linux Low-Latency Real-Time (`linux-image-lowlatency`)
+
+TelcoChisel is distributed in two official editions:
+- **Flagship Field Edition (Full):** `TelcoChisel-3.0.0-amd64.iso` (~5.0 GB, symlinked as `TelcoChisel-live.iso`)
+  - All 88 pre-installed SDR, cellular RAN, 5G SA, SIM, baseband, and wireline telecom security tools.
+  - Complete air-gapped readiness with offline UHD FPGA images, GNU Radio 3.10, and Open5GS.
+- **Modular Lite Edition (Lite):** `TelcoChisel-3.0.0-lite-amd64.iso` (~1.8 GB)
+  - Minimal footprint: XFCE desktop, Low-Latency kernel, Wireshark, Python runtime, and `telcosec-pkg` CLI client to pull modular domain suites on-demand from `meta.telcosec.net`.
+
+- **Base OS:** Ubuntu 24.04 LTS (Noble Numbat)
+- **Kernel:** Linux Low-Latency Real-Time (`linux-image-lowlatency`, 1000Hz)
 - **Desktop:** XFCE4 + i3 Tiling Window Manager (LightDM, GPU Accelerated)
 - **Default Credentials:**
   - **Username:** `telcosec`

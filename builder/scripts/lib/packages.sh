@@ -220,4 +220,22 @@ PKGS_TELCOCHISEL_META=(
   telcochisel-meta-full
 )
 
+# ─── Modular Lite Edition Base Packages (~1.8 GB ISO) ────────────────────────
+# Minimal footprint: XFCE desktop, Low-Latency kernel, Wireshark,
+# Calamares installer, Python runtime, and telcosec-pkg client to pull
+# modular domain suites (SDR, 5G, SIM, UE, etc.) on-demand from meta.telcosec.net.
+PKGS_LITE_BASE=(
+  "${PKGS_BASE[@]}"
+  wireshark tshark tcpdump
+  nmap macchanger netsniff-ng
+  python3-pip python3-venv python3-apt
+  # Calamares installer
+  calamares
+  qml-module-qtquick-controls qml-module-qtquick-controls2
+  qml-module-qtquick-dialogs qml-module-qtquick-layouts
+  qml-module-qtquick-window2
+  upower os-prober python3-jsonschema
+)
+
+
 
