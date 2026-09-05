@@ -1,0 +1,46 @@
+name: Sync Git to SourceForge
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: sf-git-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup SSH for SourceForge Git
+        if: env.SF_SSH_KEY != ''
+        env:
+          SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SF_SSH_KEY" > ~/.ssh/sf_deploy
+          chmod 600 ~/.ssh/sf_deploy
+          ssh-keyscan -H git.code.sf.net >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Push to SourceForge Git Mirror
+        if: env.SF_SSH_KEY != ''
+        env:
+          SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+        run: |
+          git remote add sf ssh://rfs85@git.code.sf.net/p/telcochisel/code || git remote set-url sf ssh://rfs85@git.code.sf.net/p/telcochisel/code
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o StrictHostKeyChecking=accept-new" git push --tags --force sf main
+          echo "✓ Successfully synced main branch and tags to SourceForge Git"
+
+      - name: Warn if SF_SSH_KEY is missing
+        if: env.SF_SSH_KEY == ''
+        run: |
+          echo "::warning::SF_SSH_KEY secret is absent — SourceForge Git sync skipped"

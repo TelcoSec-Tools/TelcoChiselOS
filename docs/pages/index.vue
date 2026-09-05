@@ -224,7 +224,7 @@
 
           <h3>1. Download the ISO</h3>
           <p>
-            Download the latest TelcoChisel ISO image from our official <a href="https://sourceforge.net/projects/telcochisel/files/latest/download" target="_blank">SourceForge repository</a>. The ISO is approximately 4.5 GB in size.
+            Download the latest TelcoChisel ISO image from our official <a href="https://sourceforge.net/projects/telcochisel/files/latest/download" target="_blank">SourceForge repository</a>. The ISO is approximately 5.8 GB in size.
           </p>
           <h3>2. Flash to a USB Drive</h3>
           <p>
