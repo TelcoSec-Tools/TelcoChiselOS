@@ -3,23 +3,79 @@
 **Official SourceForge File Release Repository**  
 *Advanced 5G/4G Cellular Security & Telecom Auditing Live Operating System by TelcoSec*
 
+[![Download TelcoChisel](https://img.shields.io/sourceforge/dt/telcochisel?logo=sourceforge&label=Downloads&color=00ffd5)](https://sourceforge.net/projects/telcochisel/files/latest/download)
+[![SourceForge Reviews](https://img.shields.io/sourceforge/reviews/telcochisel?logo=sourceforge&label=User%20Reviews&color=f59e0b)](https://sourceforge.net/projects/telcochisel/reviews/new)
+[![GitHub Stars](https://img.shields.io/github/stars/TelcoSec-Tools/TelcoChiselOS?logo=github&label=GitHub%20Stars&color=6366f1)](https://github.com/TelcoSec-Tools/TelcoChiselOS)
+
 ---
 
-### Latest Release: TelcoChisel v3.0.0
+### Latest Release: TelcoChisel v3.0.0 (Noble Numbat)
 
-TelcoChisel is distributed in two official editions:
-- **Flagship Field Edition (Full):** `TelcoChisel-3.0.0-amd64.iso` (~5.0 GB, symlinked as `TelcoChisel-live.iso`)
-  - All 88 pre-installed SDR, cellular RAN, 5G SA, SIM, baseband, and wireline telecom security tools.
-  - Complete air-gapped readiness with offline UHD FPGA images, GNU Radio 3.10, and Open5GS.
-- **Modular Lite Edition (Lite):** `TelcoChisel-3.0.0-lite-amd64.iso` (~1.8 GB)
-  - Minimal footprint: XFCE desktop, Low-Latency kernel, Wireshark, Python runtime, and `telcosec-pkg` CLI client to pull modular domain suites on-demand from `meta.telcosec.net`.
+TelcoChisel is distributed in two official editions tailored for offensive security researchers, telecom operators, and radio engineers:
 
-- **Base OS:** Ubuntu 24.04 LTS (Noble Numbat)
-- **Kernel:** Linux Low-Latency Real-Time (`linux-image-lowlatency`, 1000Hz)
-- **Desktop:** XFCE4 + i3 Tiling Window Manager (LightDM, GPU Accelerated)
+| Edition | Primary ISO File | Approx Size | Target Profile | Key Capabilities |
+| :--- | :--- | :--- | :--- | :--- |
+| **Flagship Field Edition (Full)** | `TelcoChisel-3.0.0-amd64.iso`<br>*(symlinked as `TelcoChisel-live.iso`)* | **~5.0 GB** | Field auditing, air-gapped cellular testing, complete radio labs | All 88 telecom tools pre-installed; UHD FPGA images, GNU Radio 3.10, Open5GS, srsRAN, FirmWire, 5Ghoul, PySIM, Wireshark dissectors offline ready. |
+| **Modular Lite Edition (Lite)** | `TelcoChisel-3.0.0-lite-amd64.iso` | **~1.8 GB** | Lightweight deployments, VMs, custom tailored toolsets | Clean base XFCE desktop, 1000Hz Low-Latency kernel, Wireshark, Python runtime + `telcosec-pkg` CLI to pull modular domain metapackages on-demand. |
+
+- **Base Distribution:** Ubuntu 24.04 LTS (*Noble Numbat*)
+- **Kernel Architecture:** Linux Real-Time Low-Latency (`linux-image-lowlatency`, 1000Hz timer, preemptible)
+- **Desktop Environment:** XFCE4 + i3 Tiling Window Manager (LightDM, GPU-accelerated)
 - **Default Credentials:**
   - **Username:** `telcosec`
   - **Password:** `telcosec`
+  - *(Graphical auto-login is active by default in Live Mode)*
+
+---
+
+### Hardware Compatibility & Driver Matrix
+
+All device drivers are built from source and pre-configured with complete udev rules (`/etc/udev/rules.d/`) to grant unprivileged `telcosec` user access:
+
+| Hardware Category | Supported Models / Chipsets | Driver & Runtime Stack | Use Cases |
+| :--- | :--- | :--- | :--- |
+| **Software-Defined Radio (SDR)** | Ettus Research USRP B200, B210, N210, X310 | UHD 4.6.0 + FPGA images (`/usr/share/uhd/images/`) | 5G NR / 4G LTE gNodeB/eNodeB simulation, wideband spectrum recording |
+| **Sub-GHz & Portable SDR** | Great Scott Gadgets HackRF One, Rad1o | `libhackrf` 2024.02.1 + `hackrf-tools` | GSM/LTE downlink sniffing, IMSI-catcher discovery, replay testing |
+| **MIMO Transceiver SDR** | Nuand BladeRF 2.0 micro (xA4, xA9) | `libbladeRF` 2.5.0 + FPGA auto-loader | Full-duplex cellular base stations, 5Ghoul over-the-air fuzzing |
+| **Broadband SDR** | Lime Microsystems LimeSDR USB, LimeSDR Mini | `LimeSuite` 23.11.0 + SoapySDR bindings | Cellular carrier frequency surveying, multi-carrier monitoring |
+| **Low-Cost Receiver** | RTL-SDR v3 / v4 (R820T2, R828D) | `librtlsdr` with direct sampling patches | Broadcast FM, ADS-B, GSM 900/1800 control channel monitoring |
+| **Smart Card & SIM Audit** | Sysmocom SIMtrace 2, Osmocom SIMtrace | `simtrace2-remsim` + SPI/ISO-7816 firmware | Intercepting APDUs between mobile handset and physical SIM card |
+| **PCSC Smart Card Readers** | Omnikey 3021/3121, Identiv uTrust 2700R, ACR38U | `pcscd`, `pcsc-tools`, `pysim-shell` | SIM/USIM/ISIM parameter extraction, Ki/OPc programming, eSIM LPA |
+| **Cellular Basebands & Modems** | Qualcomm Snapdragon, MediaTek Helio/Dimensity, Shannon | `edl`, `qcsuper`, `mtkclient`, `firmwire` | Baseband firmware reverse engineering, DIAG trace logging, crash fuzzing |
+
+---
+
+### System Requirements
+
+- **Processor:** 64-bit x86_64 CPU with Intel SSE4.2 / AVX2 instructions (AVX2 recommended for 5G NR LDPC acceleration).
+- **Memory (RAM):**
+  - *Lite Edition:* 4 GB minimum (8 GB recommended).
+  - *Full Field Edition:* 8 GB minimum (16 GB recommended for concurrent 5G SA Core + srsRAN gNB).
+- **Bootable Storage:** USB 3.0 / USB 3.1 Flash Drive or Portable SSD with at least 16 GB (Lite) or 32 GB (Full).
+- **Firmware:** UEFI (with Secure Boot disabled) or Legacy BIOS.
+
+---
+
+### First 60 Seconds: Field Operator Cheatsheet
+
+Once booted into the live environment, open the terminal (`Ctrl+Alt+T`) and run these integrated commands:
+
+```bash
+# 1. Inspect attached SDRs, kernel modules, and SCTP tuning
+telcosec check
+
+# 2. Test connected SDR transceiver (e.g. USRP B210 or HackRF)
+telcosec sdr
+
+# 3. Spin up full local 5G Standalone core network (Open5GS)
+sudo telcosec 5g-sa start
+
+# 4. Search and verify tool catalog (88 tools)
+telcosec search gsm
+
+# 5. Launch offline documentation and lab scenarios in browser
+telcosec docs
+```
 
 ---
 
@@ -79,9 +135,20 @@ copy /b TelcoChisel-live.iso.part-aa + TelcoChisel-live.iso.part-ab + TelcoChise
 
 ---
 
+### ⭐ Rate & Review TelcoChisel on SourceForge
+
+If TelcoChisel assisted your telecom research, SDR engagement, or security audits, please take 30 seconds to rate us on SourceForge:
+
+👉 **[Leave a 5-Star Review on SourceForge](https://sourceforge.net/projects/telcochisel/reviews/new)**
+
+Your feedback directly supports continuous maintenance, driver updates, and helps other telecom engineers discover open-source wireless security tools.
+
+---
+
 ### Quick Links & Official Portals
-- **Documentation & Tool Guides:** [chisel.telcosec.net](https://chisel.telcosec.net)
-- **TelcoSec Academy (Interactive Labs):** [app.telcosec.net](https://app.telcosec.net)
-- **Official GitHub Codebase:** [github.com/TelcoSec-Tools/TelcoChiselOS](https://github.com/TelcoSec-Tools/TelcoChiselOS)
-- **Community Forum:** [community.telcosec.net](https://community.telcosec.net)
+- **Documentation & Interactive Reference:** [chisel.telcosec.net](https://chisel.telcosec.net)
+- **TelcoSec Academy (Interactive Field Labs):** [app.telcosec.net](https://app.telcosec.net)
+- **Community Forum & Q&A:** [community.telcosec.net](https://community.telcosec.net)
+- **Official GitHub Repository:** [github.com/TelcoSec-Tools/TelcoChiselOS](https://github.com/TelcoSec-Tools/TelcoChiselOS)
 - **Discord Community:** [discord.gg/RykzXTQFXF](https://discord.gg/RykzXTQFXF)
+- **Substack Engineering Journal:** [telcosec.substack.com](https://telcosec.substack.com)

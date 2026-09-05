@@ -70,8 +70,8 @@
         "operatingSystem": "Linux (Ubuntu 24.04 LTS)",
         "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 88 pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
         "url": "https://chisel.telcosec.net/",
-        "downloadUrl": "https://github.com/TelcoSec-Tools/TelcoChiselOS/releases",
-        "softwareVersion": "1.1.0",
+        "downloadUrl": "https://sourceforge.net/projects/telcochisel/files/latest/download",
+        "softwareVersion": "3.0.0",
         "releaseNotes": "https://github.com/TelcoSec-Tools/TelcoChiselOS/releases",
         "screenshot": "https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png",
         "featureList": [
@@ -99,8 +99,10 @@
           "url": "https://telcosec.net/",
           "sameAs": [
             "https://github.com/TelcoSec",
+            "https://sourceforge.net/projects/telcochisel/",
             "https://www.linkedin.com/company/telco-sec",
-            "https://www.youtube.com/@Telecom-Security"
+            "https://www.youtube.com/@Telecom-Security",
+            "https://discord.gg/RykzXTQFXF"
           ]
         }
       },
@@ -1806,10 +1808,22 @@ sudo 5ghoul-run --Attack.Name=NAS_5GS_Fuzz --UE.IMSI=001011234567890</code></pre
 
                 <h3>Community & Collaboration Channels</h3>
                 <div class="grid-3" style="margin-top: 10px;">
+                    <a href="https://sourceforge.net/projects/telcochisel/reviews/new" class="card highlight-teal" target="_blank">
+                        <div class="card-title" style="color: var(--accent-teal);">SourceForge Reviews</div>
+                        <p class="card-desc" style="font-size: 0.85rem;">Rate TelcoChisel 5 stars, leave technical feedback, and support open-source telecom security.</p>
+                    </a>
                     <a href="https://discord.gg/RykzXTQFXF" class="card highlight-teal" target="_blank">
                         <div class="card-title" style="color: var(--accent-teal);">Discord Chat</div>
                         <p class="card-desc" style="font-size: 0.85rem;">Join telecom security discussions, help
                             threads, and share radio captures in real time.</p>
+                    </a>
+                    <a href="https://community.telcosec.net" class="card highlight-teal" target="_blank">
+                        <div class="card-title" style="color: var(--accent-teal);">Community Hub</div>
+                        <p class="card-desc" style="font-size: 0.85rem;">Discuss cellular protocols, research papers, hardware setups, and operator troubleshooting.</p>
+                    </a>
+                    <a href="https://app.telcosec.net" class="card highlight-teal" target="_blank">
+                        <div class="card-title" style="color: var(--accent-teal);">TelcoSec Academy</div>
+                        <p class="card-desc" style="font-size: 0.85rem;">Interactive hands-on browser labs and real-world 5G/4G attack simulations.</p>
                     </a>
                     <a href="https://www.linkedin.com/company/telco-sec" class="card highlight-teal" target="_blank">
                         <div class="card-title" style="color: var(--accent-teal);">LinkedIn Updates</div>
@@ -1835,20 +1849,39 @@ sudo 5ghoul-run --Attack.Name=NAS_5GS_Fuzz --UE.IMSI=001011234567890</code></pre
                 </svg>
                 <div>
                     <div class="dl-modal-title" id="dl-modal-title">Download TelcoChisel</div>
-                    <div class="dl-modal-sub">Public Beta &mdash; v1.1.0</div>
+                    <div class="dl-modal-sub">Release &mdash; v3.0.0 (Noble Numbat)</div>
                 </div>
             </div>
             <div class="dl-modal-body">
-                <p>TelcoChisel is a <strong>solo project</strong> in public beta — built and maintained by one person in their spare time. New fixes ship as I go. If you find it useful, I'd love your help.</p>
+                <p>Select your deployment edition. TelcoChisel is built on Ubuntu 24.04 LTS with the Low-Latency Realtime Kernel (1000Hz):</p>
+
+                <div class="dl-edition-options" style="display: flex; flex-direction: column; gap: 10px; margin: 14px 0;">
+                    <a href="https://sourceforge.net/projects/telcochisel/files/latest/download" target="_blank" class="dl-edition-card" onclick="closeDownloadModal()" style="display: block; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid #f59e0b; text-decoration: none; border-radius: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong style="color: #fff; font-size: 0.88rem;">Flagship Field Edition (Full)</strong>
+                            <span style="font-size: 0.75rem; color: #f59e0b; font-weight: 600;">~5.0 GB</span>
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">All 88 telecom security tools pre-installed. 100% offline air-gapped field readiness.</div>
+                    </a>
+
+                    <a href="https://sourceforge.net/projects/telcochisel/files/" target="_blank" class="dl-edition-card" onclick="closeDownloadModal()" style="display: block; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid #00ffd5; text-decoration: none; border-radius: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong style="color: #fff; font-size: 0.88rem;">Modular Lite Edition</strong>
+                            <span style="font-size: 0.75rem; color: #00ffd5; font-weight: 600;">~1.8 GB</span>
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">Minimal base desktop + Low-Latency kernel + telcosec-pkg to pull suites on-demand.</div>
+                    </a>
+                </div>
+
                 <div class="dl-modal-status">
                     <div class="dl-modal-status-dot"></div>
                     <div class="dl-modal-status-text">
-                        <strong>OS: Stable.</strong> The Ubuntu 24.04 XFCE desktop, boot sequence, and core system are production-ready.<br>
-                        <strong>Tools:</strong> Integration ongoing — some launchers may need a rebuild to reflect the latest fixes.
+                        <strong>OS: Production-Ready.</strong> Ubuntu 24.04 LTS (Noble Numbat), Low-Latency Kernel (1000Hz), Calamares installer, encrypted persistence.<br>
+                        <strong>Tools:</strong> 88 tools across SDR, 5G SA, 4G LTE, SIM, baseband, wireline, and VoIP domains.
                     </div>
                 </div>
                 <div class="dl-modal-disclaimer">
-                    <strong style="color: var(--accent-teal);">Responsible Use.</strong> TelcoChisel is built for authorized security research, penetration testing with written permission, academic study, and CTF competitions. You are solely responsible for ensuring your use complies with applicable laws and regulations. I accept no liability for misuse.
+                    <strong style="color: var(--accent-teal);">Responsible Use.</strong> TelcoChisel is built for authorized security research, penetration testing with written permission, academic study, and CTF competitions. You are solely responsible for ensuring your use complies with applicable laws and regulations. TelcoSec accepts no liability for misuse.
                 </div>
             </div>
             <div class="dl-modal-actions">
@@ -1856,7 +1889,7 @@ sudo 5ghoul-run --Attack.Name=NAS_5GS_Fuzz --UE.IMSI=001011234567890</code></pre
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    I Understand — Download
+                    Download Field Edition (5.0 GB)
                 </a>
                 <button class="btn-cancel" onclick="closeDownloadModal()">Cancel</button>
             </div>

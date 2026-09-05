@@ -472,10 +472,11 @@ jobs:
             HTTP_CODE=$(curl -s -o /tmp/sf_api_resp.txt -w "%{http_code}" -X PUT \
               -H "Accept: application/json" \
               -d "default=windows&default=mac&default=linux&default=bsd&default=solaris&default=others" \
+              --data-urlencode "download_label=Download TelcoChisel Flagship Field Edition (${VERSION})" \
               -d "api_key=${SF_API_KEY}" \
               "https://sourceforge.net/projects/${SF_PROJECT}/files/${VERSION}/${ISO}")
             if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
-              echo "✓ Successfully pinned ${VERSION}/${ISO} as default download on SourceForge"
+              echo "✓ Successfully pinned ${VERSION}/${ISO} with custom label as default download on SourceForge"
             else
               echo "⚠️ SourceForge Release API returned HTTP $HTTP_CODE (non-fatal)"
               cat /tmp/sf_api_resp.txt 2>/dev/null || true
