@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/TelcoSec-Tools/telcosec-cli/completions"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/cellular"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/docs"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/network"
@@ -53,6 +54,7 @@ Commands:
   scan <protocol>      Interactive protocol assessment wizard (sctp | sip | asleap)
   academy              Access TelcoSec Academy interactive labs & credentials
   feedback             Community support channels & SourceForge review portal
+  completion [shell]   Generate shell autocompletion script (bash | zsh | fish)
   version              Show TelcoChiselOS release version and kernel details
 
 Run 'telcosec <command> --help' for command-specific options.
@@ -265,6 +267,16 @@ func main() {
 
 	case "feedback", "review", "reviews":
 		docs.OpenFeedback(os.Stdout)
+
+	case "completion":
+		shell := "bash"
+		if len(args) > 0 {
+			shell = args[0]
+		}
+		if err := completions.GenerateCompletion(shell, os.Stdout); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
 
 	case "version", "-v", "--version":
 		kver, _ := telemetry.GetKernelVersion()
