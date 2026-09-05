@@ -165,6 +165,11 @@ jobs:
             ccache-
 
       # ── Build ────────────────────────────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       # Same parity check deploy-docs runs — a drifted catalog must not ship
       # inside the ISO just because the docs deploy didn't run.
       - name: Verify tool catalog parity

@@ -208,6 +208,11 @@ PKGS_ADVANCED=(
 PKGS_TELCOCHISEL_META=(
   telcochisel-base
   telcochisel-hardware-sdr
+  telcochisel-tools-sdr
+  telcochisel-tools-2g-3g
+  telcochisel-tools-4g
+  telcochisel-tools-5g
+  telcochisel-tools-sim
   telcochisel-tools-pstn-adsl
   telcochisel-tools-ue
   telcochisel-meta-full

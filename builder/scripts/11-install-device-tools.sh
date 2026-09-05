@@ -15,6 +15,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/record-tool.sh"
 # shellcheck source=lib/pip-retry.sh
 source "${SCRIPT_DIR}/lib/pip-retry.sh"
+# shellcheck source=lib/build-tool.sh
+source "${SCRIPT_DIR}/lib/build-tool.sh"
 
 # ─── A. Samsung tools ────────────────────────────────────────────────────────
 echo "  Samsung tools (heimdall already installed via apt)..."
@@ -66,7 +68,7 @@ echo "  Installing Qualcomm EDL tools..."
 local_constraints=""
 [ -f "${SCRIPT_DIR}/lib/pip-constraints.txt" ] && local_constraints="-c ${SCRIPT_DIR}/lib/pip-constraints.txt"
 pip3 install edl ${local_constraints} --break-system-packages 2>/dev/null || {
-  git clone --depth 1 https://github.com/bkerler/edl "${TELCOSEC_OPT}/edl" 2>/dev/null || true
+  clone_if_missing https://github.com/bkerler/edl "${TELCOSEC_OPT}/edl" || true
   if [ -d "${TELCOSEC_OPT}/edl" ]; then
     pip_retry install -e "${TELCOSEC_OPT}/edl" --break-system-packages
   fi
@@ -105,8 +107,7 @@ echo "  Configuring AT command tools..."
 
 # Quick AT command sender (atinout - C utility from source)
 if ! command -v atinout &>/dev/null; then
-  git clone --depth 1 https://github.com/ThisSmartHouse/atinout "${TELCOSEC_OPT}/atinout" \
-    2>/dev/null || true
+  clone_if_missing https://github.com/ThisSmartHouse/atinout "${TELCOSEC_OPT}/atinout" || true
   if [ -d "${TELCOSEC_OPT}/atinout" ]; then
     cd "${TELCOSEC_OPT}/atinout" && make -j"$(nproc)" && cp atinout /usr/local/bin/ && cd /
   fi
