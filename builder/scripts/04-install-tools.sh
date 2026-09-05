@@ -121,3 +121,15 @@ echo "Wordlists installed: $(find /usr/share/wordlists/telecom -type f 2>/dev/nu
 echo "Installing wordlist helper scripts..."
 [ -f /usr/share/wordlists/telecom/scripts/apn_permutator.py ] && sudo install -m 755 /usr/share/wordlists/telecom/scripts/apn_permutator.py  /usr/local/bin/telcosec-apn-permutator || true
 [ -f /usr/share/wordlists/telecom/scripts/imsi_generator.py ] && sudo install -m 755 /usr/share/wordlists/telecom/scripts/imsi_generator.py  /usr/local/bin/telcosec-imsi-generator || true
+
+# Ensure mausezahn and mz from netsniff-ng package are easily accessible in PATH
+if [ -f /usr/sbin/mausezahn ] && [ ! -f /usr/local/bin/mausezahn ]; then
+  sudo ln -sf /usr/sbin/mausezahn /usr/local/bin/mausezahn
+fi
+if [ -f /usr/sbin/mz ] && [ ! -f /usr/local/bin/mz ]; then
+  sudo ln -sf /usr/sbin/mz /usr/local/bin/mz
+elif [ -f /usr/sbin/mausezahn ] && [ ! -f /usr/local/bin/mz ]; then
+  sudo ln -sf /usr/sbin/mausezahn /usr/local/bin/mz
+fi
+record_tool "mausezahn (mz)" "$(command -v mz 2>/dev/null || command -v mausezahn 2>/dev/null || echo '/usr/sbin/mausezahn')" "adsl"
+
