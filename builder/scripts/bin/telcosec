@@ -48,7 +48,9 @@ Usage: telcosec <command> [options]
 
 Commands:
   status               Comprehensive system, kernel, hardware, and services audit
-  hardware | sdr       Enumerate and probe attached SDRs, modems, and SIM readers
+  hardware             Enumerate and probe attached SDRs, modems, and SIM readers
+  sdr [action]         SDR drivers, USB & 10GbE management (status | usb | 10g | firmware)
+  10g [action]         10Gbps network SDR interface optimization (status | tune | setup | probe)
   firmware             Inspect and manage offline SDR FPGA bitstreams (BladeRF, USRP)
   profile [mode]       Switch operational profiles (lab | field | status)
   pkg [action]         Official metapackage manager (list | install | remove | info | check)
@@ -320,6 +322,19 @@ cmd_pkg() {
   fi
 }
 
+cmd_sdr() {
+  if command -v telcosec-sdr >/dev/null 2>&1; then
+    exec telcosec-sdr "$@"
+  elif [ -f "$(dirname "$0")/telcosec-sdr" ]; then
+    exec "$(dirname "$0")/telcosec-sdr" "$@"
+  elif [ -f "/usr/local/bin/telcosec-sdr" ]; then
+    exec /usr/local/bin/telcosec-sdr "$@"
+  else
+    echo -e "${RED}Error: telcosec-sdr not found on system.${RESET}" >&2
+    exit 1
+  fi
+}
+
 # Subcommand dispatch
 action="${1:-help}"
 shift || true
@@ -328,8 +343,21 @@ case "$action" in
   status)
     cmd_status
     ;;
-  hardware|sdr)
+  hardware)
     cmd_hardware
+    ;;
+  sdr)
+    if [ $# -gt 0 ]; then
+      cmd_sdr "$@"
+    else
+      cmd_sdr status
+    fi
+    ;;
+  10g|10gbe|network)
+    cmd_sdr 10g "$@"
+    ;;
+  usb)
+    cmd_sdr usb "$@"
     ;;
   firmware)
     cmd_firmware
