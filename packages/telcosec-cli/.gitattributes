@@ -1,0 +1,9 @@
+# Set default behavior to automatically normalize line endings to LF
+* text=auto eol=lf
+
+*.go text eol=lf
+*.md text eol=lf
+*.bash text eol=lf
+*.fish text eol=lf
+_telcosec text eol=lf
+Makefile text eol=lf

@@ -1,0 +1,40 @@
+name: CI Validation
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Unit Tests & Static Analysis
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        go-version: ['1.22', '1.23']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Run Unit Tests with Coverage
+        run: go test -v -coverprofile=coverage.txt ./...
+
+      - name: Build Standalone Binary
+        run: |
+          make build
+          ./bin/telcosec version
+          ./bin/telcosec check
+          ./bin/telcosec sdr
+          ./bin/telcosec 10g status
+          ./bin/telcosec completion bash | bash -n
