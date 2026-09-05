@@ -34,7 +34,11 @@ fi
 BUILD_ARGS="$*"
 
 # ── Environment variables to forward ──────────────────────────────────────────
-ENV_PREFIX="SQUASHFS_LEVEL=${SQUASHFS_LEVEL:-6}"
+if [ -z "${ISO_VERSION:-}" ]; then
+    ISO_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || git describe --tags --always 2>/dev/null || echo "3.0.0")
+    ISO_VERSION="${ISO_VERSION#v}"
+fi
+ENV_PREFIX="ISO_VERSION=${ISO_VERSION} SQUASHFS_LEVEL=${SQUASHFS_LEVEL:-6}"
 [ "${USE_CCACHE:-0}" = "1" ] && ENV_PREFIX="$ENV_PREFIX USE_CCACHE=1"
 
 # ── Banner ────────────────────────────────────────────────────────────────────
@@ -90,9 +94,13 @@ SEC=$(( ELAPSED % 60 ))
 echo ""
 if [ "$EXIT_CODE" -eq 0 ]; then
     echo "  Build complete in ${MIN}m ${SEC}s"
-    ISO="$SCRIPT_DIR/TelcoChisel-live.iso"
+    ISO_NAME="TelcoChisel-${ISO_VERSION}-amd64.iso"
+    ISO="$SCRIPT_DIR/$ISO_NAME"
+    if [ ! -f "$ISO" ]; then
+        ISO="$SCRIPT_DIR/TelcoChisel-live.iso"
+    fi
     if [ -f "$ISO" ]; then
-        SIZE=$(du -m "$ISO" | cut -f1)
+        SIZE=$(du -mL "$ISO" 2>/dev/null | cut -f1 || du -m "$ISO" 2>/dev/null | cut -f1 || echo 0)
         echo "  ISO: $ISO (${SIZE} MB)"
     fi
 else

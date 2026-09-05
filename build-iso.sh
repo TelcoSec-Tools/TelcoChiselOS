@@ -88,8 +88,11 @@ done
 
 # Resolve version if unset
 if [ -z "$ISO_VERSION" ]; then
-  ISO_VERSION=$(git describe --tags --always 2>/dev/null || echo "1.0.0")
+  git config --global --add safe.directory "$PWD" 2>/dev/null || true
+  ISO_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || git describe --tags --always 2>/dev/null || echo "3.0.0")
 fi
+# Normalize version: strip leading 'v'
+ISO_VERSION="${ISO_VERSION#v}"
 
 # ─── Header ───────────────────────────────────────────────────────────────────
 echo "=== TelcoChisel ISO Builder ==="
@@ -556,6 +559,7 @@ fi
 # ─── OS Identity & Versioning ─────────────────────────────────────────────────
 echo "--> Stamping TelcoChisel OS version ($ISO_VERSION) into target system..."
 BUILD_DATE_UTC=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+git config --global --add safe.directory "$PWD" 2>/dev/null || true
 GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 CLEAN_VERSION="${ISO_VERSION#v}"
 
@@ -917,8 +921,11 @@ ISO_SIZE=$(du -sh "$IMAGE_NAME" | cut -f1)
 
 # Maintain backward compatibility with scripts expecting TelcoChisel-live.iso
 if [ "$IMAGE_NAME" != "TelcoChisel-live.iso" ]; then
-  echo "--> Creating backward-compatible symlink TelcoChisel-live.iso -> $IMAGE_NAME..."
-  ln -sf "$IMAGE_NAME" "TelcoChisel-live.iso" 2>/dev/null || cp -f "$IMAGE_NAME" "TelcoChisel-live.iso"
+  echo "--> Creating backward-compatible link TelcoChisel-live.iso -> $IMAGE_NAME..."
+  rm -f "TelcoChisel-live.iso"
+  ln -f "$IMAGE_NAME" "TelcoChisel-live.iso" 2>/dev/null || \
+  ln -sf "$IMAGE_NAME" "TelcoChisel-live.iso" 2>/dev/null || \
+  cp -f "$IMAGE_NAME" "TelcoChisel-live.iso" 2>/dev/null || true
   cp -f "${IMAGE_NAME}.sha256" "TelcoChisel-live.iso.sha256"
   cp -f "${IMAGE_NAME}.md5" "TelcoChisel-live.iso.md5"
 fi
