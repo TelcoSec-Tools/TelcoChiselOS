@@ -1249,7 +1249,7 @@ useHead({
               "name": "What Telecom Red Teaming scenarios are supported?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "TelcoChisel provides end-to-end assessment playbooks covering 5G Standalone Core resilience testing, over-the-air RF spectrum discovery, isolated rogue base station simulation, Qualcomm and MediaTek baseband diagnostic reverse engineering, SIM/eSIM profile auditing, and wireline broadband/VoIP security assessments."
+                "text": "TelcoChisel provides end-to-end assessment playbooks covering 5G Standalone Core resilience testing, over-the-air RF spectrum discovery, isolated rogue base station simulation, Qualcomm and MediaTek baseband diagnostic reverse engineering, SIM/eSIM profile auditing, wireline broadband and VoIP penetration testing, satellite NTN Doppler tracking, voice VLAN hopping with QinQ auditing, and 5G SBA HTTP/2 interception."
               }
             },
             {
