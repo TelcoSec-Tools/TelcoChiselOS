@@ -1,0 +1,92 @@
+name: "Tool Request"
+description: "Propose a new telecom security, SDR, or baseband tool for inclusion in TelcoChisel"
+title: "[Tool Request]: "
+labels: ["enhancement", "tool-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for proposing a new tool for **TelcoChisel**!
+        Please review our [Contributing Guidelines](https://github.com/TelcoSec-Tools/TelcoChiselOS/blob/main/CONTRIBUTING.md) to ensure the proposed tool meets licensing and architectural requirements.
+
+  - type: input
+    id: tool_name
+    attributes:
+      label: Tool Name
+      description: What is the official name of the tool?
+      placeholder: "e.g., srsran-project"
+    validations:
+      required: true
+
+  - type: input
+    id: repo_url
+    attributes:
+      label: Upstream Repository URL
+      description: Link to the tool's source code (GitHub, GitLab, etc.)
+      placeholder: "https://github.com/example/mytool"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Telecom / Security Domain
+      description: Which primary category best describes this tool?
+      options:
+        - "5G Standalone (SA) / NR"
+        - "4G LTE / EPC"
+        - "Software Defined Radio (SDR) & RF"
+        - "SIM / eSIM & Smart Cards"
+        - "Cellular Basebands & Handset Firmware"
+        - "Wireline Broadband & Core Networks (SS7/Diameter/GTP)"
+        - "VoIP, IMS & SIP Telephony"
+        - "Other / Multi-Domain"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: license
+    attributes:
+      label: Open Source License
+      description: TelcoChisel only distributes open-source tools with permissive or copyleft licenses.
+      options:
+        - "GPL-3.0 / GPL-2.0"
+        - "Apache-2.0"
+        - "MIT / BSD"
+        - "AGPL-3.0"
+        - "Other FOSS License"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Tool Summary & Purpose
+      description: What problem does this tool solve in telecom security research or offensive operations?
+      placeholder: "Describe the key features, protocol layers tested, and why it is valuable for telecom operators."
+    validations:
+      required: true
+
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Hardware Requirements
+      description: Does this tool require specific SDR or physical hardware? (e.g. USRP B210, HackRF, SIMtrace 2, PCSC reader)
+      placeholder: "e.g., Nuand BladeRF 2.0 micro or Ettus USRP B210"
+
+  - type: textarea
+    id: installation
+    attributes:
+      label: Build & Installation Details
+      description: How is the tool compiled or installed? Are there specific dependencies or Python packages?
+      placeholder: "e.g., CMake build requiring libboost-all-dev, or pip package in Python 3.10"
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have verified this tool is actively maintained and has an open-source license.
+          required: true
+        - label: This tool is intended for legitimate security auditing, academic research, or authorized testing.
+          required: true
