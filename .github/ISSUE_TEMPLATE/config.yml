@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "Discord Community Chat"
+    url: "https://discord.gg/RykzXTQFXF"
+    about: "Join the official Discord to discuss RF captures, ask quick questions, or get real-time assistance."
+  - name: "TelcoSec Community Forum"
+    url: "https://community.telcosec.net"
+    about: "Ask in-depth questions, share research papers, and collaborate on telecom security engagements."
+  - name: "SourceForge Reviews & Feedback"
+    url: "https://sourceforge.net/projects/telcochisel/reviews/new"
+    about: "Rate TelcoChisel 5 stars or leave public user reviews on SourceForge."
+  - name: "TelcoSec Academy"
+    url: "https://app.telcosec.net"
+    about: "Interactive browser labs for hands-on 5G/4G attack simulations."

@@ -1,0 +1,80 @@
+name: "Bug Report"
+description: "Report a bug or unexpected behavior in TelcoChisel OS, kernel, desktop, or bundled tools"
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue with **TelcoChisel**!
+        Before submitting, please check if your issue is already documented or answered in our [Discussions](https://github.com/TelcoSec-Tools/TelcoChiselOS/discussions) or [Documentation](https://chisel.telcosec.net).
+
+  - type: dropdown
+    id: edition
+    attributes:
+      label: TelcoChisel Edition & Environment
+      description: Which edition of TelcoChisel are you running?
+      options:
+        - "Flagship Field Edition (Full ~5.0 GB ISO)"
+        - "Modular Lite Edition (Lite ~1.8 GB ISO)"
+        - "Installed to Disk (via Calamares)"
+        - "Docker / Podman Container"
+        - "Virtual Machine (VMware / VirtualBox / QEMU)"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: OS Version & Release
+      description: What version of TelcoChisel is running?
+      placeholder: "e.g., v3.0.0 (Noble Numbat)"
+    validations:
+      required: true
+
+  - type: input
+    id: hardware
+    attributes:
+      label: Connected Hardware / SDR Transceivers
+      description: Which SDR, SIM reader, or baseband hardware is connected?
+      placeholder: "e.g., Ettus USRP B210 over USB 3.0, or None (testing in VM)"
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: "e.g., Launching 'telcosec sdr' should detect the connected USRP B210 and report FPGA firmware loaded."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior & Reproduction Steps
+      description: What actually happened? Provide exact step-by-step reproduction instructions.
+      placeholder: |
+        1. Boot live USB with credentials telcosec / telcosec
+        2. Plug in USRP B210
+        3. Run 'telcosec sdr' in terminal
+        4. See error: [UHD Error: No devices found]
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Terminal Output & Logs
+      description: Paste relevant terminal logs, `dmesg` output, or error messages here.
+      render: shell
+      placeholder: "Paste output of 'telcosec check', 'dmesg | tail -n 50', or specific tool error output."
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Environment Verification
+      options:
+        - label: I have verified the SHA-256 checksum of the downloaded ISO.
+          required: false
+        - label: I tested with the default low-latency real-time kernel.
+          required: false
