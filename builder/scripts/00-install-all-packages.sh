@@ -97,6 +97,10 @@ Pin: release o=LP-PPA-mozillateam
 Pin-Priority: 1001
 EOF
 
+if [ -f /tmp/security/99-telcochisel.pref ]; then
+  cp -f /tmp/security/99-telcochisel.pref /etc/apt/preferences.d/99-telcochisel.pref
+fi
+
 # Open5GS and MongoDB are NOT installed at build time.
 # They are pulled in at first run via: sudo open5gs-install
 

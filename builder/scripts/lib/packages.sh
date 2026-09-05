@@ -20,8 +20,9 @@
 PKGS_BASE=(
   # Live boot infrastructure (must precede kernel)
   casper initramfs-tools
-  # Kernel
-  linux-image-generic
+  # Kernel (Low-latency default for SDR & 5G real-time operations + Generic fallback)
+  linux-image-lowlatency linux-headers-lowlatency
+  linux-image-generic linux-headers-generic
   # Bootloader — needed INSIDE the chroot/squashfs, not just on the build
   # host. build-iso.sh's own prereq check requires these on the HOST to
   # build/sign the live ISO's own boot media, but that's a separate concern

@@ -662,13 +662,22 @@ echo "TelcoChisel OS ${ISO_VERSION} Live CD" > "$WORKDIR/image/.disk/info"
 touch "$WORKDIR/image/.disk/base_installable"
 
 # ─── Kernel + initrd ──────────────────────────────────────────────────────────
-# Pick the kernel version ONCE from vmlinuz-*, then derive the initrd path from
-# that same version string — never pick vmlinuz and initrd independently. Two
-# separate `sort -V | tail -1` picks over vmlinuz-* and initrd.img-* can select
-# mismatched versions if more than one kernel is present (e.g. a leftover HWE
-# kernel), which boots to a kernel panic (initrd built for a different kernel).
+# Prioritize linux-image-lowlatency as primary kernel for real-time SDR/5G operations.
+# Also preserve generic kernel as /casper/vmlinuz-generic for fallback.
 echo "--> Copying kernel and initrd..."
-vmlinuz=$(find "$ROOTFS/boot/" -name "vmlinuz-*" -type f | sort -V | tail -1)
+vmlinuz_lowlatency=$(find "$ROOTFS/boot/" -name "vmlinuz-*lowlatency*" -type f 2>/dev/null | sort -V | tail -1 || true)
+vmlinuz_generic=$(find "$ROOTFS/boot/" -name "vmlinuz-*generic*" -type f 2>/dev/null | sort -V | tail -1 || true)
+
+if [ -n "$vmlinuz_lowlatency" ]; then
+  vmlinuz="$vmlinuz_lowlatency"
+  echo "    Selected Low-Latency kernel: $(basename "$vmlinuz") (SDR/5G optimized)"
+elif [ -n "$vmlinuz_generic" ]; then
+  vmlinuz="$vmlinuz_generic"
+  echo "    Selected Generic kernel: $(basename "$vmlinuz")"
+else
+  vmlinuz=$(find "$ROOTFS/boot/" -name "vmlinuz-*" -type f | sort -V | tail -1)
+fi
+
 if [ -z "$vmlinuz" ]; then
   echo "ERROR: kernel (vmlinuz-*) not found in $ROOTFS/boot/"
   exit 1
@@ -681,6 +690,17 @@ if [ ! -f "$initrd" ]; then
 fi
 cp "$vmlinuz" "$WORKDIR/image/casper/vmlinuz"
 cp "$initrd"  "$WORKDIR/image/casper/initrd"
+
+# If a distinct generic kernel exists, copy it as secondary fallback
+if [ -n "$vmlinuz_generic" ] && [ "$vmlinuz_generic" != "$vmlinuz" ]; then
+  kver_gen="${vmlinuz_generic##*/vmlinuz-}"
+  initrd_gen="$ROOTFS/boot/initrd.img-${kver_gen}"
+  if [ -f "$initrd_gen" ]; then
+    echo "    Packing Generic fallback kernel: $(basename "$vmlinuz_generic")"
+    cp "$vmlinuz_generic" "$WORKDIR/image/casper/vmlinuz-generic"
+    cp "$initrd_gen"      "$WORKDIR/image/casper/initrd-generic"
+  fi
+fi
 
 # ─── GRUB config ──────────────────────────────────────────────────────────────
 echo "--> Generating GRUB boot menu..."
@@ -712,9 +732,15 @@ fi
 # username/hostname are set here so casper's 10adduser hook picks them up.
 # noeject/noprompt: suppress casper's "remove disc and press enter" prompts.
 
-menuentry "TelcoChisel OS ${ISO_VERSION} Live (Try without installing)" {
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (Low-Latency Kernel - Default for SDR & 5G)" {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
+    initrd /casper/initrd
+}
+
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (Persistent Mode - Encrypted/casper-rw)" {
+    set gfxpayload=keep
+    linux /casper/vmlinuz boot=casper persistent noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
@@ -724,21 +750,29 @@ menuentry "TelcoChisel OS ${ISO_VERSION} Live (i3 Tiling WM - Operational Mode)"
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel OS ${ISO_VERSION} Live (Load to RAM)" {
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (Load to RAM - Zero Trace Mode)" {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 toram ---
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel OS ${ISO_VERSION} Live (Install)" {
+if [ -f /casper/vmlinuz-generic ]; then
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (Generic Kernel - Compatibility Mode)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel only-ubiquity quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
+    linux /casper/vmlinuz-generic boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
+    initrd /casper/initrd-generic
+}
+fi
+
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (Safe Graphics - nomodeset)" {
+    set gfxpayload=keep
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel nomodeset usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel OS ${ISO_VERSION} Live (Safe Graphics)" {
+menuentry "TelcoChisel OS ${ISO_VERSION} Live (Install to Hard Disk)" {
     set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel nomodeset usbcore.usbfs_memory_mb=1000 ---
+    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel only-ubiquity quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 

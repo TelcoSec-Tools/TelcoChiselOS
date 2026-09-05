@@ -174,12 +174,22 @@ record_tool "SoapyBladeRF" "$SOAPYBLADERF_MOD" "sdr"
 echo "Creating UHD images first-run downloader..."
 cat << 'FIRSTRUN' | sudo tee /usr/local/bin/uhd-download-images
 #!/bin/bash
-echo "Downloading UHD FPGA images (~1.5 GB)..."
-echo "This only needs to run once after installation."
+TARGET_DIR="/usr/share/uhd/images"
+sudo mkdir -p "$TARGET_DIR"
+
+if [ -d "$TARGET_DIR" ] && [ "$(ls -A "$TARGET_DIR" 2>/dev/null)" ]; then
+  echo "UHD FPGA images are already installed in $TARGET_DIR (offline ready)."
+  ls -lh "$TARGET_DIR"/*.bin 2>/dev/null | head -5 || true
+  read -rp "Re-download UHD images? [y/N] " ans
+  [[ "$ans" =~ ^[Yy]$ ]] || exit 0
+fi
+
+echo "=== Downloading UHD FPGA Images ==="
+echo "Note: pass '--types b2xx' for quick download of B200/B210 images only (~30 MB)"
 source /opt/telcosec/miniconda/etc/profile.d/conda.sh
 conda activate telcosec-sdr 2>/dev/null || true
-uhd_images_downloader
-echo "UHD images downloaded successfully."
+uhd_images_downloader "$@"
+echo "UHD images downloaded successfully to $TARGET_DIR."
 FIRSTRUN
 sudo chmod +x /usr/local/bin/uhd-download-images
 
@@ -189,10 +199,16 @@ sudo mkdir -p /usr/share/Nuand/bladeRF /lib/firmware/nuand
 cat << 'FIRSTRUN_BLADERF' | sudo tee /usr/local/bin/bladerf-download-images
 #!/bin/bash
 set -e
-echo "=== Downloading Nuand BladeRF FPGA Images & Firmware ==="
+echo "=== Nuand BladeRF FPGA Images & Firmware Manager ==="
 TARGET_DIR="/usr/share/Nuand/bladeRF"
 FW_DIR="/lib/firmware/nuand"
 sudo mkdir -p "$TARGET_DIR" "$FW_DIR"
+
+# Check if offline cached files exist in local directory or /tmp/firmware
+if [ -d "/tmp/firmware/bladeRF" ]; then
+  echo "Found local offline firmware cache in /tmp/firmware/bladeRF! Copying..."
+  sudo cp -rn /tmp/firmware/bladeRF/* "$TARGET_DIR/" 2>/dev/null || true
+fi
 
 BASE_URL="https://www.nuand.com/fpga"
 # Latest hosted images for BladeRF 2.0 micro (xA4, xA9) and BladeRF Classic (x40, x115)
@@ -205,9 +221,13 @@ IMAGES=(
 
 for img in "${IMAGES[@]}"; do
   fname=$(basename "$img")
-  echo "Downloading $fname..."
-  curl -fsSL "${BASE_URL}/${img}" -o "${TARGET_DIR}/${fname}" || \
-    echo "  WARNING: Failed to download $fname (check network connectivity)"
+  if [ -s "${TARGET_DIR}/${fname}" ]; then
+    echo "  [OK] $fname already present (offline ready)."
+  else
+    echo "Downloading $fname..."
+    curl -fsSL "${BASE_URL}/${img}" -o "${TARGET_DIR}/${fname}" || \
+      echo "  WARNING: Failed to download $fname (check internet connectivity)"
+  fi
 done
 
 # Create default hosted.rbf symlink pointing to hostedxA4.rbf
@@ -216,13 +236,19 @@ if [ -f "${TARGET_DIR}/hostedxA4.rbf" ]; then
 fi
 
 # Download latest FX3 firmware
-echo "Downloading BladeRF FX3 firmware..."
-curl -fsSL "https://www.nuand.com/fx3/bladeRF_fw_latest.img" -o "${TARGET_DIR}/bladeRF_fw.img" 2>/dev/null || true
+if [ -s "${TARGET_DIR}/bladeRF_fw.img" ]; then
+  echo "  [OK] BladeRF FX3 firmware already present."
+else
+  echo "Downloading BladeRF FX3 firmware..."
+  curl -fsSL "https://www.nuand.com/fx3/bladeRF_fw_latest.img" -o "${TARGET_DIR}/bladeRF_fw.img" 2>/dev/null || true
+fi
+
 if [ -f "${TARGET_DIR}/bladeRF_fw.img" ]; then
   cp -f "${TARGET_DIR}/bladeRF_fw.img" "${FW_DIR}/bladeRF.img" 2>/dev/null || true
 fi
 
 sudo chmod 644 "${TARGET_DIR}"/* 2>/dev/null || true
+echo "✓ BladeRF FPGA & firmware check complete."
 echo "✓ BladeRF FPGA images and firmware installed in $TARGET_DIR"
 FIRSTRUN_BLADERF
 sudo chmod +x /usr/local/bin/bladerf-download-images

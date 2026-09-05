@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+# =============================================================================
+# /usr/local/bin/telcosec-create-usb — Live USB Encrypted Persistence Creator
+#
+# Creates a dual-partition bootable TelcoChisel USB drive with:
+#   - Partition 1: ISO bootable filesystem (casper live system)
+#   - Partition 2: casper-rw persistence partition (standard ext4 or LUKS encrypted)
+# =============================================================================
+set -euo pipefail
+
+usage() {
+  cat << 'EOF'
+TelcoChisel Live USB Persistence Creator
+
+Usage:
+  sudo telcosec-create-usb <iso-path> <usb-block-device> [options]
+
+Arguments:
+  <iso-path>           Path to TelcoChisel ISO (e.g. TelcoChisel-1.1.0-amd64.iso)
+  <usb-block-device>   Target raw disk (e.g. /dev/sdb, NOT /dev/sdb1)
+
+Options:
+  --encrypt            Encrypt persistence partition with LUKS (AES-256-XTS)
+  -y, --yes            Skip interactive confirmation (caution!)
+
+Example:
+  sudo telcosec-create-usb TelcoChisel-1.1.0-amd64.iso /dev/sdb --encrypt
+EOF
+  exit 1
+}
+
+if [ "$EUID" -ne 0 ]; then
+  echo "ERROR: Must be run as root (sudo telcosec-create-usb ...)" >&2
+  exit 1
+fi
+
+ISO_PATH="${1:-}"
+TARGET_DEV="${2:-}"
+shift 2 || true
+
+ENCRYPT=false
+ASSUME_YES=false
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --encrypt) ENCRYPT=true; shift ;;
+    -y|--yes) ASSUME_YES=true; shift ;;
+    *) echo "Unknown option: $1" >&2; usage ;;
+  esac
+done
+
+if [ -z "$ISO_PATH" ] || [ -z "$TARGET_DEV" ]; then
+  usage
+fi
+
+if [ ! -f "$ISO_PATH" ]; then
+  echo "ERROR: ISO file not found: $ISO_PATH" >&2
+  exit 1
+fi
+
+if [ ! -b "$TARGET_DEV" ] || [[ "$TARGET_DEV" =~ [0-9]$ ]]; then
+  echo "ERROR: Target device must be a whole disk (e.g. /dev/sdb), not a partition or non-block device." >&2
+  exit 1
+fi
+
+# Safety check: ensure target device is not currently mounted
+if mount | grep -q "^$TARGET_DEV"; then
+  echo "ERROR: Partitions on $TARGET_DEV are currently mounted. Please unmount them first." >&2
+  exit 1
+fi
+
+# Prevent accidentally writing to root disk
+ROOT_DEV=$(lsblk -no pkname "$(findmnt -n -o SOURCE /)" 2>/dev/null || echo "")
+if [ -n "$ROOT_DEV" ] && [ "/dev/$ROOT_DEV" = "$TARGET_DEV" ]; then
+  echo "CRITICAL: $TARGET_DEV contains the active root filesystem! Operation aborted." >&2
+  exit 1
+fi
+
+echo "================================================================"
+echo "  TelcoChisel Live USB Persistence Creator"
+echo "================================================================"
+echo "  Source ISO       : $ISO_PATH ($(du -sh "$ISO_PATH" | cut -f1))"
+echo "  Target USB Disk  : $TARGET_DEV ($(lsblk -no SIZE "$TARGET_DEV" | head -1 | tr -d ' '))"
+echo "  Disk Model       : $(lsblk -no MODEL "$TARGET_DEV" | head -1 | xargs)"
+echo "  Encrypted LUKS   : $ENCRYPT"
+echo "================================================================"
+
+if ! $ASSUME_YES; then
+  read -rp "WARNING: ALL DATA ON $TARGET_DEV WILL BE PERMANENTLY ERASED! Continue? [y/N] " confirm
+  if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+    echo "Aborted by user."
+    exit 0
+  fi
+fi
+
+echo "--> [1/4] Writing ISO hybrid image to $TARGET_DEV..."
+dd if="$ISO_PATH" of="$TARGET_DEV" bs=4M status=progress conv=fdatasync
+
+echo "--> [2/4] Detecting partitions and allocating persistence space..."
+partprobe "$TARGET_DEV" 2>/dev/null || sleep 2
+
+# Check if there is free space to create partition 3 or 4 for casper-rw
+# Hybrid ISOs usually have partition 1 (ISO9660) and partition 2 (EFI)
+PART_NUM=3
+if [ -b "${TARGET_DEV}${PART_NUM}" ] || [ -b "${TARGET_DEV}p${PART_NUM}" ]; then
+  PART_NUM=4
+fi
+
+echo "--> [3/4] Creating persistence partition ($PART_NUM) on remaining disk..."
+# Use sgdisk or parted to append partition
+if command -v sgdisk &>/dev/null; then
+  sgdisk -N "$PART_NUM" "$TARGET_DEV" || true
+else
+  parted -s "$TARGET_DEV" mkpart primary ext4 100% 100% || true
+fi
+
+partprobe "$TARGET_DEV" 2>/dev/null || sleep 2
+PERSIST_PART="${TARGET_DEV}${PART_NUM}"
+[ -b "$PERSIST_PART" ] || PERSIST_PART="${TARGET_DEV}p${PART_NUM}"
+
+if [ ! -b "$PERSIST_PART" ]; then
+  echo "WARNING: Could not automatically detect partition $PERSIST_PART."
+  echo "ISO flashed successfully. You can manually partition free space as ext4 labeled 'casper-rw'."
+  exit 0
+fi
+
+echo "--> [4/4] Formatting persistence partition ($PERSIST_PART)..."
+if $ENCRYPT; then
+  echo "Setting up LUKS encrypted container on $PERSIST_PART..."
+  cryptsetup luksFormat "$PERSIST_PART"
+  MAPPER_NAME="telcochisel-casper-rw"
+  cryptsetup open "$PERSIST_PART" "$MAPPER_NAME"
+  mkfs.ext4 -L "casper-rw" "/dev/mapper/$MAPPER_NAME"
+  cryptsetup close "$MAPPER_NAME"
+  echo "✓ Encrypted LUKS persistence initialized."
+else
+  mkfs.ext4 -F -L "casper-rw" "$PERSIST_PART"
+  echo "✓ Standard ext4 casper-rw persistence initialized."
+fi
+
+echo ""
+echo "================================================================"
+echo "  TelcoChisel USB Creation Complete!"
+echo "  Boot your computer from this USB drive and select:"
+echo "  'TelcoChisel OS Live (Persistent Mode - Encrypted/casper-rw)'"
+echo "================================================================"

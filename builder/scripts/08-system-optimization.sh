@@ -60,15 +60,18 @@ fi
 
 # 4. Wireshark Dissector Profile & Plugins
 echo "Configuring default Wireshark telecom profile, custom Lua plugins, and OpenAPI schemas..."
-sudo mkdir -p /etc/skel/.config/wireshark/
+sudo mkdir -p /etc/skel/.config/wireshark/ /home/telcosec/.config/wireshark/
 if [ -f /tmp/wireshark/preferences ]; then
   # For future users created via Calamares
   sudo cp /tmp/wireshark/preferences /etc/skel/.config/wireshark/preferences
   # For the pre-created live user
-  sudo mkdir -p /home/telcosec/.config/wireshark/
   sudo cp /tmp/wireshark/preferences /home/telcosec/.config/wireshark/preferences
-  sudo chown -R telcosec:telcosec /home/telcosec/.config
 fi
+if [ -f /tmp/wireshark/colorfilters ]; then
+  sudo cp /tmp/wireshark/colorfilters /etc/skel/.config/wireshark/colorfilters
+  sudo cp /tmp/wireshark/colorfilters /home/telcosec/.config/wireshark/colorfilters
+fi
+sudo chown -R telcosec:telcosec /home/telcosec/.config 2>/dev/null || true
 
 # Deploy custom Lua plugins system-wide
 sudo mkdir -p /usr/share/wireshark/plugins/
@@ -77,9 +80,13 @@ if [ -d /tmp/wireshark/plugins ]; then
   sudo chmod 644 /usr/share/wireshark/plugins/*.lua || true
 fi
 
-# Create directory for 5G SBI OpenAPI YAML definitions
+# Create directory for 5G SBI OpenAPI YAML definitions and deploy downloader
 sudo mkdir -p /etc/wireshark/openapi/
 sudo chmod 755 /etc/wireshark/openapi/
+if [ -f /tmp/scripts/bin/telcosec-download-openapi ]; then
+  sudo cp -f /tmp/scripts/bin/telcosec-download-openapi /usr/local/bin/telcosec-download-openapi
+  sudo chmod 755 /usr/local/bin/telcosec-download-openapi
+fi
 
 # 5. Boot Theme (GRUB & Plymouth Customization)
 echo "Deploying custom boot styling (GRUB & Plymouth)..."
@@ -373,6 +380,27 @@ case "$CMD" in
 esac
 PROFILESCRIPT
 sudo chmod +x /usr/local/bin/telcosec-profile
+
+# 11d. Unified TelcoSec Operator CLI & Helpers
+echo "Deploying unified telcosec operator CLI and persistence tools..."
+if [ -f /tmp/scripts/bin/telcosec ]; then
+  sudo cp -f /tmp/scripts/bin/telcosec /usr/local/bin/telcosec
+  sudo chmod 755 /usr/local/bin/telcosec
+  sudo ln -sf /usr/local/bin/telcosec /usr/local/bin/telcochisel
+fi
+
+if [ -f /tmp/scripts/bin/telcosec-create-usb ]; then
+  sudo cp -f /tmp/scripts/bin/telcosec-create-usb /usr/local/bin/telcosec-create-usb
+  sudo chmod 755 /usr/local/bin/telcosec-create-usb
+fi
+
+# 11e. APT Repository Pinning
+echo "Deploying TelcoChisel APT repository pinning preferences..."
+sudo mkdir -p /etc/apt/preferences.d/
+if [ -f /tmp/security/99-telcochisel.pref ]; then
+  sudo cp -f /tmp/security/99-telcochisel.pref /etc/apt/preferences.d/99-telcochisel.pref
+  sudo chmod 644 /etc/apt/preferences.d/99-telcochisel.pref
+fi
 
 # 12. Custom Domain Certificates Trust
 # If a custom Root/Intermediate CA cert exists, install it to system CA trust store

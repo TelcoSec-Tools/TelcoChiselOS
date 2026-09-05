@@ -1,0 +1,15 @@
+# Wireshark telecom color filters for TelcoChisel
+# Pre-configured coloring rules for 5G, 4G, SS7, Diameter, GTP, and SIP signaling
+
+@5G NAS Registration Reject@nas_5gs.mm.message_type == 0x44@[[65535,18000,18000][65535,65535,65535]]
+@5G NAS Security Reject@nas_5gs.mm.message_type == 0x5e or nas_5gs.mm.message_type == 0x58@[[60000,10000,10000][65535,65535,65535]]
+@5G PDU Session Reject@nas_5gs.sm.message_type == 0xc2 or nas_5gs.sm.cause@[[65535,32000,15000][0,0,0]]
+@NGAP Procedure Failure@ngap.successfulOutcome == 0 and ngap.unsuccessfulOutcome == 1@[[65535,40000,20000][0,0,0]]
+@SCTP ABORT Chunk@sctp.chunk_type == 6@[[65535,15000,15000][65535,65535,65535]]
+@SS7 MAP Location / SRI Fraud@gsm_old.opCode == 44 or gsm_old.opCode == 2 or gsm_map.old.opCode == 44@[[50000,20000,55000][65535,65535,65535]]
+@Diameter Permanent Failure@diameter.Result-Code >= 5000@[[65535,25000,25000][0,0,0]]
+@Diameter Transient Failure@diameter.Result-Code >= 4000 and diameter.Result-Code < 5000@[[65535,48000,20000][0,0,0]]
+@Diameter Location Update (ULR/ULA)@diameter.cmd.code == 316@[[25000,45000,60000][65535,65535,65535]]
+@GTP-C Create / Delete Session@gtp.message_type == 32 or gtp.message_type == 36 or gtpv2.message_type == 32@[[20000,55000,45000][65535,65535,65535]]
+@SIP Client / Server Error@sip.Status-Code >= 400@[[65535,38000,15000][0,0,0]]
+@GSMTAP Control Channel@gsmtap.cl_type == 1 or gsmtap.cl_type == 2@[[35000,35000,55000][65535,65535,65535]]

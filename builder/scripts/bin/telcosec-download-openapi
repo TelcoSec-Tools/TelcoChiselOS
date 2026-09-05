@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# =============================================================================
+# /usr/local/bin/telcosec-download-openapi — 3GPP 5G SBI OpenAPI Downloader
+#
+# Fetches official 3GPP 5G Service Based Architecture (SBA) OpenAPI specifications
+# into /etc/wireshark/openapi/ so Wireshark can parse HTTP/2 JSON signaling payloads.
+# =============================================================================
+set -euo pipefail
+
+OPENAPI_DIR="/etc/wireshark/openapi"
+echo "=== 3GPP 5G Service-Based Architecture (SBA) OpenAPI Downloader ==="
+echo "Target directory: $OPENAPI_DIR"
+
+sudo mkdir -p "$OPENAPI_DIR"
+
+RELEASE="${1:-Rel-17}"
+echo "--> Downloading 3GPP ${RELEASE} 5G Core Network OpenAPI specifications..."
+
+# Download repository archive of 3GPP 5G OpenAPI definitions
+ARCHIVE_URL="https://github.com/jdegre/5GC_APIs/archive/refs/heads/${RELEASE}.tar.gz"
+TMP_DIR=$(mktemp -d)
+
+if curl -fsSL "$ARCHIVE_URL" -o "${TMP_DIR}/openapi.tar.gz" 2>/dev/null; then
+  tar -xzf "${TMP_DIR}/openapi.tar.gz" -C "$TMP_DIR"
+  sudo cp -r "${TMP_DIR}"/5GC_APIs-*/*.yaml "$OPENAPI_DIR/" 2>/dev/null || true
+  COUNT=$(ls -1 "$OPENAPI_DIR"/*.yaml 2>/dev/null | wc -l)
+  echo "✓ Successfully deployed $COUNT 3GPP 5G OpenAPI schemas to $OPENAPI_DIR"
+else
+  echo "WARNING: Could not download 3GPP specifications from upstream. Check internet connection."
+fi
+
+rm -rf "$TMP_DIR"
