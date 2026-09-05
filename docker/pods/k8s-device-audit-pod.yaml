@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: telcochisel-device-audit-pod
+  namespace: default
+  labels:
+    app.kubernetes.io/name: telcochisel-device-audit
+    app.kubernetes.io/part-of: telcochisel
+    app.kubernetes.io/component: device-tools
+    net.telcosec.tier: device-tools
+  annotations:
+    description: "TelcoChisel modem, baseband, and mobile device forensic analysis pod"
+    net.telcosec.academy.lab: "https://app.telcosec.net/labs/baseband-firmware-re"
+spec:
+  shareProcessNamespace: true
+  restartPolicy: Always
+  containers:
+    # ─── 1. Device Flashing & Hardware Interface (Heimdall, ADB, MTK, EDL) ───
+    - name: device-flasher
+      image: ghcr.io/telcosec-tools/telcochisel-device-tools:latest
+      imagePullPolicy: IfNotPresent
+      command:
+        - /bin/bash
+        - -c
+        - |
+          echo "================================================================"
+          echo "  TelcoChisel Mobile Device & Baseband Flashing Interface"
+          echo "  Tools: Heimdall, ADB/Fastboot, MTKClient, Qualcomm EDL, AT"
+          echo "  Training & Labs: https://app.telcosec.net"
+          echo "================================================================"
+          sleep infinity
+      securityContext:
+        privileged: true   # Needed for dynamic USB serial / ttyUSB enumeration
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "1Gi"
+        limits:
+          cpu: "2000m"
+          memory: "4Gi"
+      livenessProbe:
+        exec:
+          command:
+            - /usr/local/bin/container-healthcheck.sh
+        initialDelaySeconds: 10
+        periodSeconds: 30
+        timeoutSeconds: 5
+      volumeMounts:
+        - name: dev-bus-usb
+          mountPath: /dev/bus/usb
+        - name: firmware-workspace
+          mountPath: /firmware-analysis
+
+    # ─── 2. Baseband Fuzzing & Protocol Decoder (SCAT, QCSuper, FirmWire) ───
+    - name: baseband-decoder
+      image: ghcr.io/telcosec-tools/telcochisel-base:latest
+      imagePullPolicy: IfNotPresent
+      command:
+        - /bin/bash
+        - -c
+        - |
+          echo "================================================================"
+          echo "  TelcoChisel Baseband Protocol Decoder (SCAT / QCSuper / FirmWire)"
+          echo "  Shared workspace: /firmware-analysis"
+          echo "================================================================"
+          sleep infinity
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "1Gi"
+        limits:
+          cpu: "2000m"
+          memory: "4Gi"
+      livenessProbe:
+        exec:
+          command:
+            - /usr/local/bin/container-healthcheck.sh
+        initialDelaySeconds: 10
+        periodSeconds: 30
+        timeoutSeconds: 5
+      volumeMounts:
+        - name: firmware-workspace
+          mountPath: /firmware-analysis
+
+  volumes:
+    - name: dev-bus-usb
+      hostPath:
+        path: /dev/bus/usb
+        type: Directory
+    - name: firmware-workspace
+      emptyDir: {}

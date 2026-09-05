@@ -18,6 +18,7 @@ FROM ${BASE_IMAGE}
 
 LABEL org.opencontainers.image.title="TelcoSec TelcoChisel Device Tools" \
       org.opencontainers.image.description="TelcoSec TelcoChisel Device Tools — Baseband, modem, and mobile device forensic flashing & diagnostic suite (Heimdall, Android ADB/Fastboot, MediaTek MTKClient, QCSuper Qualcomm Diag, Qualcomm EDL, AT terminal)" \
+      org.opencontainers.image.version="1.1.0" \
       org.opencontainers.image.url="https://telcosec.net" \
       org.opencontainers.image.documentation="https://telcosec.net/docs" \
       org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS" \
@@ -36,4 +37,9 @@ RUN bash /tmp/40-device-tools.sh && rm -f /tmp/40-device-tools.sh
 
 WORKDIR /home/telcosec
 USER telcosec
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD ["/usr/local/bin/container-healthcheck.sh"]
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["/bin/bash"]

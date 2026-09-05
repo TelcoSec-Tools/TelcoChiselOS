@@ -18,7 +18,7 @@ limitations" below before choosing a container over the ISO for a given task.
 
 | Image | Contents | Runtime needs |
 |-------|----------|----------------|
-| `telcochisel-base` | Headless CLI toolset: nmap, tshark, Scapy, SIPVicious, sctpscan, SigPloit, Diafuzzer, FirmWire, QCSuper, MTKClient, pySim, lpac, SIMtrace2, SIMurai, UERANSIM, SCAT, kalibrate-gsm, SIMTester, LTESniffer, RouterSploit, sipp, telecom wordlists | none |
+| `telcochisel-base` | Headless CLI toolset: nmap, tshark, Scapy, SIPVicious, sctpscan, SigPloit, Diafuzzer, FirmWire, QCSuper, MTKClient, pySim, lpac, SIMtrace2, SIMurai, UERANSIM, SCAT, kalibrate-gsm, SIMTester, LTESniffer, RouterSploit, sipp, asleap, snmp-check, docsis, telecom wordlists | none |
 | `telcochisel-sdr` | `FROM base` + SoapySDR/UHD/LimeSuite/HackRF/BladeRF/rtl-sdr, GNU Radio, GQRX, gr-gsm, kalibrate-rtl (conda `telcosec-sdr` env) | USB device passthrough; X11 for GQRX |
 | `telcochisel-core-network` | `FROM base` + srsRAN/Open5GS/OAI-UE/5Ghoul first-run helper stubs and their build deps prebaked | `NET_ADMIN`, `/dev/net/tun`, often host networking |
 | `telcochisel-device-tools` | `FROM base` + Heimdall, ADB/Fastboot, MTKClient wrappers, QCSuper, EDL, AT console | USB/serial device passthrough |
@@ -27,6 +27,81 @@ Matches the ISO's own "ready" vs. "setup" tool taxonomy (see the main
 `CLAUDE.md`) — the core-network image's helpers (`srsran-install`,
 `open5gs-install`, `oai-install`, `5ghoul-install`, `gtp5g-load`) are
 first-run compiles, not pre-built binaries, same as on the ISO.
+
+## Container Optimizations
+
+All TelcoChisel container images feature runtime and build optimizations:
+- **PID 1 Signal Handling (`tini`)**: Containers run under `/usr/bin/tini` as init subreaper to propagate `SIGINT`/`SIGTERM` to scanning tools (`tshark`, `sipp`, `sctpscan`) and eliminate zombie child processes.
+- **Built-in Healthchecks**: Containers implement Docker and Kubernetes native probes via `/usr/local/bin/container-healthcheck.sh`, dynamically validating tool responsiveness and subsystem readiness.
+- **Layer & Cache Pruning**: Conda package archives are cleaned via `conda clean -afy`, and temporary compilers are purged after build stages to keep image footprints minimal.
+- **Broadband & Wireline Parity**: Added `asleap`, `docsis`, and `snmp-check` alongside `routersploit` and `sipp` for full wireline and PPPoE audit capabilities.
+
+---
+
+## Telecom POD Orchestration
+
+In cellular and telco cloud architectures (Kubernetes, OpenShift, bare-metal Podman), testing requires tightly-coupled multi-container orchestration. TelcoChisel provides pre-engineered **Telecom POD manifests** in `docker/pods/`:
+
+### Available POD Manifests
+
+| Manifest | Architecture | Use Case |
+|---|---|---|
+| `podman-telecom-pod.yaml` | Multi-container (Core + Scanner) | Instant rootless execution via `podman play kube` on Linux or WSL2 |
+| `k8s-5g-core-pod.yaml` | Multi-container (`open5gs-core` + `ueransim-tester`) | 5G Standalone Core & RAN simulation with shared localhost networking |
+| `k8s-sdr-rf-pod.yaml` | Real-time SDR engine | Over-the-air RF signal capture with `SYS_NICE` priority and USB passthrough |
+| `k8s-device-audit-pod.yaml` | Flasher + Baseband Decoder | Diagnostic dumping, EDL extraction, and FirmWire/SCAT analysis |
+| `k8s-telecom-suite-pod.yaml` | Unified multi-container suite | End-to-end telecom red team assessment across signaling, RAN, and RF |
+
+### Rootless Quickstart with Podman (`play kube`)
+
+You do **not** need a Kubernetes cluster to run multi-container telecom pods. Rootless Podman natively runs them via `podman play kube`:
+
+```bash
+# 1. Start the Telecom Pod (shares localhost networking between Core and Scanner)
+podman play kube docker/pods/podman-telecom-pod.yaml
+
+# 2. Check running pod and containers
+podman pod ps
+podman ps --filter "label=net.telcosec.product=telcochisel"
+
+# 3. Open a shell inside the scanner container
+podman exec -it telcochisel-telecom-pod-telecom-scanner /bin/bash
+
+# 4. Tear down the pod
+podman play kube --down docker/pods/podman-telecom-pod.yaml
+```
+
+### Deploying to Kubernetes Clusters
+
+```bash
+# Deploy 5G Core & RAN simulator pod
+kubectl apply -f docker/pods/k8s-5g-core-pod.yaml
+
+# Inspect status
+kubectl get pods -l app.kubernetes.io/part-of=telcochisel
+
+# Shell into the RAN simulator container
+kubectl exec -it telcochisel-5g-core-pod -c ueransim-tester -- /bin/bash
+```
+
+### Unified CLI Helper: `pod-deploy.sh`
+
+Use `docker/pods/pod-deploy.sh` for convenient cluster and pod management:
+
+```bash
+# Start or stop Podman pod
+bash docker/pods/pod-deploy.sh start-podman
+bash docker/pods/pod-deploy.sh stop-podman
+
+# Deploy or delete Kubernetes pod
+bash docker/pods/pod-deploy.sh apply-k8s docker/pods/k8s-5g-core-pod.yaml
+bash docker/pods/pod-deploy.sh delete-k8s docker/pods/k8s-5g-core-pod.yaml
+
+# Inspect pod health across Podman and Kubernetes
+bash docker/pods/pod-deploy.sh status
+```
+
+---
 
 ## Build
 
@@ -150,6 +225,7 @@ bash docker/smoke-test.sh           # test images already built locally
 ```
 
 Runs a representative tool per category with `--version`/`--help` in each
-image and asserts success. This is a build/PATH sanity check, not a
-functional test of SDR/network features — those need real hardware/privilege
+image and validates all Telecom POD manifests. This is a build/PATH sanity check,
+not a functional test of SDR/network features — those need real hardware/privilege
 (see "Known limitations" above).
+

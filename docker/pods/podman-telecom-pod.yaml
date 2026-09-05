@@ -1,0 +1,83 @@
+# =============================================================================
+# TelcoChisel Rootless Telecom Pod for Podman
+#
+# Run instantly without a Kubernetes cluster using Podman:
+#   podman play kube docker/pods/podman-telecom-pod.yaml
+#
+# Tear down when done:
+#   podman play kube --down docker/pods/podman-telecom-pod.yaml
+#
+# Check pod status and logs:
+#   podman pod ps
+#   podman logs -f telcochisel-telecom-pod-open5gs-core
+#
+# Open an interactive shell inside a container:
+#   podman exec -it telcochisel-telecom-pod-open5gs-core /bin/bash
+#   podman exec -it telcochisel-telecom-pod-telecom-scanner /bin/bash
+# =============================================================================
+apiVersion: v1
+kind: Pod
+metadata:
+  name: telcochisel-telecom-pod
+  labels:
+    app: telcochisel
+    tier: telecom-pod
+    net.telcosec.product: telcochisel
+spec:
+  restartPolicy: Always
+  shareProcessNamespace: true
+  containers:
+    # ─── Container 1: 5G Core Network & Signaling ────────────────────────────
+    - name: open5gs-core
+      image: ghcr.io/telcosec-tools/telcochisel-core-network:latest
+      command:
+        - /bin/bash
+        - -c
+        - |
+          echo "================================================================"
+          echo "  TelcoChisel Podman Telecom Pod -- 5G Core Engine"
+          echo "  SCTP NGAP: 38412 | GTP-U: 2152 | PFCP: 8805 | WebUI: 7777"
+          echo "  TelcoSec Academy: https://app.telcosec.net"
+          echo "================================================================"
+          sleep infinity
+      ports:
+        - name: ngap
+          hostPort: 38412
+          containerPort: 38412
+          protocol: SCTP
+        - name: gtpu
+          hostPort: 2152
+          containerPort: 2152
+          protocol: UDP
+        - name: pfcp
+          hostPort: 8805
+          containerPort: 8805
+          protocol: UDP
+        - name: webui
+          hostPort: 7777
+          containerPort: 7777
+          protocol: TCP
+      volumeMounts:
+        - name: shared-captures
+          mountPath: /captures
+
+    # ─── Container 2: Telecom Scanner & Signaling Exploit Suite ───────────────
+    - name: telecom-scanner
+      image: ghcr.io/telcosec-tools/telcochisel-base:latest
+      command:
+        - /bin/bash
+        - -c
+        - |
+          echo "================================================================"
+          echo "  TelcoChisel Podman Telecom Pod -- Protocol & Exploit Suite"
+          echo "  Loopback connectivity to 5G Core via 127.0.0.1:38412"
+          echo "  Tools: sctpscan, SigPloit, Diafuzzer, UERANSIM, asleap, sipp"
+          echo "================================================================"
+          sleep infinity
+      volumeMounts:
+        - name: shared-captures
+          mountPath: /captures
+
+  volumes:
+    - name: shared-captures
+      emptyDir: {}
