@@ -42,7 +42,7 @@ apt-get update
 mapfile -t FILTERED_PKGS < <(filter_pkgs \
   "${PKGS_CORE_NETWORK[@]}" "${PKGS_5GHOUL_BUILD[@]}" \
   "${PKGS_5GHOUL_RUNTIME[@]}" "${PKGS_5GHOUL_REQS[@]}")
-apt_retry install -y --no-install-recommends "${FILTERED_PKGS[@]}"
+apt_retry install -y --no-install-recommends "${FILTERED_PKGS[@]}" build-essential
 update-alternatives --install /usr/bin/clang   clang   /usr/bin/clang-15   100 || true
 update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100 || true
 update-alternatives --install /usr/bin/lld     lld     /usr/bin/lld-15     100 || true

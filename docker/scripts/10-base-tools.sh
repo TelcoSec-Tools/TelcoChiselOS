@@ -38,20 +38,34 @@ mkdir -p "$TELCOSEC_OPT"
 # AFTER it, not before.
 echo "=== Installing base APT packages ==="
 apt-get update
+
+# Explicitly track build dependencies to purge later, keeping runtime slim
+BUILD_DEPS=(
+  build-essential cmake pkg-config autoconf automake libtool
+  python3-dev libusb-1.0-0-dev libmnl-dev libssl-dev libncurses-dev
+  libsctp-dev libglib2.0-dev libpcsclite-dev librocksdb-dev libmd-dev libfftw3-dev
+)
+
+# Explicitly install runtime shared libraries so purging -dev packages does not remove them
+RUNTIME_LIBRARIES=(
+  libglib2.0-0t64 libsctp1 libusb-1.0-0 libmnl0 libncurses6
+  libpcsclite1 libmd0 libfftw3-double3 libpcap0.8t64
+)
+
 apt_retry install -y --no-install-recommends \
-  ca-certificates curl wget gnupg git vim nano build-essential cmake \
-  pkg-config autoconf automake libtool python3-pip python3-venv python3-dev \
+  ca-certificates curl wget gnupg git vim nano \
+  python3-pip python3-venv \
   sudo unzip openjdk-17-jre-headless \
-  libusb-1.0-0-dev libmnl-dev \
-  libssl-dev libncurses-dev
-  # libusb-1.0-0-dev + libmnl-dev: libosmocore's configure needs both.
-  # libssl-dev + libncurses-dev: sipp's cmake needs both. All four come from
-  # the ISO's PKGS_CORE_NETWORK/PKGS_ADVANCED arrays, not PKGS_TOOLS/
-  # PKGS_UE_ANALYSIS — the ISO gets them for free from its one combined apt
-  # transaction; this narrower base image needs them declared explicitly.
+  "${BUILD_DEPS[@]}" \
+  "${RUNTIME_LIBRARIES[@]}"
 
 mapfile -t FILTERED_PKGS < <(filter_pkgs "${PKGS_TOOLS[@]}" "${PKGS_UE_ANALYSIS[@]}")
 apt_retry install -y --no-install-recommends "${FILTERED_PKGS[@]}"
+
+# Install official TelcoChisel base configuration if meta repository is configured
+if [ -f /etc/apt/sources.list.d/telcochisel.sources ]; then
+  apt_retry install -y --no-install-recommends telcochisel-base || true
+fi
 
 export GIT_TERMINAL_PROMPT=0
 export GIT_ASKPASS=/bin/false
@@ -334,9 +348,10 @@ git_clone_retry --depth 1 https://github.com/aligungr/UERANSIM "${TELCOSEC_OPT}/
 cd "${TELCOSEC_OPT}/ueransim"
 cmake -DCMAKE_BUILD_TYPE=Release . 2>&1 | tail -3
 make -j"$(nproc)" 2>&1 | tail -5
-ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-gnb" /usr/local/bin/nr-gnb
-ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-ue"  /usr/local/bin/nr-ue
-ln -sf "${TELCOSEC_OPT}/ueransim/build/nr-cli" /usr/local/bin/nr-cli
+install -m 755 build/nr-gnb /usr/local/bin/nr-gnb
+install -m 755 build/nr-ue  /usr/local/bin/nr-ue
+install -m 755 build/nr-cli /usr/local/bin/nr-cli
+rm -rf build
 record_tool "UERANSIM" "/usr/local/bin/nr-ue" "5g"
 
 # ─── 17. SCAT (from 10-install-telecom-advanced.sh) ─────────────────────────
@@ -382,10 +397,11 @@ cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -5
 make -j"$(nproc)" 2>&1 | tail -10 || make 2>&1 | tail -10 || true
 SNIFFER_BIN=$(find . -type f \( -name "LTESniffer" -o -name "ltesniffer" \) 2>/dev/null | head -1)
 if [ -n "$SNIFFER_BIN" ] && [ -f "$SNIFFER_BIN" ]; then
-  ln -sf "${TELCOSEC_OPT}/ltesniffer/build/${SNIFFER_BIN#./}" /usr/local/bin/ltesniffer
+  install -m 755 "$SNIFFER_BIN" /usr/local/bin/ltesniffer
 elif [ -f "${TELCOSEC_OPT}/ltesniffer/src/LTESniffer" ]; then
-  ln -sf "${TELCOSEC_OPT}/ltesniffer/src/LTESniffer" /usr/local/bin/ltesniffer
+  install -m 755 "${TELCOSEC_OPT}/ltesniffer/src/LTESniffer" /usr/local/bin/ltesniffer
 fi
+rm -rf "${TELCOSEC_OPT}/ltesniffer/build"
 record_tool "LTESniffer" "/usr/local/bin/ltesniffer" "4g"
 
 # ─── 21. RouterSploit (from 10-install-telecom-advanced.sh) ────────────────
@@ -406,6 +422,7 @@ cmake -S "${TELCOSEC_OPT}/sipp" -B "${TELCOSEC_OPT}/sipp/build" \
   -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/usr/local >/dev/null
 make -C "${TELCOSEC_OPT}/sipp/build" -j"$(nproc)" sipp >/dev/null
 install -m 755 "${TELCOSEC_OPT}/sipp/build/sipp" /usr/local/bin/sipp
+rm -rf "${TELCOSEC_OPT}/sipp/build"
 record_tool "sipp" "/usr/local/bin/sipp" "voip"
 
 # ─── 23. sudo access for the telcosec user (parity with the ISO's telcosec
@@ -413,7 +430,25 @@ record_tool "sipp" "/usr/local/bin/sipp" "voip"
 echo "telcosec ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/telcosec
 chmod 440 /etc/sudoers.d/telcosec
 
-# ─── 24. Ownership + tool-manifest summary ──────────────────────────────────
+# ─── 24. Binary stripping, compiler purge & cache optimization ──────────────
+echo "Stripping binary symbols and pruning build caches..."
+strip --strip-unneeded /usr/local/bin/* 2>/dev/null || true
+
+# Mark runtime shared libraries explicitly installed before purging build packages
+echo "Purging temporary build packages to minimize container size..."
+apt-mark manual "${RUNTIME_LIBRARIES[@]}" >/dev/null 2>&1 || true
+
+apt-get purge -y --auto-remove "${BUILD_DEPS[@]}" 2>/dev/null || true
+
+find "${TELCOSEC_OPT}" -maxdepth 3 -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
+find "${TELCOSEC_OPT}" -maxdepth 3 -name "build" -type d -exec rm -rf {} + 2>/dev/null || true
+find "${TELCOSEC_OPT}" -name "*.o" -delete 2>/dev/null || true
+find "${TELCOSEC_OPT}" -name "*.a" -delete 2>/dev/null || true
+find / -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+find / -name "*.pyc" -delete 2>/dev/null || true
+rm -rf /root/.cache /tmp/* /var/tmp/* /var/lib/apt/lists/*
+
+# ─── 25. Ownership + tool-manifest summary ──────────────────────────────────
 chown -R telcosec:telcosec "${TELCOSEC_OPT}"
 record_tool_summary
 

@@ -30,6 +30,21 @@ sudo_pip_retry install --break-system-packages \
   construct \
   pyshark
 
+# ── Pre-fetch 5Ghoul repo (best-effort for air-gapped / offline support) ──────
+if [ ! -d /opt/telcosec/5ghoul/.git ]; then
+  echo "Pre-fetching 5Ghoul repository (best-effort)..."
+  mkdir -p /opt/telcosec
+  git clone --depth 1 --recurse-submodules --shallow-submodules \
+    https://github.com/asset-group/5ghoul-5g-nr-attacks \
+    /opt/telcosec/5ghoul 2>/dev/null || true
+  if [ -d /opt/telcosec/5ghoul/.git ]; then
+    chown -R telcosec:plugdev /opt/telcosec/5ghoul || true
+    echo "  5Ghoul repository pre-fetched successfully."
+  else
+    echo "  5Ghoul pre-fetch skipped or offline; will clone on first run."
+  fi
+fi
+
 # ── Open5GS TUN interface (ogstun) for UPF user-plane traffic ────────────────
 cat << 'EOF' | sudo tee /etc/systemd/network/99-ogstun.netdev
 [NetDev]
@@ -304,6 +319,16 @@ if [ "$RADIO" = "BLADERF" ]; then
   if [ -n "$bladerf_info" ]; then
     echo "  BladeRF CLI: $bladerf_info"
   fi
+  # Verify BladeRF FPGA bitstreams in /usr/share/Nuand/bladeRF
+  if [ ! -f /usr/share/Nuand/bladeRF/hostedxA4.rbf ] && [ ! -f /usr/share/Nuand/bladeRF/hosted.rbf ]; then
+    echo "  NOTE: BladeRF FPGA bitstream not found in /usr/share/Nuand/bladeRF/."
+    if command -v bladerf-download-images >/dev/null 2>&1; then
+      echo "  Attempting automated download via bladerf-download-images..."
+      bladerf-download-images || echo "  WARNING: Image download failed. Connect to internet and run: sudo bladerf-download-images"
+    fi
+  else
+    echo "  BladeRF FPGA hosted bitstream detected."
+  fi
 fi
 if [ "$RADIO" = "LIMESDR" ]; then
   if ! dpkg -l limesuite 2>/dev/null | grep -q '^ii'; then
@@ -433,6 +458,18 @@ DEBIAN_FRONTEND=noninteractive bash requirements.sh 5g  || true
 
 # [4/5] Compile
 echo "[4/5] Compiling (this takes a while)..."
+# Calculate safe concurrency to prevent OOM crashes (allocate ~2GB RAM per compilation job)
+TOTAL_RAM_MB=$(free -m 2>/dev/null | awk '/^Mem:/{print $2}' || true)
+if [ -n "$TOTAL_RAM_MB" ] && [ "$TOTAL_RAM_MB" -gt 0 ]; then
+  MAX_JOBS=$(( TOTAL_RAM_MB / 2048 ))
+  [ "$MAX_JOBS" -lt 1 ] && MAX_JOBS=1
+  NPROC=$(nproc)
+  [ "$MAX_JOBS" -gt "$NPROC" ] && MAX_JOBS="$NPROC"
+  echo "  Allocating $MAX_JOBS parallel compilation jobs for $TOTAL_RAM_MB MB system RAM..."
+else
+  MAX_JOBS=$(nproc)
+fi
+export MAKEFLAGS="-j$MAX_JOBS"
 bash build.sh all
 
 # [5/5] Permissions

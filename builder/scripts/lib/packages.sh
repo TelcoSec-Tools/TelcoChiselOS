@@ -67,6 +67,7 @@ PKGS_SDR=(
   libfftw3-double3 libfftw3-dev libfftw3-bin
   autoconf automake libtool
   libsqlite3-dev libwxgtk3.2-dev freeglut3-dev
+  libbladerf2 libbladerf-dev bladerf
 )
 
 # ─── 03-install-core-network.sh ──────────────────────────────────────────────
@@ -198,3 +199,11 @@ PKGS_ADVANCED=(
   libqwt-qt5-dev librtlsdr-dev libboost-all-dev libitpp-dev
   libncurses-dev cargo libcrypt-dev libqt5charts5-dev
 )
+
+# ─── TelcoChisel Official Metapackages (meta.telcosec.net) ───────────────────
+PKGS_TELCOCHISEL_META=(
+  telcochisel-base
+  telcochisel-hardware-sdr
+  telcochisel-meta-full
+)
+

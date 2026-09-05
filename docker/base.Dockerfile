@@ -23,6 +23,12 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TELCOSEC_OPT=/opt/telcosec \
     PATH="/usr/local/bin:${PATH}"
 
+# Configure dpkg to permanently exclude docs, manpages, and groff files for minimal footprint,
+# and configure apt to skip recommends/suggests.
+RUN mkdir -p /etc/dpkg/dpkg.cfg.d /etc/apt/apt.conf.d \
+ && printf "path-exclude /usr/share/doc/*\npath-include /usr/share/doc/*/copyright\npath-exclude /usr/share/man/*\npath-exclude /usr/share/groff/*\npath-exclude /usr/share/info/*\npath-exclude /usr/share/lintian/*\npath-exclude /usr/share/linda/*\n" > /etc/dpkg/dpkg.cfg.d/01_nodoc \
+ && printf "APT::Install-Recommends \"0\";\nAPT::Install-Suggests \"0\";\n" > /etc/apt/apt.conf.d/01_norecommends
+
 # telcosec user — parity with the ISO's account so tool configs, wordlist
 # paths, and /opt/telcosec ownership match what TelcoChisel documentation
 # and helper scripts already assume. ubuntu:24.04 ships a pre-existing
@@ -32,7 +38,14 @@ RUN (getent passwd ubuntu >/dev/null && userdel -r ubuntu 2>/dev/null || true) \
  && (getent group ubuntu >/dev/null && groupdel ubuntu 2>/dev/null || true) \
  && groupadd -g 1000 telcosec \
  && useradd -u 1000 -g telcosec -m -s /bin/bash telcosec \
- && mkdir -p /opt/telcosec/lib && chown -R telcosec:telcosec /opt/telcosec
+ && mkdir -p /opt/telcosec/lib && chown -R telcosec:telcosec /opt/telcosec \
+ && mkdir -p /etc/apt/keyrings /etc/apt/sources.list.d \
+ && (which curl >/dev/null || (apt-get update -qq && apt-get install -y -qq curl ca-certificates && rm -rf /var/lib/apt/lists/*)) \
+ && curl -fsSL https://meta.telcosec.net/public.gpg -o /etc/apt/keyrings/telcochisel-archive-keyring.asc 2>/dev/null || true \
+ && if [ -s /etc/apt/keyrings/telcochisel-archive-keyring.asc ]; then \
+      chmod 0644 /etc/apt/keyrings/telcochisel-archive-keyring.asc; \
+      printf "Types: deb\nURIs: https://meta.telcosec.net\nSuites: noble\nComponents: main\nSigned-By: /etc/apt/keyrings/telcochisel-archive-keyring.asc\n" > /etc/apt/sources.list.d/telcochisel.sources; \
+    fi
 
 COPY builder/scripts/lib/packages.sh         /opt/telcosec/lib/packages.sh
 COPY builder/scripts/lib/pip-retry.sh        /opt/telcosec/lib/pip-retry.sh
