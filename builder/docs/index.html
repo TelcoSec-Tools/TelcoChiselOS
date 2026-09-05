@@ -1447,6 +1447,144 @@ sudo 5ghoul-run --Attack.Name=NAS_5GS_Fuzz --UE.IMSI=001011234567890</code></pre
                         </div>
                     </div>
 
+                    <!-- Scenario 7 -->
+                    <div class="card highlight-teal" style="padding: 24px;">
+                        <span class="tag tag-sdr" style="margin-bottom: 8px; display: inline-block;">Satcom &amp; 3GPP NTN</span>
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; color: #fff;">Satellite &amp; 3GPP Non-Terrestrial Network (NTN) Doppler Tracking</h3>
+                        <p class="card-desc" style="font-size: 0.95rem; margin-bottom: 16px;">
+                            Track Low Earth Orbit (LEO) satellites and direct-to-cell NTN constellations, calculate dynamic Doppler frequency shifts in real time, and capture downlinks using synchronized SDR receivers.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 14px; border-radius: 4px; border: 1px solid var(--bdr); margin-bottom: 16px; font-size: 0.88rem; line-height: 1.5;">
+                            <div><strong style="color: var(--accent-teal);">Objective:</strong> Acquire satellite downlinks during high-speed orbital passes, compensate for Doppler shifts up to &plusmn;50 kHz in real-time, and analyze signal structures with offline I/Q tools.</div>
+                            <div style="margin-top: 6px;"><strong style="color: #ff88cc;">Threat Model:</strong> Interception, eavesdropping, and signal tampering on unencrypted satellite downlinks, telemetry links, and direct-to-cell (NTN) broadcasts.</div>
+                        </div>
+                        <div style="margin-bottom: 16px; font-size: 0.85rem;">
+                            <strong>Toolchain:</strong> <span class="tag tag-sdr">Gpredict</span> <span class="tag tag-sdr">Inspectrum</span> <span class="tag tag-sdr">GQRX</span> <span class="tag tag-sdr">GNU Radio 3.10</span>
+                        </div>
+                        <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; margin-bottom: 8px;">Execution Commands</h4>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>gqrx -r &amp;</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'gqrx -r &amp;')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>gpredict</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'gpredict')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>inspectrum /tmp/satellite_pass.sigmf</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'inspectrum /tmp/satellite_pass.sigmf')">Copy</button>
+                            </div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, rgba(232, 146, 30, 0.05) 0%, rgba(10, 15, 30, 0.85) 100%); border: 1px solid var(--amber-lo); border-left: 3px solid var(--amber); padding: 14px 18px; border-radius: 2px; margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+                            <div>
+                                <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--amber); font-weight: 700; letter-spacing: 0.1em; margin-bottom: 2px;">INTERACTIVE LAB TESTBED AVAILABLE</div>
+                                <div style="font-size: 0.82rem; color: var(--tx-dim);">Deploy this exact assessment scenario in an isolated cloud sandbox on TelcoSec Academy.</div>
+                            </div>
+                            <a href="https://app.telcosec.net/?utm_source=telcochisel_iso&amp;utm_medium=scenario&amp;utm_campaign=offline_docs" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: var(--amber-g2); border: 1px solid var(--amber); color: var(--amber); font-family: var(--mono); font-size: 0.72rem; font-weight: 600; padding: 6px 14px; border-radius: 1px; text-transform: uppercase; text-decoration: none;">
+                                Launch Sandbox &rarr;
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Scenario 8 -->
+                    <div class="card highlight-teal" style="padding: 24px;">
+                        <span class="tag tag-network" style="margin-bottom: 8px; display: inline-block;">VoIP &amp; Carrier Ethernet</span>
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; color: #fff;">Enterprise Voice VLAN Hopping &amp; Carrier-Grade QinQ Trunk Auditing</h3>
+                        <p class="card-desc" style="font-size: 0.95rem; margin-bottom: 16px;">
+                            Bypass network segmentation by spoofing Cisco CDP/LLDP-MED IP phones, discover Voice VLAN tags, hop into voice subnets, and audit carrier QinQ trunks and RTP media bleed vulnerabilities.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 14px; border-radius: 4px; border: 1px solid var(--bdr); margin-bottom: 16px; font-size: 0.88rem; line-height: 1.5;">
+                            <div><strong style="color: var(--accent-teal);">Objective:</strong> Traverse 802.1Q boundary isolation from unprivileged data ports into voice VLANs, inspect SIP PBX credentials, and probe media proxies for silent RTP call bleeding.</div>
+                            <div style="margin-top: 6px;"><strong style="color: #ff88cc;">Threat Model:</strong> An attacker on an office data port hopping into the voice VLAN to eavesdrop on private calls, hijack SIP trunks, or pivot into carrier broadband infrastructure.</div>
+                        </div>
+                        <div style="margin-bottom: 16px; font-size: 0.85rem;">
+                            <strong>Toolchain:</strong> <span class="tag tag-network">voiphopper</span> <span class="tag tag-network">mausezahn</span> <span class="tag tag-network">sipsak</span> <span class="tag tag-network">rtpbleed</span>
+                        </div>
+                        <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; margin-bottom: 8px;">Execution Commands</h4>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>sudo voiphopper -i eth0 -c</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'sudo voiphopper -i eth0 -c')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>sipsak -v -s sip:10.200.1.10</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'sipsak -v -s sip:10.200.1.10')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>rtpbleed -t 10.200.1.50 -p 10000-20000</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'rtpbleed -t 10.200.1.50 -p 10000-20000')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>mz eth0 -t ip -Q 100,20 -P 'TEST_PAYLOAD'</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'mz eth0 -t ip -Q 100,20 -P \'TEST_PAYLOAD\'')">Copy</button>
+                            </div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, rgba(232, 146, 30, 0.05) 0%, rgba(10, 15, 30, 0.85) 100%); border: 1px solid var(--amber-lo); border-left: 3px solid var(--amber); padding: 14px 18px; border-radius: 2px; margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+                            <div>
+                                <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--amber); font-weight: 700; letter-spacing: 0.1em; margin-bottom: 2px;">INTERACTIVE LAB TESTBED AVAILABLE</div>
+                                <div style="font-size: 0.82rem; color: var(--tx-dim);">Deploy this exact assessment scenario in an isolated cloud sandbox on TelcoSec Academy.</div>
+                            </div>
+                            <a href="https://app.telcosec.net/?utm_source=telcochisel_iso&amp;utm_medium=scenario&amp;utm_campaign=offline_docs" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: var(--amber-g2); border: 1px solid var(--amber); color: var(--amber); font-family: var(--mono); font-size: 0.72rem; font-weight: 600; padding: 6px 14px; border-radius: 1px; text-transform: uppercase; text-decoration: none;">
+                                Launch Sandbox &rarr;
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Scenario 9 -->
+                    <div class="card highlight-teal" style="padding: 24px;">
+                        <span class="tag tag-5g" style="margin-bottom: 8px; display: inline-block;">5G SBA / Cloud-Native Core</span>
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; color: #fff;">5G Service-Based Architecture (SBA) HTTP/2 &amp; mTLS Interception</h3>
+                        <p class="card-desc" style="font-size: 0.95rem; margin-bottom: 16px;">
+                            Intercept, decrypt, and tamper with 5G Core Network Function (NF) interactions across HTTP/2 REST Service Based Interfaces (SBI) using OpenAPI-aware proxying.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 14px; border-radius: 4px; border: 1px solid var(--bdr); margin-bottom: 16px; font-size: 0.88rem; line-height: 1.5;">
+                            <div><strong style="color: var(--accent-teal);">Objective:</strong> Audit 3GPP Rel-15/16/17 SBI interfaces (Nnrf, Nudm, Nausf, Nsmf), analyze JSON REST payloads, and evaluate Core Network resilience against unauthorized NF registration and token spoofing.</div>
+                            <div style="margin-top: 6px;"><strong style="color: #ff88cc;">Threat Model:</strong> Compromised cloud-native container or rogue Network Function within a telco kubernetes cluster eavesdropping on or forging inter-NF control plane requests.</div>
+                        </div>
+                        <div style="margin-bottom: 16px; font-size: 0.85rem;">
+                            <strong>Toolchain:</strong> <span class="tag tag-5g">mitmproxy</span> <span class="tag tag-5g">Open5GS</span> <span class="tag tag-5g">UERANSIM</span> <span class="tag tag-5g">curl</span>
+                        </div>
+                        <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; margin-bottom: 8px;">Execution Commands</h4>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>telcosec-download-openapi --release 17</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec-download-openapi --release 17')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>mitmweb -p 8080 --web-port 8081</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'mitmweb -p 8080 --web-port 8081')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>nr-ue -c /etc/telcosec/ueransim/ue.yaml</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'nr-ue -c /etc/telcosec/ueransim/ue.yaml')">Copy</button>
+                            </div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, rgba(232, 146, 30, 0.05) 0%, rgba(10, 15, 30, 0.85) 100%); border: 1px solid var(--amber-lo); border-left: 3px solid var(--amber); padding: 14px 18px; border-radius: 2px; margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+                            <div>
+                                <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--amber); font-weight: 700; letter-spacing: 0.1em; margin-bottom: 2px;">INTERACTIVE LAB TESTBED AVAILABLE</div>
+                                <div style="font-size: 0.82rem; color: var(--tx-dim);">Deploy this exact assessment scenario in an isolated cloud sandbox on TelcoSec Academy.</div>
+                            </div>
+                            <a href="https://app.telcosec.net/?utm_source=telcochisel_iso&amp;utm_medium=scenario&amp;utm_campaign=offline_docs" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: var(--amber-g2); border: 1px solid var(--amber); color: var(--amber); font-family: var(--mono); font-size: 0.72rem; font-weight: 600; padding: 6px 14px; border-radius: 1px; text-transform: uppercase; text-decoration: none;">
+                                Launch Sandbox &rarr;
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
             </section>
 

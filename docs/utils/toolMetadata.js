@@ -1,5 +1,5 @@
 /**
- * Dynamic metadata and guides for the 56 tools in the TelcoChisel catalog.
+ * Dynamic metadata and guides for the 88 tools in the TelcoChisel catalog.
  * Provides high-traffic keywords, detailed guides, troubleshooting, and FAQs.
  */
 
@@ -324,11 +324,151 @@ const specificMetadata = {
       { q: "Does UERANSIM require an SDR transceiver?", a: "No, UERANSIM is a pure software simulation of the 5G radio layer, sending packets over IP tunnels." },
       { q: "Can UERANSIM execute network traffic?", a: "Yes, it creates a virtual tun interface (e.g. uesimtun0) on the host to route standard IP packets through the simulated gNodeB and Open5GS Core." }
     ]
+  },
+  "inspectrum": {
+    keywords: ["Inspectrum SDR visualizer", "offline I/Q spectrograph", "symbol rate preamble analysis", "SigMF file viewer"],
+    overview: "Inspectrum is a dedicated offline spectral visualizer and analyzer for captured I/Q radio signals. It provides an intuitive, high-resolution spectrogram view with interactive cursors to measure symbol rates, identify preamble structures, and export demodulated symbols to SigMF format.",
+    config: [
+      "Open an I/Q capture file: inspectrum capture.sigmf",
+      "Adjust FFT size, zoom, and time resolution sliders in the UI.",
+      "Enable cursors (Overlay -> Add cursor) to measure frequency shift and symbol duration."
+    ],
+    troubleshooting: "For large captures (>2 GB), ensure the file is on a fast NVMe drive or Toram RAM disk to prevent UI buffering pauses.",
+    faq: [
+      { q: "What file formats does Inspectrum support?", a: "Inspectrum supports raw complex float32/int16 files, cs8/cs16 captures, and standard SigMF metadata." },
+      { q: "How do I calculate symbol rate in Inspectrum?", a: "Place the symbol cursor overlay over a train of symbols and adjust the rate slider until the vertical markers align with the signal transitions." }
+    ]
+  },
+  "urh": {
+    keywords: ["Universal Radio Hacker URH", "wireless protocol reverse engineering", "SDR demodulation replay", "FSK ASK PSK decoder"],
+    overview: "Universal Radio Hacker (URH) is a complete wireless protocol investigation suite designed for rapid reverse engineering of unknown RF communications. It automates demodulation of ASK, FSK, and PSK signals, decodes packet structures, infers protocol state machines, and generates replay transmissions.",
+    config: [
+      "Launch URH via its launcher or wrapper: urh",
+      "In the Signal tab, record live RF using your connected SDR (HackRF, RTL-SDR, USRP) or open an existing capture.",
+      "Switch to Analysis tab to view auto-detected bits, configure packet sync words, and assign fields (Length, Address, Payload, CRC)."
+    ],
+    troubleshooting: "If URH crashes on launch, verify it is launched via /usr/local/bin/urh which activates the telcosec-sdr conda environment.",
+    faq: [
+      { q: "Can URH transmit signals for replay attacks?", a: "Yes, using half-duplex or full-duplex SDRs like HackRF, BladeRF, or USRP, URH can replay edited packets directly from the Generator tab." },
+      { q: "Does URH support custom CRC algorithms?", a: "Yes, URH includes a built-in CRC calculator and brute-forcer to reverse engineer unknown checksum polynomials." }
+    ]
+  },
+  "gpredict": {
+    keywords: ["Gpredict satellite tracking", "real-time Doppler shift prediction", "satcom 3GPP NTN ground station", "TLE orbit propagation"],
+    overview: "Gpredict is a real-time satellite tracking and orbit propagation application utilizing NORAD SGP4/SDP4 models. For telecom security researchers auditing satellite communications and 3GPP Non-Terrestrial Networks (NTN), it predicts orbital passes, calculates real-time Doppler frequency shifts, and controls antenna rotators and SDR receivers.",
+    config: [
+      "Launch Gpredict from the desktop menu or CLI: gpredict",
+      "Update NORAD Two-Line Element (TLE) satellite data: Edit -> Update TLE data from network.",
+      "Configure radio control: Preferences -> Interfaces -> Radios, connecting to GQRX (port 7356) for automated Doppler frequency tuning."
+    ],
+    troubleshooting: "Ensure system clock is synchronized via NTP before tracking. A clock offset of even a few seconds will introduce significant satellite pointing and Doppler calculation errors.",
+    faq: [
+      { q: "How does Gpredict compensate for Doppler shift in SDR captures?", a: "Gpredict connects to GQRX or GNU Radio via TCP rigctld protocol, dynamically steering the receiver frequency as the satellite passes overhead." },
+      { q: "Can Gpredict track LEO telecom constellations (Starlink, Iridium)?", a: "Yes, any satellite with published NORAD TLE orbital data can be tracked in real time." }
+    ]
+  },
+  "pcsc-tools": {
+    keywords: ["pcsc_scan smartcard monitor", "Answer-to-Reset ATR decoder", "PC/SC smartcard reader diagnostic", "UICC card detection"],
+    overview: "pcsc-tools is a suite of diagnostic utilities for PC/SC smartcard subsystems. Its primary tool, pcsc_scan, polls connected CCID readers, monitors card insertion/removal events, and instantly decodes the ISO 7816 Answer-to-Reset (ATR) string against an extensive smartcard database to identify card manufacturer, protocol capabilities (T=0/T=1), and electrical parameters.",
+    config: [
+      "Start or check the PC/SC daemon: sudo systemctl status pcscd",
+      "Run real-time smartcard prober: pcsc_scan",
+      "Insert a physical SIM/USIM to view the decoded ATR and card profile."
+    ],
+    troubleshooting: "If pcsc_scan outputs 'SCardEstablishContext: Service not available', restart the pcscd system service using 'sudo systemctl restart pcscd'.",
+    faq: [
+      { q: "What does an ATR tell a telecom researcher?", a: "The ATR indicates whether the card supports T=0 or T=1 protocols, historical bytes identifying carrier/vendor, and clock rate conversion factors." },
+      { q: "Does pcsc_scan work with eSIM chips?", a: "Yes, eSIMs on removable M.2 or USB CCID evaluation boards report standard ISO 7816 ATRs and are fully recognized." }
+    ]
+  },
+  "opensc": {
+    keywords: ["OpenSC pkcs11-tool", "smartcard cryptographic token", "UICC security applet", "eSIM PKCS#11 key inspection"],
+    overview: "OpenSC is a set of open-source tools and libraries for accessing smartcards and cryptographic hardware tokens. It exposes smartcard cryptographic functions through the PKCS#11 standard, enabling telecom auditors to inspect security applets, list RSA/ECC keys, verify PIN retry counters, and execute secure APDU commands on USIM/ISIM cards.",
+    config: [
+      "List detected cryptographic tokens and slots: pkcs11-tool -L",
+      "Enumerate certificates and public keys stored on the card: pkcs11-tool --list-objects",
+      "Inspect reader capabilities: opensc-tool -l"
+    ],
+    troubleshooting: "If OpenSC fails to recognize the card, verify whether the SIM contains a standard PKCS#15 structure or carrier-proprietary JavaCard applet.",
+    faq: [
+      { q: "What is pkcs11-tool used for in telecom audits?", a: "It audits cryptographic keys, digital certificates, and authentication PIN limits on smartcards without requiring manufacturer software." },
+      { q: "Can OpenSC dump subscriber authentication keys (Ki / K)?", a: "No, Ki/K root keys are securely protected inside the SIM's tamper-resistant cryptographic module and cannot be read over APDU." }
+    ]
+  },
+  "sipsak": {
+    keywords: ["sipsak SIP swiss army knife", "SIP OPTIONS health check", "SIP traceroute proxy discovery", "VoIP registrar stress test"],
+    overview: "sipsak is a command-line utility for testing and auditing SIP-based Voice over IP (VoIP) applications, proxies, and registrars. It sends customizable SIP requests (OPTIONS, REGISTER, INVITE) to measure round-trip times, perform SIP traceroutes, test registrar authentication, and execute stress tests against PBX endpoints.",
+    config: [
+      "Send SIP OPTIONS ping to target PBX: sipsak -v -s sip:192.168.1.100",
+      "Execute SIP traceroute to map proxy hops: sipsak -T -s sip:target@carrier.com",
+      "Test user registration authentication: sipsak -U -C sip:tester@carrier.com -a password -s sip:192.168.1.100"
+    ],
+    troubleshooting: "If sipsak receives no responses, verify local firewall allows outgoing UDP/TCP port 5060 and check that target PBX is not configured with fail2ban blocking aggressive pings.",
+    faq: [
+      { q: "What is a SIP traceroute?", a: "Similar to IP traceroute, sipsak increments the Max-Forwards header in SIP OPTIONS requests to discover all intermediate SIP proxies and SBCs in the call path." },
+      { q: "Can sipsak generate high-load call tests?", a: "Yes, sipsak can run automated flood and stress tests using the -F flag to measure PBX crash limits." }
+    ]
+  },
+  "voiphopper": {
+    keywords: ["voiphopper voice VLAN hopping", "Cisco CDP LLDP-MED sniffing", "VoIP VLAN discovery", "802.1Q tagged voice interface"],
+    overview: "voiphopper is an automated security validation tool designed to mimic the behavior of an IP phone to bypass network segmentation. It passively sniffs or actively queries Cisco Discovery Protocol (CDP) and LLDP-MED packets to discover VoIP Voice VLAN IDs, then automatically builds an 802.1Q tagged sub-interface, requests an IP address via DHCP on the voice network, and hops from the data VLAN into the voice VLAN.",
+    config: [
+      "Listen for Cisco CDP broadcast and auto-hop to voice VLAN: sudo voiphopper -i eth0 -c",
+      "Discover Voice VLAN via LLDP-MED: sudo voiphopper -i eth0 -l",
+      "Manually build 802.1Q sub-interface for known Voice VLAN (e.g. VLAN 200): sudo voiphopper -i eth0 -v 200"
+    ],
+    troubleshooting: "Ensure you run voiphopper with sudo/root privileges, as creating 802.1Q sub-interfaces requires CAP_NET_ADMIN. Verify the physical switch port is configured as an 802.1Q trunk or multi-VLAN port.",
+    faq: [
+      { q: "Why is voice VLAN hopping critical in telecom audits?", a: "IP PBX systems and SIP trunking servers are often protected by network isolation inside a dedicated voice VLAN. Hopping into this VLAN gives attackers direct access to phone signaling and audio." },
+      { q: "How do switches assign voice VLANs?", a: "Switches broadcast CDP or LLDP-MED frames containing the Voice VLAN ID. When an IP phone boots, it tags its traffic with that VLAN ID." }
+    ]
+  },
+  "rtpbleed": {
+    keywords: ["rtpbleed media proxy vulnerability", "RTP stream bleeding scanner", "VoIP audio payload extraction", "CVE-2017-9936 RTP proxy"],
+    overview: "rtpbleed is a targeted scanner and audio extraction engine for RTP Bleed vulnerabilities (CVE-2017-9936 and related proxy port bleeding flaws). In vulnerable media proxies (like older versions of RTPproxy, RTPEngine, or Kamailio/OpenSIPS media relays), an unauthenticated attacker sending 1-byte UDP probes to allocated RTP ports causes the proxy to latch onto the attacker's IP and redirect live call audio to the attacker.",
+    config: [
+      "Scan a media proxy port range for open, bleeding RTP sessions: rtpbleed -t 192.168.1.50 -p 10000-20000",
+      "Capture and dump bleeding RTP audio payloads to disk: rtpbleed -t 192.168.1.50 -p 12344 --dump-audio /tmp/session.raw",
+      "Run fast non-intrusive port audit: rtpbleed -t 192.168.1.50 --probe-only"
+    ],
+    troubleshooting: "High-latency WAN connections can cause false negatives. Set a higher socket timeout (-w 500) if scanning across public Internet links.",
+    faq: [
+      { q: "What is RTP Bleed?", a: "It is an architectural vulnerability where media proxies that implement symmetric RTP without source address validation latch onto the first packet received on a media port, redirecting the real call's audio stream to the attacker." },
+      { q: "How can I play back raw audio dumped by rtpbleed?", a: "Import the raw capture into Audacity as 8000 Hz, 1-channel 8-bit (G.711 u-law / A-law) PCM." }
+    ]
+  },
+  "mausezahn": {
+    keywords: ["mausezahn mz packet crafter", "carrier Ethernet QinQ 802.1Q", "MPLS label stacking tool", "broadband network stress test"],
+    overview: "mausezahn (mz) is a high-speed multi-protocol network traffic generator and raw packet crafter written in C. Designed for carrier-grade Ethernet and telecommunications transport auditing, it can craft custom 802.1Q tagged frames, nested QinQ double tags (802.1ad), MPLS label stacks, BPDU frames, and custom IP/TCP/UDP payloads at line rate.",
+    config: [
+      "Send tagged 802.1Q packets with VLAN ID 100: mz eth0 -t ip -B 10.0.0.1 -Q 100",
+      "Craft double-tagged QinQ frame (Outer VLAN 100, Inner VLAN 20): mz eth0 -t ip -Q 100,20 -P 'TELCO_TEST'",
+      "Generate MPLS labeled traffic (Label 500, Exp 3, TTL 64): mz eth0 -t ip -M 500:3:64"
+    ],
+    troubleshooting: "Ensure your network card supports hardware VLAN offloading or disable offloading via 'ethtool -K eth0 rxvlan off txvlan off' if custom tagged frames are dropped by the NIC.",
+    faq: [
+      { q: "Why is QinQ double-tagging important in telecom networks?", a: "Service providers use QinQ (802.1ad) to tunnel multiple customer VLANs through a carrier backbone. Fuzzing QinQ tags tests for VLAN hopping and bridge leakage." },
+      { q: "Can mausezahn generate full line-rate traffic on Gigabit Ethernet?", a: "Yes, mausezahn is optimized in C and uses raw sockets, allowing it to saturate 1Gbps and 10Gbps interfaces with ease." }
+    ]
+  },
+  "mitmproxy": {
+    keywords: ["mitmproxy 5G SBI inspection", "5G Service Based Architecture HTTP/2", "5G Core REST OpenAPI proxy", "5G mTLS decryption proxy"],
+    overview: "mitmproxy is an interactive SSL/TLS-capable intercepting HTTP/2 proxy. In 5G Standalone (SA) architectures, core network functions (AMF, SMF, NRF, UDM, AUSF) communicate over the Service Based Architecture (SBA/SBI) using HTTP/2 REST APIs and JSON payloads. Pre-configured with 3GPP OpenAPI schemas and certificates, mitmproxy decrypts, inspects, and modifies 5G SBI control plane traffic in real time.",
+    config: [
+      "Launch mitmproxy on default port 8080: mitmproxy -p 8080",
+      "Launch with web UI interface: mitmweb -p 8080 --web-port 8081",
+      "Intercept 5G NRF registration requests: mitmproxy --view-filter '~u /nnrf-nfm/v1/nf-instances'"
+    ],
+    troubleshooting: "If 5G Core network functions reject the proxy with TLS alert 46 (unknown certificate), export mitmproxy's CA certificate (~/.mitmproxy/mitmproxy-ca-cert.pem) and add it to the system trust store (/usr/local/share/ca-certificates/).",
+    faq: [
+      { q: "How is mitmproxy used in 5G Core pentesting?", a: "It intercepts HTTP/2 REST API communications between 5G network functions, allowing operators to tamper with subscriber profile updates, authentication tokens, and slice selection parameters." },
+      { q: "Does mitmproxy support HTTP/2 multiplexing?", a: "Yes, it fully supports HTTP/2 multiplexed streams, server push, and header compression (HPACK) standard in 3GPP Rel-15 through Rel-18." }
+    ]
   }
 };
 
 /**
- * Fallback metadata generator to ensure all 56 tools are populated with high-quality SEO/AEO content.
+ * Fallback metadata generator to ensure all 88 tools are populated with high-quality SEO/AEO content.
  */
 export function getToolMetadata(tool) {
   const slug = tool.slug;
@@ -346,22 +486,71 @@ export function getToolMetadata(tool) {
 
   const categoryMap = {
     sdr: {
-      kw: [`SDR ${cleanName} software`, `${cleanName} transceiver driver`, `Software Defined Radio cellular sniffing`],
+      kw: [`SDR ${cleanName} software`, `${cleanName} transceiver driver`, `Software Defined Radio cellular sniffing`, `I/Q signal processing ${cleanName}`],
       desc: `SDR digital signal processing and RF transceiver implementation tool.`,
-      config: [`Activate the telcosec-sdr Conda environment.`, `Execute the test command: ${tool.cmd}`],
-      ts: "Verify USB connection, make sure udev rules are loaded, and avoid high sample rates in VM environments."
+      config: [`Activate the telcosec-sdr Conda environment: conda activate telcosec-sdr`, `Check connected SDR hardware: SoapySDRUtil --find`, `Execute command: ${tool.cmd}`],
+      ts: "Verify USB 3.0 controller throughput, reload udev rules (/etc/udev/rules.d/50-telcosec-hw.rules), and monitor buffer overruns in VM environments."
     },
+    baseband: {
+      kw: [`baseband analysis ${cleanName}`, `mobile modem firmware audit ${cleanName}`, `cellular DIAG protocol capture`, `qualcomm mediatek baseband`],
+      desc: `Cellular baseband firmware emulation, modem debugging, diagnostic serial logging, and partition extraction utility.`,
+      config: [`Connect the target smartphone or modem via USB with DIAG or BROM mode enabled.`, `Verify serial port or USB endpoints using 'lsusb' or 'dmesg | tail -n 20'.`, `Execute command: ${tool.cmd}`],
+      ts: "Ensure the modem's diagnostic USB interface is exposed. Handsets often require root access or dialing secret codes (*#*#3424#*#*) to enable DIAG/test mode."
+    },
+    sim: {
+      kw: [`SIM card programming ${cleanName}`, `USIM smartcard audit`, `eSIM SGP.22 profile manager`, `ISO-7816 smartcard APDU`],
+      desc: `Physical SIM, USIM, ISIM smartcard filesystem auditing, APDU tracing, and GSMA RSP eSIM profile management utility.`,
+      config: [`Connect your CCID PC/SC smartcard reader or SIMtrace 2 probe to USB.`, `Verify smartcard daemon arbitration: systemctl status pcscd`, `Run utility: ${tool.cmd}`],
+      ts: "Ensure the pcscd system service is active and the smartcard is firmly seated in the reader. Check pcsc_scan output for ATR response."
+    },
+    core: {
+      kw: [`core network signaling ${cleanName}`, `SS7 Diameter GTP auditing`, `SCTP SIGTRAN port scanner`, `telecom core fuzzer`],
+      desc: `Telecommunications core network signaling, interconnect protocol auditing (SS7, Diameter, GTP, SCTP), and network function fuzzing framework.`,
+      config: [`Verify SCTP kernel stack configuration: lsmod | grep sctp`, `Set target signaling IP and point codes in tool configuration.`, `Execute signaling scan: ${tool.cmd}`],
+      ts: "Check firewall rules on SCTP port 2905/3868/38412. Ensure your network gateway routes SCTP associations without NAT dropping multistream chunks."
+    },
+    "2g": {
+      kw: [`2G GSM BTS emulator ${cleanName}`, `GSM air interface sniffer`, `OpenBTS YateBTS GSM`, `Osmocom Calypso baseband`],
+      desc: `2G GSM air-interface auditing, software Base Transceiver Station (BTS) simulation, and legacy cellular protocol testing utility.`,
+      config: [`Calibrate transceiver oscillator drift using kalibrate: kal -s GSM900`, `Configure ARFCN, MCC, MNC, and LAC in the transceiver config file.`, `Launch utility: ${tool.cmd}`],
+      ts: "Verify RF clock stability (PPM error < 2). Operating without an external TCXO or GPSDO on HackRF will cause mobile handsets to reject cell selection."
+    },
+    "4g": {
+      kw: [`4G LTE protocol analyzer ${cleanName}`, `srsRAN LTE cell scanner`, `LTE downlink sniffer`, `RRC S1AP packet dissector`],
+      desc: `4G LTE Radio Access Network testing, downlink sniffing, RRC/NAS ASN.1 decoding, and software User Equipment (UE) simulation utility.`,
+      config: [`Configure EARFCN carrier frequency and RF front-end gain in the config file.`, `Ensure low-latency kernel privileges: id | grep realtime`, `Launch LTE tool: ${tool.cmd}`],
+      ts: "Reduce RF bandwidth (e.g. from 20 MHz to 5 MHz) if USB 3.0 controllers drop samples. Avoid running 4G high-rate PHY layers inside virtual machines without passthrough."
+    },
+    "5g": {
+      kw: [`5G NR standalone simulator ${cleanName}`, `5G SA gNodeB emulator`, `5G NGAP NAS fuzzer`, `Open5GS UERANSIM 5G`],
+      desc: `5G Standalone (SA) and Non-Standalone (NSA) Next Generation Radio Access Network (NG-RAN), UE emulation, and Service Based Architecture (SBA) audit utility.`,
+      config: [`Inspect YAML configuration for 5G PLMN (default 001/01) and AMF/gNB IP bindings.`, `Verify TUN interface or GTP5G kernel module if testing user plane forwarding.`, `Execute 5G test suite: ${tool.cmd}`],
+      ts: "Ensure the 5G Core AMF SCTP port (38412) is accessible. Confirm gtp5g kernel module is loaded for UPF user-plane acceleration."
+    },
+    adsl: {
+      kw: [`wireline broadband audit ${cleanName}`, `DOCSIS cable modem config`, `PPPoE MS-CHAPv2 cracker`, `carrier Ethernet QinQ 802.1Q`],
+      desc: `Wireline broadband infrastructure testing, CPE router exploitation, DOCSIS cable modem configuration, PPPoE discovery, and carrier Ethernet/QinQ audit utility.`,
+      config: [`Connect Ethernet interface to the broadband testbed or target DSLAM/CMTS trunk.`, `Configure VLAN sub-interfaces if testing 802.1Q or QinQ encapsulation.`, `Execute tool: ${tool.cmd}`],
+      ts: "Ensure your network interface card (NIC) supports raw socket injection, promiscuous mode, and IEEE 802.1Q VLAN tagging without driver frame dropping."
+    },
+    voip: {
+      kw: [`VoIP SIP penetration testing ${cleanName}`, `SIP PBX security auditor`, `voice VLAN hopping`, `RTP media stream bleed`],
+      desc: `VoIP telephony security auditing, SIP registrar stress testing, Cisco CDP/LLDP-MED voice VLAN hopping, and RTP media bleeding analysis utility.`,
+      config: [`Configure target SIP proxy/registrar IP address and port (default 5060/5061 UDP/TCP).`, `Specify extension wordlist or target user accounts.`, `Launch VoIP audit: ${tool.cmd}`],
+      ts: "Verify SIP ports 5060/5061 and RTP port ranges (10000-20000 UDP) are routed. Ensure voice VLAN tag is active if sniffing VoIP subnets."
+    },
+    mw: {
+      kw: [`microwave link security ${cleanName}`, `carrier telecom OSS CLI`, `Nokia NetAct Ericsson ENM`, `PDH SDH microwave transport`],
+      desc: `Telecom microwave transport link management, carrier OSS/NMS command-line connector, and backhaul transmission equipment auditing utility.`,
+      config: [`Verify network routing and SSH/SNMP credentials to the target OSS gateway or microwave IDU/ODU.`, `Execute carrier CLI wrapper: ${tool.cmd}`],
+      ts: "Verify carrier VPN or management VLAN connectivity. Check host SSH key exchange algorithms if connecting to legacy OSS equipment."
+    },
+    // Backward compatibility aliases
     ue: {
       kw: [`baseband analysis ${cleanName}`, `mobile modem debugging ${cleanName}`, `OTA protocol capture`],
       desc: `Cellular baseband firmware analysis, debugging, and OTA protocol logging utility.`,
       config: [`Connect the device via USB with DIAG/debug mode enabled.`, `Run the command: ${tool.cmd}`],
       ts: "Ensure appropriate USB serial port drivers are loaded. Phone rooting or DIAG port enablement is usually required."
-    },
-    sim: {
-      kw: [`SIM card programming ${cleanName}`, `USIM smartcard audit`, `eSIM profile manager`],
-      desc: `SIM, USIM, and eSIM smartcard interface auditing and profile management utility.`,
-      config: [`Connect your PC/SC smartcard reader to the USB port.`, `Run the utility: ${tool.cmd}`],
-      ts: "Ensure pcscd system service is active and the card is correctly seated in the reader."
     },
     ran: {
       kw: [`RAN simulation ${cleanName}`, `cellular protocol auditing`, `mobile core network scanner`],
@@ -374,12 +563,6 @@ export function getToolMetadata(tool) {
       desc: `4G LTE protocol testing, downlink analysis, and diagnostic parsing utility.`,
       config: [`Configure the RF front-end parameters in the config file.`, `Run the tool: ${tool.cmd}`],
       ts: "Reduce RF bandwidth if your USB controller experiences packet drops."
-    },
-    "5g": {
-      kw: [`5G NR standalone simulator ${cleanName}`, `5G SA gNodeB emulator`, `5G user plane forwarding`],
-      desc: `5G Standalone (SA) radio access network and UE protocol simulation utility.`,
-      config: [`Check config paths and IP bindings in the YAML config.`, `Execute: ${tool.cmd}`],
-      ts: "Ensure kernel network interfaces are configured and required kernel modules are active."
     },
     device: {
       kw: [`device flash tool ${cleanName}`, `Qualcomm MTK Android audit`, `AT command terminal`],
@@ -398,12 +581,6 @@ export function getToolMetadata(tool) {
       desc: `Wireless packet capture, network monitoring, and system interface sniffer.`,
       config: [`Put the network interface into monitor mode.`, `Launch: ${tool.cmd}`],
       ts: "Verify the interface name and ensure you have root permissions to capture traffic."
-    },
-    voip: {
-      kw: [`VoIP SIP softphone ${cleanName}`, `SIP traffic generator`, `PBX registrar testing`],
-      desc: `SIP load testing, voice call routing, and VoIP registrar security verification utility.`,
-      config: [`Configure SIP registration details in the tool interface.`, `Run tool: ${tool.cmd}`],
-      ts: "Ensure SIP ports 5060/5061 are not blocked by local or carrier-level firewalls."
     }
   };
 
