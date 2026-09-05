@@ -224,8 +224,38 @@
 
           <h3>1. Download the ISO</h3>
           <p>
-            Download the latest TelcoChisel ISO image from our official <a href="https://sourceforge.net/projects/telcochisel/files/latest/download" target="_blank">SourceForge repository</a>. The ISO is approximately 5.8 GB in size.
+            TelcoChisel is available in two official editions depending on your operational deployment requirements:
           </p>
+          <div class="grid-2" style="margin: 16px 0 24px 0;">
+            <div class="card" style="border-top: 2px solid var(--amber);">
+              <div class="card-title" style="color: var(--amber); display: flex; justify-content: space-between; align-items: center;">
+                <span>Flagship Field Edition (Full)</span>
+                <span style="font-size: 0.7rem; background: rgba(232,146,30,0.15); border: 1px solid var(--amber); color: var(--amber); padding: 2px 6px; border-radius: 3px;">~5.0 GB · Recommended</span>
+              </div>
+              <p class="card-desc" style="margin-top: 8px;">
+                Complete air-gapped field environment. Pre-baked with all 88 telecom security tools, Low-Latency Realtime kernel, GNU Radio 3.10, Open5GS, 5Ghoul, UHD FPGA bitstreams, and hardware SDR driver stacks. Zero internet access required after flashing.
+              </p>
+              <div style="margin-top: 14px;">
+                <a href="https://sourceforge.net/projects/telcochisel/files/latest/download" target="_blank" class="btn-download" style="font-size: 0.78rem; width: 100%; justify-content: center;">
+                  Download Field Edition ISO (5.0 GB)
+                </a>
+              </div>
+            </div>
+            <div class="card" style="border-top: 2px solid #00ffd5;">
+              <div class="card-title" style="color: #00ffd5; display: flex; justify-content: space-between; align-items: center;">
+                <span>Modular Lite Edition</span>
+                <span style="font-size: 0.7rem; background: rgba(0,255,213,0.12); border: 1px solid #00ffd5; color: #00ffd5; padding: 2px 6px; border-radius: 3px;">~1.8 GB · Modular</span>
+              </div>
+              <p class="card-desc" style="margin-top: 8px;">
+                Minimal footprint for bandwidth-constrained environments. Ships with the XFCE desktop, Low-Latency kernel, Wireshark, Python runtime, and the <code>telcosec-pkg</code> CLI client connected to <code>meta.telcosec.net</code> to install specialized suites on-demand.
+              </p>
+              <div style="margin-top: 14px;">
+                <a href="https://sourceforge.net/projects/telcochisel/files/" target="_blank" class="btn-download" style="font-size: 0.78rem; width: 100%; justify-content: center; background: transparent; border: 1px solid #00ffd5; color: #00ffd5;">
+                  Browse Lite & Mirrors (1.8 GB)
+                </a>
+              </div>
+            </div>
+          </div>
           <h3>2. Flash to a USB Drive</h3>
           <p>
             You will need a USB flash drive with at least 8 GB of capacity. Note that flashing the ISO will erase all existing data on the USB drive.
@@ -1038,23 +1068,41 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
             </svg>
             <div>
               <div class="dl-modal-title" id="dl-modal-title">Download TelcoChisel</div>
-              <div class="dl-modal-sub">Public Beta &mdash; v1.1.0</div>
+              <div class="dl-modal-sub">Release &mdash; v3.0.0 (Noble Numbat)</div>
             </div>
           </div>
 
           <div class="dl-modal-body">
-            <p>TelcoChisel is a <strong>solo project</strong> in public beta — built and maintained by one person in their spare time. New fixes ship as I go. If you find it useful, I'd love your help.</p>
+            <p>Select your deployment edition. TelcoChisel is built on Ubuntu 24.04 LTS with the Low-Latency Realtime Kernel (1000Hz):</p>
+
+            <div class="dl-edition-options" style="display: flex; flex-direction: column; gap: 10px; margin: 14px 0;">
+              <a href="https://sourceforge.net/projects/telcochisel/files/latest/download" target="_blank" class="dl-edition-card" @click="downloadModalOpen = false" style="display: block; padding: 12px 14px; background: var(--bg-inset); border: 1px solid var(--bdr-mid); border-left: 3px solid var(--amber); text-decoration: none; border-radius: 3px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="color: #fff; font-size: 0.85rem;">Flagship Field Edition (Full)</strong>
+                  <span style="font-size: 0.72rem; color: var(--amber); font-weight: 600;">~5.0 GB</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--tx-dim); margin-top: 4px;">All 88 telecom security tools pre-installed. 100% offline air-gapped field readiness.</div>
+              </a>
+
+              <a href="https://sourceforge.net/projects/telcochisel/files/" target="_blank" class="dl-edition-card" @click="downloadModalOpen = false" style="display: block; padding: 12px 14px; background: var(--bg-inset); border: 1px solid var(--bdr-mid); border-left: 3px solid #00ffd5; text-decoration: none; border-radius: 3px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="color: #fff; font-size: 0.85rem;">Modular Lite Edition</strong>
+                  <span style="font-size: 0.72rem; color: #00ffd5; font-weight: 600;">~1.8 GB</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--tx-dim); margin-top: 4px;">Minimal base desktop + Low-Latency kernel + telcosec-pkg to pull suites on-demand.</div>
+              </a>
+            </div>
 
             <div class="dl-modal-status">
               <div class="dl-modal-status-dot"></div>
               <div class="dl-modal-status-text">
-                <strong>OS: Stable.</strong> The Ubuntu 24.04 XFCE desktop, boot sequence, and core system are production-ready.<br>
-                <strong>Tools:</strong> Integration ongoing — some launchers may need a rebuild to reflect the latest fixes.
+                <strong>OS: Production-Ready.</strong> Ubuntu 24.04 LTS (Noble Numbat), Low-Latency Kernel (1000Hz), Calamares installer, encrypted persistence.<br>
+                <strong>Tools:</strong> 88 tools across SDR, 5G SA, 4G LTE, SIM, baseband, wireline, and VoIP domains.
               </div>
             </div>
 
             <div class="dl-modal-disclaimer">
-              <strong style="color: var(--amber);">Responsible Use.</strong> TelcoChisel is built for authorized security research, penetration testing with written permission, academic study, and CTF competitions. You are solely responsible for ensuring your use complies with applicable laws and regulations. I accept no liability for misuse.
+              <strong style="color: var(--amber);">Responsible Use.</strong> TelcoChisel is built for authorized security research, penetration testing with written permission, academic study, and CTF competitions. You are solely responsible for ensuring your use complies with applicable laws and regulations. TelcoSec accepts no liability for misuse.
             </div>
           </div>
 
@@ -1063,7 +1111,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              I Understand — Download
+              Download Field Edition (5.0 GB)
             </a>
             <button class="btn-cancel" @click="downloadModalOpen = false">Cancel</button>
           </div>

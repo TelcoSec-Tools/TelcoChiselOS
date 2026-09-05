@@ -186,37 +186,51 @@ else
   echo "  Skipping base system upgrade (set APT_UPGRADE=1 to enable)"
 fi
 
-# ─── 4. Consolidated package install ────────────────────────────────────────
-# Every package from scripts 01–09, deduplicated and sorted by category.
+# ─── 4. Package installation by flavor ─────────────────────────────────────
+BUILD_FLAVOR="${BUILD_FLAVOR:-full}"
 
-echo "  Installing all packages (single transaction)..."
+if [ "$BUILD_FLAVOR" = "lite" ]; then
+  echo "  Installing Modular Lite Edition packages (${#PKGS_LITE_BASE[@]} base packages)..."
+  # shellcheck disable=SC2086
+  apt_get_retry install -y -o Dpkg::Options::="--force-overwrite" \
+    "${PKGS_LITE_BASE[@]}"
 
-# Install the union of all package arrays (sourced from lib/packages.sh)
-# plus any packages that don't belong to a downstream-script group.
-# shellcheck disable=SC2086
-apt_get_retry install -y -o Dpkg::Options::="--force-overwrite" \
-  "${PKGS_BASE[@]}" \
-  "${PKGS_SDR[@]}" \
-  "${PKGS_CORE_NETWORK[@]}" \
-  "${PKGS_TOOLS[@]}" \
-  "${PKGS_UE_ANALYSIS[@]}" \
-  "${PKGS_5GHOUL_BUILD[@]}" \
-  "${PKGS_5GHOUL_RUNTIME[@]}" \
-  "${PKGS_5GHOUL_REQS[@]}" \
-  "${PKGS_ADVANCED[@]}" \
-  \
-  `# Extra packages not belonging to any per-script group` \
-  libsqlite3-dev \
-  liblapacke-dev libblas-dev liblapack-dev \
-  `# osmo-simtrace2 compiled from source in 06; only its build deps are above`
+  # In Lite Edition, install the base metapackage to equip the system with repository keys,
+  # hardware SDR udev rules, limits, and the telcosec-pkg CLI.
+  if [ "${TELCOSEC_REPO_ENABLED:-0}" = "1" ] && [ -f /etc/apt/sources.list.d/telcochisel.sources ]; then
+    echo "  Installing official TelcoChisel base metapackage (telcochisel-base)..."
+    apt_get_retry install -y -o Dpkg::Options::="--force-overwrite" telcochisel-base || \
+      echo "  WARNING: telcochisel-base install failed (non-fatal)"
+  fi
+else
+  echo "  Installing Flagship Field Edition packages (all 88 telecom tools & runtimes)..."
+  # Install the union of all package arrays (sourced from lib/packages.sh)
+  # plus any packages that don't belong to a downstream-script group.
+  # shellcheck disable=SC2086
+  apt_get_retry install -y -o Dpkg::Options::="--force-overwrite" \
+    "${PKGS_BASE[@]}" \
+    "${PKGS_SDR[@]}" \
+    "${PKGS_CORE_NETWORK[@]}" \
+    "${PKGS_TOOLS[@]}" \
+    "${PKGS_UE_ANALYSIS[@]}" \
+    "${PKGS_5GHOUL_BUILD[@]}" \
+    "${PKGS_5GHOUL_RUNTIME[@]}" \
+    "${PKGS_5GHOUL_REQS[@]}" \
+    "${PKGS_ADVANCED[@]}" \
+    \
+    `# Extra packages not belonging to any per-script group` \
+    libsqlite3-dev \
+    liblapacke-dev libblas-dev liblapack-dev \
+    `# osmo-simtrace2 compiled from source in 06; only its build deps are above`
 
-# ─── 4b. Official TelcoChisel Metapackages ──────────────────────────────────
-# Installed while chroot service suppression is active so udevadm/sysctl postinst
-# hooks don't fail inside the chroot environment.
-if [ "${TELCOSEC_REPO_ENABLED:-0}" = "1" ] && [ -f /etc/apt/sources.list.d/telcochisel.sources ]; then
-  echo "  Installing official TelcoChisel metapackages (${PKGS_TELCOCHISEL_META[*]})..."
-  apt_get_retry install -y -o Dpkg::Options::="--force-overwrite" "${PKGS_TELCOCHISEL_META[@]}" || \
-    echo "  WARNING: TelcoChisel metapackage install failed (non-fatal)"
+  # ─── 4b. Official TelcoChisel Metapackages ──────────────────────────────────
+  # Installed while chroot service suppression is active so udevadm/sysctl postinst
+  # hooks don't fail inside the chroot environment.
+  if [ "${TELCOSEC_REPO_ENABLED:-0}" = "1" ] && [ -f /etc/apt/sources.list.d/telcochisel.sources ]; then
+    echo "  Installing official TelcoChisel metapackages (${PKGS_TELCOCHISEL_META[*]})..."
+    apt_get_retry install -y -o Dpkg::Options::="--force-overwrite" "${PKGS_TELCOCHISEL_META[@]}" || \
+      echo "  WARNING: TelcoChisel metapackage install failed (non-fatal)"
+  fi
 fi
 
 # ─── 5. Purge repo-setup-only packages ──────────────────────────────────────
