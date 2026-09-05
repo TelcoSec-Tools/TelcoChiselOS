@@ -141,6 +141,7 @@ StandardEject=1
 EOF
 
 # ─── 7. Ownership + tool-manifest summary ───────────────────────────────────
+install_container_healthcheck
 chown -R telcosec:telcosec "${TELCOSEC_OPT}" /etc/telcosec
 record_tool_summary
 

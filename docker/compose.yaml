@@ -20,16 +20,30 @@ services:
     build:
       context: ..
       dockerfile: docker/base.Dockerfile
+    init: true
     stdin_open: true
     tty: true
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/container-healthcheck.sh"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   sdr:
     image: ghcr.io/telcosec-tools/telcochisel-sdr:latest
     build:
       context: ..
       dockerfile: docker/sdr.Dockerfile
+    init: true
     stdin_open: true
     tty: true
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/container-healthcheck.sh"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     # USB SDR passthrough (HackRF/USRP/LimeSDR/BladeRF/RTL-SDR). Swap the
     # explicit device list for `privileged: true` if your host doesn't
     # support --device for USB (e.g. Docker Desktop on Windows/Mac).
@@ -46,8 +60,15 @@ services:
     build:
       context: ..
       dockerfile: docker/core-network.Dockerfile
+    init: true
     stdin_open: true
     tty: true
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/container-healthcheck.sh"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
     cap_add:
       - NET_ADMIN
     devices:
@@ -66,8 +87,15 @@ services:
     build:
       context: ..
       dockerfile: docker/device-tools.Dockerfile
+    init: true
     stdin_open: true
     tty: true
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/container-healthcheck.sh"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
     devices:
       - /dev/bus/usb:/dev/bus/usb
     # Serial USB modems/flash-mode devices enumerate as /dev/ttyUSB*/ttyACM*

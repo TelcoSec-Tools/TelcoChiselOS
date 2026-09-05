@@ -215,7 +215,14 @@ WRAPPER
   fi
 done
 
-# ─── 9. Ownership + tool-manifest summary ───────────────────────────────────
+# ─── 9. Conda cache pruning, build artifact cleanup & healthcheck ───────────
+echo "Pruning conda package caches and temporary build trees..."
+conda clean -afy 2>/dev/null || true
+find "${TELCOSEC_OPT}/src" -maxdepth 3 -name "build" -type d -exec rm -rf {} + 2>/dev/null || true
+rm -rf /root/.cache /home/telcosec/.cache /tmp/* /var/tmp/*
+
+# ─── 10. Ownership + tool-manifest summary ──────────────────────────────────
+install_container_healthcheck
 chown -R telcosec:telcosec "${TELCOSEC_OPT}"
 record_tool_summary
 

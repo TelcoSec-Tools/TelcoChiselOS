@@ -22,6 +22,7 @@ FROM ${BASE_IMAGE}
 
 LABEL org.opencontainers.image.title="TelcoSec TelcoChisel SDR" \
       org.opencontainers.image.description="TelcoSec TelcoChisel SDR — Software Defined Radio cellular research toolchain (SoapySDR, UHD USRP, LimeSuite, HackRF, BladeRF, rtl-sdr, GNU Radio, GQRX, gr-gsm)" \
+      org.opencontainers.image.version="1.1.0" \
       org.opencontainers.image.url="https://telcosec.net" \
       org.opencontainers.image.documentation="https://telcosec.net/docs" \
       org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS" \
@@ -44,4 +45,9 @@ ENV PATH="/opt/telcosec/miniconda/envs/telcosec-sdr/bin:${PATH}"
 
 WORKDIR /home/telcosec
 USER telcosec
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD ["/usr/local/bin/container-healthcheck.sh"]
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["/bin/bash"]

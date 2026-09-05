@@ -16,7 +16,8 @@
 FROM ubuntu:24.04
 
 LABEL org.opencontainers.image.title="TelcoSec TelcoChisel Base" \
-      org.opencontainers.image.description="TelcoSec TelcoChisel Base — Headless CLI telecom security penetration testing and research toolset (nmap, tshark, Scapy, SIPVicious, sctpscan, SigPloit, Diafuzzer, FirmWire, QCSuper, MTKClient, pySim, lpac, SIMtrace2, SIMurai, UERANSIM, SCAT, LTESniffer, sipp)" \
+      org.opencontainers.image.description="TelcoSec TelcoChisel Base — Headless CLI telecom security penetration testing and research toolset (nmap, tshark, Scapy, SIPVicious, sctpscan, SigPloit, Diafuzzer, FirmWire, QCSuper, MTKClient, pySim, lpac, SIMtrace2, SIMurai, UERANSIM, SCAT, LTESniffer, sipp, asleap, snmp-check, docsis, routersploit)" \
+      org.opencontainers.image.version="1.1.0" \
       org.opencontainers.image.url="https://telcosec.net" \
       org.opencontainers.image.documentation="https://telcosec.net/docs" \
       org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS" \
@@ -51,7 +52,7 @@ RUN (getent passwd ubuntu >/dev/null && userdel -r ubuntu 2>/dev/null || true) \
  && mkdir -p /opt/telcosec/lib && chown -R telcosec:telcosec /opt/telcosec \
  && mkdir -p /etc/apt/keyrings /etc/apt/sources.list.d \
  && (which curl >/dev/null || (apt-get update -qq && apt-get install -y -qq curl ca-certificates && rm -rf /var/lib/apt/lists/*)) \
- && curl -fsSL https://meta.telcosec.net/public.gpg -o /etc/apt/keyrings/telcochisel-archive-keyring.asc 2>/dev/null || true \
+ && (curl -fsSL https://meta.telcosec.net/telcosec.gpg -o /etc/apt/keyrings/telcochisel-archive-keyring.asc 2>/dev/null || curl -fsSL https://meta.telcosec.net/public.gpg -o /etc/apt/keyrings/telcochisel-archive-keyring.asc 2>/dev/null || true) \
  && if [ -s /etc/apt/keyrings/telcochisel-archive-keyring.asc ]; then \
       chmod 0644 /etc/apt/keyrings/telcochisel-archive-keyring.asc; \
       printf "Types: deb\nURIs: https://meta.telcosec.net\nSuites: noble\nComponents: main\nSigned-By: /etc/apt/keyrings/telcochisel-archive-keyring.asc\n" > /etc/apt/sources.list.d/telcochisel.sources; \
@@ -69,4 +70,9 @@ RUN bash /tmp/10-base-tools.sh && rm -f /tmp/10-base-tools.sh
 
 WORKDIR /home/telcosec
 USER telcosec
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD ["/usr/local/bin/container-healthcheck.sh"]
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["/bin/bash"]

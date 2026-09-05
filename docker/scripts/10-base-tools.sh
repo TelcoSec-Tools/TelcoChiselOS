@@ -44,6 +44,7 @@ BUILD_DEPS=(
   build-essential cmake pkg-config autoconf automake libtool
   python3-dev libusb-1.0-0-dev libmnl-dev libssl-dev libncurses-dev
   libsctp-dev libglib2.0-dev libpcsclite-dev librocksdb-dev libmd-dev libfftw3-dev
+  bison flex libpcap-dev libsnmp-dev
 )
 
 # Explicitly install runtime shared libraries so purging -dev packages does not remove them
@@ -54,7 +55,7 @@ RUNTIME_LIBRARIES=(
 
 apt_retry install -y --no-install-recommends \
   ca-certificates curl wget gnupg git vim nano \
-  python3-pip python3-venv \
+  tini python3-pip python3-venv \
   sudo unzip openjdk-17-jre-headless \
   "${BUILD_DEPS[@]}" \
   "${RUNTIME_LIBRARIES[@]}"
@@ -72,12 +73,13 @@ export GIT_ASKPASS=/bin/false
 git config --global credential.helper ''
 git config --global --add safe.directory '*'
 
-# Wireshark non-interactive config (dpkg-reconfigure needs debconf answer
-# pre-seeded; mirrors builder/scripts/00-install-all-packages.sh step 6)
+# Wireshark non-interactive config & hardware/network groups
 echo "wireshark-common wireshark-common/install-syscap boolean true" | debconf-set-selections
 dpkg-reconfigure wireshark-common || true
-getent group wireshark >/dev/null || groupadd -r wireshark
-usermod -a -G wireshark telcosec || true
+for grp in wireshark dialout plugdev netdev; do
+  getent group "$grp" >/dev/null || groupadd -r "$grp"
+  usermod -a -G "$grp" telcosec || true
+done
 
 rm -rf /var/lib/apt/lists/*
 
@@ -415,6 +417,39 @@ EOF
 chmod +x /usr/local/bin/routersploit
 record_tool "RouterSploit" "/usr/local/bin/routersploit" "adsl"
 
+# ─── 21b. Asleap (PPPoE / MS-CHAPv2 offline cracker) ───────────────────────
+echo "Compiling Asleap..."
+git_clone_retry --depth 1 https://github.com/joswr1ght/asleap.git "${TELCOSEC_OPT}/asleap"
+if [ -d "${TELCOSEC_OPT}/asleap" ]; then
+  cd "${TELCOSEC_OPT}/asleap"
+  make CFLAGS="-O2 -Wno-error -fcommon" -j"$(nproc)" 2>&1 | tail -5 || true
+  [ -f asleap ] && ln -sf "${TELCOSEC_OPT}/asleap/asleap" /usr/local/bin/asleap || true
+  [ -f genkeys ] && ln -sf "${TELCOSEC_OPT}/asleap/genkeys" /usr/local/bin/genkeys || true
+  cd /
+fi
+record_tool "Asleap" "/usr/local/bin/asleap" "adsl"
+
+# ─── 21c. snmp-check (SNMP device enumerator) ──────────────────────────────
+echo "Installing snmp-check..."
+if [ ! -f /usr/local/bin/snmp-check ]; then
+  wget -q https://gitlab.com/kalilinux/packages/snmpcheck/-/raw/kali/master/snmpcheck-1.9.rb -O /usr/local/bin/snmp-check || true
+  if [ -s /usr/local/bin/snmp-check ]; then
+    chmod +x /usr/local/bin/snmp-check
+  fi
+fi
+record_tool "snmp-check" "/usr/local/bin/snmp-check" "adsl"
+
+# ─── 21d. DOCSIS config tool ───────────────────────────────────────────────
+echo "Compiling DOCSIS config tool..."
+git_clone_retry --depth 1 https://github.com/rlaager/docsis.git "${TELCOSEC_OPT}/docsis"
+if [ -d "${TELCOSEC_OPT}/docsis" ]; then
+  cd "${TELCOSEC_OPT}/docsis"
+  ./autogen.sh && ./configure && make -j"$(nproc)" 2>&1 | tail -5 || true
+  make install || true
+  cd /
+fi
+record_tool "docsis" "/usr/local/bin/docsis" "adsl"
+
 # ─── 22. SIPp (from 00-install-all-packages.sh — not in Ubuntu 24.04 apt) ──
 git_clone_retry --depth 1 https://github.com/SIPp/sipp "${TELCOSEC_OPT}/sipp"
 cmake -S "${TELCOSEC_OPT}/sipp" -B "${TELCOSEC_OPT}/sipp/build" \
@@ -487,7 +522,8 @@ find / -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 find / -name "*.pyc" -delete 2>/dev/null || true
 rm -rf /root/.cache /tmp/* /var/tmp/* /var/lib/apt/lists/*
 
-# ─── 25. Ownership + tool-manifest summary ──────────────────────────────────
+# ─── 25. Healthcheck, ownership & tool-manifest summary ──────────────────────
+install_container_healthcheck
 chown -R telcosec:telcosec "${TELCOSEC_OPT}"
 record_tool_summary
 

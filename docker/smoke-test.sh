@@ -40,25 +40,47 @@ check() {
 }
 
 echo "=== telcochisel-base ==="
-check telcochisel-base nmap        "nmap --version"
-check telcochisel-base tshark      "tshark --version"
-check telcochisel-base scapy       "python3 -c 'import scapy; print(scapy.VERSION)'"
-check telcochisel-base sctpscan    "sctpscan -h || true"
-check telcochisel-base pysim       "pySim-shell --help"
-check telcochisel-base ueransim    "nr-ue --help || true"
-check telcochisel-base sipvicious  "sipvicious_svmap --help"
+check telcochisel-base tini         "/usr/bin/tini --version"
+check telcochisel-base healthcheck  "/usr/local/bin/container-healthcheck.sh"
+check telcochisel-base nmap         "nmap --version"
+check telcochisel-base tshark       "tshark --version"
+check telcochisel-base scapy        "python3 -c 'import scapy; print(scapy.VERSION)'"
+check telcochisel-base sctpscan     "sctpscan -h || true"
+check telcochisel-base pysim        "pySim-shell --help"
+check telcochisel-base ueransim     "nr-ue --help || true"
+check telcochisel-base sipvicious   "sipvicious_svmap --help"
+check telcochisel-base asleap       "asleap -h || true"
+check telcochisel-base snmp-check   "snmp-check -h || true"
+check telcochisel-base docsis       "docsis -h || true"
+check telcochisel-base routersploit "routersploit --help || true"
 
 echo "=== telcochisel-device-tools ==="
-check telcochisel-device-tools heimdall "heimdall version"
-check telcochisel-device-tools adb      "adb version"
-check telcochisel-device-tools mtk      "mtk --help"
+check telcochisel-device-tools healthcheck "/usr/local/bin/container-healthcheck.sh"
+check telcochisel-device-tools heimdall    "heimdall version"
+check telcochisel-device-tools adb         "adb version"
+check telcochisel-device-tools mtk         "mtk --help"
 
 echo "=== telcochisel-sdr ==="
-check telcochisel-sdr soapysdr "SoapySDRUtil --info"
-check telcochisel-sdr hackrf   "hackrf_info --version || true"
+check telcochisel-sdr healthcheck "/usr/local/bin/container-healthcheck.sh"
+check telcochisel-sdr soapysdr    "SoapySDRUtil --info"
+check telcochisel-sdr hackrf      "hackrf_info --version || true"
 
 echo "=== telcochisel-core-network ==="
-check telcochisel-core-network helpers "command -v srsran-install && command -v open5gs-install && command -v gtp5g-load && command -v 5ghoul-install"
+check telcochisel-core-network healthcheck "/usr/local/bin/container-healthcheck.sh"
+check telcochisel-core-network helpers     "command -v srsran-install && command -v open5gs-install && command -v gtp5g-load && command -v 5ghoul-install"
+
+echo "=== Telecom POD Manifest Validation ==="
+if command -v python3 &>/dev/null; then
+  for manifest in "$REPO_ROOT"/docker/pods/*.yaml; do
+    printf '  [%-22s] %-14s ... ' "pod-manifest" "$(basename "$manifest")"
+    if python3 -c "import yaml, sys; yaml.safe_load(open(sys.argv[1]))" "$manifest" >/tmp/smoke-yaml.log 2>&1; then
+      echo "OK"
+    else
+      echo "FAIL (syntax error)"
+      FAIL=1
+    fi
+  done
+fi
 
 if [ "$FAIL" -ne 0 ]; then
   echo ""

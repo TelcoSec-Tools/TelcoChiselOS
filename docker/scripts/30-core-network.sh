@@ -229,7 +229,8 @@ echo "OPc  : E8ED289DEBA952E4283B54E88E6183CA"
 EOF
 chmod +x /usr/local/bin/5ghoul-add-subscriber
 
-# ─── 7. Ownership ────────────────────────────────────────────────────────────
+# ─── 7. Ownership & Healthcheck ──────────────────────────────────────────────
+install_container_healthcheck
 chown -R telcosec:telcosec "${TELCOSEC_OPT}" /etc/telcosec
 
 echo "=== telcochisel-core-network installation complete ==="

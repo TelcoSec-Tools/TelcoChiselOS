@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: telcochisel-sdr-rf-pod
+  namespace: default
+  labels:
+    app.kubernetes.io/name: telcochisel-sdr-rf
+    app.kubernetes.io/part-of: telcochisel
+    app.kubernetes.io/component: sdr
+    net.telcosec.tier: sdr
+  annotations:
+    description: "TelcoChisel SDR over-the-air RF spectrum analysis and cellular capture pod"
+    net.telcosec.academy.lab: "https://app.telcosec.net/labs/sdr-cellular-analysis"
+spec:
+  restartPolicy: Always
+  containers:
+    - name: sdr-capture-engine
+      image: ghcr.io/telcosec-tools/telcochisel-sdr:latest
+      imagePullPolicy: IfNotPresent
+      command:
+        - /bin/bash
+        - -c
+        - |
+          echo "================================================================"
+          echo "  TelcoChisel SDR RF Capture & Processing Engine"
+          echo "  Devices: HackRF, BladeRF, USRP, LimeSDR, RTL-SDR"
+          echo "  Captures stored at: /captures"
+          echo "  Training & Labs: https://app.telcosec.net"
+          echo "================================================================"
+          sleep infinity
+      securityContext:
+        privileged: false
+        capabilities:
+          add:
+            - SYS_NICE     # Allows real-time thread priority (-20 / SCHED_FIFO) for zero I/Q sample drops
+            - SYS_RAWIO    # Direct access to hardware registers if required
+      resources:
+        requests:
+          cpu: "1000m"
+          memory: "2Gi"
+        limits:
+          cpu: "4000m"
+          memory: "8Gi"
+      livenessProbe:
+        exec:
+          command:
+            - /usr/local/bin/container-healthcheck.sh
+        initialDelaySeconds: 15
+        periodSeconds: 30
+        timeoutSeconds: 5
+      volumeMounts:
+        - name: dev-bus-usb
+          mountPath: /dev/bus/usb
+        - name: capture-volume
+          mountPath: /captures
+
+  volumes:
+    - name: dev-bus-usb
+      hostPath:
+        path: /dev/bus/usb
+        type: Directory
+    - name: capture-volume
+      emptyDir: {}

@@ -132,3 +132,50 @@ apt_retry() {
   echo "  ERROR: apt-get failed after 3 attempts: apt-get $*" >&2
   return 1
 }
+
+# install_container_healthcheck — creates /usr/local/bin/container-healthcheck.sh
+# for Docker and Kubernetes liveness/readiness probes.
+install_container_healthcheck() {
+  cat > /usr/local/bin/container-healthcheck.sh << 'HEALTHCHECK_EOF'
+#!/bin/bash
+# =============================================================================
+# container-healthcheck.sh — runtime health probe for TelcoChisel containers
+# =============================================================================
+set -e
+
+# 1. Essential environment & directories
+[ -d "/opt/telcosec" ] || { echo "CRITICAL: /opt/telcosec missing" >&2; exit 1; }
+[ -d "/tmp" ] || { echo "CRITICAL: /tmp missing" >&2; exit 1; }
+
+# 2. Core binaries availability
+command -v bash >/dev/null 2>&1 || { echo "CRITICAL: bash not found" >&2; exit 1; }
+
+# 3. Dynamic tier-specific sanity check
+# Base tools check
+if command -v nmap >/dev/null 2>&1; then
+  nmap --version >/dev/null 2>&1 || exit 1
+fi
+if command -v tshark >/dev/null 2>&1; then
+  tshark --version >/dev/null 2>&1 || exit 1
+fi
+
+# SDR tier check
+if command -v SoapySDRUtil >/dev/null 2>&1; then
+  SoapySDRUtil --info >/dev/null 2>&1 || exit 1
+fi
+
+# Device-tools tier check
+if command -v adb >/dev/null 2>&1; then
+  adb version >/dev/null 2>&1 || exit 1
+fi
+
+# Core-network tier check
+if [ -f /etc/telcosec/plmn.conf ]; then
+  [ -s /etc/telcosec/plmn.conf ] || exit 1
+fi
+
+exit 0
+HEALTHCHECK_EOF
+  chmod 755 /usr/local/bin/container-healthcheck.sh
+}
+
