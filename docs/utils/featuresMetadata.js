@@ -192,6 +192,8 @@ export const featuresMetadata = {
   "telcosec-operator-cli": {
     keywords: [
       "telcosec operator CLI",
+      "telcosec docker container",
+      "ghcr.io telcosec-cli",
       "telcosec brew homebrew tap",
       "telcosec sim smartcard atr",
       "telcosec pkg metapackage",
@@ -202,8 +204,9 @@ export const featuresMetadata = {
       "automated SDR hardware discovery",
       "5G core management command line"
     ],
-    overview: "TelcoChisel provides a centralized operator command-line interface, `telcosec` (also symlinked to `telcochisel`), designed for rapid field diagnostics, hardware enumeration, modular metapackage management (`telcosec pkg`), smartcard and eSIM auditing (`telcosec sim`), cellular core management, and security scanning. Available on Linux via APT (`apt install telcosec-cli`) and on macOS & Linux via Homebrew (`brew install telcosec-tools/tap/telcosec`). Rather than requiring operators to remember dozens of disparate Linux commands and hardware probe syntax, `telcosec` aggregates system status, SDR transceiver detection, 10-tier metapackage operations, pure Go ISO 7816-3 ATR parsing, 5G SA simulation, and security scanning into a single intuitive tool.",
+    overview: "TelcoChisel provides a centralized operator command-line interface, `telcosec` (also symlinked to `telcochisel`), designed for rapid field diagnostics, hardware enumeration, modular metapackage management (`telcosec pkg`), smartcard and eSIM auditing (`telcosec sim`), cellular core management, and security scanning. Deployable on Linux via APT (`apt install telcosec-cli`), macOS & Linux via Homebrew (`brew install telcosec-tools/tap/telcosec`), or as a lightweight multi-arch container (`docker run --rm ghcr.io/telcosec-tools/telcosec-cli`). Rather than requiring operators to remember dozens of disparate Linux commands and hardware probe syntax, `telcosec` aggregates system status, SDR transceiver detection, 10-tier metapackage operations, pure Go ISO 7816-3 ATR parsing, 5G SA simulation, and security scanning into a single intuitive tool.",
     config: [
+      "Run directly via multi-arch Docker container (GHCR):\ndocker run --rm -it ghcr.io/telcosec-tools/telcosec-cli check\ndocker run --rm -it --privileged --net=host -v /dev:/dev -v /sys:/sys ghcr.io/telcosec-tools/telcosec-cli hardware",
       "Install on macOS (Apple Silicon/Intel) or Linux via official Homebrew tap:\nbrew tap telcosec-tools/tap\nbrew install telcosec",
       "Run the comprehensive operator diagnostic overview:\ntelcosec status",
       "Enumerate all connected SDR transceivers and smartcard interfaces:\ntelcosec hardware",
