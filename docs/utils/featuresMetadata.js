@@ -1,6 +1,6 @@
 /**
  * Rich SEO/AEO metadata for TelcoChisel Telecom OS Capabilities.
- * Aligned with the 8 core operational features in featuresCatalog.
+ * Aligned with the 13 core operational features in featuresCatalog.
  */
 
 export const featuresMetadata = {

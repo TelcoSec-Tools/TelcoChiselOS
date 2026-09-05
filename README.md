@@ -13,6 +13,10 @@
   [![Docs](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/deploy-docs.yml/badge.svg)](https://chisel.telcosec.net)
   [![Ubuntu 24.04](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com)
   [![Kernel](https://img.shields.io/badge/Kernel-Low--Latency_Realtime-00ffd5?logo=linux&logoColor=black)](https://chisel.telcosec.net)
+  [![Tools](https://img.shields.io/badge/Tools-78_Pre--configured-e8921e?logo=gnuradio&logoColor=black)](https://chisel.telcosec.net/#tools)
+  [![Metapackages](https://img.shields.io/badge/Metapackages-10_Suites-0099ff?logo=debian&logoColor=white)](https://meta.telcosec.net)
+  [![SDR Transceivers](https://img.shields.io/badge/SDR-USB_%26_10GbE_SFP%2B-26d464)](https://chisel.telcosec.net)
+  [![Containers](https://img.shields.io/badge/Pods-Podman_%26_K8s-8a2be2?logo=podman&logoColor=white)](docker/README.md)
   [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-00ffd5.svg)](LICENSE)
   [![Download](https://img.shields.io/sourceforge/dt/telcochisel?logo=sourceforge&label=Downloads)](https://sourceforge.net/projects/telcochisel/files/latest/download)
 
@@ -33,6 +37,52 @@ Based on **Ubuntu 24.04 LTS (Noble Numbat)** with a dual-kernel architecture fea
 
 > [!NOTE]
 > TelcoChisel boots directly from a USB flash drive or virtual machine, providing an isolated, pre-configured research testbed without modifying the host operating system. It includes support for **LUKS-encrypted persistence** (`casper-rw`), a **Toram mode** (copy-to-RAM for maximum I/O throughput), and can be permanently installed to disk via the bundled **Calamares GUI Installer**.
+
+### System Architecture
+
+```mermaid
+flowchart TD
+    subgraph L1["1. Physical & Transceiver Layer"]
+        USB["USB 3.0 / 2.0 SDRs<br/>(B210, HackRF, BladeRF, LimeSDR, RTL-SDR)"]
+        SFP["10GbE SFP+ / High-Throughput NICs<br/>(USRP X310, N310, N320, X410)"]
+        DIAG["Diagnostic Serial & USB Modems<br/>(Qualcomm DIAG, MTK BROM, EDL 9008)"]
+        SIM["Smartcard Readers & Trace Probes<br/>(Osmocom SIMtrace 2, CCID PC/SC)"]
+    end
+
+    subgraph L2["2. Real-Time Kernel & OS Tuning Layer"]
+        KERN["Low-Latency Kernel (1000Hz, CONFIG_PREEMPT=y)"]
+        MEM["Zero-Drop RLIMIT_MEMLOCK (unlimited) & SCHED_RR (prio 99)"]
+        NET["10GbE Network Tuning: MTU 9000 | 4096 Ring Descriptors | 64MB Socket Buffers"]
+        USBBUF["USB Subsystem: usbfs_memory_mb=1000 | USB Autosuspend Disabled"]
+        SCTP["SCTP Stack: Low RTO (200ms) | Fast Failover | 64MB Kernel Buffers"]
+    end
+
+    subgraph L3["3. Unified Operator CLI Suite"]
+        TELCOSEC["telcosec<br/>(Diagnostics, Hardware Discovery, 5G Core Orchestrator, Guided Scans)"]
+        TELCOSDR["telcosec-sdr<br/>(USB & 10GbE Network Driver Tuning, FPGA Bitstreams, Benchmarks)"]
+        TELCOPKG["telcosec-pkg<br/>(10-Tier Modular Metapackage Manager via meta.telcosec.net)"]
+    end
+
+    subgraph L4["4. 78 Pre-Configured Telecom Toolsets"]
+        SDR_T["SDR & RF DSP<br/>(GNU Radio 3.10, UHD, Gqrx, gr-gsm)"]
+        RAN_T["4G / 5G RAN & Core<br/>(Open5GS, UERANSIM, srsRAN, 5Ghoul, my5G-RANTester)"]
+        BB_T["Baseband & Mobile UE<br/>(FirmWire, QCSuper, SCAT, MTKClient, Balong)"]
+        CORE_T["Signaling & Interconnect<br/>(SigPloit, Diafuzzer, sctpscan, Wireshark Profiles)"]
+        SIM_T["SIM / eSIM Smartcards<br/>(pySim-shell, lpac, SIMurai, SIMtester)"]
+        WIRE_T["Broadband & Wireline<br/>(RouterSploit, docsis, asleap, sipp, pppoe)"]
+    end
+
+    subgraph L5["5. Operational Delivery & Ecosystem"]
+        ISO["Live Hybrid ISO<br/>(Low-Latency Live, Encrypted casper-rw, i3 Tiling, Toram Mode)"]
+        PODS["Telecom Container PODs<br/>(Rootless Podman 'play kube' & Kubernetes Pods in docker/pods/)"]
+        ACADEMY["TelcoSec Academy<br/>(Interactive Hands-on Labs & Guided Learning Funnels at app.telcosec.net)"]
+    end
+
+    L1 --> L2
+    L2 --> L3
+    L3 --> L4
+    L4 --> L5
+```
 
 ---
 
@@ -127,6 +177,19 @@ telcosec-sdr 10g probe 192.168.30.2
 # Inspect local offline FPGA bitstream and firmware caches
 telcosec-sdr firmware status
 ```
+
+### SDR Transceiver Hardware Compatibility & Network Tuning Matrix
+
+| Transceiver | Host Bus | Max Sample Rate | Duplex Mode | Driver Stack | Zero-Drop Optimization Command |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Ettus USRP B200 / B210** | USB 3.0 SuperSpeed | 61.44 MSps | Full Duplex (2x2 MIMO) | UHD / SoapyUHD | `sudo telcosec-sdr usb tune` |
+| **Ettus USRP X300 / X310** | Dual 10GbE SFP+ / PCIe | 200.0 MSps | Full Duplex (2x2 MIMO) | UHD / DPDK | `sudo telcosec-sdr 10g tune <iface>` |
+| **Ettus USRP N300 / N310 / N320** | Dual 10GbE SFP+ / WR | 153.6 MSps | Full Duplex (4x4 MIMO) | UHD / Embedded Linux | `sudo telcosec-sdr 10g tune <iface>` |
+| **Great Scott Gadgets HackRF One** | USB 2.0 HighSpeed | 20.0 MSps | Half Duplex | libhackrf / SoapyHackRF | `sudo telcosec-sdr usb tune` |
+| **Nuand BladeRF 2.0 micro xA4** | USB 3.0 SuperSpeed | 61.44 MSps | Full Duplex (2x2 MIMO) | libbladeRF / SoapyBladeRF | `sudo telcosec-sdr usb tune` |
+| **Lime Microsystems LimeSDR** | USB 3.0 SuperSpeed | 61.44 MSps | Full Duplex (2x2 MIMO) | LimeSuite / SoapyLime | `sudo telcosec-sdr usb tune` |
+| **RTL-SDR v3 / v4** | USB 2.0 HighSpeed | 3.2 MSps | RX Only | librtlsdr / rtl-sdr | `sudo telcosec-sdr usb tune` |
+| **Analog Devices ADALM-PLUTO** | USB 2.0 OTG / RNDIS | 20.0 MSps | Full Duplex (1x1) | libiio / SoapyPlutoSDR | `telcosec-sdr status` |
 
 ---
 
@@ -363,6 +426,51 @@ TelcoChisel serves as the standardized operating environment for real-world tele
 
 ---
 
+## Telecom Container Images & POD Orchestration
+
+For cloud testbeds, CI/CD pipelines, and environments where booting the live ISO is not required, TelcoChisel provides container images and pre-engineered **Telecom POD manifests** under [`docker/pods/`](docker/pods/).
+
+| Container Image | Scope & Capabilities | Runtime Requirements |
+| :--- | :--- | :--- |
+| **`telcochisel-base`** | Headless CLI telecom scanners (tshark, Scapy, sctpscan, SigPloit, Diafuzzer, UERANSIM, SCAT, asleap, docsis, wordlists). | Unprivileged / None |
+| **`telcochisel-sdr`** | `telcochisel-base` + UHD, HackRF, BladeRF, LimeSuite, RTL-SDR, GNU Radio, Gqrx (isolated `telcosec-sdr` conda environment). | USB passthrough / X11 |
+| **`telcochisel-core-network`** | `telcochisel-base` + Open5GS, srsRAN, OAI-UE, 5Ghoul, and GTP5G kernel headers. | `CAP_NET_ADMIN`, `/dev/net/tun` |
+| **`telcochisel-device-tools`** | `telcochisel-base` + Heimdall, ADB/Fastboot, MTKClient, QCSuper, EDL, and AT console. | USB & serial passthrough |
+
+### Rootless Multi-Container Podman Quickstart
+
+Telecom PODs deploy tightly-coupled multi-container setups sharing localhost networking, allowing scanners to probe core services locally without port forwarding:
+
+```bash
+# 1. Start the rootless multi-container Telecom Pod (Core + Scanner)
+podman play kube docker/pods/podman-telecom-pod.yaml
+
+# 2. Inspect active pods and containers
+podman pod ps
+podman ps --filter "label=net.telcosec.product=telcochisel"
+
+# 3. Open a shell inside the telecom scanner container
+podman exec -it telcochisel-telecom-pod-telecom-scanner /bin/bash
+
+# 4. Tear down the pod
+podman play kube --down docker/pods/podman-telecom-pod.yaml
+```
+
+### Kubernetes & Helper CLI (`pod-deploy.sh`)
+
+```bash
+# Start or stop Podman pod via helper
+bash docker/pods/pod-deploy.sh start-podman
+bash docker/pods/pod-deploy.sh status
+
+# Deploy or delete Kubernetes 5G Core pod
+bash docker/pods/pod-deploy.sh apply-k8s docker/pods/k8s-5g-core-pod.yaml
+bash docker/pods/pod-deploy.sh delete-k8s docker/pods/k8s-5g-core-pod.yaml
+```
+For complete details on building container images, Compose usage, and limitations, refer to the [**Container Documentation (docker/README.md)**](docker/README.md).
+
+---
+
 ## Building from Source
 
 ### Host Requirements
@@ -400,7 +508,7 @@ SQUASHFS_LEVEL=3 bash build-wsl.sh
 
 ### Pre-Build Syntax & Line Ending Verification
 ```bash
-# Verify bash syntax across all 33 provisioning and helper scripts
+# Verify bash syntax across all 35 provisioning and helper scripts
 wsl bash scripts/test_syntax.sh
 
 # Normalize line endings to Unix LF
@@ -436,6 +544,20 @@ Telecom Security is critical to protecting mobile network infrastructures (like 
 
 **How does TelcoChisel handle SDR latency and sample drops?**  
 TelcoChisel defaults to the Linux low-latency kernel, grants unconstrained memory locking (`RLIMIT_MEMLOCK=unlimited`), enables `SCHED_RR` priority 99 to the `realtime` group, allocates 1000MB of USB buffer memory, and disables USB autosuspend across all supported SDR transceivers.
+
+**How does `telcosec-sdr` optimize 10Gbps Ethernet transceivers (USRP X310/N310)?**  
+At high I/Q sample rates (100–200 MSps), standard Linux network stacks drop packets due to small socket buffers and Ethernet MTU fragmentation. Running `sudo telcosec-sdr 10g tune <iface>` configures Jumbo Frames (MTU 9000), expands RX/TX ring descriptors to 4096, sets 64MB socket memory limits (`net.core.rmem_max=67108864`), disables Ethernet flow control pause frames, and switches the CPU governor to `performance`.
+
+**How do modular Debian metapackages work on standard Ubuntu or Debian?**  
+TelcoChisel hosts 10 domain-specific Debian metapackages on Cloudflare Pages edge CDN (`meta.telcosec.net`). You can add the repository to any Ubuntu 24.04 or Debian installation using `scripts/install-telcochisel-repo.sh` and selectively install suites (`5g`, `sdr`, `sim`, `wireline`, `ue`) via the `telcosec-pkg` CLI.
+
+**Can TelcoChisel run rootless inside Docker or Podman without booting the ISO?**  
+Yes. Multi-container Telecom POD manifests in `docker/pods/` allow rootless execution via `podman play kube docker/pods/podman-telecom-pod.yaml`. Containers share localhost networking so scanners like `sctpscan`, `tshark`, or `sipp` can directly probe `open5gs` or `ueransim` cores without privilege escalation.
+
+**What is the difference between Live Mode, Encrypted Persistence, and Toram mode?**  
+* **Standard Live Mode:** Runs from the bootable media in RAM, leaving zero trace on host drives.  
+* **Encrypted Persistence (`casper-rw`):** Saves captures, tools, and custom configurations inside an AES-XTS LUKS-encrypted partition created by `telcosec-create-usb`.  
+* **Toram Mode:** Copies the entire squashfs filesystem into RAM during boot, yielding maximum I/O speed and allowing the operator to unplug the USB flash drive once booted.
 
 ---
 

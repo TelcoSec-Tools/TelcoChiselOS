@@ -1832,3 +1832,50 @@ body.light-theme #spectrumCanvas {
     .dl-modal-actions { flex-direction: column; }
     .dl-modal-actions .btn-download { width: 100%; }
 }
+
+/* ─── Documentation Tables ───────────────────────────────────────────────────*/
+.doc-table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin: 20px 0;
+    border: 1px solid var(--bdr);
+    border-radius: 4px;
+    background: var(--bg-card);
+}
+.doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    text-align: left;
+}
+.doc-table th {
+    background: var(--bg-inset);
+    color: var(--amber);
+    padding: 12px 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 2px solid var(--bdr-mid);
+    white-space: nowrap;
+}
+.doc-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--bdr);
+    color: var(--tx);
+    vertical-align: middle;
+}
+.doc-table tr:last-child td {
+    border-bottom: none;
+}
+.doc-table tr:hover td {
+    background: rgba(232, 146, 30, 0.03);
+}
+.doc-table code {
+    font-family: var(--mono);
+    color: var(--accent-teal);
+    background: var(--bg-inset);
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-size: 0.76rem;
+}
