@@ -44,13 +44,13 @@ BUILD_DEPS=(
   build-essential cmake pkg-config autoconf automake libtool
   python3-dev libusb-1.0-0-dev libmnl-dev libssl-dev libncurses-dev
   libsctp-dev libglib2.0-dev libpcsclite-dev librocksdb-dev libmd-dev libfftw3-dev
-  bison flex libpcap-dev libsnmp-dev
+  bison flex libpcap-dev libsnmp-dev libgsl-dev libnet1-dev
 )
 
 # Explicitly install runtime shared libraries so purging -dev packages does not remove them
 RUNTIME_LIBRARIES=(
   libglib2.0-0t64 libsctp1 libusb-1.0-0 libmnl0 libncurses6
-  libpcsclite1 libmd0 libfftw3-double3 libpcap0.8t64
+  libpcsclite1 libmd0 libfftw3-double3 libpcap0.8t64 libgsl27 libgslcblas0
 )
 
 apt_retry install -y --no-install-recommends \
@@ -464,8 +464,15 @@ record_tool "docsis" "/usr/local/bin/docsis" "adsl"
 # ─── 22. SIPp (from 00-install-all-packages.sh — not in Ubuntu 24.04 apt) ──
 git_clone_retry --depth 1 https://github.com/SIPp/sipp "${TELCOSEC_OPT}/sipp"
 cmake -S "${TELCOSEC_OPT}/sipp" -B "${TELCOSEC_OPT}/sipp/build" \
-  -DCMAKE_BUILD_TYPE=Release -DUSE_SCTP=1 -DUSE_PCAP=1 \
-  -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/usr/local >/dev/null
+  -DCMAKE_BUILD_TYPE=Release \
+  -DUSE_SSL=1 \
+  -DUSE_SCTP=1 \
+  -DUSE_PCAP=1 \
+  -DUSE_GSL=1 \
+  -DTLS_KEY_LOGGING=1 \
+  -DSIPP_MAX_MSG_SIZE=262144 \
+  -DCMAKE_CXX_FLAGS="-O3 -pipe" \
+  -DCMAKE_INSTALL_PREFIX=/usr/local >/dev/null
 make -C "${TELCOSEC_OPT}/sipp/build" -j"$(nproc)" sipp >/dev/null
 install -m 755 "${TELCOSEC_OPT}/sipp/build/sipp" /usr/local/bin/sipp
 rm -rf "${TELCOSEC_OPT}/sipp/build"
