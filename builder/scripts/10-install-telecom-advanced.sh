@@ -132,8 +132,10 @@ echo "  Installing Kalibrate-GSM..."
 if [ -d "${TELCOSEC_OPT}/kalibrate-gsm" ]; then
   cd "${TELCOSEC_OPT}/kalibrate-gsm"
   ./bootstrap.sh 2>/dev/null || autoreconf -fi
-  ./configure && make -j"$(nproc)"
-  cp src/kal /usr/local/bin/kal-gsm 2>/dev/null || true
+  CONDA_SDR_PKG="${TELCOSEC_OPT}/miniconda/envs/telcosec-sdr/lib/pkgconfig"
+  [ -d "$CONDA_SDR_PKG" ] && export PKG_CONFIG_PATH="${CONDA_SDR_PKG}:${PKG_CONFIG_PATH:-}"
+  ./configure && nice -n 10 make -j"$(get_build_procs)"
+  [ -f src/kal ] && cp -f src/kal /usr/local/bin/kal-gsm || true
   cd /
 fi
 record_tool "kalibrate-gsm" "/usr/local/bin/kal-gsm" "2g"
@@ -291,12 +293,13 @@ record_tool "srsGUI" "$(find ${TELCOSEC_OPT}/srsgui/build -name 'libsrsgui.so' 2
 echo "  Installing LTE-CellScanner..."
 [ -d "${TELCOSEC_OPT}/lte-cellscanner" ] || clone_if_missing https://github.com/Evrytania/LTE-Cell-Scanner "${TELCOSEC_OPT}/lte-cellscanner" 2>/dev/null || true
 if [ -d "${TELCOSEC_OPT}/lte-cellscanner" ]; then
+  dpkg -s libitpp-dev &>/dev/null || apt-get install -y libitpp-dev 2>/dev/null || true
   cd "${TELCOSEC_OPT}/lte-cellscanner"
   mkdir -p build && cd build
   export CFLAGS="-Wno-error -fcommon"
   export CXXFLAGS="-Wno-error -fcommon"
   cmake .. 2>&1 | tail -3
-  make -j"$(nproc)" 2>&1 | tail -5 || true
+  nice -n 10 make -j"$(get_build_procs)" 2>&1 | tail -5 || true
   [ -f src/CellSearch ] && ln -sf "${TELCOSEC_OPT}/lte-cellscanner/build/src/CellSearch" \
     /usr/local/bin/LTE-CellSearch || true
   cd /
@@ -312,7 +315,7 @@ if [ -d "${TELCOSEC_OPT}/ltesniffer" ]; then
   export CFLAGS="-Wno-error -fcommon -fpermissive"
   export CXXFLAGS="-Wno-error -fcommon -fpermissive -std=c++14"
   cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -5
-  make -j"$(nproc)" 2>&1 | tail -10 || make 2>&1 | tail -10 || true
+  nice -n 10 make -j"$(get_build_procs)" 2>&1 | tail -10 || make 2>&1 | tail -10 || true
   
   # Locate the compiled LTESniffer binary in build tree or src
   SNIFFER_BIN=$(find . -type f \( -name "LTESniffer" -o -name "ltesniffer" \) 2>/dev/null | head -1)
@@ -463,12 +466,10 @@ else
     cd "${TELCOSEC_OPT}/rdnsx"
     export CARGO_HOME=/usr/local/cargo
     export PATH="${CARGO_HOME}/bin:$PATH"
-    apt-get install -y cargo 2>/dev/null || true
+    command -v cargo &>/dev/null || apt-get install -y cargo 2>/dev/null || true
     if command -v cargo &>/dev/null; then
-      cargo build --release 2>&1 | tail -5 || true
+      cargo build --release -j"$(get_build_procs)" 2>&1 | tail -5 || true
       [ -f target/release/rdnsx ] && ln -sf "${TELCOSEC_OPT}/rdnsx/target/release/rdnsx" /usr/local/bin/rdnsx || true
-      apt-get remove -y cargo 2>/dev/null || true
-      apt-get autoremove -y 2>/dev/null || true
     else
       echo "    WARNING: cargo not found. Skipping RDNSx compilation."
     fi
@@ -486,7 +487,43 @@ if [ ! -d "${TELCOSEC_OPT}/asleap" ]; then
 fi
 if [ -d "${TELCOSEC_OPT}/asleap" ]; then
   cd "${TELCOSEC_OPT}/asleap"
-  make CFLAGS="-O2 -Wno-error -fcommon" -j"$(nproc)" 2>&1 | tail -5 || true
+  # Patch legacy POSIX setkey/encrypt in utils.c to use OpenSSL DES
+  if grep -q "setkey((char \*)crypt_key)" utils.c 2>/dev/null; then
+    python3 -c '
+with open("utils.c", "r") as f:
+    c = f.read()
+old = """void DesEncrypt(unsigned char *clear, unsigned char *key, unsigned char *cipher)
+{
+    unsigned char des_key[8];
+    unsigned char crypt_key[66];
+    unsigned char des_input[66];
+
+    MakeKey(key, des_key);
+
+    Expand(des_key, crypt_key);
+    setkey((char *)crypt_key);
+
+    Expand(clear, des_input);
+    encrypt((char *)des_input, 0);
+    Collapse(des_input, cipher);
+}"""
+new = """#include <openssl/des.h>
+void DesEncrypt(unsigned char *clear, unsigned char *key, unsigned char *cipher)
+{
+    DES_key_schedule schedule;
+    DES_cblock des_key;
+    MakeKey(key, des_key);
+    DES_set_key((DES_cblock *)des_key, &schedule);
+    DES_ecb_encrypt((DES_cblock *)clear, (DES_cblock *)cipher, &schedule, DES_ENCRYPT);
+}"""
+if old in c:
+    with open("utils.c", "w") as f:
+        f.write(c.replace(old, new))
+' 2>/dev/null || true
+  fi
+  sed -i 's/-lxcrypt//g' Makefile 2>/dev/null || true
+  make clean 2>/dev/null || true
+  nice -n 10 make -j"$(get_build_procs)" 2>&1 | tail -5 || make 2>&1 | tail -5 || true
   [ -f asleap ] && ln -sf "${TELCOSEC_OPT}/asleap/asleap" /usr/local/bin/asleap || true
   [ -f genkeys ] && ln -sf "${TELCOSEC_OPT}/asleap/genkeys" /usr/local/bin/genkeys || true
   cd /
@@ -528,8 +565,9 @@ record_tool "docsis" "/usr/local/bin/docsis" "adsl"
 
 # 5. VoIP Hopper (Voice VLAN hopping security assessment tool)
 if [ ! -d "${TELCOSEC_OPT}/voiphopper" ]; then
-  git clone --depth 1 https://github.com/ik-5/voiphopper "${TELCOSEC_OPT}/voiphopper" 2>/dev/null || \
-  git clone --depth 1 https://github.com/rapid7/voiphopper "${TELCOSEC_OPT}/voiphopper" 2>/dev/null || true
+  git clone --depth 1 https://github.com/hmgh0st/voiphopper.git "${TELCOSEC_OPT}/voiphopper" 2>/dev/null || \
+  git clone --depth 1 https://gitlab.com/kalilinux/packages/voiphopper.git "${TELCOSEC_OPT}/voiphopper" 2>/dev/null || \
+  git clone --depth 1 https://github.com/ik-5/voiphopper "${TELCOSEC_OPT}/voiphopper" 2>/dev/null || true
 fi
 if [ -d "${TELCOSEC_OPT}/voiphopper" ]; then
   cd "${TELCOSEC_OPT}/voiphopper"
@@ -595,12 +633,13 @@ record_tool "rtpbleed" "/usr/local/bin/rtpbleed" "voip"
 
 # ─── T. Falcon GUI (LTE Network Analyzer) ──────────────────────────────────
 echo "  Installing Falcon GUI..."
-[ -d "${TELCOSEC_OPT}/falcon" ] || clone_if_missing https://github.com/fkie-cad/FALCON "${TELCOSEC_OPT}/falcon" 2>/dev/null || true
+[ -d "${TELCOSEC_OPT}/falcon" ] || clone_if_missing https://github.com/falkenber9/falcon.git "${TELCOSEC_OPT}/falcon" 2>/dev/null || \
+clone_if_missing https://github.com/fkie-cad/FALCON "${TELCOSEC_OPT}/falcon" 2>/dev/null || true
 if [ -d "${TELCOSEC_OPT}/falcon" ]; then
   cd "${TELCOSEC_OPT}/falcon"
   mkdir -p build && cd build
   cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tail -3
-  make -j"$(nproc)" 2>&1 | tail -5 || true
+  nice -n 10 make -j"$(get_build_procs)" 2>&1 | tail -5 || true
   [ -f falcon ] && ln -sf "${TELCOSEC_OPT}/falcon/build/falcon" /usr/local/bin/falcon || true
   cd /
 fi

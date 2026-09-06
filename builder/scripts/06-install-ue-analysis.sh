@@ -232,13 +232,15 @@ record_tool "QCSuper" "$(command -v qcsuper 2>/dev/null)" "baseband"
 # unreachable as a command. Guard the symlink on the binary actually existing.
 echo "Compiling Huawei Balong Flashing Tools..."
 cd /opt/telcosec/balong-flash
-make CFLAGS="-O2 -Wno-error -fcommon" || echo "WARNING: balong-flash make failed — tool will be unavailable"
+make clean 2>/dev/null || true
+make -j"$(get_build_procs)" 2>/dev/null || make || echo "WARNING: balong-flash make failed — tool will be unavailable"
 BALONG_FLASH_BIN=$(find . -maxdepth 1 -type f -executable \( -iname 'balong*flash*' -o -iname 'balong_flash*' -o -iname 'balong-flash*' \) 2>/dev/null | head -1)
 [ -n "$BALONG_FLASH_BIN" ] && sudo ln -sf "/opt/telcosec/balong-flash/${BALONG_FLASH_BIN#./}" /usr/local/bin/balong-flash
 record_tool "balong-flash" "/usr/local/bin/balong-flash" "baseband"
 
 cd /opt/telcosec/balongtool
-make CFLAGS="-O2 -Wno-error -fcommon" || echo "WARNING: balongtool make failed — tool will be unavailable"
+make clean 2>/dev/null || true
+make -j"$(get_build_procs)" 2>/dev/null || make || echo "WARNING: balongtool make failed — tool will be unavailable"
 BALONGTOOL_BIN=$(find . -maxdepth 1 -type f -executable \( -iname '*balong*nvtool*' -o -iname 'balong_nvtool*' -o -iname 'balong*tool*' -o -iname 'nvtool*' \) 2>/dev/null | head -1)
 [ -n "$BALONGTOOL_BIN" ] && sudo ln -sf "/opt/telcosec/balongtool/${BALONGTOOL_BIN#./}" /usr/local/bin/balongtool
 record_tool "balongtool" "/usr/local/bin/balongtool" "baseband"

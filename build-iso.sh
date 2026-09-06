@@ -8,8 +8,8 @@ PACK_ONLY=false
 ISO_VERSION="${ISO_VERSION:-}"
 
 # ─── Build tuning (override via env) ──────────────────────────────────────────
-# SQUASHFS_LEVEL: zstd compression level (1-19). 3=fast/CI, 6=balanced, 19=max (Ubuntu standard).
-SQUASHFS_LEVEL="${SQUASHFS_LEVEL:-19}"
+# SQUASHFS_LEVEL: zstd compression level (1-19). 3=fast/CI, 6=balanced (default, 8-10x faster), 19=max.
+SQUASHFS_LEVEL="${SQUASHFS_LEVEL:-6}"
 # USE_CCACHE=1: bind-mount host ccache into chroot; speeds up repeated C++ builds.
 USE_CCACHE="${USE_CCACHE:-0}"
 CCACHE_DIR_HOST="${CCACHE_DIR:-/root/.ccache}"
@@ -706,9 +706,20 @@ trap cleanup_packing EXIT
 # ─── Squashfs ─────────────────────────────────────────────────────────────────
 mkdir -p "$WORKDIR/image/casper"
 # Derive CPU and memory limits from the host at pack time.
-# Allow environment override via SQUASHFS_PROCS; default to nproc capped at 16.
-_SQUASHFS_PROCS="${SQUASHFS_PROCS:-$(nproc)}"
-[ "$_SQUASHFS_PROCS" -gt 16 ] && _SQUASHFS_PROCS=16
+# Allow environment override via SQUASHFS_PROCS; guarantee at least 2 cores remain free for host responsiveness.
+_HOST_NPROC=$(nproc 2>/dev/null || echo 4)
+if [ -n "${SQUASHFS_PROCS:-}" ]; then
+  _SQUASHFS_PROCS="$SQUASHFS_PROCS"
+elif [ "$_HOST_NPROC" -gt 4 ]; then
+  _SQUASHFS_PROCS=$(( _HOST_NPROC - 2 ))
+elif [ "$_HOST_NPROC" -gt 1 ]; then
+  _SQUASHFS_PROCS=$(( _HOST_NPROC - 1 ))
+else
+  _SQUASHFS_PROCS=1
+fi
+# Cap at 12 by default to prevent CPU thrashing and memory exhaustion
+[ "$_SQUASHFS_PROCS" -gt 12 ] && _SQUASHFS_PROCS=12
+
 # Derive per-processor memory budget (mksquashfs -mem is per-processor).
 # Use ~60% of available RAM divided across processors; floor at 512M, cap at 4G.
 _AVAIL_KB=$(awk '/MemAvailable/{print $2}' /proc/meminfo 2>/dev/null || echo 4194304)
@@ -717,7 +728,7 @@ _MEM_MB=$(( (_AVAIL_KB / 1024) * 60 / 100 / _SQUASHFS_PROCS ))
 [ "$_MEM_MB" -gt 4096 ] && _MEM_MB=4096
 
 echo "--> Packing filesystem into squashfs (zstd-${SQUASHFS_LEVEL}, procs=${_SQUASHFS_PROCS}, mem-per-proc=${_MEM_MB}M)..."
-mksquashfs "$ROOTFS" "$WORKDIR/image/casper/filesystem.squashfs" \
+nice -n 10 mksquashfs "$ROOTFS" "$WORKDIR/image/casper/filesystem.squashfs" \
   -comp zstd -Xcompression-level "${SQUASHFS_LEVEL}" \
   -b 1M \
   -processors "${_SQUASHFS_PROCS}" -mem "${_MEM_MB}M" \
