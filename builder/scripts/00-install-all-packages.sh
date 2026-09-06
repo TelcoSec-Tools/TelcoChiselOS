@@ -324,19 +324,25 @@ else
   echo "  WARNING: Kismet repo unavailable — skipping kismet."
 fi
 
-# ─── 11. SIPp (not in Ubuntu 24.04 — build from source) ─────────────────────
+# ─── 11. SIPp (not in Ubuntu 24.04 — build from source with full modules) ────
 if ! command -v sipp >/dev/null 2>&1; then
-  echo "  Building sipp from source..."
+  echo "  Building optimized sipp from source with all modules (TLS, SCTP, PCAP, GSL)..."
   mkdir -p /opt/telcosec/src
   git clone --depth 1 https://github.com/SIPp/sipp /opt/telcosec/src/sipp 2>/dev/null || true
   if [ -d /opt/telcosec/src/sipp ]; then
     cmake -S /opt/telcosec/src/sipp -B /opt/telcosec/src/sipp/build \
-      -DCMAKE_BUILD_TYPE=Release -DUSE_SCTP=1 -DUSE_PCAP=1 \
-      -DBUILD_TESTING=OFF \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DUSE_SSL=1 \
+      -DUSE_SCTP=1 \
+      -DUSE_PCAP=1 \
+      -DUSE_GSL=1 \
+      -DTLS_KEY_LOGGING=1 \
+      -DSIPP_MAX_MSG_SIZE=262144 \
+      -DCMAKE_CXX_FLAGS="-O3 -pipe" \
       -DCMAKE_INSTALL_PREFIX=/usr/local >/dev/null
     make -C /opt/telcosec/src/sipp/build -j"$(nproc)" sipp >/dev/null
     install -m 755 /opt/telcosec/src/sipp/build/sipp /usr/local/bin/sipp
-    echo "  sipp built and installed."
+    echo "  sipp built and installed (TLS, SCTP, PCAP, GSL, TLS_KEY_LOGGING enabled)."
   else
     echo "  WARNING: sipp source clone failed — skipping."
   fi

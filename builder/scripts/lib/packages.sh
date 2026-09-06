@@ -99,7 +99,7 @@ PKGS_TOOLS=(
   wireshark tshark
   nmap
   macchanger vlan freeradius-utils hashcat john pppoe nikto gobuster
-  lksctp-tools libsctp-dev libglib2.0-dev
+  lksctp-tools libsctp-dev libgsl-dev libnet1-dev libglib2.0-dev
   ruby ruby-snmp
   sipsak
   netsniff-ng mitmproxy

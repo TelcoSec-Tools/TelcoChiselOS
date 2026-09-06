@@ -132,4 +132,5 @@ elif [ -f /usr/sbin/mausezahn ] && [ ! -f /usr/local/bin/mz ]; then
   sudo ln -sf /usr/sbin/mausezahn /usr/local/bin/mz
 fi
 record_tool "mausezahn (mz)" "$(command -v mz 2>/dev/null || command -v mausezahn 2>/dev/null || echo '/usr/sbin/mausezahn')" "adsl"
+record_tool "SIPp" "$(command -v sipp 2>/dev/null || echo '/usr/local/bin/sipp')" "voip"
 
