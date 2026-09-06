@@ -66,3 +66,22 @@ wait_clones() {
   _BG_CLONE_PIDS=()
   return "$fail"
 }
+
+# ── CPU / Build Concurrency Limiter ──────────────────────────────────────────
+# Guarantees that compilation jobs never starve host cores or lock up the machine.
+# Leaves at least 2 cores free for the host OS when nproc > 4.
+get_build_procs() {
+  if [ -n "${BUILD_PROCS:-}" ]; then
+    echo "$BUILD_PROCS"
+    return
+  fi
+  local n
+  n=$(nproc 2>/dev/null || echo 2)
+  if [ "$n" -gt 4 ]; then
+    echo $(( n - 2 ))
+  elif [ "$n" -gt 1 ]; then
+    echo $(( n - 1 ))
+  else
+    echo 1
+  fi
+}

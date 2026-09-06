@@ -24,7 +24,14 @@ fi
 # a transient PyPI/SSL failure would abort the rest of this script (sctpscan,
 # and everything after it). Use the shared retry helper instead.
 pip_retry install git+https://github.com/EnableSecurity/sipvicious.git scapy --break-system-packages
-record_tool "SIPVicious" "$(command -v svmap 2>/dev/null || command -v sipvicious 2>/dev/null || command -v svwar 2>/dev/null || find /usr/local/bin /usr/bin -name 'svmap' 2>/dev/null | head -1)" "voip"
+# SIPVicious wheels install tools prefixed with sipvicious_ (sipvicious_svmap, etc.).
+# Create standard short-name symlinks expected by telecom penetration testers.
+for tool in svmap svwar svcrack svcrash svreport; do
+  if [ -f "/usr/local/bin/sipvicious_${tool}" ]; then
+    ln -sf "/usr/local/bin/sipvicious_${tool}" "/usr/local/bin/${tool}"
+  fi
+done
+record_tool "SIPVicious" "$(command -v svmap 2>/dev/null || command -v sipvicious_svmap 2>/dev/null || command -v sipvicious 2>/dev/null || command -v svwar 2>/dev/null || find /usr/local/bin /usr/bin -name 'sipvicious_svmap' -o -name 'svmap' 2>/dev/null | head -1)" "voip"
 
 # Compile and Install sctpscan
 echo "Compiling and installing sctpscan..."

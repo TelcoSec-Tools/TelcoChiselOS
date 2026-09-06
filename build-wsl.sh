@@ -50,6 +50,8 @@ if [ -z "${ISO_VERSION:-}" ]; then
     ISO_VERSION="${ISO_VERSION#v}"
 fi
 ENV_PREFIX="BUILD_FLAVOR=${BUILD_FLAVOR} ISO_VERSION=${ISO_VERSION} SQUASHFS_LEVEL=${SQUASHFS_LEVEL:-6}"
+[ -n "${SQUASHFS_PROCS:-}" ] && ENV_PREFIX="$ENV_PREFIX SQUASHFS_PROCS=${SQUASHFS_PROCS}"
+[ -n "${BUILD_PROCS:-}" ]    && ENV_PREFIX="$ENV_PREFIX BUILD_PROCS=${BUILD_PROCS}"
 [ "${USE_CCACHE:-0}" = "1" ] && ENV_PREFIX="$ENV_PREFIX USE_CCACHE=1"
 
 # ── Banner ────────────────────────────────────────────────────────────────────
@@ -94,7 +96,7 @@ else
     echo "Launching WSL ($WSL_DISTRO) build..."
     echo ""
     wsl.exe -d "$WSL_DISTRO" -u root -- \
-        bash -c "cd \"$WSL_PATH\" && $ENV_PREFIX sudo bash build-iso.sh $BUILD_ARGS"
+        bash -c "cd \"$WSL_PATH\" && $ENV_PREFIX sudo -E bash build-iso.sh $BUILD_ARGS"
 fi
 
 EXIT_CODE=$?

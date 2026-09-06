@@ -109,10 +109,13 @@ echo "  Configuring AT command tools..."
 if ! command -v atinout &>/dev/null; then
   clone_if_missing https://github.com/ThisSmartHouse/atinout "${TELCOSEC_OPT}/atinout" || true
   if [ -d "${TELCOSEC_OPT}/atinout" ]; then
-    cd "${TELCOSEC_OPT}/atinout" && make -j"$(nproc)" && cp atinout /usr/local/bin/ && cd /
+    cd "${TELCOSEC_OPT}/atinout"
+    nice -n 10 make -j"$(get_build_procs)" 2>/dev/null || make || true
+    install -m 755 atinout /usr/local/bin/atinout 2>/dev/null || cp -f atinout /usr/local/bin/ || true
+    cd /
   fi
 fi
-record_tool "atinout" "/usr/local/bin/atinout" "baseband"
+record_tool "atinout" "$(command -v atinout 2>/dev/null || echo '/usr/local/bin/atinout')" "baseband"
 
 # Interactive AT console launcher
 cat > /usr/local/bin/at-console << 'SCRIPT'
