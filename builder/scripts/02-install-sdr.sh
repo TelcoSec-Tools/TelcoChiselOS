@@ -70,21 +70,19 @@ if ! wait_clones "SDR repos"; then
 fi
 echo "All SDR repos checked/cloned."
 
-# ── SDR build helper ─────────────────────────────────────────────────────────
-# Runs cmake + make -j$(nproc) inside a subshell (background-safe).
-# Logs to /tmp/sdr-build-<name>.log. Returns make's exit code.
-# Does NOT run make install — installs are serialized after all builds finish.
 _sdr_cmake_make() {
   local name="$1" src_dir="$2"; shift 2
   local log="/tmp/sdr-build-${name}.log"
-  printf "  [%-16s] building...\n" "$name"
+  local procs
+  procs="$(get_build_procs)"
+  printf "  [%-16s] building (jobs=%s)...\n" "$name" "$procs"
   (
     set -e
     rm -rf "${src_dir}/build"
     mkdir -p "${src_dir}/build"
     cd "${src_dir}/build"
-    cmake "$@"
-    make -j"$(nproc)"
+    /usr/bin/cmake "$@"
+    nice -n 10 make -j"${procs}"
   ) >"$log" 2>&1
   local rc=$?
   if [ "$rc" -eq 0 ]; then
@@ -104,16 +102,9 @@ record_tool "SoapySDR" "${CONDA_PREFIX}/bin/SoapySDRUtil" "sdr"
 echo "Cloning SoapyBladeRF..."
 clone_if_missing https://github.com/pothosware/SoapyBladeRF.git /opt/telcosec/src/SoapyBladeRF || true
 
-# 5–6. Build UHD, LimeSuite, HackRF + SoapyBladeRF in parallel.
-# UHD is the longest (15-20 min); parallelizing with the others saves ~10 min.
-# Each _sdr_cmake_make call runs in its own background subshell.
-echo "Compiling UHD, LimeSuite, HackRF, SoapyBladeRF in parallel..."
-
-_sdr_cmake_make "UHD" /opt/telcosec/src/uhd/host \
-  -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" \
-  -DENABLE_TESTS=OFF -DENABLE_EXAMPLES=OFF .. &
-_UHD_PID=$!
-
+# 5–6. Build LimeSuite, HackRF + SoapyBladeRF, then UHD.
+# Serializing UHD prevents 64-thread compiler storms that exhaust RAM and peg host CPU.
+echo "Compiling LimeSuite, HackRF, SoapyBladeRF..."
 _sdr_cmake_make "LimeSuite" /opt/telcosec/src/LimeSuite \
   -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" .. &
 _LIME_PID=$!
@@ -128,13 +119,20 @@ if [ -d /opt/telcosec/src/SoapyBladeRF ]; then
   _BLADERF_PID=$!
 fi
 
-# Wait for all parallel builds; don't abort on individual failure
-echo "  Waiting for parallel SDR builds..."
-wait "$_UHD_PID"    && _UHD_OK=1    || { _UHD_OK=0;    echo "  WARNING: UHD build failed"; }
 wait "$_LIME_PID"   && _LIME_OK=1   || { _LIME_OK=0;   echo "  WARNING: LimeSuite build failed"; }
 wait "$_HACKRF_PID" && _HACKRF_OK=1 || { _HACKRF_OK=0; echo "  WARNING: HackRF build failed"; }
 if [ -n "${_BLADERF_PID:-}" ]; then
   wait "$_BLADERF_PID" && _BLADERF_OK=1 || { _BLADERF_OK=0; echo "  WARNING: SoapyBladeRF build failed"; }
+fi
+
+echo "Compiling UHD..."
+if _sdr_cmake_make "UHD" /opt/telcosec/src/uhd/host \
+  -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" \
+  -DENABLE_TESTS=OFF -DENABLE_EXAMPLES=OFF ..; then
+  _UHD_OK=1
+else
+  _UHD_OK=0
+  echo "  WARNING: UHD source build failed (will fallback to conda-forge package)"
 fi
 
 # Serialize installs to avoid write races on $CONDA_PREFIX
@@ -268,18 +266,15 @@ if [ ! -f "${CONDA_PREFIX}/include/rtl-sdr.h" ]; then
 fi
 record_tool "librtlsdr" "${CONDA_PREFIX}/include/rtl-sdr.h" "sdr"
 
-# gr-gsm is not on conda-forge; build from source against the conda env
+# gr-gsm is not on conda-forge; build from source against the conda env using system cmake
 clone_if_missing https://github.com/bkerler/gr-gsm /opt/telcosec/src/gr-gsm || true
 if [ -d /opt/telcosec/src/gr-gsm ]; then
-  cmake -S /opt/telcosec/src/gr-gsm -B /opt/telcosec/src/gr-gsm/build \
+  /usr/bin/cmake -S /opt/telcosec/src/gr-gsm -B /opt/telcosec/src/gr-gsm/build \
     -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_FLAGS="-std=c++17 -Wno-error" -DCMAKE_C_FLAGS="-Wno-error -fcommon" \
     -DCMAKE_MODULE_PATH="$CONDA_PREFIX/lib/cmake/gnuradio" >/dev/null 2>&1 || true
-  make -C /opt/telcosec/src/gr-gsm/build -j"$(nproc)" >/dev/null 2>&1 || true
+  nice -n 10 make -C /opt/telcosec/src/gr-gsm/build -j"$(get_build_procs)" >/dev/null 2>&1 || true
   make -C /opt/telcosec/src/gr-gsm/build install >/dev/null 2>&1 || true
-  # Only report success if the CLI tools actually landed — the cmake/make
-  # steps above are all best-effort (`|| true`), so a failed build must not
-  # be reported as "installed."
   if [ -f "${CONDA_PREFIX}/bin/grgsm_scanner" ]; then
     echo "  gr-gsm installed."
   else
@@ -287,6 +282,8 @@ if [ -d /opt/telcosec/src/gr-gsm ]; then
   fi
 fi
 record_tool "gr-gsm" "${CONDA_PREFIX}/bin/grgsm_scanner" "2g"
+# Also re-verify UHD now that Conda gnuradio packages have landed
+record_tool "UHD" "$(command -v uhd_usrp_probe 2>/dev/null || find "${CONDA_PREFIX}/bin" /usr/bin -name 'uhd_usrp_probe' 2>/dev/null | head -1)" "sdr"
 
 # 8. Compile and Install Kalibrate-RTL from Source
 echo "Compiling and installing Kalibrate-RTL..."
