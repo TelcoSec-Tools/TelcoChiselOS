@@ -48,15 +48,15 @@ onMounted(() => {
       const y = H - barH
 
       const grad = ctx.createLinearGradient(0, H, 0, y)
-      grad.addColorStop(0, 'rgba(232, 146, 30, 0.95)')
-      grad.addColorStop(0.55, 'rgba(245, 170, 53, 0.72)')
-      grad.addColorStop(1, 'rgba(255, 210, 100, 0.35)')
+      grad.addColorStop(0, 'rgba(0, 242, 255, 0.95)')
+      grad.addColorStop(0.55, 'rgba(0, 219, 231, 0.72)')
+      grad.addColorStop(1, 'rgba(116, 245, 255, 0.35)')
 
       ctx.fillStyle = grad
       ctx.fillRect(x, y, BAR_W, barH)
 
       // Peak pixel
-      ctx.fillStyle = 'rgba(255, 230, 160, 0.88)'
+      ctx.fillStyle = 'rgba(225, 253, 255, 0.95)'
       ctx.fillRect(x, y, BAR_W, 1)
     })
 

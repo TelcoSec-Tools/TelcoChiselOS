@@ -199,32 +199,32 @@ function handleClick() {
 <style scoped>
 /* ─── Sidebar Variant ─────────────────────────────────────────────────── */
 .academy-sidebar-card {
-  margin: 16px 12px 14px 12px;
+  margin: 16px 10px 14px 10px;
   padding: 14px 14px;
-  background: linear-gradient(145deg, #0e1220 0%, #0a0d18 100%);
-  border: 1px solid var(--bdr-mid);
-  border-left: 3px solid var(--amber);
-  border-radius: 2px;
+  background: var(--bg-lift);
+  border: 1px solid var(--bdr);
+  border-left: 3px solid var(--cyan-primary);
+  border-radius: 4px;
   transition: all var(--t);
   position: relative;
   overflow: hidden;
 }
 
 .academy-sidebar-card:hover {
-  border-left-color: var(--amber-hi);
-  box-shadow: 0 0 16px var(--amber-g);
+  border-left-color: var(--cyan-bright);
+  box-shadow: 0 0 20px var(--cyan-g);
   transform: translateY(-1px);
 }
 
 .sidebar-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--amber);
+  letter-spacing: 0.14em;
+  color: var(--cyan-primary);
   margin-bottom: 6px;
 }
 
@@ -232,31 +232,32 @@ function handleClick() {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--amber);
-  box-shadow: 0 0 8px var(--amber);
+  background: var(--cyan-primary);
+  box-shadow: 0 0 8px var(--cyan-primary);
   animation: pulse-dot 2s infinite ease-in-out;
 }
 
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 0.35; transform: scale(0.75); }
 }
 
 .sidebar-title {
   font-family: var(--disp);
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: #fff;
   margin: 0 0 4px 0;
 }
 
 .sidebar-desc {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   color: var(--tx-dim);
-  line-height: 1.4;
-  margin: 0 0 10px 0;
+  line-height: 1.45;
+  margin: 0 0 12px 0;
+  font-family: var(--font-sans);
 }
 
 .sidebar-btn {
@@ -265,48 +266,51 @@ function handleClick() {
   justify-content: center;
   gap: 6px;
   width: 100%;
-  background: transparent;
-  border: 1px solid var(--amber);
-  color: var(--amber);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 1px;
+  background: var(--cyan-primary);
+  border: 1px solid var(--cyan-primary);
+  color: var(--cyan-on);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 3px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-decoration: none;
   transition: all var(--t);
+  box-shadow: 0 0 14px rgba(0, 242, 255, 0.2);
 }
 
 .sidebar-btn:hover {
-  background: var(--amber);
-  color: #040507;
-  box-shadow: 0 0 12px var(--amber-g);
+  background: var(--cyan-bright);
+  border-color: var(--cyan-bright);
+  color: var(--cyan-on);
+  box-shadow: 0 0 24px rgba(0, 242, 255, 0.4);
 }
 
 /* ─── Scenario Lab Bridge Variant ─────────────────────────────────────── */
 .academy-scenario-card {
-  background: linear-gradient(135deg, rgba(232, 146, 30, 0.05) 0%, rgba(10, 15, 30, 0.85) 100%);
-  border: 1px solid var(--amber-lo);
-  border-left: 3px solid var(--amber);
-  border-radius: 2px;
-  padding: 16px 20px;
-  margin: 18px 0;
+  background: linear-gradient(135deg, rgba(0, 242, 255, 0.04) 0%, var(--bg-lift) 100%);
+  border: 1px solid var(--bdr);
+  border-left: 3px solid var(--cyan-primary);
+  border-radius: 4px;
+  padding: 18px 22px;
+  margin: 22px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .scenario-lab-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .scenario-lab-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--amber);
+  color: var(--cyan-primary);
   font-family: var(--mono);
   font-size: 0.68rem;
   font-weight: 700;
@@ -317,9 +321,9 @@ function handleClick() {
   font-family: var(--mono);
   font-size: 0.65rem;
   color: var(--tx-dim);
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
   padding: 2px 8px;
-  border-radius: 1px;
+  border-radius: 2px;
   border: 1px solid var(--bdr);
 }
 
@@ -343,18 +347,19 @@ function handleClick() {
 
 .scenario-lab-title {
   font-family: var(--disp);
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 800;
   text-transform: uppercase;
   color: #fff;
   margin: 0 0 4px 0;
 }
 
 .scenario-lab-desc {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--tx-dim);
-  line-height: 1.5;
+  line-height: 1.55;
   margin: 0;
+  font-family: var(--font-sans);
 }
 
 .scenario-lab-btn {
@@ -362,33 +367,35 @@ function handleClick() {
   align-items: center;
   gap: 8px;
   white-space: nowrap;
-  background: var(--amber-g2);
-  border: 1px solid var(--amber);
-  color: var(--amber);
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  font-weight: 600;
+  background: var(--cyan-primary);
+  border: 1px solid var(--cyan-primary);
+  color: var(--cyan-on);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
   padding: 9px 18px;
-  border-radius: 1px;
+  border-radius: 3px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-decoration: none;
   transition: all var(--t);
   flex-shrink: 0;
+  box-shadow: 0 0 16px rgba(0, 242, 255, 0.25);
 }
 
 .scenario-lab-btn:hover {
-  background: var(--amber);
-  color: #040507;
-  box-shadow: 0 0 20px var(--amber-g);
+  background: var(--cyan-bright);
+  border-color: var(--cyan-bright);
+  color: var(--cyan-on);
+  box-shadow: 0 0 28px rgba(0, 242, 255, 0.45);
 }
 
 /* ─── Contextual Variant (Tools, Features, Drivers) ───────────────────── */
 .academy-contextual-card {
-  background: linear-gradient(135deg, #0a0d18 0%, #070912 100%);
-  border: 1px solid var(--bdr-mid);
-  border-left: 3px solid var(--amber);
-  border-radius: 2px;
+  background: linear-gradient(135deg, rgba(28, 27, 27, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%);
+  border: 1px solid var(--bdr);
+  border-left: 3px solid var(--cyan-primary);
+  border-radius: 4px;
   padding: 24px 26px;
   margin: 32px 0;
   display: flex;
@@ -397,6 +404,7 @@ function handleClick() {
   gap: 28px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   transition: border-left-color var(--t), box-shadow var(--t), transform var(--t);
 }
 
@@ -412,8 +420,8 @@ function handleClick() {
 }
 
 .academy-contextual-card:hover {
-  border-left-color: var(--amber-hi);
-  box-shadow: 0 0 24px var(--amber-g);
+  border-left-color: var(--cyan-bright);
+  box-shadow: -4px 0 30px var(--cyan-g), 0 8px 32px rgba(0, 0, 0, 0.45);
   transform: translateY(-1px);
 }
 
@@ -425,14 +433,14 @@ function handleClick() {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--amber-g2);
-  border: 1px solid var(--amber-lo);
-  color: var(--amber);
+  background: rgba(0, 242, 255, 0.08);
+  border: 1px solid rgba(0, 242, 255, 0.3);
+  color: var(--cyan-primary);
   font-family: var(--mono);
-  font-size: 0.64rem;
+  font-size: 0.65rem;
   font-weight: 700;
   padding: 3px 8px;
-  border-radius: 1px;
+  border-radius: 2px;
   margin-bottom: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -440,19 +448,20 @@ function handleClick() {
 
 .contextual-title {
   font-family: var(--disp);
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.3rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: -0.01em;
   color: #fff;
   margin: 0 0 8px 0;
 }
 
 .contextual-desc {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--tx-dim);
-  line-height: 1.6;
+  line-height: 1.65;
   margin: 0 0 14px 0;
+  font-family: var(--font-sans);
 }
 
 .contextual-perks {
@@ -487,29 +496,31 @@ function handleClick() {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--amber);
-  color: #040507;
-  font-family: var(--mono);
+  background: var(--cyan-primary);
+  color: var(--cyan-on);
+  font-family: var(--font-sans);
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 12px 22px;
-  border-radius: 1px;
-  letter-spacing: 0.08em;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   text-decoration: none;
   transition: all var(--t);
   white-space: nowrap;
+  box-shadow: 0 0 20px rgba(0, 242, 255, 0.25);
 }
 
 .contextual-btn:hover {
-  background: var(--amber-hi);
-  box-shadow: 0 0 24px var(--amber-g);
-  transform: translateX(2px);
+  background: var(--cyan-bright);
+  color: var(--cyan-on);
+  box-shadow: 0 0 32px rgba(0, 242, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 .contextual-meta {
   font-family: var(--mono);
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   color: var(--tx-dim);
 }
 </style>
