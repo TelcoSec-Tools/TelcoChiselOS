@@ -88,17 +88,19 @@ jobs:
             esac
             IS_NIGHTLY=false
           fi
+          CLEAN_VERSION="${VERSION#v}"
           if [ "$FLAVOR" = "lite" ]; then
-            ISO_NAME="TelcoChisel-${VERSION}-lite-amd64.iso"
+            ISO_NAME="TelcoChisel-${CLEAN_VERSION}-lite-amd64.iso"
           else
-            ISO_NAME="TelcoChisel-${VERSION}-amd64.iso"
+            ISO_NAME="TelcoChisel-${CLEAN_VERSION}-amd64.iso"
           fi
           echo "version=$VERSION"         >> "$GITHUB_OUTPUT"
+          echo "clean_version=$CLEAN_VERSION" >> "$GITHUB_OUTPUT"
           echo "flavor=$FLAVOR"           >> "$GITHUB_OUTPUT"
           echo "is_nightly=$IS_NIGHTLY"   >> "$GITHUB_OUTPUT"
           echo "date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
           echo "iso_name=$ISO_NAME"       >> "$GITHUB_OUTPUT"
-          echo "Resolved: version=$VERSION, flavor=$FLAVOR (nightly=$IS_NIGHTLY, iso=$ISO_NAME)"
+          echo "Resolved: version=$VERSION, clean_version=$CLEAN_VERSION, flavor=$FLAVOR (nightly=$IS_NIGHTLY, iso=$ISO_NAME)"
 
       - name: Set ISO Environment Name
         run: |
@@ -197,6 +199,11 @@ jobs:
         run: |
           sudo -E bash build-iso.sh --version="${{ steps.version.outputs.version }}" --flavor="${{ steps.version.outputs.flavor }}"
           sudo chown -R "$(id -u):$(id -g)" .
+          if [ ! -f "$ISO" ]; then
+            echo "::error::Expected ISO '$ISO' not found on disk after build-iso.sh completed!"
+            ls -la *.iso 2>/dev/null || true
+            exit 1
+          fi
           # Ensure TelcoChisel-live.iso compatibility hardlink exists
           cp -l "$ISO" TelcoChisel-live.iso 2>/dev/null || cp "$ISO" TelcoChisel-live.iso 2>/dev/null || true
 
@@ -204,6 +211,7 @@ jobs:
       - name: Generate Checksum & Metadata
         id: meta
         run: |
+          set -eo pipefail
           SHA256=$(sha256sum "$ISO" | awk '{print $1}')
           SIZE=$(du -sh "$ISO" | cut -f1)
           printf '%s  %s\n' "$SHA256" "$ISO" > "${ISO}.sha256"
