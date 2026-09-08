@@ -1,19 +1,25 @@
 <template>
   <aside class="sidebar" :class="{ open: open }">
     <div class="brand">
-      <div class="brand-logo">T</div>
+      <div class="brand-logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+      </div>
       <div class="brand-text">Telco<span>Chisel</span></div>
     </div>
 
     <div class="sidebar-status">
       <span class="status-dot"></span>
-      <span class="sidebar-status-text">System Active</span>
+      <span class="sidebar-status-text">PROTOCOL // ONLINE</span>
     </div>
 
-    <div class="sidebar-search" @click="openSearch" style="display:flex; align-items:center; margin: 0 20px 20px; padding: 10px 14px; background:var(--bg-hover); border:1px solid var(--border-color); border-radius:6px; cursor:pointer; color:var(--text-muted); font-size:0.85rem;">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <span style="flex:1;">Search docs...</span>
-      <kbd style="background:var(--bg-body); border:1px solid var(--border-color); padding:2px 6px; border-radius:4px; font-family:monospace; font-size:0.75rem;">Ctrl K</kbd>
+    <div class="sidebar-search" @click="openSearch" style="display:flex; align-items:center; margin: 0 4px 20px 4px; padding: 9px 12px; background:var(--bg-lift); border:1px solid var(--bdr); border-radius:4px; cursor:pointer; color:var(--tx-dim); font-size:0.8rem; transition:all var(--t);">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <span style="flex:1; font-family:var(--font-sans);">Search catalog...</span>
+      <kbd style="background:var(--bg-card); border:1px solid var(--bdr-mid); padding:2px 6px; border-radius:3px; font-family:var(--mono); font-size:0.68rem; color:var(--tx-dim);">Ctrl K</kbd>
     </div>
 
     <nav>

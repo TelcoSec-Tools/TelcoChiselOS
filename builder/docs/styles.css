@@ -1,68 +1,86 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   TelcoChisel  ·  SIGINT Terminal Interface
-   Aesthetic: Amber Phosphor / Cold War Intelligence Monitoring Station
+   TelcoChisel  ·  TelcoSec Vanguard Tactical Interface
+   Design System: Protocol Intelligence & Kinetic Layer (via Stitch MCP)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ─── 1. Custom Properties ──────────────────────────────────────────────── */
 :root {
-    /* Backgrounds */
-    --bg-void: #040507;
-    --bg-base: #07080f;
-    --bg-lift: #0c0d18;
-    --bg-card: #0f1019;
-    --bg-inset: #050608;
+    /* Background Surfaces (Obsidian spectrum) */
+    --bg-void: #0e0e0e;              /* surface-container-lowest */
+    --bg-base: #131313;              /* surface / canvas */
+    --bg-lift: #1c1b1b;              /* surface-container-low */
+    --bg-card: #201f1f;              /* surface-container */
+    --bg-card-hover: #2a2a2a;        /* surface-container-high */
+    --bg-highest: #353534;           /* surface-container-highest */
+    --bg-inset: #090a0d;             /* deep terminal well */
+    --bg-glass: rgba(19, 19, 19, 0.7);
 
-    /* Borders */
-    --bdr: #181b2d;
-    --bdr-mid: #24283e;
-    --bdr-hi: #3a4060;
+    /* Ghost Borders & Outlines */
+    --bdr: rgba(58, 73, 75, 0.28);   /* ghost-border fallback */
+    --bdr-mid: rgba(58, 73, 75, 0.5);
+    --bdr-hi: rgba(0, 242, 255, 0.4);
 
-    /* Amber — primary phosphor accent */
-    --amber: #e8921e;
-    --amber-hi: #f5aa35;
-    --amber-lo: #a36018;
-    --amber-g: rgba(232, 146, 30, 0.13);
-    --amber-g2: rgba(232, 146, 30, 0.055);
+    /* TelcoSec Electric Cyan Accent (Canonical Primary) */
+    --cyan-primary: #00f2ff;
+    --cyan-bright: #e1fdff;
+    --cyan-dim: #00dbe7;
+    --cyan-fixed: #74f5ff;
+    --cyan-deep: #006a71;
+    --cyan-on: #00363a;
+    --cyan-g: rgba(0, 242, 255, 0.16);
+    --cyan-g2: rgba(0, 242, 255, 0.06);
+    --kinetic-grad: linear-gradient(135deg, #00f2ff, #006a71);
 
-    /* Secondary accent */
-    --cyan: #00bdb4;
-    --cyan-g: rgba(0, 189, 180, 0.1);
+    /* Backward compatibility mapping to TelcoSec Cyan */
+    --amber: #00f2ff;
+    --amber-hi: #74f5ff;
+    --amber-lo: #00dbe7;
+    --amber-g: rgba(0, 242, 255, 0.16);
+    --amber-g2: rgba(0, 242, 255, 0.06);
 
-    /* Status */
+    /* Secondary accent & utilities */
+    --cyan: #00f2ff;
+    --cyan-accent: #00dbe7;
+
+    /* Status & Alerts */
     --green: #26d464;
-    --red: #f43f5e;
-    --yellow: #e8c31a;
+    --red: #ffb4ab;
+    --yellow: #fed83a;
+    --amber-gold: #ffddb4;
 
-    /* Text */
-    --tx: #bcc8d8;
-    --tx-dim: #626c88;
-    --tx-faint: #242838;
+    /* Text Tones */
+    --tx: #e5e2e1;                   /* on-surface */
+    --tx-dim: #bec8cb;               /* secondary */
+    --tx-faint: #849495;             /* outline / faint */
+    --tx-heading: #ffffff;
+    --tx-on-primary: #00363a;
 
-    /* Type stacks */
-    --mono: "IBM Plex Mono", "Fira Code", "Courier New", monospace;
-    --disp: "Barlow Condensed", "Arial Narrow", sans-serif;
+    /* Typography */
+    --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --disp: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: "Space Mono", "IBM Plex Mono", "Fira Code", monospace;
 
-    /* Layout */
-    --sidebar-w: 250px;
-    --t: 0.2s;
+    /* Layout & Transition */
+    --sidebar-w: 260px;
+    --t: 0.22s;
 
-    /* ── Legacy aliases (keeps inline HTML var() calls working) ── */
+    /* ── Legacy Aliases ── */
     --bg-primary: var(--bg-void);
     --bg-secondary: var(--bg-base);
     --bg-tertiary: var(--bg-lift);
     --border-color: var(--bdr);
     --border-hover: var(--bdr-mid);
-    --accent-teal: var(--amber);
-    --accent-teal-glow: var(--amber-g);
-    --accent-teal-hover: var(--amber-hi);
-    --accent-purple: #7b5cbf;
-    --accent-purple-glow: rgba(123, 92, 191, 0.12);
+    --accent-teal: var(--cyan-primary);
+    --accent-teal-glow: var(--cyan-g);
+    --accent-teal-hover: var(--cyan-bright);
+    --accent-purple: #9d7fe3;
+    --accent-purple-glow: rgba(157, 127, 227, 0.12);
     --accent-yellow: var(--yellow);
-    --accent-yellow-glow: rgba(232, 195, 26, 0.12);
+    --accent-yellow-glow: rgba(254, 216, 58, 0.12);
     --text-primary: var(--tx);
     --text-secondary: var(--tx-dim);
     --text-muted: var(--tx-faint);
-    --text-dark: #040507;
+    --text-dark: #0e0e0e;
     --transition-speed: var(--t);
     --sidebar-width: var(--sidebar-w);
 }
@@ -82,41 +100,41 @@ html {
 }
 
 body {
-    font-family: var(--mono);
-    font-size: 0.875rem;
-    line-height: 1.8;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    line-height: 1.75;
     background: var(--bg-void);
     color: var(--tx);
     overflow-x: hidden;
     transition: background var(--t), color var(--t);
 }
 
-/* Dot grid texture */
+/* Subtle Tactical Dot grid texture */
 body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image: radial-gradient(circle, #1c2034 1px, transparent 1px);
-    background-size: 24px 24px;
+    background-image: radial-gradient(circle, rgba(58, 73, 75, 0.28) 1px, transparent 1px);
+    background-size: 28px 28px;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.5;
+    opacity: 0.6;
 }
 
-/* Edge vignette */
+/* Cinematic Edge vignette */
 body::after {
     content: '';
     position: fixed;
     inset: 0;
-    background: radial-gradient(ellipse 85% 85% at 50% 50%, transparent 25%, rgba(4, 5, 7, 0.72) 100%);
+    background: radial-gradient(ellipse 85% 85% at 50% 50%, transparent 35%, rgba(14, 14, 14, 0.85) 100%);
     pointer-events: none;
     z-index: 0;
 }
 
 /* ─── 4. Scrollbar ──────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -125,11 +143,11 @@ body::after {
 
 ::-webkit-scrollbar-thumb {
     background: var(--bdr-mid);
-    border-radius: 2px;
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--amber-lo);
+    background: var(--cyan-primary);
 }
 
 /* ─── 5. Typography ─────────────────────────────────────────────────────── */
