@@ -52,6 +52,7 @@ check telcochisel-base sipvicious   "sipvicious_svmap --help"
 check telcochisel-base asleap       "asleap -h || true"
 check telcochisel-base snmp-check   "snmp-check -h || true"
 check telcochisel-base docsis       "docsis -h || true"
+check telcochisel-base rdnsx        "rdnsx --help || true"
 check telcochisel-base routersploit "routersploit --help || true"
 
 echo "=== telcochisel-device-tools ==="

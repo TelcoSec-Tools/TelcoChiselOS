@@ -382,9 +382,9 @@ export const toolsCatalog = [
         slug: "rdnsx",
         category: "adsl",
         status: "ready",
-        desc: "Rapid DNS Reverse Resolver for fast network enumeration and reconnaissance.",
+        desc: "Rapid DNS Reverse Resolver for telecom network reconnaissance, PTR bulk lookups, ASN intelligence, and carrier domain enumeration.",
         path: "/usr/local/bin/rdnsx",
-        cmd: "rdnsx"
+        cmd: "rdnsx --help"
     },
     {
         name: "AT Command Console",

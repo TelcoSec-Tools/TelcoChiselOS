@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=RDNSx
+Comment=Rapid DNS Reverse Resolver & Telecom Network Enumeration
+Exec=x-terminal-emulator -e "bash -c 'rdnsx --help; echo; read -rp \"Press Enter to close...\"'"
+Icon=network-workgroup
+Categories=TelcoSec-Network;TelcoSec-Tools;
+Terminal=false

@@ -461,6 +461,39 @@ if [ -d "${TELCOSEC_OPT}/docsis" ]; then
 fi
 record_tool "docsis" "/usr/local/bin/docsis" "adsl"
 
+# ─── 21e. RDNSx (Rapid DNS Reverse Resolver) ───────────────────────────────
+echo "Installing RDNSx..."
+if dpkg-query -W rdnsx 2>/dev/null; then
+  echo "  RDNSx already installed via APT."
+elif apt-cache show rdnsx >/dev/null 2>&1 && apt-get install -y rdnsx; then
+  echo "  RDNSx installed via APT."
+else
+  git_clone_retry --depth 1 https://github.com/TelcoSec-Tools/RDNSx.git "${TELCOSEC_OPT}/rdnsx"
+  if [ -d "${TELCOSEC_OPT}/rdnsx" ]; then
+    cd "${TELCOSEC_OPT}/rdnsx"
+    command -v cargo &>/dev/null || apt-get install -y --no-install-recommends cargo rustc 2>/dev/null || true
+    if command -v cargo &>/dev/null; then
+      cargo build --release --bin rdnsx -j"$(nproc)" 2>&1 | tail -5 || true
+      if [ -f target/release/rdnsx ]; then
+        install -m 755 target/release/rdnsx /usr/local/bin/rdnsx
+      fi
+    fi
+    if [ ! -f /usr/local/bin/rdnsx ]; then
+      cat > /usr/local/bin/rdnsx << 'LAUNCHER'
+#!/bin/bash
+if [ -x /opt/telcosec/rdnsx/target/release/rdnsx ]; then
+  exec /opt/telcosec/rdnsx/target/release/rdnsx "$@"
+fi
+echo "RDNSx: binary not built. Please run 'cd /opt/telcosec/rdnsx && cargo build --release' first." >&2
+exit 1
+LAUNCHER
+      chmod +x /usr/local/bin/rdnsx
+    fi
+    cd /
+  fi
+fi
+record_tool "RDNSx" "/usr/local/bin/rdnsx" "adsl"
+
 # ─── 22. SIPp (from 00-install-all-packages.sh — not in Ubuntu 24.04 apt) ──
 git_clone_retry --depth 1 https://github.com/SIPp/sipp "${TELCOSEC_OPT}/sipp"
 cmake -S "${TELCOSEC_OPT}/sipp" -B "${TELCOSEC_OPT}/sipp/build" \
