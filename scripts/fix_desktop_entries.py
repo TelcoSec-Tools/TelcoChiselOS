@@ -30,6 +30,7 @@ fixes = {
     'openbts-install.desktop': 'Exec=x-terminal-emulator -e "bash -c \'sudo openbts-install; exec bash\'"',
     'pysim-shell.desktop': 'Exec=x-terminal-emulator -e "bash -c \'pySim-shell --help; read -p \\"Press enter to exit...\\"\'"',
     'qcsuper.desktop': 'Exec=x-terminal-emulator -e "bash -c \'qcsuper --help; read -p \\"Press enter to exit...\\"\'"',
+    'rdnsx.desktop': 'Exec=x-terminal-emulator -e "bash -c \'rdnsx --help; echo; read -rp \\"Press Enter to close...\\"\'"',
     'scat.desktop': 'Exec=x-terminal-emulator -e "bash -c \'scat -t qc -d /dev/ttyUSB0; exec bash\'"',
     'sigploit.desktop': 'Exec=x-terminal-emulator -e "bash -c \'cd /opt/telcosec/sigploit && PYTHONPATH=/opt/telcosec/sigploit:/opt/telcosec/sigploit/gtp /opt/telcosec/python2/bin/python2.7 sigploit.py; read -p \\"Press enter to exit...\\"\'"',
     'simtester.desktop': 'Exec=x-terminal-emulator -e "bash -c \'simtester; exec bash\'"',

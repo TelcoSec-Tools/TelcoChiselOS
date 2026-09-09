@@ -459,19 +459,61 @@ done
 echo "  Installing RDNSx..."
 if dpkg-query -W rdnsx 2>/dev/null; then
   echo "    RDNSx already installed via APT."
-elif apt-cache show rdnsx >/dev/null 2>&1; then
-  apt-get install -y rdnsx
+elif apt-cache show rdnsx >/dev/null 2>&1 && apt-get install -y rdnsx; then
+  echo "    RDNSx installed via APT."
 else
   if [ -d "${TELCOSEC_OPT}/rdnsx" ]; then
     cd "${TELCOSEC_OPT}/rdnsx"
     export CARGO_HOME=/usr/local/cargo
     export PATH="${CARGO_HOME}/bin:$PATH"
-    command -v cargo &>/dev/null || apt-get install -y cargo 2>/dev/null || true
+    command -v cargo &>/dev/null || apt-get install -y cargo rustc build-essential pkg-config libssl-dev 2>/dev/null || true
     if command -v cargo &>/dev/null; then
-      cargo build --release -j"$(get_build_procs)" 2>&1 | tail -5 || true
-      [ -f target/release/rdnsx ] && ln -sf "${TELCOSEC_OPT}/rdnsx/target/release/rdnsx" /usr/local/bin/rdnsx || true
+      echo "    Compiling RDNSx release binary..."
+      cargo build --release --bin rdnsx -j"$(get_build_procs)" 2>&1 | tail -5 || true
+    fi
+    if [ -f target/release/rdnsx ]; then
+      ln -sf "${TELCOSEC_OPT}/rdnsx/target/release/rdnsx" /usr/local/bin/rdnsx
     else
-      echo "    WARNING: cargo not found. Skipping RDNSx compilation."
+      # Create self-healing runtime launcher for offline/minimal builds
+      cat > /usr/local/bin/rdnsx << 'LAUNCHER'
+#!/usr/bin/env bash
+set -e
+RDNSX_DIR="/opt/telcosec/rdnsx"
+RDNSX_BIN="${RDNSX_DIR}/target/release/rdnsx"
+
+if [ -x "$RDNSX_BIN" ]; then
+  exec "$RDNSX_BIN" "$@"
+fi
+
+echo "=== RDNSx: First-time setup / build required ==="
+if ! command -v cargo &>/dev/null; then
+  echo "[!] Cargo / Rust toolchain not detected."
+  if [ -x /usr/local/bin/telcosec-install-rust ]; then
+    echo "[*] Installing Rust toolchain via system installer..."
+    sudo /usr/local/bin/telcosec-install-rust
+    export CARGO_HOME=/usr/local/cargo
+    export PATH="${CARGO_HOME}/bin:$PATH"
+  else
+    echo "[*] Installing cargo via apt..."
+    sudo apt-get update -qq && sudo apt-get install -y cargo rustc build-essential pkg-config libssl-dev
+  fi
+fi
+
+if [ -d "$RDNSX_DIR" ]; then
+  echo "[*] Compiling RDNSx (this may take a minute)..."
+  cd "$RDNSX_DIR"
+  cargo build --release --bin rdnsx
+  if [ -f "$RDNSX_BIN" ]; then
+    sudo ln -sf "$RDNSX_BIN" /usr/local/bin/rdnsx
+    echo "[+] RDNSx successfully built and linked to /usr/local/bin/rdnsx!"
+    exec "$RDNSX_BIN" "$@"
+  fi
+fi
+
+echo "[-] Error: Failed to locate or compile RDNSx in ${RDNSX_DIR}." >&2
+exit 1
+LAUNCHER
+      chmod +x /usr/local/bin/rdnsx
     fi
     cd /
   fi

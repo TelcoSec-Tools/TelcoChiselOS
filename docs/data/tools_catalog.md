@@ -121,7 +121,7 @@ TelcoChiselOS includes **88 default tools** organized across 10 specialized func
 
 | Tool Name | Status | Command / Executable | Description |
 | :--- | :---: | :--- | :--- |
-| **RDNSx** | `Ready` | `rdnsx` | Rapid DNS Reverse Resolver for fast network enumeration and reconnaissance. |
+| **RDNSx** | `Ready` | `rdnsx --help` | Rapid DNS Reverse Resolver for telecom network reconnaissance, PTR bulk lookups, ASN intelligence, and carrier domain enumeration. |
 | **Macchanger** | `Ready` | `macchanger --help` | Utility for viewing/manipulating the MAC address of network interfaces to bypass sticky-MAC port security. |
 | **VLAN (vconfig)** | `Ready` | `vconfig` | VLAN hopping and manipulation tool for executing attacks against DSLAM and Open vSwitch configurations. |
 | **Asleap** | `Ready` | `asleap -h` | Performs offline dictionary attacks against captured PPPoE MS-CHAPv2 challenge/response hashes. |
