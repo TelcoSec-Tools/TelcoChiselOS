@@ -128,6 +128,7 @@ var CanonicalRegistry = []Metapackage{
 			"sipsak SIP stress and diagnostic utility",
 			"SIPp telecom traffic generator and benchmark tool",
 			"docsis cable modem configuration file decoder and encoder",
+			"RDNSx rapid DNS reverse resolver and telecom network enumeration toolkit",
 		},
 	},
 	{

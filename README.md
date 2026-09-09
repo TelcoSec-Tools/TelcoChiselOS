@@ -410,7 +410,7 @@ Radio drivers are isolated in a dedicated Conda environment (`telcosec-sdr`) to 
 | :--- | :---: | :--- | :--- |
 | **RouterSploit** | `Ready` | `routersploit` | Exploitation framework for embedded devices (CPE routers/modems) |
 | **mausezahn (mz)** | `Ready` | `mz -t ip "dp=80"` | High-speed carrier Ethernet and multi-protocol packet crafter (802.1Q, QinQ, MPLS) |
-| **RDNSx** | `Ready` | `rdnsx` | Rapid DNS Reverse Resolver for fast telecommunications network enumeration |
+| **RDNSx** | `Ready` | `rdnsx --help` | Rapid DNS Reverse Resolver for telecom network reconnaissance, PTR bulk lookups, ASN intelligence, and carrier domain enumeration |
 | **asleap** | `Ready` | `asleap -h` | PPPoE MS-CHAPv2 dictionary attack and offline cracking tool |
 | **snmp-check** | `Ready` | `snmp-check -h` | SNMP enumerator for mapping routing tables via weak community strings |
 | **docsis** | `Ready` | `docsis` | Compile and decompile DOCSIS binary configuration files |
