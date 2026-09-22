@@ -75,17 +75,12 @@ jobs:
             VERSION="nightly-$(git rev-parse --short HEAD)"
             IS_NIGHTLY=true
           else
-            # Auto-bump the latest semver tag.
-            LATEST=$(git tag --list 'v*.*.*' --sort=-version:refname | head -1)
-            [[ -z "$LATEST" ]] && LATEST="v0.0.0"
-            MAJOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f1)
-            MINOR=$(echo "$LATEST" | cut -d. -f2)
-            PATCH=$(echo "$LATEST" | cut -d. -f3)
-            case "$RELEASE_TYPE" in
-              major) VERSION="v$((MAJOR+1)).0.0" ;;
-              minor) VERSION="v${MAJOR}.$((MINOR+1)).0" ;;
-              patch) VERSION="v${MAJOR}.${MINOR}.$((PATCH+1))" ;;
-            esac
+            if [ -f "VERSION" ]; then
+              VERSION="v$(head -n 1 VERSION | tr -d '[:space:]')"
+            else
+              YEAR=$(date -u +%Y)
+              VERSION="v${YEAR}.1"
+            fi
             IS_NIGHTLY=false
           fi
           CLEAN_VERSION="${VERSION#v}"
@@ -213,9 +208,14 @@ jobs:
         run: |
           set -eo pipefail
           SHA256=$(sha256sum "$ISO" | awk '{print $1}')
+          MD5=$(md5sum "$ISO" | awk '{print $1}')
           SIZE=$(du -sh "$ISO" | cut -f1)
           printf '%s  %s\n' "$SHA256" "$ISO" > "${ISO}.sha256"
-          [ -f "TelcoChisel-live.iso" ] && printf '%s  TelcoChisel-live.iso\n' "$SHA256" > "TelcoChisel-live.iso.sha256"
+          printf '%s  %s\n' "$MD5" "$ISO" > "${ISO}.md5"
+          if [ -f "TelcoChisel-live.iso" ]; then
+            printf '%s  TelcoChisel-live.iso\n' "$SHA256" > "TelcoChisel-live.iso.sha256"
+            printf '%s  TelcoChisel-live.iso\n' "$MD5" > "TelcoChisel-live.iso.md5"
+          fi
 
           # Collect commits since last stable tag for the changelog
           LAST_TAG=$(git tag --list 'v*.*.*' --sort=-version:refname | head -1 || true)
@@ -379,7 +379,7 @@ jobs:
           # nobody can download a partial/corrupt ISO mid-upload.
           rsync -avP --partial \
             -e "$SF_SSH" \
-            "$ISO" "${ISO}.sha256" "${ISO}.build-info.json" TelcoChisel-live.iso* "README.md" \
+            "$ISO" "${ISO}.sha256" "${ISO}.md5" "${ISO}.build-info.json" TelcoChisel-live.iso* "README.md" \
             "$SF_TARGET:$SF_TMP/"
 
           # Publish: back up whatever's currently public (non-fatal — nothing
@@ -391,21 +391,27 @@ jobs:
           cd $SF_DIR
           -rename $ISO $ISO.old
           -rename ${ISO}.sha256 ${ISO}.sha256.old
+          -rename ${ISO}.md5 ${ISO}.md5.old
           -rename ${ISO}.build-info.json ${ISO}.build-info.json.old
           -rename TelcoChisel-live.iso TelcoChisel-live.iso.old
           -rename TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256.old
+          -rename TelcoChisel-live.iso.md5 TelcoChisel-live.iso.md5.old
           -rename README.md README.md.old
           rename _upload_tmp/$ISO $ISO
           rename _upload_tmp/${ISO}.sha256 ${ISO}.sha256
+          rename _upload_tmp/${ISO}.md5 ${ISO}.md5
           rename _upload_tmp/${ISO}.build-info.json ${ISO}.build-info.json
           -rename _upload_tmp/TelcoChisel-live.iso TelcoChisel-live.iso
           -rename _upload_tmp/TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256
+          -rename _upload_tmp/TelcoChisel-live.iso.md5 TelcoChisel-live.iso.md5
           rename _upload_tmp/README.md README.md
           -rm $ISO.old
           -rm ${ISO}.sha256.old
+          -rm ${ISO}.md5.old
           -rm ${ISO}.build-info.json.old
           -rm TelcoChisel-live.iso.old
           -rm TelcoChisel-live.iso.sha256.old
+          -rm TelcoChisel-live.iso.md5.old
           -rm README.md.old
           -rmdir _upload_tmp
           SFTPEOF
@@ -439,7 +445,7 @@ jobs:
           # nobody can download a partial/corrupt ISO mid-upload.
           rsync -avP --partial \
             -e "$SF_SSH" \
-            "$ISO" "${ISO}.sha256" "${ISO}.build-info.json" TelcoChisel-live.iso* "README.md" \
+            "$ISO" "${ISO}.sha256" "${ISO}.md5" "${ISO}.build-info.json" TelcoChisel-live.iso* "README.md" \
             "$SF_TARGET:$SF_TMP/"
 
           # Publish: back up whatever's currently public (non-fatal — nothing
@@ -449,21 +455,27 @@ jobs:
           cd $SF_DIR
           -rename $ISO $ISO.old
           -rename ${ISO}.sha256 ${ISO}.sha256.old
+          -rename ${ISO}.md5 ${ISO}.md5.old
           -rename ${ISO}.build-info.json ${ISO}.build-info.json.old
           -rename TelcoChisel-live.iso TelcoChisel-live.iso.old
           -rename TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256.old
+          -rename TelcoChisel-live.iso.md5 TelcoChisel-live.iso.md5.old
           -rename README.md README.md.old
           rename _upload_tmp/$ISO $ISO
           rename _upload_tmp/${ISO}.sha256 ${ISO}.sha256
+          rename _upload_tmp/${ISO}.md5 ${ISO}.md5
           rename _upload_tmp/${ISO}.build-info.json ${ISO}.build-info.json
           -rename _upload_tmp/TelcoChisel-live.iso TelcoChisel-live.iso
           -rename _upload_tmp/TelcoChisel-live.iso.sha256 TelcoChisel-live.iso.sha256
+          -rename _upload_tmp/TelcoChisel-live.iso.md5 TelcoChisel-live.iso.md5
           rename _upload_tmp/README.md README.md
           -rm $ISO.old
           -rm ${ISO}.sha256.old
+          -rm ${ISO}.md5.old
           -rm ${ISO}.build-info.json.old
           -rm TelcoChisel-live.iso.old
           -rm TelcoChisel-live.iso.sha256.old
+          -rm TelcoChisel-live.iso.md5.old
           -rm README.md.old
           -rmdir _upload_tmp
           SFTPEOF
@@ -480,7 +492,7 @@ jobs:
             HTTP_CODE=$(curl -s -o /tmp/sf_api_resp.txt -w "%{http_code}" -X PUT \
               -H "Accept: application/json" \
               -d "default=windows&default=mac&default=linux&default=bsd&default=solaris&default=others" \
-              --data-urlencode "download_label=Download TelcoChisel Flagship Field Edition (${VERSION})" \
+              --data-urlencode "download_label=Download TelcoChisel OS ${VERSION} (Ubuntu 24.04 LTS, 94 Telecom Tools)" \
               -d "api_key=${SF_API_KEY}" \
               "https://sourceforge.net/projects/${SF_PROJECT}/files/${VERSION}/${ISO}")
             if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
