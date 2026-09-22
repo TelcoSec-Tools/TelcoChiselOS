@@ -338,7 +338,8 @@ cp /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop /etc/s
 echo "Deploying Terminator desktop shortcut..."
 mkdir -p /etc/skel/Desktop
 cp /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop /etc/skel/Desktop/terminator.desktop
-chmod +x /etc/skel/Desktop/terminator.desktop
+chmod 755 /etc/skel/Desktop/terminator.desktop
+gio set -t string /etc/skel/Desktop/terminator.desktop metadata::trusted true 2>/dev/null || true
 
 # Pre-configure Terminator Developer Palette & Behavior
 mkdir -p /etc/skel/.config/terminator
@@ -414,7 +415,8 @@ if [ -d /home/telcosec ]; then
      /home/telcosec/.config/terminator/config 2>/dev/null || true
   cp /etc/skel/Desktop/terminator.desktop \
      /home/telcosec/Desktop/ 2>/dev/null || true
-  chmod +x /home/telcosec/Desktop/*.desktop 2>/dev/null || true
+  chmod 755 /home/telcosec/Desktop/*.desktop 2>/dev/null || true
+  gio set -t string /home/telcosec/Desktop/*.desktop metadata::trusted true 2>/dev/null || true
   chown -R telcosec:telcosec /home/telcosec/.config /home/telcosec/Desktop
 fi
 
@@ -580,6 +582,36 @@ RemainAfterExit=yes
 WantedBy=multi-user.target
 EOF
 systemctl enable telcosec-mon.service 2>/dev/null || true
+
+# 6. Automatic Desktop Launcher Trust & Executable Permissions (XFCE/GIO)
+echo "Deploying Desktop launcher trust initializer..."
+cat << 'EOF' > /usr/local/bin/telcosec-desktop-trust
+#!/bin/bash
+# Ensures desktop launchers are executable and marked trusted in XFCE/GIO
+if [ -d "$HOME/Desktop" ]; then
+    chmod 755 "$HOME/Desktop"/*.desktop 2>/dev/null || true
+    for f in "$HOME/Desktop"/*.desktop; do
+        [ -f "$f" ] || continue
+        gio set -t string "$f" metadata::trusted true 2>/dev/null || true
+        gio set -t string "$f" metadata::trusted yes 2>/dev/null || true
+    done
+fi
+EOF
+chmod 755 /usr/local/bin/telcosec-desktop-trust
+
+mkdir -p /etc/xdg/autostart
+cat << 'EOF' > /etc/xdg/autostart/telcosec-desktop-trust.desktop
+[Desktop Entry]
+Type=Application
+Name=TelcoSec Desktop Trust Initializer
+Comment=Ensures desktop shortcuts are trusted and executable
+Exec=/usr/local/bin/telcosec-desktop-trust
+Terminal=false
+StartupNotify=false
+Hidden=false
+OnlyShowIn=XFCE;
+EOF
+chmod 644 /etc/xdg/autostart/telcosec-desktop-trust.desktop
 
 # Note: Wireshark preferences (capture.default_interface=mon0, prom_mode, etc.)
 # are written later by 08-system-optimization.sh from the canonical
