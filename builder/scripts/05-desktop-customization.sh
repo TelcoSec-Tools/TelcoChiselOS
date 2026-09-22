@@ -345,14 +345,14 @@ gio set -t string /etc/skel/Desktop/terminator.desktop metadata::trusted true 2>
 mkdir -p /etc/skel/.config/terminator
 cat << 'EOF' > /etc/skel/.config/terminator/config
 [global_config]
-  title_transmit_fg_color = "#e8921e"
-  title_transmit_bg_color = "#181a1b"
+  title_transmit_fg_color = "#00ffd5"
+  title_transmit_bg_color = "#0e121a"
   title_receive_fg_color = "#ffffff"
-  title_receive_bg_color = "#222222"
-  title_inactive_fg_color = "#888888"
-  title_inactive_bg_color = "#181a1b"
+  title_receive_bg_color = "#1f2430"
+  title_inactive_fg_color = "#8b949e"
+  title_inactive_bg_color = "#0e121a"
   title_use_system_font = False
-  title_font = "IBM Plex Mono Bold 9"
+  title_font = "IBM Plex Mono Bold 10"
   focus = "mouse"
   handle_size = 2
   window_state = "maximise"
@@ -366,19 +366,19 @@ cat << 'EOF' > /etc/skel/.config/terminator/config
   search = "<Primary><Shift>f"
 [profiles]
   [[default]]
-    background_color = "#0b0c10"
-    foreground_color = "#e8921e"
-    cursor_color = "#e8921e"
+    background_color = "#0e121a"
+    foreground_color = "#e6edf3"
+    cursor_color = "#00ffd5"
     cursor_color_default = False
     cursor_shape = "block"
     cursor_blink = True
-    font = "IBM Plex Mono 11"
+    font = "IBM Plex Mono 12"
     use_system_font = False
     show_titlebar = True
     scrollbar_position = "hidden"
-    scrollback_lines = 10000
+    scrollback_lines = 20000
     copy_on_selection = True
-    palette = "#0b0c10:#e06c75:#98c379:#e5c07b:#61afef:#be5046:#56b6c2:#abb2bf:#5c6370:#e06c75:#98c379:#e8921e:#61afef:#d19a66:#56b6c2:#ffffff"
+    palette = "#0e121a:#ff4466:#26d464:#f5aa35:#388bfd:#bc8cff:#00ffd5:#e6edf3:#484f58:#ff7b72:#7ee787:#e8921e:#79c0ff:#d2a8ff:#56d4dd:#ffffff"
 EOF
 
 # Optimize Tumbler Thumbnailer (Prevent USB I/O lockups on large dumps and captures)
@@ -711,37 +711,53 @@ clock-format=%d %b, %H:%M
 hide-user-image=true
 EOF
 
-# 10. i3 Tiling Window Manager Configuration (Operational Mode)
-echo "Configuring i3 Tiling Window Manager for Telecom Operations..."
-mkdir -p /etc/skel/.config/i3 /etc/skel/.config/i3status
+# 10. i3 Tiling Window Manager Configuration (Telecom Red Team Operational Mode)
+echo "Configuring i3 Tiling Window Manager for Telecom Red Team Operations..."
+mkdir -p /etc/skel/.config/i3 /etc/skel/.config/i3status /etc/skel/.config/rofi /etc/skel/.config/picom
 
+# 10.1 Dedicated i3 Configuration
 cat << 'EOF' > /etc/skel/.config/i3/config
-# TelcoChisel i3 Configuration — Telecom Operational Mode
+# TelcoChisel i3 Configuration — Telecom Red Team Operational Mode
 set $mod Mod4
 
-font pango:Ubuntu, IBM Plex Mono 10
+font pango:IBM Plex Mono, Ubuntu 11
 
-# Amber Phosphor Color Theme
-client.focused          #e8921e #181a1b #ffffff #e8921e #e8921e
-client.focused_inactive #333333 #181a1b #aaaaaa #181a1b #181a1b
-client.unfocused        #222222 #181a1b #888888 #181a1b #181a1b
-client.urgent           #ff5555 #ff5555 #ffffff #ff5555 #ff5555
+# Cyberpunk & Dark Tactical Theme
+# class                 border  bground text    indicator child_border
+client.focused          #00ffd5 #0e121a #ffffff #00ffd5   #00ffd5
+client.focused_inactive #21262d #0e121a #8b949e #21262d   #21262d
+client.unfocused        #161b22 #0e121a #6e7681 #161b22   #161b22
+client.urgent           #ff4466 #ff4466 #ffffff #ff4466   #ff4466
+client.placeholder      #0e121a #0e121a #ffffff #0e121a   #0e121a
+client.background       #0e121a
 
 # Windows & Floating Rules
 floating_modifier $mod
 default_border pixel 2
 default_floating_border pixel 2
-for_window [window_role="pop-up"] floating enable
-for_window [class="Gqrx"] floating enable resize set 1024 700
-for_window [class="Wireshark"] floating enable resize set 1280 800
 
-# Operational Workspaces
-set $ws1 "1: 📡 SDR & Spectrum"
-set $ws2 "2: 📶 RAN & 5G Core"
-set $ws3 "3: 💳 SIM & Baseband"
-set $ws4 "4: ⚡ Core Signaling"
-set $ws5 "5: 🔍 Network Analysis"
-set $ws6 "6: 🌐 Dashboard & Portal"
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="task_dialog"] floating enable
+for_window [class="(?i)calamares"] floating enable
+for_window [title="TelcoSec Pre-flight Doctor"] floating enable, resize set 960 640
+for_window [title="TelcoSec Hardware Probe"] floating enable, resize set 960 640
+for_window [title="5G SA Core Status"] floating enable, resize set 960 640
+for_window [title="10GbE Network Zero-Drop Tuning"] floating enable, resize set 960 640
+for_window [class="Gqrx"] floating enable, resize set 1100 750
+for_window [class="Inspectrum"] floating enable, resize set 1100 750
+for_window [class="URH"] floating enable, resize set 1200 800
+
+# 10 Dedicated Telecom Operational Workspaces
+set $ws1  "1: 📡 RF-DSP"
+set $ws2  "2: 📻 GSM-2G3G"
+set $ws3  "3: 📶 4G-5G-RAN"
+set $ws4  "4: 💳 SIM-BB"
+set $ws5  "5: ⚡ SIG-CORE"
+set $ws6  "6: 🔍 DISSECT"
+set $ws7  "7: ⚔️ EXPLOIT"
+set $ws8  "8: 📟 OPERATOR"
+set $ws9  "9: 📝 EVIDENCE"
+set $ws10 "10: 🌐 INTEL-DOC"
 
 # Switch Workspaces
 bindsym $mod+1 workspace $ws1
@@ -750,6 +766,10 @@ bindsym $mod+3 workspace $ws3
 bindsym $mod+4 workspace $ws4
 bindsym $mod+5 workspace $ws5
 bindsym $mod+6 workspace $ws6
+bindsym $mod+7 workspace $ws7
+bindsym $mod+8 workspace $ws8
+bindsym $mod+9 workspace $ws9
+bindsym $mod+0 workspace $ws10
 
 # Move Containers to Workspaces
 bindsym $mod+Shift+1 move container to workspace $ws1
@@ -758,10 +778,23 @@ bindsym $mod+Shift+3 move container to workspace $ws3
 bindsym $mod+Shift+4 move container to workspace $ws4
 bindsym $mod+Shift+5 move container to workspace $ws5
 bindsym $mod+Shift+6 move container to workspace $ws6
+bindsym $mod+Shift+7 move container to workspace $ws7
+bindsym $mod+Shift+8 move container to workspace $ws8
+bindsym $mod+Shift+9 move container to workspace $ws9
+bindsym $mod+Shift+0 move container to workspace $ws10
+
+# Auto-Assignment of Telecom Applications to Workspaces
+assign [class="(?i)gnuradio|gqrx|inspectrum|urh|gpredict"] $ws1
+assign [class="(?i)osmocom|openbts|yate|kalibrate"]        $ws2
+assign [class="(?i)open5gs|ueransim|srsran|5ghoul"]        $ws3
+assign [class="(?i)pysim|simtrace|firmwire|qcsuper"]       $ws4
+assign [class="(?i)sigploit|diafuzzer|sctpscan"]           $ws5
+assign [class="(?i)wireshark"]                             $ws6
+assign [class="(?i)firefox|chromium"]                      $ws10
 
 # Core Navigation & Window Controls
 bindsym $mod+Return exec terminator
-bindsym $mod+d exec rofi -show drun -font "Ubuntu 11"
+bindsym $mod+d exec rofi -show drun -show-icons
 bindsym $mod+Shift+q kill
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
@@ -793,81 +826,272 @@ bindsym $mod+e layout toggle split
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+space focus mode_toggle
 
-# Direct Tool Launch Shortcuts (Operational Mode)
-bindsym $mod+Shift+w exec wireshark-mon
-bindsym $mod+Shift+g exec gqrx
-bindsym $mod+Shift+s exec pysim-shell
-bindsym $mod+Shift+p exec sigploit
-bindsym $mod+Shift+b exec firefox
+# Direct Telecom Red Team Diagnostic Popups
+bindsym $mod+F1 exec --no-startup-id terminator -T "TelcoSec Pre-flight Doctor" --geometry=960x640 -e "telcosec check; echo ''; read -p 'Press enter to exit...'"
+bindsym $mod+F2 exec --no-startup-id terminator -T "TelcoSec Hardware Probe" --geometry=960x640 -e "telcosec hardware; echo ''; read -p 'Press enter to exit...'"
+bindsym $mod+F3 exec --no-startup-id terminator -T "5G SA Core Status" --geometry=960x640 -e "telcosec 5g-sa status; echo ''; read -p 'Press enter to exit...'"
+bindsym $mod+F4 exec --no-startup-id terminator -T "10GbE Network Zero-Drop Tuning" --geometry=960x640 -e "sudo telcosec sdr 10g tune; echo ''; read -p 'Press enter to exit...'"
+
+# Direct Telecom Tool Launch Shortcuts
+bindsym $mod+Shift+w exec --no-startup-id wireshark-mon
+bindsym $mod+Shift+g exec --no-startup-id gqrx
+bindsym $mod+Shift+s exec --no-startup-id pysim-shell
+bindsym $mod+Shift+p exec --no-startup-id sigploit
+bindsym $mod+Shift+f exec --no-startup-id 5ghoul-fuzzer
+bindsym $mod+Shift+d exec --no-startup-id xdg-open https://telcochisel.com
+bindsym $mod+Shift+t exec --no-startup-id /usr/local/bin/telcosec-tmux-redteam
 
 # Operational Status Bar
 bar {
     position top
     status_command i3status
     colors {
-        background #181a1b
-        statusline #e8921e
-        separator  #e8921e
-        focused_workspace  #e8921e #e8921e #181a1b
-        active_workspace   #333333 #333333 #ffffff
-        inactive_workspace #181a1b #181a1b #888888
-        urgent_workspace   #ff5555 #ff5555 #ffffff
+        background #0e121a
+        statusline #00ffd5
+        separator  #21262d
+        focused_workspace  #00ffd5 #00ffd5 #0e121a
+        active_workspace   #21262d #21262d #ffffff
+        inactive_workspace #0e121a #0e121a #8b949e
+        urgent_workspace   #ff4466 #ff4466 #ffffff
     }
 }
 
 # Autostart Programs
-exec --no-startup-id feh --bg-fill /usr/share/backgrounds/telcosec/wallpaper.jpg
-exec --no-startup-id picom -b --config /dev/null
-exec --no-startup-id terminator -e "bash -c 'tmux new-session -A -s op-center; exec bash'"
+exec --no-startup-id feh --bg-fill /usr/share/backgrounds/telcosec/wallpaper.jpg 2>/dev/null || true
+exec --no-startup-id picom -b --config /etc/skel/.config/picom/picom.conf 2>/dev/null || true
+exec --no-startup-id /usr/local/bin/telcosec-tmux-redteam
 EOF
 
+# 10.2 Telecom Telemetry Status Bar Configuration
 cat << 'EOF' > /etc/skel/.config/i3status/config
 general {
     colors = true
-    color_good = "#e8921e"
+    color_good = "#00ffd5"
     color_degraded = "#f5aa35"
-    color_bad = "#ff5555"
-    interval = 2
+    color_bad = "#ff4466"
+    interval = 1
 }
 
-order += "ethernet _first_"
 order += "wireless _first_"
+order += "ethernet _first_"
 order += "tun0"
+order += "wg0"
 order += "load"
 order += "memory"
+order += "tztime utc"
 order += "tztime local"
 
-ethernet _first_ {
-    format_up = "ETH: %ip (%speed)"
-    format_down = "ETH: down"
+wireless _first_ {
+    format_up = "📶 WLAN: %ip (%essid %quality)"
+    format_down = "📶 WLAN: down"
 }
 
-wireless _first_ {
-    format_up = "WLAN: %ip (%essid)"
-    format_down = "WLAN: down"
+ethernet _first_ {
+    format_up = "🌐 ETH: %ip (%speed)"
+    format_down = "🌐 ETH: down"
 }
 
 tun0 {
-    format_up = "VPN: %ip"
-    format_down = "VPN: down"
+    format_up = "🛡️ VPN: %ip"
+    format_down = ""
+}
+
+wg0 {
+    format_up = "🛡️ WG: %ip"
+    format_down = ""
 }
 
 load {
-    format = "CPU: %1min"
+    format = "⚡ CPU: %1min"
 }
 
 memory {
-    format = "RAM: %used / %total"
-    threshold_degraded = "10%"
-    format_degraded = "RAM LOW: %free"
+    format = "🧠 RAM: %used / %total"
+    threshold_degraded = "15%"
+    threshold_critical = "5%"
+    format_degraded = "⚠️ RAM LOW: %free"
+}
+
+tztime utc {
+    format = "🌐 UTC: %H:%M:%S"
 }
 
 tztime local {
-    format = "📅 %Y-%m-%d  ⏰ %H:%M:%S"
+    format = "📅 %Y-%m-%d ⏰ %H:%M:%S"
 }
 EOF
 
-# Deploy LightDM Session Selector Hook
+# 10.3 Rofi Cyberpunk Dark Theme Configuration
+cat << 'EOF' > /etc/skel/.config/rofi/config.rasi
+configuration {
+    modi: "drun,run,window";
+    font: "IBM Plex Mono Medium 12";
+    show-icons: true;
+    display-drun: "📡 Telecom Tools";
+    display-run: "⚡ Exec";
+    display-window: "🪟 Windows";
+    drun-display-format: "{name}";
+}
+
+@theme "/dev/null"
+
+* {
+    bg: #0e121a;
+    bg-alt: #161b22;
+    fg: #e6edf3;
+    accent-cyan: #00f2ff;
+    accent-teal: #00ffd5;
+    accent-amber: #e8921e;
+    alert-red: #ff4466;
+    border-col: #21262d;
+    background-color: @bg;
+    text-color: @fg;
+    margin: 0;
+    padding: 0;
+}
+
+window {
+    width: 680px;
+    border: 2px solid;
+    border-color: @accent-teal;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+inputbar {
+    children: [prompt, entry];
+    background-color: @bg-alt;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 0 0 16px 0;
+    border: 1px solid @border-col;
+}
+
+prompt {
+    text-color: @accent-cyan;
+    font: "IBM Plex Mono Bold 12";
+    margin: 0 10px 0 0;
+}
+
+entry {
+    placeholder: "Search 94 telecom security tools, SDR drivers, protocols...";
+    placeholder-color: #6e7681;
+    text-color: @fg;
+}
+
+listview {
+    lines: 10;
+    columns: 1;
+    scrollbar: false;
+}
+
+element {
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: transparent;
+    text-color: @fg;
+}
+
+element selected {
+    background-color: @bg-alt;
+    border: 1px solid @accent-teal;
+    text-color: @accent-teal;
+}
+
+element-icon {
+    size: 24px;
+    margin: 0 12px 0 0;
+}
+
+element-text {
+    vertical-align: 0.5;
+    text-color: inherit;
+}
+EOF
+
+# 10.4 Picom Compositor Configuration for Glitch-Free FFT Waterfalls
+cat << 'EOF' > /etc/skel/.config/picom/picom.conf
+# Picom Compositor Configuration for Telecom Red Team Workstation
+backend = "glx";
+glx-no-stencil = true;
+glx-copy-from-front = false;
+vsync = true;
+
+# Opacity
+active-opacity = 1.0;
+inactive-opacity = 0.94;
+frame-opacity = 1.0;
+inactive-opacity-override = false;
+
+opacity-rule = [
+  "100:class_g = 'Gqrx'",
+  "100:class_g = 'Inspectrum'",
+  "100:class_g = 'URH'",
+  "100:class_g = 'Wireshark'",
+  "100:class_g = 'firefox'",
+  "92:class_g = 'Terminator' && !focused",
+  "100:class_g = 'Terminator' && focused"
+];
+
+# Fading
+fading = true;
+fade-delta = 4;
+fade-in-step = 0.03;
+fade-out-step = 0.03;
+
+# Shadow
+shadow = true;
+shadow-radius = 12;
+shadow-opacity = 0.4;
+shadow-offset-x = -10;
+shadow-offset-y = -10;
+shadow-exclude = [
+  "name = 'Notification'",
+  "class_g = 'Conky'",
+  "class_g ?= 'Notify-osd'",
+  "class_g = 'Cairo-clock'",
+  "_GTK_FRAME_EXTENTS@:c"
+];
+EOF
+
+# 10.5 4-Pane Operator Matrix Tmux Script
+cat << 'EOF' > /usr/local/bin/telcosec-tmux-redteam
+#!/bin/bash
+# Spawns or attaches to a structured 4-pane Telecom Operator Station in Terminator
+SESSION="telco-redteam"
+
+if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+    tmux new-session -d -s "$SESSION" -n "OPERATOR"
+    
+    # Split horizontally (Top / Bottom)
+    tmux split-window -v -t "$SESSION:0"
+    
+    # Split top pane into Top-Left and Top-Right
+    tmux split-window -h -t "$SESSION:0.0"
+    
+    # Split bottom pane into Bottom-Left and Bottom-Right
+    tmux split-window -h -t "$SESSION:0.2"
+    
+    # Top-Left: System Health & Hardware
+    tmux send-keys -t "$SESSION:0.0" "clear; telcosec check; telcosec hardware" C-m
+    
+    # Top-Right: 5G Core Status
+    tmux send-keys -t "$SESSION:0.1" "clear; telcosec 5g-sa status" C-m
+    
+    # Bottom-Left: Live System Telecom Logs
+    tmux send-keys -t "$SESSION:0.2" "clear; echo '=== System & Kernel Telemetry ==='; journalctl -f -n 20" C-m
+    
+    # Bottom-Right: Interactive Shell with Conda SDR activated
+    tmux send-keys -t "$SESSION:0.3" "clear; echo '=== Operator Shell (SDR Conda Ready) ==='; conda activate telcosec-sdr 2>/dev/null || true" C-m
+    
+    tmux select-pane -t "$SESSION:0.3"
+fi
+
+terminator -e "tmux attach-session -t $SESSION" 2>/dev/null || tmux attach-session -t "$SESSION"
+EOF
+chmod +x /usr/local/bin/telcosec-tmux-redteam
+
+# 10.6 Deploy LightDM Session Selector Hook
 cat << 'EOF' > /usr/local/bin/telcosec-session-select
 #!/bin/bash
 # Selects desktop session based on kernel cmdline 'desktop=i3'
@@ -901,8 +1125,11 @@ systemctl enable telcosec-session-select.service 2>/dev/null || true
 
 # Copy i3 configs to home if exists
 if [ -d /home/telcosec ]; then
-    mkdir -p /home/telcosec/.config/i3 /home/telcosec/.config/i3status
-    cp /etc/skel/.config/i3/config /home/telcosec/.config/i3/config
-    cp /etc/skel/.config/i3status/config /home/telcosec/.config/i3status/config
+    mkdir -p /home/telcosec/.config/i3 /home/telcosec/.config/i3status /home/telcosec/.config/rofi /home/telcosec/.config/picom
+    cp -r /etc/skel/.config/i3 /home/telcosec/.config/ 2>/dev/null || true
+    cp -r /etc/skel/.config/i3status /home/telcosec/.config/ 2>/dev/null || true
+    cp -r /etc/skel/.config/rofi /home/telcosec/.config/ 2>/dev/null || true
+    cp -r /etc/skel/.config/picom /home/telcosec/.config/ 2>/dev/null || true
     chown -R telcosec:telcosec /home/telcosec/.config || true
 fi
+

@@ -535,6 +535,25 @@ if [ -f "/opt/telcosec/miniconda/etc/profile.d/conda.sh" ]; then
     . /opt/telcosec/miniconda/etc/profile.d/conda.sh 2>/dev/null || true
 fi
 
+# Telecom Hardware & SDR Environment Variables
+export UHD_IMAGES_DIR="/usr/share/uhd/images:/opt/telcosec/uhd/share/uhd/images"
+export SOAPY_SDR_PLUGIN_PATH="/usr/lib/x86_64-linux-gnu/SoapySDR/modules0.8:/usr/local/lib/SoapySDR/modules0.8"
+export PYTHONPATH="/opt/telcosec/lib/python3/dist-packages:/usr/local/lib/python3/dist-packages:${PYTHONPATH}"
+
+# Cellular Core & RAN Configuration Paths
+export OPEN5GS_CONFIG_DIR="/etc/open5gs"
+export UERANSIM_CONFIG_DIR="/etc/ueransim"
+export VOLK_CONFIG_DIR="/etc/volk"
+
+# GSMTAP & Protocol Dissection Defaults
+export GSMTAP_DEFAULT_PORT=4729
+export GSMTAP_V3_DEFAULT_PORT=47290
+export TELCOSEC_CATALOG="/usr/share/telcosec/tools.json"
+
+# Terminal & Editor Defaults
+export TERMINAL="terminator"
+export EDITOR="nano"
+
 # General Linux Environment Defaults
 export PYTHONUNBUFFERED=1
 export LANG=${LANG:-en_US.UTF-8}
