@@ -1,5 +1,5 @@
 [Desktop Entry]
 Type=Directory
 Name=04. 5G NR & O-RAN
-Icon=network-cellular
+Icon=telcosec-cat-5gnr
 Comment=5G NR modem fuzzing, rogue gNB, and O-RAN testing tools

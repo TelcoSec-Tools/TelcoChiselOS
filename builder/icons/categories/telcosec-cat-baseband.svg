@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="grad-chip" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#50fa7b"/>
+      <stop offset="100%" stop-color="#00ffd5"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="#181a1b" stroke="#30363d" stroke-width="2"/>
+  <!-- Baseband CPU IC Body -->
+  <rect x="13" y="13" width="22" height="22" rx="3" fill="#21262d" stroke="url(#grad-chip)" stroke-width="2"/>
+  <!-- IC Pins -->
+  <path d="M17 9 L17 13 M21 9 L21 13 M27 9 L27 13 M31 9 L31 13" stroke="#8b949e" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M17 35 L17 39 M21 35 L21 39 M27 35 L27 39 M31 35 L31 39" stroke="#8b949e" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M9 17 L13 17 M9 21 L13 21 M9 27 L13 27 M9 31 L13 31" stroke="#8b949e" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M35 17 L39 17 M35 21 L39 21 M35 27 L39 27 M35 31 L39 31" stroke="#8b949e" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Internal Firmware Shield / Binary Core -->
+  <path d="M24 17 L30 20 L30 25 Q30 29, 24 32 Q18 29, 18 25 L18 20 Z" fill="none" stroke="#50fa7b" stroke-width="1.8"/>
+  <circle cx="24" cy="23" r="1.5" fill="#50fa7b"/>
+</svg>

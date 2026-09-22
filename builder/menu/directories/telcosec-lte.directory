@@ -2,4 +2,4 @@
 Type=Directory
 Name=03. LTE / 4G
 Comment=LTE cell scanning, sniffing, and RAN analysis tools
-Icon=network-wired
+Icon=telcosec-cat-lte

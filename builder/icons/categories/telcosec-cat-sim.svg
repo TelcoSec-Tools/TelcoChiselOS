@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd700"/>
+      <stop offset="100%" stop-color="#e8921e"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="#181a1b" stroke="#30363d" stroke-width="2"/>
+  <!-- SIM Card Outline with Chamfered Corner -->
+  <path d="M12 11 L31 11 L36 16 L36 37 L12 37 Z" fill="#21262d" stroke="#8b949e" stroke-width="1.8"/>
+  <!-- Gold Chip Contacts Island -->
+  <rect x="17" y="19" width="14" height="13" rx="2" fill="none" stroke="url(#grad-gold)" stroke-width="1.8"/>
+  <!-- Contact Grid Dividers -->
+  <path d="M17 25.5 L31 25.5 M24 19 L24 32" stroke="url(#grad-gold)" stroke-width="1.2"/>
+  <circle cx="24" cy="25.5" r="2" fill="url(#grad-gold)"/>
+</svg>

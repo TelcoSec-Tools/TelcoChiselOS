@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="grad-chisel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8921e"/>
+      <stop offset="100%" stop-color="#ffd700"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="#181a1b" stroke="#30363d" stroke-width="2"/>
+  <!-- Chisel / Key Blade Angle -->
+  <path d="M14 34 L26 14 L32 17 L20 37 Z" fill="url(#grad-chisel)" stroke="#e8921e" stroke-width="1.5"/>
+  <!-- Chisel Cutting Edge Bevel -->
+  <polygon points="12,35 15,31 19,37 14,37" fill="#ffffff" opacity="0.85"/>
+  <!-- Wordlist Dictionary / Terminal Icon Badge -->
+  <rect x="25" y="25" width="14" height="14" rx="2" fill="#21262d" stroke="#58a6ff" stroke-width="1.5"/>
+  <text x="32" y="34.5" fill="#58a6ff" font-size="8" font-family="monospace" font-weight="bold" text-anchor="middle">&gt;_</text>
+</svg>
