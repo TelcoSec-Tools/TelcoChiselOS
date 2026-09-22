@@ -182,7 +182,7 @@ func writeBufferToTar(tw *tar.Writer, name string, content []byte) error {
 		return err
 	}
 
-	_, err = tw.Write(content)
+	_, err := tw.Write(content)
 	return err
 }
 

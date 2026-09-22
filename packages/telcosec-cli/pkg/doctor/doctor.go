@@ -6,10 +6,8 @@ package doctor
 import (
 	"fmt"
 	"io"
-	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/sdr"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/sim"
@@ -37,12 +35,12 @@ type CheckItem struct {
 
 // DoctorReport contains all aggregated system findings.
 type DoctorReport struct {
-	Items      []CheckItem
-	PassCount  int
-	WarnCount  int
-	FailCount  int
-	SDRDevices []sdr.USBSDRDevice
-	Readers    []sim.SmartCardReader
+	Items       []CheckItem
+	PassCount   int
+	WarnCount   int
+	FailCount   int
+	SDRDevices  []sdr.USBSDRDevice
+	Readers     []sim.SmartcardReader
 	SerialPorts []string
 }
 
@@ -92,13 +90,13 @@ func RunDoctor(w io.Writer) DoctorReport {
 	}
 
 	// 3. Hardware: SIM & Smartcard Readers
-	readers, err := sim.EnumerateReaders()
+	readers, err := sim.ListPCScReaders()
 	report.Readers = readers
 	if err == nil && len(readers) > 0 {
 		for _, r := range readers {
 			status := "PASS"
-			details := fmt.Sprintf("Index %d - Ready for pySim / lpac", r.Index)
-			if r.HasCard {
+			details := "Ready for pySim / lpac"
+			if r.CardPresent {
 				details += " [Card Present]"
 			}
 			report.addItem("SIM / Smartcard", r.Name, status, details)
