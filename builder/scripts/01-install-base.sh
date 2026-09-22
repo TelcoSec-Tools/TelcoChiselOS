@@ -22,11 +22,10 @@ EOF
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
     linux-image-lowlatency linux-headers-lowlatency \
     linux-image-generic linux-headers-generic
-  # Bootloader packages needed INSIDE the image (see lib/packages.sh PKGS_BASE
-  # for the full rationale) — without these, Calamares can't install a
-  # bootloader on the target system at all.
+  # Bootloader & Filesystem / Partitioning Tools (Required for Calamares installation & EFI setup)
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    grub-pc-bin grub-efi-amd64-bin shim-signed grub-efi-amd64-signed
+    grub-pc-bin grub-efi-amd64-bin shim-signed grub-efi-amd64-signed \
+    rsync squashfs-tools dosfstools e2fsprogs parted gparted
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
     xfce4 xfce4-goodies lightdm \
     xserver-xorg xserver-xorg-input-all \
