@@ -9,8 +9,11 @@ import (
 	"strings"
 
 	"github.com/TelcoSec-Tools/telcosec-cli/completions"
+	"github.com/TelcoSec-Tools/telcosec-cli/pkg/assets"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/cellular"
+	"github.com/TelcoSec-Tools/telcosec-cli/pkg/doctor"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/docs"
+	"github.com/TelcoSec-Tools/telcosec-cli/pkg/evidence"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/network"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/packages"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/sdr"
@@ -44,6 +47,7 @@ func printUsage() {
        telcochisel <command> [options]
 
 Commands:
+  doctor               Unified hardware, RF, SIM, modem, and kernel diagnostic probe
   check | status       Comprehensive system, kernel, hardware, and services audit
   hardware             Enumerate and probe attached SDRs, modems, and SIM readers
   search <query>       Search installed 88 tools and desktop launchers by keyword
@@ -51,6 +55,8 @@ Commands:
   sdr [action]         SDR drivers, USB & 10GbE management (status | usb | 10g | firmware)
   10g [action]         10Gbps network SDR interface optimization (status | tune | setup | probe)
   firmware             Inspect and manage offline SDR FPGA bitstreams (BladeRF, USRP)
+  update-assets [grp]  Inspect and synchronize offline FPGA images, specs, and wordlists
+  bundle-evidence [tag] Package captures, crash dumps, and system telemetry into signed archive
   profile [mode]       Switch operational profiles (lab | field | status)
   pkg [action]         Official metapackage manager (list | info | install | remove | check | repo)
   sim [action]         Smartcard, SIM & eSIM auditing (status | readers | atr | trace | lpac | shell)
@@ -75,6 +81,38 @@ func main() {
 	args := os.Args[2:]
 
 	switch cmd {
+	case "doctor", "dr":
+		printBanner()
+		doctor.RunDoctor(os.Stdout)
+
+	case "update-assets", "assets", "update-wordlists":
+		printBanner()
+		if len(args) > 0 && (args[0] == "update" || args[0] == "sync" || args[0] == "download") {
+			target := ""
+			if len(args) > 1 {
+				target = args[1]
+			}
+			_ = assets.UpdateAsset(os.Stdout, target)
+		} else {
+			statuses := assets.CheckAssets()
+			assets.PrintAssetReport(os.Stdout, statuses)
+			fmt.Println("Tip: Run 'telcosec update-assets update [group]' to synchronize offline assets.")
+		}
+
+	case "bundle-evidence", "evidence", "collect-evidence":
+		printBanner()
+		label := ""
+		if len(args) > 0 {
+			label = args[0]
+		}
+		cfg := evidence.BundleConfig{
+			OutputDir:   "/var/log/telcosec/captures",
+			IncludePCAP: true,
+			IncludeLogs: true,
+			Label:       label,
+		}
+		_, _ = evidence.CreateEvidenceBundle(os.Stdout, cfg)
+
 	case "check", "status":
 		printBanner()
 		telemetry.RunAudit(os.Stdout)
