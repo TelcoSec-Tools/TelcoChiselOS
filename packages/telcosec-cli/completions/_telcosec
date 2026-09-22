@@ -12,7 +12,7 @@ _telcosec() {
         'check:Run comprehensive pre-flight healthcheck'
         'status:Display detailed kernel, PAM limits, and service telemetry'
         'hardware:Enumerate and probe attached SDRs, modems, and SIM readers'
-        'search:Search installed 88 telecom tools and desktop launchers by keyword'
+        'search:Search installed 94 telecom tools and desktop launchers by keyword'
         'docs:Open offline documentation & operator reference in browser'
         'sdr:SDR drivers, USB & 10GbE management'
         '10g:10Gbps network SDR interface optimization (MTU 9000, ring buffers)'
@@ -103,7 +103,7 @@ _telcosec() {
                         'sim:SIM & eSIM auditing suite (pySim, SIMtrace 2, lpac)'
                         'wireline:Wireline broadband, VoIP, QinQ & mausezahn'
                         'ue:Mobile UE & baseband diagnostics (SCAT, QCSuper)'
-                        'full:Complete TelcoChisel telecom distribution (88 tools)'
+                        'full:Complete TelcoChisel telecom distribution (94 tools)'
                     )
                     if (( CURRENT == 2 )); then
                         _describe -t pkg_subcmds 'pkg action' pkg_subcmds
