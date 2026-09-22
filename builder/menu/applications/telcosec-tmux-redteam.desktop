@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TelcoSec 4-Pane Operator Matrix
+Comment=Telecom Red Team Multi-Window Command & Control Operational Environment
+Exec=telcosec-tmux-redteam
+Icon=utilities-terminal
+Terminal=false
+Categories=TelcoSec-Tools;System;Utility;
+Keywords=telecom;tmux;redteam;matrix;operator;sdr;5g;ran;

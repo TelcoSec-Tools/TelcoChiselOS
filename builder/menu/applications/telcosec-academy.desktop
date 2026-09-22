@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TelcoSec Academy Practice Labs
+Comment=Telecom Security Practice Lessons, Course Modules, and Exercise Datasets
+Exec=telcosec-academy open
+Icon=applications-education
+Terminal=false
+Categories=TelcoSec-Tools;Education;Security;
+Keywords=telecom;academy;courses;practice;lessons;training;redteam;

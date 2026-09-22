@@ -509,7 +509,12 @@ alias update-sdr="sudo /usr/local/bin/uhd-download-images && sudo /usr/local/bin
 # Networking & Utils
 alias ports="sudo netstat -tulpn"
 EOF
-chmod 644 /etc/profile.d/telcosec-aliases.sh
+# Deploy all helper binaries from /tmp/scripts/bin
+echo "Deploying system CLI tools from /tmp/scripts/bin..."
+if [ -d /tmp/scripts/bin ]; then
+  cp -rf /tmp/scripts/bin/* /usr/local/bin/ 2>/dev/null || true
+  chmod 755 /usr/local/bin/telcosec* /usr/local/bin/*-install 2>/dev/null || true
+fi
 
 echo "Deploying global tool PATH environment..."
 cat << 'EOF' > /etc/profile.d/telcosec-env.sh

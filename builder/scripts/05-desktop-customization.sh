@@ -85,6 +85,18 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
           <property name="last-image" type="string" value="/usr/share/backgrounds/telcosec/wallpaper.jpg"/>
           <property name="image-style" type="int" value="5"/>
         </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/telcosec/wallpaper.jpg"/>
+          <property name="image-style" type="int" value="5"/>
+        </property>
+        <property name="workspace5" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/telcosec/wallpaper.jpg"/>
+          <property name="image-style" type="int" value="5"/>
+        </property>
+        <property name="workspace6" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/telcosec/wallpaper.jpg"/>
+          <property name="image-style" type="int" value="5"/>
+        </property>
       </property>
     </property>
   </property>
@@ -106,7 +118,16 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
   <property name="general" type="empty">
     <property name="theme" type="string" value="Yaru-bark-dark"/>
     <property name="button_layout" type="string" value="O|HMC"/>
-    <property name="workspace_count" type="int" value="4"/>
+    <property name="workspace_count" type="int" value="7"/>
+    <property name="workspace_names" type="array">
+      <value type="string" value="📡 1: RF-DSP"/>
+      <value type="string" value="📻 2: GSM-RAN"/>
+      <value type="string" value="⚡ 3: CORE-5G"/>
+      <value type="string" value="🧪 4: PRO-LABS"/>
+      <value type="string" value="🎓 5: ACADEMY"/>
+      <value type="string" value="🔍 6: DISSECT"/>
+      <value type="string" value="📝 7: EVIDENCE"/>
+    </property>
     <property name="use_compositing" type="bool" value="true"/>
     <property name="unredirect_overlays" type="bool" value="true"/>
     <property name="cycle_preview" type="bool" value="true"/>
@@ -200,8 +221,8 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml
 </channel>
 EOF
 
-# Single top panel: Whisker Menu on the left, Terminator quick launcher next to it,
-# window list with middle-click close filling the middle, workspace switcher + tray + clock on the right.
+# Single top panel: Whisker Menu on the left, quick launchers for Telecom Red Team workflows,
+# window list with middle-click close filling the middle, 7-workspace pager + systray + clock on the right.
 cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-panel" version="1.0">
@@ -213,10 +234,17 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
       <property name="length" type="uint" value="100"/>
       <property name="length-adjust" type="bool" value="true"/>
       <property name="position-locked" type="bool" value="true"/>
-      <property name="size" type="uint" value="30"/>
+      <property name="size" type="uint" value="32"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="1"/>
         <value type="int" value="6"/>
+        <value type="int" value="7"/>
+        <value type="int" value="8"/>
+        <value type="int" value="9"/>
+        <value type="int" value="10"/>
+        <value type="int" value="11"/>
+        <value type="int" value="12"/>
+        <value type="int" value="13"/>
         <value type="int" value="2"/>
         <value type="int" value="3"/>
         <value type="int" value="4"/>
@@ -235,6 +263,41 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
         <value type="string" value="net.tenshu.Terminator.desktop"/>
       </property>
     </property>
+    <property name="plugin-7" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="telcosec-tmux-redteam.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-8" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="telcosec-prolabs.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-9" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="telcosec-academy.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-10" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="wireshark-mon.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-11" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="gqrx.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-12" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="pysim-shell.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-13" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="telcosec-docs.desktop"/>
+      </property>
+    </property>
     <property name="plugin-2" type="string" value="tasklist">
       <property name="expand" type="bool" value="true"/>
       <property name="grouping" type="uint" value="1"/>
@@ -244,6 +307,7 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
     </property>
     <property name="plugin-3" type="string" value="pager">
       <property name="rows" type="uint" value="1"/>
+      <property name="miniature-view" type="bool" value="false"/>
     </property>
     <property name="plugin-4" type="string" value="systray"/>
     <property name="plugin-5" type="string" value="clock">
@@ -303,9 +367,17 @@ mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
 cp -r /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/*.xml /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/
 
 # Pre-configure Whisker Menu favorites, layout dimensions, and panel properties
-mkdir -p /etc/skel/.config/xfce4/panel/launcher-6
+mkdir -p /etc/skel/.config/xfce4/panel/launcher-6 \
+         /etc/skel/.config/xfce4/panel/launcher-7 \
+         /etc/skel/.config/xfce4/panel/launcher-8 \
+         /etc/skel/.config/xfce4/panel/launcher-9 \
+         /etc/skel/.config/xfce4/panel/launcher-10 \
+         /etc/skel/.config/xfce4/panel/launcher-11 \
+         /etc/skel/.config/xfce4/panel/launcher-12 \
+         /etc/skel/.config/xfce4/panel/launcher-13
+
 cat << 'EOF' > /etc/skel/.config/xfce4/panel/whiskermenu-1.rc
-favorites=net.tenshu.Terminator.desktop,wireshark-mon.desktop,gqrx.desktop,pysim-shell.desktop,sigploit.desktop,firmwire.desktop,diafuzzer.desktop,ueransim-gnb.desktop,5ghoul-fuzzer.desktop,telcosec-docs.desktop
+favorites=net.tenshu.Terminator.desktop,telcosec-tmux-redteam.desktop,telcosec-prolabs.desktop,telcosec-academy.desktop,wireshark-mon.desktop,gqrx.desktop,pysim-shell.desktop,sigploit.desktop,firmwire.desktop,diafuzzer.desktop,ueransim-gnb.desktop,5ghoul-fuzzer.desktop,telcosec-docs.desktop
 button-title=TelcoSec
 button-icon=utilities-terminal
 show-button-title=true
@@ -319,7 +391,8 @@ position-search-alternate=true
 stay-on-focus-out=false
 EOF
 
-# Deploy Terminator launcher for top panel plugin-6
+# Deploy panel launcher desktop entries
+# Launcher 6: Terminator
 cat << 'EOF' > /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop
 [Desktop Entry]
 Name=Terminator
@@ -333,6 +406,170 @@ StartupNotify=true
 X-Ubuntu-Gettext-Domain=terminator
 EOF
 cp /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop /etc/skel/.config/xfce4/panel/launcher-6/1.desktop
+
+# Launcher 7: 4-Pane Operator Matrix
+cat << 'EOF' > /etc/skel/.config/xfce4/panel/launcher-7/telcosec-tmux-redteam.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TelcoSec 4-Pane Operator Matrix
+Comment=Telecom Red Team Multi-Window Command & Control Operational Environment
+Exec=telcosec-tmux-redteam
+Icon=utilities-terminal
+Terminal=false
+Categories=TelcoSec-Tools;System;Utility;
+EOF
+cp /etc/skel/.config/xfce4/panel/launcher-7/telcosec-tmux-redteam.desktop /etc/skel/.config/xfce4/panel/launcher-7/1.desktop
+
+# Launcher 8: TelcoSec ProLabs
+cat << 'EOF' > /etc/skel/.config/xfce4/panel/launcher-8/telcosec-prolabs.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TelcoSec ProLabs Cyber Range
+Comment=Carrier Testbeds, 5G SA Pods, and Remote Telecom Cyber Ranges
+Exec=telcosec-prolabs open
+Icon=network-vpn
+Terminal=false
+Categories=TelcoSec-Tools;Network;Security;
+EOF
+cp /etc/skel/.config/xfce4/panel/launcher-8/telcosec-prolabs.desktop /etc/skel/.config/xfce4/panel/launcher-8/1.desktop
+
+# Launcher 9: TelcoSec Academy
+cat << 'EOF' > /etc/skel/.config/xfce4/panel/launcher-9/telcosec-academy.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TelcoSec Academy Practice Labs
+Comment=Telecom Security Practice Lessons, Course Modules, and Exercise Datasets
+Exec=telcosec-academy open
+Icon=applications-education
+Terminal=false
+Categories=TelcoSec-Tools;Education;Security;
+EOF
+cp /etc/skel/.config/xfce4/panel/launcher-9/telcosec-academy.desktop /etc/skel/.config/xfce4/panel/launcher-9/1.desktop
+
+# Launcher 10: Wireshark GSMTAP
+cat << 'EOF' > /etc/skel/.config/xfce4/panel/launcher-10/wireshark-mon.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Wireshark (GSMTAP Dissection)
+Comment=Cellular Traffic Analysis with Custom GSMTAP and 5G Dissectors
+Exec=wireshark -k -Y gsmtap
+Icon=wireshark
+Terminal=false
+Categories=TelcoSec-Tools;06-Dissection-Capture;
+EOF
+cp /etc/skel/.config/xfce4/panel/launcher-10/wireshark-mon.desktop /etc/skel/.config/xfce4/panel/launcher-10/1.desktop
+
+# Launcher 11: Gqrx SDR
+cat << 'EOF' > /etc/skel/.config/xfce4/panel/launcher-11/gqrx.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Gqrx SDR
+Comment=Software Defined Radio Receiver & Spectrum Waterfall
+Exec=gqrx
+Icon=gqrx
+Terminal=false
+Categories=TelcoSec-Tools;01-RF-SDR-Hardware;
+EOF
+cp /etc/skel/.config/xfce4/panel/launcher-11/gqrx.desktop /etc/skel/.config/xfce4/panel/launcher-11/1.desktop
+
+# Launcher 12: pySim-shell
+cat << 'EOF' > /etc/skel/.config/xfce4/panel/launcher-12/pysim-shell.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=pySim Shell
+Comment=SIM/USIM/ISIM Smartcard Programming & APDU Explorer
+Exec=terminator -e "pysim-shell"
+Icon=smartcard
+Terminal=false
+Categories=TelcoSec-Tools;08-SIM-Smartcard;
+EOF
+cp /etc/skel/.config/xfce4/panel/launcher-12/pysim-shell.desktop /etc/skel/.config/xfce4/panel/launcher-12/1.desktop
+
+# Launcher 13: TelcoSec Documentation
+cat << 'EOF' > /etc/skel/.config/xfce4/panel/launcher-13/telcosec-docs.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TelcoSec Documentation
+Comment=Offline Telecom Security OS Documentation and Tool Reference
+Exec=firefox file:///usr/share/doc/telcosec/index.html
+Icon=help-browser
+Terminal=false
+Categories=TelcoSec-Tools;
+EOF
+cp /etc/skel/.config/xfce4/panel/launcher-13/telcosec-docs.desktop /etc/skel/.config/xfce4/panel/launcher-13/1.desktop
+
+# Deploy Thunar Custom Actions (uca.xml)
+echo "Deploying Thunar custom actions (Wireshark GSMTAP, Inspectrum I/Q, pySim APDU, SHA256)..."
+mkdir -p /etc/skel/.config/Thunar /etc/xdg/Thunar
+cat << 'EOF' > /etc/skel/.config/Thunar/uca.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+	<icon>utilities-terminal</icon>
+	<name>Open Zsh Terminal Here</name>
+	<submenu></submenu>
+	<unique-id>1700000000000000-1</unique-id>
+	<command>terminator --working-directory=%f</command>
+	<description>Open high-performance Zsh terminal emulator in current folder</description>
+	<range></range>
+	<patterns>*</patterns>
+	<directories/>
+</action>
+<action>
+	<icon>wireshark</icon>
+	<name>Analyze GSMTAP / Cellular PCAP (Wireshark)</name>
+	<submenu></submenu>
+	<unique-id>1700000000000000-2</unique-id>
+	<command>wireshark -k -Y gsmtap %f</command>
+	<description>Open cellular packet capture with GSMTAP protocol dissections</description>
+	<range></range>
+	<patterns>*.pcap;*.pcapng;*.cap;*.pcap.gz</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>gqrx</icon>
+	<name>Inspect RF I/Q Spectrum (Inspectrum)</name>
+	<submenu></submenu>
+	<unique-id>1700000000000000-3</unique-id>
+	<command>inspectrum %f</command>
+	<description>Analyze raw SDR I/Q recording spectrum and demodulate bursts</description>
+	<range></range>
+	<patterns>*.cfile;*.iq;*.raw;*.bin;*.cs8;*.cs16;*.cf32</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>smartcard</icon>
+	<name>Execute APDU Script (pySim-shell)</name>
+	<submenu></submenu>
+	<unique-id>1700000000000000-4</unique-id>
+	<command>terminator -e "pysim-shell --script %f; echo ''; read -p 'Execution complete. Press enter...'"</command>
+	<description>Execute SIM/USIM smartcard APDU batch sequence</description>
+	<range></range>
+	<patterns>*.apdu;*.pysim;*.sim;*.txt</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>document-properties</icon>
+	<name>Compute SHA-256 Forensic Hash</name>
+	<submenu></submenu>
+	<unique-id>1700000000000000-5</unique-id>
+	<command>terminator -e "echo '=== SHA-256 Forensic Checksum ==='; echo 'File: %n'; echo ''; sha256sum %f; echo ''; read -p 'Press enter to exit...'"</command>
+	<description>Generate SHA-256 hash for forensic evidence chain-of-custody</description>
+	<range></range>
+	<patterns>*</patterns>
+	<other-files/>
+	<text-files/>
+</action>
+</actions>
+EOF
+cp /etc/skel/.config/Thunar/uca.xml /etc/xdg/Thunar/uca.xml
 
 # Deploy Terminator shortcut to Desktop
 echo "Deploying Terminator desktop shortcut..."
@@ -399,16 +636,19 @@ EOF
 
 if [ -d /home/telcosec ]; then
   mkdir -p /home/telcosec/.config/xfce4/xfconf/xfce-perchannel-xml \
-           /home/telcosec/.config/xfce4/panel/launcher-6 \
+           /home/telcosec/.config/xfce4/panel \
            /home/telcosec/.config/gtk-3.0 \
            /home/telcosec/.config/terminator \
+           /home/telcosec/.config/Thunar \
            /home/telcosec/Desktop
   cp /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/*.xml \
      /home/telcosec/.config/xfce4/xfconf/xfce-perchannel-xml/ 2>/dev/null || true
   cp /etc/skel/.config/xfce4/panel/whiskermenu-1.rc \
      /home/telcosec/.config/xfce4/panel/ 2>/dev/null || true
-  cp /etc/skel/.config/xfce4/panel/launcher-6/* \
-     /home/telcosec/.config/xfce4/panel/launcher-6/ 2>/dev/null || true
+  cp -r /etc/skel/.config/xfce4/panel/launcher-* \
+     /home/telcosec/.config/xfce4/panel/ 2>/dev/null || true
+  cp /etc/skel/.config/Thunar/uca.xml \
+     /home/telcosec/.config/Thunar/uca.xml 2>/dev/null || true
   cp /etc/skel/.config/gtk-3.0/settings.ini \
      /home/telcosec/.config/gtk-3.0/settings.ini 2>/dev/null || true
   cp /etc/skel/.config/terminator/config \
@@ -1457,6 +1697,13 @@ WantedBy=multi-user.target
 EOF
 systemctl enable telcosec-session-select.service 2>/dev/null || true
 
+# Deploy TelcoSec ProLabs, Academy, and Red Team binaries
+if [ -d /tmp/scripts/bin ]; then
+    cp -f /tmp/scripts/bin/telcosec-prolabs /usr/local/bin/telcosec-prolabs 2>/dev/null || true
+    cp -f /tmp/scripts/bin/telcosec-academy /usr/local/bin/telcosec-academy 2>/dev/null || true
+    chmod 755 /usr/local/bin/telcosec-prolabs /usr/local/bin/telcosec-academy 2>/dev/null || true
+fi
+
 # Copy i3 configs to home if exists
 if [ -d /home/telcosec ]; then
     mkdir -p /home/telcosec/.config/i3 /home/telcosec/.config/i3status /home/telcosec/.config/rofi /home/telcosec/.config/picom
@@ -1466,4 +1713,5 @@ if [ -d /home/telcosec ]; then
     cp -r /etc/skel/.config/picom /home/telcosec/.config/ 2>/dev/null || true
     chown -R telcosec:telcosec /home/telcosec/.config || true
 fi
+
 

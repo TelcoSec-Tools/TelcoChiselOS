@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+# =============================================================================
+# /usr/local/bin/telcosec-academy — TelcoSec Academy Practice Lessons & Lab Manager
+#
+# Connects students and operators directly to https://app.telcosec.net
+# practice courses, downloadable lab exercises, PCAPs, and runbooks.
+# =============================================================================
+set -euo pipefail
+
+ACADEMY_DIR="/etc/telcosec/academy"
+USER_ACADEMY_DIR="${HOME}/.config/telcosec/academy"
+ACADEMY_URL="https://app.telcosec.net"
+COURSES_URL="https://app.telcosec.net/courses"
+VERSION="2026.1"
+
+# Terminal Colors
+if [ -t 1 ]; then
+  BOLD='\033[1m'
+  CYAN='\033[1;36m'
+  GREEN='\033[1;32m'
+  YELLOW='\033[1;33m'
+  RED='\033[1;31m'
+  BLUE='\033[1;34m'
+  RESET='\033[0m'
+else
+  BOLD='' CYAN='' GREEN='' YELLOW='' RED='' BLUE='' RESET=''
+fi
+
+SHOW_HEADER() {
+  echo -e "${CYAN}${BOLD}╔══════════════════════════════════════════════════════════════════╗${RESET}"
+  echo -e "${CYAN}${BOLD}║             🎓 TelcoSec Academy — Course & Practice Labs         ║${RESET}"
+  echo -e "${CYAN}${BOLD}║          Telecom Red Teaming • 5G Security • RF Exploits         ║${RESET}"
+  echo -e "${CYAN}${BOLD}╚══════════════════════════════════════════════════════════════════╝${RESET}\n"
+}
+
+SHOW_HELP() {
+  SHOW_HEADER
+  echo -e "Usage: ${BOLD}telcosec academy${RESET} [COMMAND] [OPTIONS]\n"
+  echo -e "Commands:"
+  echo -e "  ${GREEN}open${RESET}            Launch the TelcoSec Academy Portal in your default browser"
+  echo -e "  ${GREEN}courses${RESET}         Browse available cellular security practice courses"
+  echo -e "  ${GREEN}practice <id>${RESET}   Start a local practice environment or open course lab guide"
+  echo -e "  ${GREEN}status${RESET}          Check your current course progress and active lab containers"
+  echo -e "  ${GREEN}download <id>${RESET}   Download course sample PCAP captures and I/Q datasets"
+  echo -e "  ${GREEN}help${RESET}            Show this help dialogue\n"
+  echo -e "Academy Portal: ${BLUE}${ACADEMY_URL}${RESET}\n"
+}
+
+CMD="${1:-open}"
+
+case "$CMD" in
+  open|portal|web)
+    echo -e "Launching TelcoSec Academy Practice Lessons Portal in browser..."
+    if command -v xdg-open >/dev/null 2>&1; then
+      xdg-open "${ACADEMY_URL}" 2>/dev/null &
+    elif command -v firefox >/dev/null 2>&1; then
+      firefox "${ACADEMY_URL}" 2>/dev/null &
+    else
+      echo -e "Please visit: ${BLUE}${ACADEMY_URL}${RESET}"
+    fi
+    ;;
+
+  courses|list)
+    SHOW_HEADER
+    echo -e "${BOLD}Available Telecom Security Practice Courses & Labs:${RESET}\n"
+    echo -e "  ${BOLD}[5G-SEC-101]${RESET} ${GREEN}5G Standalone Security & Protocol Architecture${RESET}"
+    echo -e "               • NG-RAN, AMF/SMF/UPF, SBI REST/HTTP2 Security, Authentication Vectors"
+    echo -e "  ${BOLD}[RAN-SDR-201]${RESET} ${GREEN}SDR & Radio Access Network Interception${RESET}"
+    echo -e "               • GSM/LTE Air Interface, IMSI Catching analysis, GNU Radio flowgraphs"
+    echo -e "  ${BOLD}[SS7-SIG-301]${RESET} ${GREEN}SS7 & Diameter Telecom Interconnect Exploitation${RESET}"
+    echo -e "               • Location tracking, SMS interception, Roaming security analysis"
+    echo -e "  ${BOLD}[SIM-APDU-401]${RESET} ${GREEN}SIM/eSIM Smartcard Penetration Testing & OTA${RESET}"
+    echo -e "               • pySim APDU scripting, BIP protocols, USIM key derivation (Milenage)"
+    echo -e "  ${BOLD}[GTP-CORE-501]${RESET} ${GREEN}GTP-C / GTP-U Tunnel Injection & Evolved Packet Core${RESET}"
+    echo -e "               • User plane hijacking, PGW/SGW spoofing, Over-billing vectors\n"
+    echo -e "Explore interactive labs online: ${BLUE}${COURSES_URL}${RESET}\n"
+    ;;
+
+  practice|lab)
+    COURSE_ID="${2:-}"
+    if [ -z "$COURSE_ID" ]; then
+      SHOW_HEADER
+      echo -e "${YELLOW}Please specify a course or lab ID to launch practice environment:${RESET}"
+      echo -e "  ${BOLD}telcosec academy practice 5g-sec-101${RESET}"
+      echo -e "  ${BOLD}telcosec academy practice ran-sdr-201${RESET}"
+      echo -e "  ${BOLD}telcosec academy practice sim-apdu-401${RESET}\n"
+      exit 1
+    fi
+
+    SHOW_HEADER
+    echo -e "${GREEN}Starting Practice Lab Session for [${COURSE_ID}]...${RESET}"
+    
+    TARGET_LAB_URL="${COURSES_URL}/${COURSE_ID}"
+    if command -v xdg-open >/dev/null 2>&1; then
+      xdg-open "${TARGET_LAB_URL}" 2>/dev/null &
+    elif command -v firefox >/dev/null 2>&1; then
+      firefox "${TARGET_LAB_URL}" 2>/dev/null &
+    fi
+    echo -e "Lab guide opened: ${BLUE}${TARGET_LAB_URL}${RESET}"
+    ;;
+
+  status)
+    SHOW_HEADER
+    echo -e "${BOLD}TelcoSec Academy Local Practice Status:${RESET}"
+    mkdir -p "${USER_ACADEMY_DIR}" 2>/dev/null || true
+    
+    # Check if any local practice containers or lab mockups are running
+    RUNNING_LABS=0
+    if command -v docker >/dev/null 2>&1; then
+      if docker ps --format '{{.Names}}' 2>/dev/null | grep -qE "open5gs|ueransim|srsran|osmocom"; then
+        echo -e "  ${GREEN}● Active Local Practice Containers:${RESET}"
+        docker ps --filter "name=open5gs" --filter "name=ueransim" --filter "name=srsran" --filter "name=osmocom" --format "    - {{.Names}} ({{.Status}})"
+        RUNNING_LABS=1
+      fi
+    fi
+    
+    if [ "$RUNNING_LABS" -eq 0 ]; then
+      echo -e "  ${YELLOW}○ No local standalone practice containers active.${RESET}"
+      echo -e "  To launch dedicated remote testbeds, use: ${BOLD}telcosec prolabs${RESET}"
+    fi
+    echo ""
+    ;;
+
+  download|pcap|samples)
+    SAMPLE_ID="${2:-}"
+    SHOW_HEADER
+    echo -e "${GREEN}Accessing TelcoSec Academy Exercise Datasets & PCAPs...${RESET}"
+    SAMPLES_URL="https://app.telcosec.net/samples"
+    if command -v xdg-open >/dev/null 2>&1; then
+      xdg-open "${SAMPLES_URL}" 2>/dev/null &
+    fi
+    echo -e "Download repository: ${BLUE}${SAMPLES_URL}${RESET}\n"
+    ;;
+
+  help|--help|-h)
+    SHOW_HELP
+    ;;
+
+  *)
+    echo -e "${RED}Unknown command: ${CMD}${RESET}"
+    SHOW_HELP
+    exit 1
+    ;;
+esac

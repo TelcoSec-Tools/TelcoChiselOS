@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TelcoSec ProLabs Cyber Range
+Comment=Carrier Testbeds, 5G SA Pods, and Remote Telecom Cyber Ranges
+Exec=telcosec-prolabs open
+Icon=network-vpn
+Terminal=false
+Categories=TelcoSec-Tools;Network;Security;
+Keywords=telecom;prolabs;range;5g;testbed;wireguard;openvpn;cyber;
