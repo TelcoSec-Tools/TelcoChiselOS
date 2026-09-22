@@ -44,8 +44,9 @@ PKGS_BASE=(
   yaru-theme-gtk yaru-theme-icon papirus-icon-theme
   # Boot splash (telcosec Plymouth theme — see builder/boot/plymouth/)
   plymouth plymouth-themes
-  # Core system tools
-  git vim nano htop fzf
+  # Core system & terminal productivity tools
+  git vim nano htop fzf tmux zsh zsh-autosuggestions zsh-syntax-highlighting
+  bat ripgrep jq tree xclip
   build-essential cmake pkg-config golang-go
   ufw openssh-server
   openvpn network-manager-openvpn network-manager-openvpn-gnome

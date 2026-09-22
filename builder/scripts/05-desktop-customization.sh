@@ -484,6 +484,145 @@ fi
 BASHRC
 fi
 
+# 3b. High-Performance Zsh Shell Environment & Completions
+echo "Configuring optimized Zsh environment and telecom completions..."
+mkdir -p /etc/zsh /etc/skel /usr/share/zsh/site-functions /usr/share/zsh/vendor-completions
+
+cat << 'EOF' > /etc/skel/.zshrc
+# =============================================================================
+# TelcoChisel OS — Optimized Zsh Configuration for Telecom Security
+# =============================================================================
+
+# 1. Environment & Path Loading
+if [ -f /etc/profile.d/telcosec-env.sh ]; then
+    . /etc/profile.d/telcosec-env.sh
+fi
+if [ -f /etc/profile.d/telcosec-aliases.sh ]; then
+    . /etc/profile.d/telcosec-aliases.sh
+fi
+
+# 2. History Configuration
+HISTFILE=~/.zsh_history
+HISTSIZE=50000
+SAVEHIST=50000
+setopt SHARE_HISTORY          # Share command history across open terminals
+setopt HIST_EXPIRE_DUPS_FIRST # Delete duplicate commands first when trimming
+setopt HIST_IGNORE_DUPS       # Do not record an entry that was just recorded
+setopt HIST_IGNORE_ALL_DUPS   # Delete old duplicate entry when new is added
+setopt HIST_FIND_NO_DUPS      # Do not display duplicates when searching history
+setopt HIST_IGNORE_SPACE      # Do not record lines starting with a space
+setopt HIST_SAVE_NO_DUPS      # Do not write duplicate events to history file
+setopt HIST_REDUCE_BLANKS     # Remove unnecessary blanks from history
+setopt EXTENDED_HISTORY       # Record timestamps in history
+
+# 3. Directory Navigation Options
+setopt AUTO_CD                # Type directory name to cd into it
+setopt AUTO_PUSHD             # Make cd push old directory onto directory stack
+setopt PUSHD_IGNORE_DUPS      # Do not push duplicates onto directory stack
+setopt PUSHD_SILENT           # Do not print directory stack after pushd/popd
+setopt NO_BEEP                # Disable audio bell
+
+# 4. Advanced Tab Completion System
+autoload -Uz compinit
+# Cache compinit dump once daily for instant shell startup
+typeset -i updated_at=$(date +'%j' -r ~/.zcompdump 2>/dev/null || stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null || echo 0)
+if [ $(date +'%j') != $updated_at ]; then
+    compinit -i
+else
+    compinit -C -i
+fi
+
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' menu select
+zstyle ':completion:*:descriptions' format '%F{cyan}-- %d --%f'
+zstyle ':completion:*:processes' command 'ps -au$USER'
+
+# 5. Fast, Zero-Lag Custom Prompt with Git Integration
+autoload -Uz vcs_info
+precmd_vcs_info() { vcs_info }
+precmd_functions+=( precmd_vcs_info )
+setopt prompt_subst
+zstyle ':vcs_info:git:*' formats ' %F{242}(%F{green}%b%F{242})%f'
+
+# Prompt layout: user@host:path (git_branch) $
+PROMPT='%F{cyan}%n@%m%f:%F{white}%~%f${vcs_info_msg_0_} %(?.%F{cyan}%#%f.%F{red}%#%f) '
+RPROMPT='%F{242}[%*]%f'
+
+# 6. Keybindings (Standard Line Editing & History Substring Navigation)
+bindkey -e
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey '^[[3~' delete-char
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+bindkey '^[[A' history-beginning-search-backward
+bindkey '^[[B' history-beginning-search-forward
+
+# 7. Zsh Plugins Integration (Autosuggestions & Syntax Highlighting)
+if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+    source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=244'
+    ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+fi
+
+if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+    source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+
+# 8. FZF Integration (Fuzzy History & File Search)
+if [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
+    source /usr/share/doc/fzf/examples/key-bindings.zsh
+fi
+if [ -f /usr/share/doc/fzf/examples/completion.zsh ]; then
+    source /usr/share/doc/fzf/examples/completion.zsh
+fi
+
+# 9. Productive Telecom & System Aliases
+alias ls='ls --color=auto'
+alias ll='ls -lah --color=auto'
+alias la='ls -A --color=auto'
+alias l='ls -CF --color=auto'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
+command -v batcat >/dev/null 2>&1 && alias cat='batcat --paging=never'
+command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never'
+
+alias ports='sudo netstat -tulpn'
+alias update-sdr='sudo /usr/local/bin/uhd-download-images && sudo /usr/local/bin/LimeUtil --update'
+alias yate-logs='tail -f /var/log/yate.log'
+alias gsmtap='sudo tcpdump -i any -n "udp port 4729 or udp port 47290"'
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+EOF
+
+# Copy Zsh configuration to /etc/zsh/zprofile and skeleton
+cp /etc/skel/.zshrc /etc/zsh/zshrc 2>/dev/null || true
+
+# Deploy telcosec CLI zsh completion if available
+if [ -f /tmp/telcosec-cli/completions/_telcosec ]; then
+    cp /tmp/telcosec-cli/completions/_telcosec /usr/share/zsh/site-functions/_telcosec
+    cp /tmp/telcosec-cli/completions/_telcosec /usr/share/zsh/vendor-completions/_telcosec
+    chmod 644 /usr/share/zsh/site-functions/_telcosec /usr/share/zsh/vendor-completions/_telcosec
+fi
+
+# Set default user shell to zsh if installed
+if [ -f /bin/zsh ] || [ -f /usr/bin/zsh ]; then
+    ZSH_PATH=$(which zsh)
+    sed -i "s|SHELL=/bin/sh|SHELL=$ZSH_PATH|" /etc/default/useradd 2>/dev/null || true
+    sed -i "s|DSHELL=/bin/bash|DSHELL=$ZSH_PATH|" /etc/adduser.conf 2>/dev/null || true
+    chsh -s "$ZSH_PATH" telcosec 2>/dev/null || true
+fi
+
+if [ -d /home/telcosec ]; then
+    cp /etc/skel/.zshrc /home/telcosec/.zshrc
+    chown telcosec:telcosec /home/telcosec/.zshrc
+fi
+
 # 4. Deploy Local Documentation & Configure Firefox Policies
 echo "Deploying local documentation..."
 mkdir -p /usr/share/doc/telcosec/
@@ -647,43 +786,93 @@ systemctl mask apport 2>/dev/null || true
 rm -f /etc/apport/crashdb.conf 2>/dev/null || true
 
 # 7. tmux configuration
-# Status bar accent uses the brand's amber phosphor color (#e8921e, matching
-# docs/assets/main.css --amber) rather than the previous cyan/teal (#00FFD5),
-# to stay consistent with the rest of the TelcoSec visual identity.
-echo "Configuring tmux status and defaults..."
+echo "Configuring advanced tmux status, keybindings, and defaults..."
 cat << 'EOF' > /etc/skel/.tmux.conf
+# =============================================================================
+# TelcoChisel OS — Advanced Tmux Configuration for Telecom Red Team
+# =============================================================================
+
+# 1. Terminal & TrueColor Support
 set -g default-terminal "screen-256color"
 set-option -sa terminal-overrides ",xterm-256color:RGB"
-set -g mouse on
-set -g history-limit 50000
+set -ga terminal-overrides ",*256col*:Tc"
+set -s escape-time 0
+set -g focus-events on
+
+# 2. Ergonomic Prefix Keys (Ctrl+b & Ctrl+a)
 set -g prefix C-b
 set -g prefix2 C-a
 bind C-a send-prefix
+
+# 3. Mouse & History
+set -g mouse on
+set -g history-limit 50000
+
+# 4. 1-Based Indexing for Windows & Panes
 set -g base-index 1
 setw -g pane-base-index 1
+set -g renumber-windows on
+
+# 5. Intuitive Window Splitting
 bind | split-window -h -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"
+bind _ split-window -v -c "#{pane_current_path}"
 unbind '"'
 unbind %
+
+# 6. Pane Navigation (Vim Keys & Alt+Arrow Direct Navigation)
 bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
+
+bind -n M-Left select-pane -L
+bind -n M-Right select-pane -R
+bind -n M-Up select-pane -U
+bind -n M-Down select-pane -D
+
+bind -n M-h select-pane -L
+bind -n M-j select-pane -D
+bind -n M-k select-pane -U
+bind -n M-l select-pane -R
+
+# 7. Pane Resizing (Prefix + Shift + Vim Keys)
 bind -r H resize-pane -L 5
 bind -r J resize-pane -D 5
 bind -r K resize-pane -U 5
 bind -r L resize-pane -R 5
-set -g status-style bg='#0D1117',fg='#C9D1D9'
-set -g status-left-length 20
-set -g status-left '#[bg=#e8921e,fg=#0D1117,bold] ⚡ #S #[bg=default,fg=default] '
-set -g status-right '#[fg=#e8921e,bold] @#h #[fg=#ABB2BF] %Y-%m-%d %H:%M '
+
+# 8. Vi Mode Copy & System Clipboard Integration
+setw -g mode-keys vi
+bind -T copy-mode-vi v send-keys -X begin-selection
+bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -in -selection clipboard 2>/dev/null || true"
+bind -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "xclip -in -selection clipboard 2>/dev/null || true"
+
+# 9. Quick Config Reload
+bind r source-file ~/.tmux.conf \; display-message "⚡ Tmux configuration reloaded successfully!"
+
+# 10. Cyberpunk Dark Status Bar & Visual Aesthetics
+set -g status-interval 2
+set -g status-style bg='#0e121a',fg='#e6edf3'
+set -g status-left-length 30
+set -g status-right-length 80
+
+set -g status-left '#[bg=#00ffd5,fg=#0e121a,bold] ⚡ #S #[bg=default,fg=default] '
+set -g status-right '#[fg=#00ffd5,bold] @#h #[fg=#e8921e,bold] %Y-%m-%d #[fg=#ffffff,bold]%H:%M:%S '
 set -g status-justify left
-setw -g window-status-current-style bg='#e8921e',fg='#0D1117',bold
-setw -g window-status-current-format ' #I:#W '
-setw -g window-status-style bg=default,fg='#8B949E'
+
+setw -g window-status-current-style bg='#00ffd5',fg='#0e121a',bold
+setw -g window-status-current-format ' #I:#W#F '
+
+setw -g window-status-style bg=default,fg='#8b949e'
 setw -g window-status-format ' #I:#W '
-set -g pane-border-style fg='#30363D'
-set -g pane-active-border-style fg='#e8921e'
+
+set -g pane-border-style fg='#21262d'
+set -g pane-active-border-style fg='#00ffd5'
+
+set -g message-style bg='#00ffd5',fg='#0e121a',bold
+set -g message-command-style bg='#e8921e',fg='#0e121a',bold
+
 set -g bell-action none
 set -g visual-bell off
 EOF
