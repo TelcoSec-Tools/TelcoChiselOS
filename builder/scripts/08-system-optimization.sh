@@ -527,4 +527,16 @@ if [ -d /etc/ssh ]; then
   rm -f /etc/ssh/ssh_host_*_key*
 fi
 
+# 14. Ensure All Desktop Shortcuts Have Proper Permissions and Trust
+echo "Applying final desktop shortcut trust and permissions..."
+chmod 755 /etc/skel/Desktop/*.desktop /home/telcosec/Desktop/*.desktop 2>/dev/null || true
+for f in /etc/skel/Desktop/*.desktop /home/telcosec/Desktop/*.desktop; do
+  [ -f "$f" ] || continue
+  gio set -t string "$f" metadata::trusted true 2>/dev/null || true
+  gio set -t string "$f" metadata::trusted yes 2>/dev/null || true
+done
+if [ -d /home/telcosec ]; then
+  chown -R telcosec:telcosec /home/telcosec/Desktop /home/telcosec/.config 2>/dev/null || true
+fi
+
 echo "=== System Optimizations Applied Successfully ==="
