@@ -785,14 +785,140 @@ systemctl disable apport 2>/dev/null || true
 systemctl mask apport 2>/dev/null || true
 rm -f /etc/apport/crashdb.conf 2>/dev/null || true
 
-# 7. tmux configuration
-echo "Configuring advanced tmux status, keybindings, and defaults..."
+# 7. tmux configuration & Telecom RAN Status Monitor
+echo "Deploying telcosec-ran-status telemetry helper..."
+cat << 'EOF' > /usr/local/bin/telcosec-ran-status
+#!/bin/bash
+# =============================================================================
+# telcosec-ran-status — Live RAN & SDR Hardware Telemetry for TelcoChiselOS
+# =============================================================================
+
+PRINT_SUMMARY() {
+    # 1-line summary for tmux status bar
+    local sdr_cnt=0
+    local sdr_names=""
+    if lsusb 2>/dev/null | grep -qi "2500\|USRP\|National Instruments"; then
+        sdr_cnt=$((sdr_cnt+1))
+        sdr_names="${sdr_names}USRP "
+    fi
+    if lsusb 2>/dev/null | grep -qi "1d50:6089\|HackRF"; then
+        sdr_cnt=$((sdr_cnt+1))
+        sdr_names="${sdr_names}HackRF "
+    fi
+    if lsusb 2>/dev/null | grep -qi "BladeRF\|2cf0:5246"; then
+        sdr_cnt=$((sdr_cnt+1))
+        sdr_names="${sdr_names}BladeRF "
+    fi
+    if lsusb 2>/dev/null | grep -qi "LimeSDR\|0403:601f"; then
+        sdr_cnt=$((sdr_cnt+1))
+        sdr_names="${sdr_names}LimeSDR "
+    fi
+    if lsusb 2>/dev/null | grep -qi "RTL2838\|RTL2832"; then
+        sdr_cnt=$((sdr_cnt+1))
+        sdr_names="${sdr_names}RTL-SDR "
+    fi
+
+    local core_status="Off"
+    if systemctl is-active open5gs-amfd >/dev/null 2>&1 || systemctl is-active open5gs-upfd >/dev/null 2>&1; then
+        core_status="5G-UP"
+    elif ip link show ogstun >/dev/null 2>&1; then
+        core_status="Core-TUN"
+    fi
+
+    local vpn_status="None"
+    if ip link show tun0 >/dev/null 2>&1; then
+        vpn_status="VPN"
+    elif ip link show wg0 >/dev/null 2>&1; then
+        vpn_status="WG"
+    fi
+
+    if [ "$sdr_cnt" -gt 0 ]; then
+        echo -n "📡 [${sdr_names% }] | 📶 ${core_status} | 🛡️ ${vpn_status}"
+    else
+        echo -n "📡 [No SDR] | 📶 ${core_status} | 🛡️ ${vpn_status}"
+    fi
+}
+
+PRINT_FULL() {
+    clear
+    echo -e "\033[1;36m=== 📡 TelcoChisel Live RAN & SDR Hardware Telemetry ===\033[0m"
+    echo -e "\033[1;30mTimestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')\033[0m\n"
+    
+    echo -e "\033[1;33m[1] Connected SDR Transceivers & RF Probes:\033[0m"
+    local found_sdr=0
+    if command -v uhd_find_devices &>/dev/null; then
+        local uhd_out
+        uhd_out=$(uhd_find_devices 2>&1 | grep -E "type:|product:|serial:" || true)
+        if [ -n "$uhd_out" ]; then
+            echo -e "  \033[1;32m✓ USRP Hardware:\033[0m\n$uhd_out"
+            found_sdr=1
+        fi
+    fi
+    if lsusb 2>/dev/null | grep -qi "1d50:6089\|HackRF"; then
+        echo -e "  \033[1;32m✓ HackRF One (USB)\033[0m"
+        found_sdr=1
+    fi
+    if lsusb 2>/dev/null | grep -qi "BladeRF\|2cf0:5246"; then
+        echo -e "  \033[1;32m✓ Nuand BladeRF 2.0 micro (USB 3.0)\033[0m"
+        found_sdr=1
+    fi
+    if lsusb 2>/dev/null | grep -qi "LimeSDR\|0403:601f"; then
+        echo -e "  \033[1;32m✓ LimeSDR Transceiver\033[0m"
+        found_sdr=1
+    fi
+    if lsusb 2>/dev/null | grep -qi "RTL2838\|RTL2832"; then
+        echo -e "  \033[1;32m✓ RTL-SDR Receiver (R820T2/R828D)\033[0m"
+        found_sdr=1
+    fi
+    if [ "$found_sdr" -eq 0 ]; then
+        echo -e "  \033[1;31m✗ No SDR transceivers detected (Check USB / PCIe links)\033[0m"
+    fi
+
+    echo -e "\n\033[1;33m[2] SIM & Smart Card Readers:\033[0m"
+    local found_sim=0
+    if lsusb 2>/dev/null | grep -qi "simtrace\|sysmocom"; then
+        echo -e "  \033[1;32m✓ Sysmocom SIMtrace 2 Hardware Attached\033[0m"
+        found_sim=1
+    fi
+    if lsusb 2>/dev/null | grep -qi "smart card\|ccid\|omnikey\|acr38\|gemalto"; then
+        echo -e "  \033[1;32m✓ PCSC Smart Card Reader Attached\033[0m"
+        found_sim=1
+    fi
+    if [ "$found_sim" -eq 0 ]; then
+        echo -e "  \033[1;30m- No SIMtrace or CCID readers attached\033[0m"
+    fi
+
+    echo -e "\n\033[1;33m[3] Cellular Virtual Interfaces & Zero-Drop MTU:\033[0m"
+    ip -brief addr show ogstun uesimtun0 srsran_tun tun_srsue 2>/dev/null || echo -e "  \033[1;30m- No active cellular TUN interfaces\033[0m"
+
+    local usbfs_mb
+    usbfs_mb=$(cat /sys/module/usbcore/parameters/usbfs_memory_mb 2>/dev/null || echo "N/A")
+    echo -e "  USBFS Memory Buffer : \033[1;36m${usbfs_mb} MB\033[0m (Target: 1000 MB)"
+}
+
+if [ "$1" = "--summary" ]; then
+    PRINT_SUMMARY
+    exit 0
+elif [ "$1" = "--watch" ]; then
+    while true; do
+        PRINT_FULL
+        sleep 2
+    done
+else
+    PRINT_FULL
+fi
+EOF
+chmod 755 /usr/local/bin/telcosec-ran-status
+
+echo "Configuring advanced tmux status, Zsh integration, and defaults..."
 cat << 'EOF' > /etc/skel/.tmux.conf
 # =============================================================================
 # TelcoChisel OS — Advanced Tmux Configuration for Telecom Red Team
 # =============================================================================
 
-# 1. Terminal & TrueColor Support
+# 1. Shell & Terminal Setup (Default to Zsh with TrueColor)
+set -g default-shell /bin/zsh
+set -g default-command "${SHELL}"
 set -g default-terminal "screen-256color"
 set-option -sa terminal-overrides ",xterm-256color:RGB"
 set -ga terminal-overrides ",*256col*:Tc"
@@ -813,7 +939,7 @@ set -g base-index 1
 setw -g pane-base-index 1
 set -g renumber-windows on
 
-# 5. Intuitive Window Splitting
+# 5. Intuitive Window Splitting (Preserving Working Directory)
 bind | split-window -h -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"
 bind _ split-window -v -c "#{pane_current_path}"
@@ -851,14 +977,14 @@ bind -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "xclip -in -selecti
 # 9. Quick Config Reload
 bind r source-file ~/.tmux.conf \; display-message "⚡ Tmux configuration reloaded successfully!"
 
-# 10. Cyberpunk Dark Status Bar & Visual Aesthetics
-set -g status-interval 2
+# 10. Cyberpunk Dark Status Bar with Live RAN Telemetry
+set -g status-interval 3
 set -g status-style bg='#0e121a',fg='#e6edf3'
-set -g status-left-length 30
-set -g status-right-length 80
+set -g status-left-length 40
+set -g status-right-length 120
 
-set -g status-left '#[bg=#00ffd5,fg=#0e121a,bold] ⚡ #S #[bg=default,fg=default] '
-set -g status-right '#[fg=#00ffd5,bold] @#h #[fg=#e8921e,bold] %Y-%m-%d #[fg=#ffffff,bold]%H:%M:%S '
+set -g status-left '#[bg=#00ffd5,fg=#0e121a,bold] 📡 TELCO-SEC #[bg=default,fg=default] '
+set -g status-right '#[fg=#e8921e,bold]#(/usr/local/bin/telcosec-ran-status --summary 2>/dev/null) #[fg=#00ffd5,bold]@#h #[fg=#ffffff,bold]%H:%M:%S '
 set -g status-justify left
 
 setw -g window-status-current-style bg='#00ffd5',fg='#0e121a',bold
@@ -1243,37 +1369,56 @@ shadow-exclude = [
 ];
 EOF
 
-# 10.5 4-Pane Operator Matrix Tmux Script
+# 10.5 Telecom Red Team Tmux Operational Workspace Script
 cat << 'EOF' > /usr/local/bin/telcosec-tmux-redteam
 #!/bin/bash
-# Spawns or attaches to a structured 4-pane Telecom Operator Station in Terminator
+# =============================================================================
+# telcosec-tmux-redteam — Telecom Red Team Multi-Window Operational Environment
+# =============================================================================
 SESSION="telco-redteam"
 
 if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+    # Window 1: OPERATOR (4-Pane Live Command & Control Matrix)
     tmux new-session -d -s "$SESSION" -n "OPERATOR"
     
     # Split horizontally (Top / Bottom)
-    tmux split-window -v -t "$SESSION:0"
-    
+    tmux split-window -v -t "$SESSION:1"
     # Split top pane into Top-Left and Top-Right
-    tmux split-window -h -t "$SESSION:0.0"
-    
+    tmux split-window -h -t "$SESSION:1.1"
     # Split bottom pane into Bottom-Left and Bottom-Right
-    tmux split-window -h -t "$SESSION:0.2"
+    tmux split-window -h -t "$SESSION:1.3"
     
-    # Top-Left: System Health & Hardware
-    tmux send-keys -t "$SESSION:0.0" "clear; telcosec check; telcosec hardware" C-m
+    # Pane 1 (Top-Left): Real-time RAN Hardware & SDR Transceiver Telemetry
+    tmux send-keys -t "$SESSION:1.1" "/usr/local/bin/telcosec-ran-status --watch" C-m
     
-    # Top-Right: 5G Core Status
-    tmux send-keys -t "$SESSION:0.1" "clear; telcosec 5g-sa status" C-m
+    # Pane 2 (Top-Right): 5G SA Core & Diagnostic Doctor
+    tmux send-keys -t "$SESSION:1.2" "telcosec 5g-sa status; echo ''; telcosec check" C-m
     
-    # Bottom-Left: Live System Telecom Logs
-    tmux send-keys -t "$SESSION:0.2" "clear; echo '=== System & Kernel Telemetry ==='; journalctl -f -n 20" C-m
+    # Pane 3 (Bottom-Left): Live Telecom System Logs
+    tmux send-keys -t "$SESSION:1.3" "clear; echo '=== 📡 Telecom Kernel & Protocol Logs ==='; journalctl -f -n 25 -o short-iso" C-m
     
-    # Bottom-Right: Interactive Shell with Conda SDR activated
-    tmux send-keys -t "$SESSION:0.3" "clear; echo '=== Operator Shell (SDR Conda Ready) ==='; conda activate telcosec-sdr 2>/dev/null || true" C-m
+    # Pane 4 (Bottom-Right): Primary Operator Action Shell (Zsh + Conda SDR)
+    tmux send-keys -t "$SESSION:1.4" "clear; echo '=== ⚡ Telecom Red Team Shell (Zsh / SDR Ready) ==='; conda activate telcosec-sdr 2>/dev/null || true" C-m
     
-    tmux select-pane -t "$SESSION:0.3"
+    # Window 2: RAN-SNIFF (Air Interface & GSMTAP Analysis)
+    tmux new-window -t "$SESSION" -n "RAN-SNIFF"
+    tmux split-window -v -t "$SESSION:2"
+    tmux send-keys -t "$SESSION:2.1" "clear; echo '=== 📡 GSMTAP & Cellular Protocol Sniffer ==='; echo 'Run: gsmtap  (or tshark -i any -f \"udp port 4729 or udp port 47290\")'; gsmtap" C-m
+    tmux send-keys -t "$SESSION:2.2" "clear; echo '=== 📻 RF & Cellular Survey Shell ==='; echo 'Available: gqrx, inspectrum, urh, kalibrate-rtl, srsran_sniffer'; conda activate telcosec-sdr 2>/dev/null || true" C-m
+    
+    # Window 3: SIGNALING (Core Protocol Audit, Fuzzing & SIM Extraction)
+    tmux new-window -t "$SESSION" -n "SIGNALING"
+    tmux split-window -h -t "$SESSION:3"
+    tmux send-keys -t "$SESSION:3.1" "clear; echo '=== ⚡ Signaling & Fuzzing (SigPloit / 5Ghoul / DiaFuzzer) ==='; cd /opt/telcosec/sigploit 2>/dev/null || cd ~" C-m
+    tmux send-keys -t "$SESSION:3.2" "clear; echo '=== 💳 SIM & Smart Card Security (pySim-shell / SIMtrace2) ==='; cd /opt/telcosec/pysim 2>/dev/null || cd ~" C-m
+    
+    # Window 4: NET-STATE (10GbE Network Zero-Drop, Routing & SCTP Sockets)
+    tmux new-window -t "$SESSION" -n "NET-STATE"
+    tmux send-keys -t "$SESSION:4" "clear; echo '=== 🌐 Network Interfaces, SCTP Sockets & Tunnels ==='; ip -brief addr; echo ''; ss -S -a 2>/dev/null || true; echo ''; sudo netstat -tulpn" C-m
+    
+    # Select Window 1 and focus the interactive operator prompt
+    tmux select-window -t "$SESSION:1"
+    tmux select-pane -t "$SESSION:1.4"
 fi
 
 terminator -e "tmux attach-session -t $SESSION" 2>/dev/null || tmux attach-session -t "$SESSION"
