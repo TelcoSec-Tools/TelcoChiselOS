@@ -1,7 +1,6 @@
 <div align="center">
-  <br/>
   <a href="https://chisel.telcosec.net">
-    <img src="assets/logo.png" alt="TelcoChisel Logo" width="140" height="140" style="border-radius: 20px; box-shadow: 0px 8px 30px rgba(232, 146, 30, 0.35);">
+    <img src="assets/repo_cover.png" alt="TelcoChisel OS Banner" width="100%" style="border-radius: 12px; box-shadow: 0px 8px 30px rgba(0, 242, 255, 0.25);">
   </a>
   <br/><br/>
 
