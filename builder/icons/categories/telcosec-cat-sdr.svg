@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="grad-sdr" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8921e"/>
+      <stop offset="100%" stop-color="#ffb347"/>
+    </linearGradient>
+    <linearGradient id="wave-sdr" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00ffd5" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#e8921e"/>
+      <stop offset="100%" stop-color="#00ffd5" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="#181a1b" stroke="#30363d" stroke-width="2"/>
+  <!-- RF Antenna Mast -->
+  <path d="M24 10 L24 38 M18 10 L30 10 M21 16 L27 16" stroke="url(#grad-sdr)" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Spectrum Waveform -->
+  <path d="M8 32 Q14 18, 20 28 T32 24 T40 32" fill="none" stroke="url(#wave-sdr)" stroke-width="2" stroke-linecap="round"/>
+  <!-- RF Radiating Arcs -->
+  <path d="M16 12 A10 10 0 0 0 16 22" fill="none" stroke="#e8921e" stroke-width="1.8" stroke-linecap="round" opacity="0.85"/>
+  <path d="M32 12 A10 10 0 0 1 32 22" fill="none" stroke="#e8921e" stroke-width="1.8" stroke-linecap="round" opacity="0.85"/>
+  <!-- Base Stand -->
+  <path d="M16 38 L32 38" stroke="#8b949e" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

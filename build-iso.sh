@@ -252,6 +252,7 @@ elif $RESUME; then
   rm -rf "$ROOTFS/tmp/wireshark" && cp -r builder/wireshark "$ROOTFS/tmp/wireshark"
   rm -rf "$ROOTFS/tmp/boot" && cp -r builder/boot "$ROOTFS/tmp/boot"
   rm -rf "$ROOTFS/tmp/wordlists" && cp -r builder/wordlists "$ROOTFS/tmp/wordlists"
+  rm -rf "$ROOTFS/tmp/icons" && cp -r builder/icons "$ROOTFS/tmp/icons" 2>/dev/null || true
   # Guarantee Unix LF line endings across all copied builder assets inside chroot
   find "$ROOTFS/tmp" -type f -exec sed -i -e 's/\r$//' {} + 2>/dev/null || true
 
@@ -328,6 +329,9 @@ HOSTS
   cp -r builder/wireshark "$ROOTFS/tmp/wireshark"
   cp -r builder/boot      "$ROOTFS/tmp/boot"
   cp -r builder/wordlists "$ROOTFS/tmp/wordlists"
+  if [ -d builder/icons ]; then
+    cp -r builder/icons "$ROOTFS/tmp/icons"
+  fi
   if [ -d packages/telcosec-cli ]; then
     cp -r packages/telcosec-cli "$ROOTFS/tmp/telcosec-cli"
   fi

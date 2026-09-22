@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=5G SBI 3GPP OpenAPI Spec Validator
+Comment=Validate 5G SBI responses against 3GPP OpenAPI schemas
+Exec=terminator -e "telcosec sbi validate http://127.0.0.1:7777/nnrf-nfm/v1/nf-instances; bash"
+Icon=telcosec-cat-core
+Terminal=false
+Type=Application
+Categories=TelcoSec-Core;System;

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=5G SBI REST Mutational Fuzzer
+Comment=Mutational fuzzing for 5G Core Service Based Interfaces
+Exec=terminator -e "telcosec sbi fuzz http://127.0.0.1:7777; bash"
+Icon=telcosec-cat-core
+Terminal=false
+Type=Application
+Categories=TelcoSec-Core;System;

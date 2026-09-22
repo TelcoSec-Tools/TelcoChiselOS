@@ -58,6 +58,30 @@ if [ -d /tmp/menu/applications ]; then
   chmod +x /usr/share/applications/*.desktop || true
 fi
 
+# Deploy Dedicated TelcoSec Category Vector Icons
+echo "Deploying custom TelcoSec category icons and refreshing icon cache..."
+mkdir -p /usr/share/icons/hicolor/scalable/categories/
+mkdir -p /usr/share/icons/hicolor/scalable/apps/
+if [ -d /tmp/icons/categories ]; then
+  cp -rf /tmp/icons/categories/*.svg /usr/share/icons/hicolor/scalable/categories/
+  cp -rf /tmp/icons/categories/*.svg /usr/share/icons/hicolor/scalable/apps/
+  chmod 644 /usr/share/icons/hicolor/scalable/categories/*.svg || true
+  chmod 644 /usr/share/icons/hicolor/scalable/apps/*.svg || true
+  
+  # Also link into active Papirus/Yaru themes if present
+  if [ -d /usr/share/icons/Papirus-Dark ]; then
+    mkdir -p /usr/share/icons/Papirus-Dark/48x48/categories/
+    cp -rf /tmp/icons/categories/*.svg /usr/share/icons/Papirus-Dark/48x48/categories/ 2>/dev/null || true
+  fi
+  if [ -d /usr/share/icons/Papirus ]; then
+    mkdir -p /usr/share/icons/Papirus/48x48/categories/
+    cp -rf /tmp/icons/categories/*.svg /usr/share/icons/Papirus/48x48/categories/ 2>/dev/null || true
+  fi
+fi
+
+gtk-update-icon-cache -f -t /usr/share/icons/hicolor 2>/dev/null || true
+gtk-update-icon-cache -f -t /usr/share/icons/Papirus-Dark 2>/dev/null || true
+
 # 4. Wireshark Dissector Profile & Plugins
 echo "Configuring default Wireshark telecom profile, custom Lua plugins, and OpenAPI schemas..."
 mkdir -p /etc/skel/.config/wireshark/ /home/telcosec/.config/wireshark/

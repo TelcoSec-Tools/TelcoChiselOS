@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="grad-lte" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ffd5"/>
+      <stop offset="100%" stop-color="#58a6ff"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="#181a1b" stroke="#30363d" stroke-width="2"/>
+  <!-- LTE Sector Antenna Panels (eNodeB Tri-Sector Array) -->
+  <rect x="22" y="10" width="4" height="26" rx="1.5" fill="#8b949e"/>
+  <rect x="13" y="12" width="4" height="14" rx="1" fill="url(#grad-lte)"/>
+  <rect x="31" y="12" width="4" height="14" rx="1" fill="url(#grad-lte)"/>
+  <!-- Panel Mount Brackets -->
+  <path d="M15 16 L33 16 M15 22 L33 22" stroke="#58a6ff" stroke-width="1.8"/>
+  <circle cx="24" cy="10" r="2" fill="#00ffd5"/>
+  <!-- Multi-Carrier LTE Signals -->
+  <path d="M9 13 A6 6 0 0 0 9 23" fill="none" stroke="#00ffd5" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M39 13 A6 6 0 0 1 39 23" fill="none" stroke="#00ffd5" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- 4G LTE Badge -->
+  <rect x="27" y="27" width="15" height="12" rx="3" fill="#00ffd5"/>
+  <text x="34.5" y="36" fill="#0d1117" font-size="8" font-family="monospace" font-weight="900" text-anchor="middle">4G</text>
+</svg>

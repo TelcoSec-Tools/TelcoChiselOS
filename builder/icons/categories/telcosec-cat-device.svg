@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="grad-dev" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ffd5"/>
+      <stop offset="100%" stop-color="#58a6ff"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="#181a1b" stroke="#30363d" stroke-width="2"/>
+  <!-- Smartphone Chassis -->
+  <rect x="14" y="9" width="20" height="30" rx="3" fill="#21262d" stroke="url(#grad-dev)" stroke-width="2"/>
+  <!-- Top Speaker / Camera -->
+  <line x1="21" y1="12" x2="27" y2="12" stroke="#8b949e" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Screen Debug Terminal Lines -->
+  <rect x="17" y="15" width="14" height="18" rx="1" fill="#0d1117"/>
+  <path d="M19 19 L21 21 L19 23" stroke="#00ffd5" stroke-width="1.2" fill="none"/>
+  <line x1="23" y1="23" x2="28" y2="23" stroke="#e8921e" stroke-width="1.2"/>
+  <line x1="19" y1="27" x2="28" y2="27" stroke="#58a6ff" stroke-width="1.2"/>
+  <!-- USB Connection Indicator -->
+  <circle cx="24" cy="36" r="1" fill="#8b949e"/>
+</svg>

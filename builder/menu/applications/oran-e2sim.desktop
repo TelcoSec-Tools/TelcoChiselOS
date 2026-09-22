@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=O-RAN E2 Simulator (E2SIM)
+Comment=O-RAN E2 Node and KPI Telemetry Simulator
+Exec=terminator -e "telcosec oran e2-sim; bash"
+Icon=telcosec-cat-5gnr
+Terminal=false
+Type=Application
+Categories=TelcoSec-5GNR;System;
