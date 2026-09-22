@@ -14,15 +14,26 @@
   [![Docs](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/deploy-docs.yml/badge.svg)](https://chisel.telcosec.net)
   [![Ubuntu 24.04](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com)
   [![Kernel](https://img.shields.io/badge/Kernel-Low--Latency_Realtime-00ffd5?logo=linux&logoColor=black)](https://chisel.telcosec.net)
-  [![Tools](https://img.shields.io/badge/Tools-88_Pre--configured-e8921e?logo=gnuradio&logoColor=black)](https://chisel.telcosec.net/#tools)
-  [![Metapackages](https://img.shields.io/badge/Metapackages-10_Suites-0099ff?logo=debian&logoColor=white)](https://meta.telcosec.net)
+  [![Tools](https://img.shields.io/badge/Tools-94_Pre--configured-e8921e?logo=gnuradio&logoColor=black)](https://chisel.telcosec.net/#tools)
+  [![Metapackages](https://img.shields.io/badge/Metapackages-11_Suites-0099ff?logo=debian&logoColor=white)](https://meta.telcosec.net)
   [![SDR Transceivers](https://img.shields.io/badge/SDR-USB_%26_10GbE_SFP%2B-26d464)](https://chisel.telcosec.net)
   [![Containers](https://img.shields.io/badge/Pods-Podman_%26_K8s-8a2be2?logo=podman&logoColor=white)](docker/README.md)
   [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-00ffd5.svg)](LICENSE)
-  [![Download](https://img.shields.io/sourceforge/dt/telcochisel?logo=sourceforge&label=Downloads)](https://sourceforge.net/projects/telcochisel/files/latest/download)
-  [![SourceForge Reviews](https://img.shields.io/sourceforge/reviews/telcochisel?logo=sourceforge&label=Reviews)](https://sourceforge.net/projects/telcochisel/reviews/new)
+  <br/>
+  [![Download TelcoChisel OS](https://img.shields.io/sourceforge/dt/telcochisel.svg?logo=sourceforge&logoColor=white&label=Total%20Downloads&color=00ffd5)](https://sourceforge.net/projects/telcochisel/files/latest/download)
+  [![Downloads/Month](https://img.shields.io/sourceforge/dm/telcochisel.svg?logo=sourceforge&logoColor=white&label=Downloads%2Fmo&color=e8921e)](https://sourceforge.net/projects/telcochisel/files/)
+  [![Downloads/Week](https://img.shields.io/sourceforge/dw/telcochisel.svg?logo=sourceforge&logoColor=white&label=Downloads%2Fwk&color=26d464)](https://sourceforge.net/projects/telcochisel/files/)
+  [![SourceForge Reviews](https://img.shields.io/sourceforge/reviews/telcochisel.svg?logo=sourceforge&logoColor=white&label=Rating&color=f5aa35)](https://sourceforge.net/projects/telcochisel/reviews/new)
 
-  [**Official Docs**](https://chisel.telcosec.net) • [**Download ISO**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**TelcoSec Academy**](https://app.telcosec.net) • [**Community Hub**](https://community.telcosec.net) • [**Discord Chat**](https://discord.gg/RykzXTQFXF)
+  <br/>
+
+  <a href="https://sourceforge.net/projects/telcochisel/files/latest/download" target="_blank">
+    <img alt="Download TelcoChisel OS" src="https://a.fsdn.com/con/app/sf-download-button" width="276" height="48" style="border-radius: 4px; box-shadow: 0px 4px 15px rgba(0, 255, 213, 0.25);">
+  </a>
+
+  <br/><br/>
+
+  [**Official Docs**](https://chisel.telcosec.net) • [**Download ISO (SourceForge)**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**TelcoSec Academy**](https://app.telcosec.net) • [**Community Hub**](https://community.telcosec.net) • [**Discord Chat**](https://discord.gg/RykzXTQFXF)
   <br/>
   [**Changelog**](CHANGELOG.md) • [**Contributing Guide**](CONTRIBUTING.md) • [**Security Policy**](SECURITY.md)
 
@@ -37,7 +48,7 @@
 
 **TelcoChisel** is an operational live Linux environment configured for telecommunications security auditing, radio frequency analysis, and baseband research. 
 
-Based on **Ubuntu 24.04 LTS (Noble Numbat)** with a dual-kernel architecture featuring the **low-latency real-time kernel** (`linux-image-lowlatency`) by default, an XFCE desktop environment, and an optional lightweight i3 tiling session, it ships with **88 pre-configured tools** for Software Defined Radio (SDR) operation, cellular RAN simulation (2G, 4G EPC & 5G SA), baseband firmware emulation, SIM/eSIM auditing, core signaling protocol analysis (SS7, Diameter, GTP, HTTP/2 SBI), wireline broadband exploitation, and VoIP telephony testing.
+Based on **Ubuntu 24.04 LTS (Noble Numbat)** with a dual-kernel architecture featuring the **low-latency real-time kernel** (`linux-image-lowlatency`) by default, an XFCE desktop environment, and an optional lightweight i3 tiling session, it ships with **94 pre-configured tools** for Software Defined Radio (SDR) operation, cellular RAN simulation (2G, 4G EPC & 5G SA), baseband firmware emulation, SIM/eSIM auditing, core signaling protocol analysis (SS7, Diameter, GTP, HTTP/2 SBI), wireline broadband exploitation, and VoIP telephony testing.
 
 > [!NOTE]
 > TelcoChisel boots directly from a USB flash drive or virtual machine, providing an isolated, pre-configured research testbed without modifying the host operating system. It includes support for **LUKS-encrypted persistence** (`casper-rw`), a **Toram mode** (copy-to-RAM for maximum I/O throughput), and can be permanently installed to disk via the bundled **Calamares GUI Installer**.
@@ -64,10 +75,10 @@ flowchart TD
     subgraph L3["3. Unified Operator CLI Suite"]
         TELCOSEC["telcosec<br/>(Diagnostics, Hardware Discovery, 5G Core Orchestrator, Guided Scans)"]
         TELCOSDR["telcosec-sdr<br/>(USB & 10GbE Network Driver Tuning, FPGA Bitstreams, Benchmarks)"]
-        TELCOPKG["telcosec-pkg<br/>(10-Tier Modular Metapackage Manager via meta.telcosec.net)"]
+        TELCOPKG["telcosec-pkg<br/>(11-Tier Modular Metapackage Manager via meta.telcosec.net)"]
     end
 
-    subgraph L4["4. 88 Pre-Configured Telecom Toolsets"]
+    subgraph L4["4. 94 Pre-Configured Telecom Toolsets across 11 Categories"]
         SDR_T["SDR & RF DSP<br/>(GNU Radio 3.10, UHD, Gqrx, gr-gsm, URH, Inspectrum, Gpredict)"]
         RAN_T["4G / 5G RAN & Core<br/>(Open5GS, UERANSIM, srsRAN, 5Ghoul, my5G-RANTester, mitmproxy)"]
         BB_T["Baseband & Mobile UE<br/>(FirmWire, QCSuper, SCAT, MTKClient, Balong)"]
@@ -96,8 +107,8 @@ TelcoChisel is distributed in two official editions:
 
 | Edition | ISO Image | Size | Included Toolsets | Recommended Use Case |
 | :--- | :--- | :--- | :--- | :--- |
-| **Flagship Field Edition** *(Default)* | `TelcoChisel-3.0.0-amd64.iso` | **~5.0 GB** | All 88 telecom security tools, Low-Latency kernel, GNU Radio 3.10, Open5GS, 5Ghoul, UHD FPGA bitstreams, and SDR drivers. | 100% offline air-gapped field audits, SCIFs, Faraday cages, and bare-metal live engagements. |
-| **Modular Lite Edition** | `TelcoChisel-3.0.0-lite-amd64.iso` | **~1.8 GB** | Base XFCE desktop, Low-Latency kernel, Wireshark, Python runtime, and `telcosec-pkg` CLI client. | Bandwidth-constrained deployments, VMs, cloud lab testing, and operators installing modular suites on-demand. |
+| **Flagship Field Edition** *(Default)* | `TelcoChisel-2026.1-amd64.iso` | **~5.5 GB** | All 94 telecom security tools across 11 categories, Low-Latency kernel, GNU Radio 3.10, Open5GS, O-RAN E2/O1, 5Ghoul, UHD FPGA bitstreams, and SDR drivers. | 100% offline air-gapped field audits, SCIFs, Faraday cages, and bare-metal live engagements. |
+| **Modular Lite Edition** | `TelcoChisel-2026.1-lite-amd64.iso` | **~1.8 GB** | Base XFCE desktop, Low-Latency kernel, Wireshark, Python runtime, and `telcosec-pkg` CLI client. | Bandwidth-constrained deployments, VMs, cloud lab testing, and operators installing modular suites on-demand. |
 
 ### Download Mirrors
 * **[Direct Download (SourceForge FRS)](https://sourceforge.net/projects/telcochisel/files/latest/download)** — High-speed, resumable download of the Flagship Field Edition.
@@ -289,11 +300,11 @@ telcosec-pkg repo status
 | **`telcochisel-tools-sim`** | `sim`, `esim`, `smartcard`, `atr` | Smartcard auditing, APDU sniffing, and eSIM LPA profiles (SIMtrace 2, pySim-shell, lpac, SIMurai, OpenSC). |
 | **`telcochisel-tools-pstn-adsl`** | `wireline`, `pstn`, `adsl`, `voip`, `broadband`, `qinq` | Wireline broadband, PPPoE, DOCSIS, VLAN, SNMP, and VoIP/SIP assessment suites (mausezahn, voiphopper, rtpbleed). |
 | **`telcochisel-tools-ue`** | `ue`, `mobile`, `modem`, `diag`, `shannon` | Baseband firmware analysis, Qualcomm DIAG, Samsung Shannon, and MediaTek BROM tools (QCSuper, SCAT, FirmWire). |
-| **`telcochisel-meta-full`** | `full`, `all`, `complete` | Umbrella metapackage installing the entire 88-tool telecommunications security suite. |
+| **`telcochisel-meta-full`** | `full`, `all`, `complete` | Umbrella metapackage installing the entire 94-tool telecommunications security suite across all 11 categories. |
 
 ---
 
-## Pre-loaded Toolsets (88 Tools)
+## Pre-loaded Toolsets (94 Tools across 11 Categories)
 
 Tools are organized by functional domain. The status indicates whether a tool is **Ready** (installed and executable immediately) or requires a **Setup** command (runs a setup script on demand to optimize system footprint).
 
@@ -566,7 +577,7 @@ For complete details on building container images, Compose usage, and limitation
 ### Build Commands
 
 ```bash
-# 1. Flagship Field Edition (Full ~5.0 GB — default, all 88 tools)
+# 1. Flagship Field Edition (Full ~5.5 GB — default, all 94 tools across 11 categories)
 sudo ./build-iso.sh
 
 # 2. Modular Lite Edition (~1.8 GB — base XFCE + Low-Latency kernel + telcosec-pkg)
@@ -625,7 +636,7 @@ For structured training on cellular security, protocol analysis, and vulnerabili
 ## Frequently Asked Questions (AEO & SEO)
 
 **What is TelcoChisel?**  
-TelcoChisel is an advanced Live Linux OS tailored specifically for Telecom Security. It comes pre-loaded with 88 tools for SDR engineering, cellular network auditing, baseband research, and core network simulation.
+TelcoChisel is an advanced Live Linux OS tailored specifically for Telecom Security. It comes pre-loaded with 94 tools across 11 categories for SDR engineering, cellular network auditing, baseband research, and core network simulation.
 
 **Who created TelcoChisel?**  
 TelcoChisel was developed by TelcoSec, a leading consulting and training firm specializing in Telecom Security.
