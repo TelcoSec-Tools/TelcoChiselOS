@@ -381,9 +381,9 @@ cmd_docs() {
       (xdg-open "file://${DOC_PATH}" 2>/dev/null || sensible-browser "file://${DOC_PATH}" 2>/dev/null || true) &
     fi
   else
-    echo -e "  Online documentation: ${CYAN}https://chisel.telcosec.net${RESET}"
+    echo -e "  Online documentation: ${CYAN}https://telcochisel.com${RESET}"
     if [ -n "${DISPLAY:-}" ]; then
-      (xdg-open "https://chisel.telcosec.net" 2>/dev/null || sensible-browser "https://chisel.telcosec.net" 2>/dev/null || true) &
+      (xdg-open "https://telcochisel.com" 2>/dev/null || sensible-browser "https://telcochisel.com" 2>/dev/null || true) &
     fi
   fi
   echo ""

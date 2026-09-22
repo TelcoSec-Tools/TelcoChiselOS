@@ -15,7 +15,7 @@ export const useToolSchema = (toolData: {
     ogTitle: `${toolData.name} Guide — 5G/4G Telecom Security | TelcoChisel`,
     ogDescription: toolData.description,
     ogType: 'article',
-    ogUrl: `https://chisel.telcosec.net/tools/${toolData.slug || ''}`,
+    ogUrl: `https://telcochisel.com/tools/${toolData.slug || ''}`,
     ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
     twitterCard: 'summary_large_image',
   })
@@ -27,7 +27,7 @@ export const useToolSchema = (toolData: {
       description: toolData.description,
       applicationCategory: toolData.category,
       operatingSystem: 'Linux (Ubuntu 24.04 LTS / TelcoChisel)',
-      url: `https://chisel.telcosec.net/tools/${toolData.slug || ''}`,
+      url: `https://telcochisel.com/tools/${toolData.slug || ''}`,
       offers: toolData.offers || {
         '@type': 'Offer',
         price: toolData.isFree ? '0' : undefined,

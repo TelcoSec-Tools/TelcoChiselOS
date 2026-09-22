@@ -3,7 +3,7 @@
 
 class Telcosec < Formula
   desc "Unified CLI for Telecom Security, SDR Diagnostics, and 5G SA Operations"
-  homepage "https://chisel.telcosec.net"
+  homepage "https://telcochisel.com"
   url "https://github.com/TelcoSec-Tools/telcosec-cli/archive/refs/tags/v3.0.0.tar.gz"
   sha256 "58aa6370029671f3924aa75410e95bd01670b60b50cf5c0e7b95c55d80dcb1af"
   license "Apache-2.0"

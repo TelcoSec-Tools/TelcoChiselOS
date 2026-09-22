@@ -67,8 +67,8 @@ RUN ln -s /usr/share/man/man1/telcosec.1 /usr/share/man/man1/telcochisel.1
 # Standard OpenContainers annotations
 LABEL org.opencontainers.image.title="telcosec-cli" \
       org.opencontainers.image.description="Unified Operator CLI for Telecom Security, SDR Diagnostics, and 5G SA Operations" \
-      org.opencontainers.image.url="https://chisel.telcosec.net" \
-      org.opencontainers.image.documentation="https://chisel.telcosec.net" \
+      org.opencontainers.image.url="https://telcochisel.com" \
+      org.opencontainers.image.documentation="https://telcochisel.com" \
       org.opencontainers.image.source="https://github.com/TelcoSec-Tools/telcosec-cli" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.vendor="TelcoSec Engineering"

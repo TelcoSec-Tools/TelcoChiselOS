@@ -99,7 +99,7 @@ Formula updates are automated via GitHub Actions:
 
 ## Documentation & Upstream Repositories
 
-- **TelcoChisel OS Documentation Portal**: [https://chisel.telcosec.net](https://chisel.telcosec.net)
+- **TelcoChisel OS Documentation Portal**: [https://telcochisel.com](https://telcochisel.com)
 - **Official Metapackage CDN**: [https://meta.telcosec.net](https://meta.telcosec.net)
 - **Operator CLI Source Code**: [https://github.com/TelcoSec-Tools/telcosec-cli](https://github.com/TelcoSec-Tools/telcosec-cli)
 - **TelcoChisel OS Distribution**: [https://github.com/TelcoSec-Tools/TelcoChiselOS](https://github.com/TelcoSec-Tools/TelcoChiselOS)

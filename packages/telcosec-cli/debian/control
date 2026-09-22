@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: TelcoSec Engineering <ops@telcosec.net>
 Build-Depends: debhelper-compat (= 13), golang-any | golang-go:native (>= 1.22)
 Standards-Version: 4.6.2
-Homepage: https://chisel.telcosec.net
+Homepage: https://telcochisel.com
 Vcs-Git: https://github.com/TelcoSec-Tools/telcosec-cli.git
 
 Package: telcosec-cli

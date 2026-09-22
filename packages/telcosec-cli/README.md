@@ -2,7 +2,7 @@
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Go Report Card](https://goreportcard.com/badge/github.com/TelcoSec-Tools/telcosec-cli)](https://goreportcard.com/report/github.com/TelcoSec-Tools/telcosec-cli)
-[![Platform: Linux](https://img.shields.io/badge/Platform-Linux%20(x86__64%20%7C%20arm64)-informational.svg)](https://chisel.telcosec.net)
+[![Platform: Linux](https://img.shields.io/badge/Platform-Linux%20(x86__64%20%7C%20arm64)-informational.svg)](https://telcochisel.com)
 
 The official standalone operator CLI and telemetry suite for telecom security engineers, cellular penetration testers, and SDR researchers. 
 
@@ -16,7 +16,7 @@ The official standalone operator CLI and telemetry suite for telecom security en
 - **SDR & Radio Hardware Diagnostics**: Automated discovery and health audits for Ettus USRP (UHD), Great Scott Gadgets HackRF, Nuand BladeRF, LimeSDR, RTL-SDR, and ADALM-PLUTO.
 - **10GbE Network Transceiver Optimization**: One-click Jumbo Frame configuration (MTU 9000), 4096 RX/TX ring buffer descriptors, and 64 MB socket buffers for high-bandwidth SDRs (USRP X310, N310).
 - **5G Standalone Lifecycle Management**: Controls Open5GS core network services and provisions subscriber credentials (`IMSI`, `K`, `OPc`) via `open5gs-dbctl`.
-- **10-Tier Modular Metapackage Management**: Seamless interface to inspect, install, and audit modular telecom suites (`telcosec pkg list`, `telcosec pkg info 5g`, `sudo telcosec pkg install sdr sim`).
+- **11-Tier Modular Metapackage Management**: Seamless interface to inspect, install, and audit modular telecom suites (`telcosec pkg list`, `telcosec pkg info 5g`, `sudo telcosec pkg install sdr sim`).
 - **Smartcard, SIM & eSIM Auditing**: Pure Go ISO/IEC 7816-3 Answer-to-Reset (ATR) decoding, PC/SC reader monitoring, Osmocom SIMtrace 2 sniffer control, and eSIM Local Profile Assistant (`lpac`) integration (`telcosec sim`).
 - **Tool Catalog Keyword Search**: Instantly searches installed desktop tools and applications by protocol keyword (`sctp`, `diameter`, `ss7`, `nas`, `ran`).
 - **Operational Profile Switching**: Toggles between Lab Mode (`rp_filter=0`, unrestricted packet crafting) and Field Mode (hardened reverse path filtering).

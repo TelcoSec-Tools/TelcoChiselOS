@@ -107,7 +107,7 @@ useSeoMeta({
   ogTitle: `${categoryLabel.value} Tools - TelcoChiselOS`,
   ogDescription: `List of telecom security tools for ${categoryLabel.value} in TelcoChiselOS.`,
   ogType: 'website',
-  ogUrl: `https://chisel.telcosec.net/tools/category/${categoryId}`,
+  ogUrl: `https://telcochisel.com/tools/category/${categoryId}`,
   ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
   twitterCard: 'summary_large_image',
   twitterTitle: `${categoryLabel.value} Tools - TelcoChiselOS`,
@@ -124,9 +124,9 @@ useHead({
           "@type": "CollectionPage",
           "name": `${categoryLabel.value} Tools Directory`,
           "description": `A curated list of telecom security tools for ${categoryLabel.value} in TelcoChiselOS.`,
-          "url": `https://chisel.telcosec.net/tools/category/${categoryId}`,
+          "url": `https://telcochisel.com/tools/category/${categoryId}`,
           "isPartOf": {
-            "@id": "https://chisel.telcosec.net/#tools"
+            "@id": "https://telcochisel.com/#tools"
           }
         },
         {
@@ -140,7 +140,7 @@ useHead({
               "@type": "SoftwareApplication",
               "name": t.name,
               "description": t.desc,
-              "url": `https://chisel.telcosec.net/tools/${t.slug}`,
+              "url": `https://telcochisel.com/tools/${t.slug}`,
               "applicationCategory": "SecurityApplication"
             }
           }))

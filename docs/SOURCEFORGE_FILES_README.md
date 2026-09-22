@@ -146,7 +146,7 @@ Your feedback directly supports continuous maintenance, driver updates, and help
 ---
 
 ### Quick Links & Official Portals
-- **Documentation & Interactive Reference:** [chisel.telcosec.net](https://chisel.telcosec.net)
+- **Documentation & Interactive Reference:** [telcochisel.com](https://telcochisel.com)
 - **TelcoSec Academy (Interactive Field Labs):** [app.telcosec.net](https://app.telcosec.net)
 - **Community Forum & Q&A:** [community.telcosec.net](https://community.telcosec.net)
 - **Official GitHub Repository:** [github.com/TelcoSec-Tools/TelcoChiselOS](https://github.com/TelcoSec-Tools/TelcoChiselOS)

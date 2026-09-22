@@ -12,7 +12,7 @@ strings:
     versionedName:       TelcoChisel OS 2026.1 (Noble Numbat)
     shortVersionedName:  TelcoChisel 2026.1
     bootloaderEntryName: TelcoChisel
-    productUrl:          https://chisel.telcosec.net
+    productUrl:          https://telcochisel.com
     supportUrl:          https://community.telcosec.net/
     knownIssuesUrl:      https://github.com/TelcoSec-Tools/TelcoChiselOS/issues
     releaseNotesUrl:     https://github.com/TelcoSec-Tools/TelcoChiselOS/releases

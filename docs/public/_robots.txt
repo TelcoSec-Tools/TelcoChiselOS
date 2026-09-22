@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://chisel.telcosec.net/sitemap.xml
+Sitemap: https://telcochisel.com/sitemap.xml

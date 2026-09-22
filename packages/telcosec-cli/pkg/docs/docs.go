@@ -22,7 +22,7 @@ const (
 
 const (
 	OfflineDocPath   = "/usr/share/doc/telcosec/index.html"
-	OnlineDocURL     = "https://chisel.telcosec.net"
+	OnlineDocURL     = "https://telcochisel.com"
 	AcademyURL       = "https://app.telcosec.net/?utm_source=telcochisel_cli"
 	SourceForgeURL   = "https://sourceforge.net/projects/telcochisel/reviews/new"
 	CommunityForum   = "https://community.telcosec.net"

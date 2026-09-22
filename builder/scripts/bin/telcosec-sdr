@@ -7,7 +7,7 @@
 # for high-bandwidth cellular transceivers (USRP, HackRF, BladeRF, LimeSDR, RTL-SDR).
 #
 # Maintainer: TelcoSec Engineering <ops@telcosec.net>
-# Web:        https://chisel.telcosec.net
+# Web:        https://telcochisel.com
 # License:    Apache 2.0
 # ==============================================================================
 

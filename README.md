@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://chisel.telcosec.net">
+  <a href="https://telcochisel.com">
     <img src="assets/repo_cover.png" alt="TelcoChisel OS Banner" width="100%" style="border-radius: 12px; box-shadow: 0px 8px 30px rgba(0, 242, 255, 0.25);">
   </a>
   <br/><br/>
@@ -9,10 +9,10 @@
 
   [![Build Status](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/release.yml/badge.svg)](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/release.yml)
   [![CI Validation](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/ci.yml/badge.svg)](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/ci.yml)
-  [![Docs Portal](https://img.shields.io/badge/Docs_Portal-chisel.telcosec.net-e8921e?logo=cloudflare&logoColor=white)](https://chisel.telcosec.net)
+  [![Docs Portal](https://img.shields.io/badge/Docs_Portal-telcochisel.com-e8921e?logo=cloudflare&logoColor=white)](https://telcochisel.com)
   [![Ubuntu 24.04 LTS](https://img.shields.io/badge/Base_OS-Ubuntu_24.04_LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com)
-  [![Kernel](https://img.shields.io/badge/Kernel-Low--Latency_1000Hz-00ffd5?logo=linux&logoColor=black)](https://chisel.telcosec.net)
-  [![Tools](https://img.shields.io/badge/Tools-94_Pre--installed-e8921e?logo=gnuradio&logoColor=black)](https://chisel.telcosec.net/#tools)
+  [![Kernel](https://img.shields.io/badge/Kernel-Low--Latency_1000Hz-00ffd5?logo=linux&logoColor=black)](https://telcochisel.com)
+  [![Tools](https://img.shields.io/badge/Tools-94_Pre--installed-e8921e?logo=gnuradio&logoColor=black)](https://telcochisel.com/#tools)
   [![Metapackages](https://img.shields.io/badge/Metapackages-11_Suites-0099ff?logo=debian&logoColor=white)](https://meta.telcosec.net)
   [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-00ffd5.svg)](LICENSE)
   <br/>
@@ -29,7 +29,7 @@
 
   <br/><br/>
 
-  [**Official Documentation**](https://chisel.telcosec.net) • [**Download Live ISO**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**TelcoSec Academy**](https://app.telcosec.net) • [**SourceForge Portal**](https://sourceforge.net/projects/telcochisel/) • [**Discord Community**](https://discord.gg/RykzXTQFXF)
+  [**Official Documentation**](https://telcochisel.com) • [**Download Live ISO**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**TelcoSec Academy**](https://app.telcosec.net) • [**SourceForge Portal**](https://sourceforge.net/projects/telcochisel/) • [**Discord Community**](https://discord.gg/RykzXTQFXF)
   <br/>
   [**Release Architecture**](RELEASES.md) • [**Changelog**](CHANGELOG.md) • [**Contributing**](CONTRIBUTING.md) • [**Security Policy**](SECURITY.md)
 
@@ -196,7 +196,7 @@ Tools in TelcoChisel are organized into 11 distinct XFCE desktop categories with
 ```
 
 > [!TIP]
-> **Complete Interactive Tool Catalog**: For full command-line arguments, usage recipes, and deep protocol documentation for each tool, explore the [**TelcoChisel Online Tool Directory**](https://chisel.telcosec.net/#tools) or run `telcosec docs` directly in the OS.
+> **Complete Interactive Tool Catalog**: For full command-line arguments, usage recipes, and deep protocol documentation for each tool, explore the [**TelcoChisel Online Tool Directory**](https://telcochisel.com/#tools) or run `telcosec docs` directly in the OS.
 
 ---
 
@@ -271,7 +271,7 @@ bash docker/pods/pod-deploy.sh apply-k8s docker/pods/k8s-5g-core-pod.yaml
 
 TelcoChisel is actively developed and maintained by **[TelcoSec](https://telco-sec.com)**.
 
-* 📖 **Documentation Portal**: [https://chisel.telcosec.net](https://chisel.telcosec.net)
+* 📖 **Documentation Portal**: [https://telcochisel.com](https://telcochisel.com)
 * 🎓 **TelcoSec Academy (Interactive Guided Labs)**: [https://app.telcosec.net](https://app.telcosec.net)
 * 💬 **Discord Community Hub**: [https://discord.gg/RykzXTQFXF](https://discord.gg/RykzXTQFXF)
 * 🌐 **Community Discussions**: [https://community.telcosec.net](https://community.telcosec.net)
