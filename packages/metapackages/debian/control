@@ -1,0 +1,156 @@
+Source: telcochisel-metapackages
+Section: metapackages
+Priority: optional
+Maintainer: TelcoChisel Engineering Team <ops@telcochisel.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://telcochisel.com
+Vcs-Git: https://github.com/TelcoSec-Tools/TelcoChiselOS.git
+Vcs-Browser: https://github.com/TelcoSec-Tools/TelcoChiselOS
+
+Package: telcochisel-base
+Architecture: all
+Depends: ${misc:Depends},
+ linux-image-lowlatency | linux-image-generic,
+ tuned,
+ ufw,
+ zsh,
+ zsh-autosuggestions,
+ zsh-syntax-highlighting,
+ tmux,
+ fzf,
+ bat | batcat,
+ ripgrep,
+ jq,
+ tree,
+ xclip,
+ wireshark,
+ tshark,
+ tcpdump,
+ python3-scapy | scapy,
+ nmap,
+ lksctp-tools,
+ libsctp1,
+ net-tools,
+ curl,
+ wget,
+ git,
+ nano,
+ python3,
+ telcosec-cli
+Description: TelcoChisel Base System & Security Tuning Metapackage
+ Core operating system low-latency kernel tuning, real-time PAM limits,
+ SCTP signaling stack, network monitoring tools, and terminal productivity
+ suite for telecom security research.
+
+Package: telcochisel-hardware-sdr
+Architecture: all
+Depends: ${misc:Depends},
+ udev,
+ libuhd-dev | uhd-host,
+ hackrf | libhackrf0,
+ bladerf | libbladerf2,
+ limesuite | liblimesuite23.11-1,
+ rtl-sdr | librtlsdr0,
+ soapysdr-tools | libsoapysdr0.8,
+ libiio-utils | libiio0
+Recommends: telcochisel-base
+Description: TelcoChisel SDR Hardware Drivers & udev Rules Metapackage
+ Hardware device drivers, FPGA bitstream auto-loaders, and non-root udev rules
+ for Ettus USRP, HackRF One, BladeRF 2.0 micro, LimeSDR, RTL-SDR v3/v4, and
+ ADALM-Pluto Software-Defined Radios.
+
+Package: telcochisel-tools-sdr
+Architecture: all
+Depends: ${misc:Depends},
+ telcochisel-hardware-sdr,
+ gnuradio,
+ gqrx-sdr | gqrx,
+ inspectrum,
+ gpredict,
+ soapysdr-module-all | soapysdr-tools
+Suggests: urh
+Description: TelcoChisel Radio Frequency & DSP Analysis Metapackage
+ Comprehensive Software-Defined Radio analysis, digital signal processing,
+ satellite Doppler tracking, and spectrum visualization suite.
+
+Package: telcochisel-tools-2g-3g
+Architecture: all
+Depends: ${misc:Depends},
+ telcochisel-hardware-sdr
+Recommends: telcochisel-tools-sdr
+Description: TelcoChisel 2G & 3G Cellular Auditing Metapackage
+ GSM, GPRS, EDGE, and UMTS cellular network auditing infrastructure,
+ base station software (Osmocom stack, OpenBTS, YateBTS), and frequency scanners.
+
+Package: telcochisel-tools-4g
+Architecture: all
+Depends: ${misc:Depends},
+ telcochisel-hardware-sdr,
+ wireshark
+Recommends: telcochisel-tools-sdr
+Description: TelcoChisel 4G LTE RAN & EPC Auditing Metapackage
+ 4G LTE eNodeB simulation, User Equipment stacks (srsRAN 4G, srsUE),
+ LTE downlink sniffers (LTESniffer), and LTE Evolved Packet Core testing.
+
+Package: telcochisel-tools-5g
+Architecture: all
+Depends: ${misc:Depends},
+ telcochisel-hardware-sdr,
+ wireshark,
+ python3-yaml,
+ python3-scapy
+Recommends: telcochisel-tools-4g
+Description: TelcoChisel 5G Standalone Core & RAN Metapackage
+ 5G Standalone (SA) Core Network (Open5GS), gNodeB & UE simulation (UERANSIM),
+ 5G SBI HTTP/2 proxying (mitmproxy), and baseband fuzzing (5Ghoul).
+
+Package: telcochisel-tools-sim
+Architecture: all
+Depends: ${misc:Depends},
+ pcscd,
+ pcsc-tools,
+ opensc,
+ python3-pyscard,
+ python3-pycryptodome
+Description: TelcoChisel SIM & Smartcard Security Metapackage
+ SIM, USIM, ISIM, and eSIM auditing suite, APDU sniffing and emulation
+ (pySim-shell, Osmocom SIMtrace 2, lpac eSIM assistant, SIMurai, SIMtester).
+
+Package: telcochisel-tools-pstn-adsl
+Architecture: all
+Depends: ${misc:Depends},
+ mausezahn,
+ yersinia,
+ ettercap-text-only | ettercap-graphical,
+ sipsak | sipp
+Description: TelcoChisel Wireline, VoIP & Broadband Security Metapackage
+ PSTN, ADSL, VoIP/SIP security testing, QinQ VLAN hopping, packet crafting,
+ and DOCSIS broadband network assessment tools.
+
+Package: telcochisel-tools-ue
+Architecture: all
+Depends: ${misc:Depends},
+ adb,
+ fastboot,
+ python3-serial
+Description: TelcoChisel User Equipment & Baseband Research Metapackage
+ Cellular handset diagnostics, modem DIAG trace logging (QCSuper, SCAT),
+ baseband firmware reverse engineering (FirmWire), and device flashing (MTKClient, EDL).
+
+Package: telcochisel-meta-full
+Architecture: all
+Depends: ${misc:Depends},
+ telcochisel-base,
+ telcochisel-hardware-sdr,
+ telcochisel-tools-sdr,
+ telcochisel-tools-2g-3g,
+ telcochisel-tools-4g,
+ telcochisel-tools-5g,
+ telcochisel-tools-sim,
+ telcochisel-tools-pstn-adsl,
+ telcochisel-tools-ue,
+ telcosec-cli
+Description: TelcoChisel Complete Telecom Security Metapackage Umbrella
+ Umbrella metapackage installing the entire TelcoChisel telecom security
+ ecosystem with all 94 specialized instruments across all 11 domains.

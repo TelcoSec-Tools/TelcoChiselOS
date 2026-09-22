@@ -75,7 +75,7 @@ get_pkg_desc() {
     telcochisel-tools-sim)         echo "SIM & eSIM auditing suite (pySim-shell, SIMtrace 2, lpac, SIMurai, OpenSC, pcsc-tools)" ;;
     telcochisel-tools-pstn-adsl)   echo "Wireline broadband, QinQ, mausezahn, voiphopper, rtpbleed, sipsak, SIPp, DOCSIS" ;;
     telcochisel-tools-ue)          echo "Mobile UE & baseband diagnostics (UERANSIM, SCAT, QCSuper, FirmWire, MTKClient)" ;;
-    telcochisel-meta-full)         echo "Complete TelcoChisel telecom security distribution umbrella (88 tools)" ;;
+    telcochisel-meta-full)         echo "Complete TelcoChisel telecom security distribution umbrella (94 tools)" ;;
     *)                             echo "Custom or third-party metapackage" ;;
   esac
 }
