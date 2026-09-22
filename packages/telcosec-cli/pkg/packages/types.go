@@ -150,10 +150,10 @@ var CanonicalRegistry = []Metapackage{
 		Alias:       "full",
 		AltAliases:  []string{"all", "complete"},
 		Category:    "Complete Umbrella Metapackage",
-		Description: "Complete TelcoChisel telecom security distribution umbrella (88 tools)",
+		Description: "Complete TelcoChisel telecom security distribution umbrella (94 tools)",
 		Tools: []string{
-			"All 10 domain metapackages installed concurrently",
-			"All 88 telecom security and penetration testing utilities",
+			"All 11 domain metapackages installed concurrently",
+			"All 94 telecom security and penetration testing utilities",
 			"Offline local documentation and scenario training bundles",
 		},
 	},

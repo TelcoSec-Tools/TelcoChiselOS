@@ -17,11 +17,11 @@
 
         <!-- SECTION: OVERVIEW -->
         <section id="overview" class="content-section" :class="{ active: activeSection === 'overview' }" v-show="activeSection === 'overview'">
-          <div class="section-header" data-label="// PROTOCOL_INTEL // TELCOCHISEL OS v1.1.0">
+          <div class="section-header" data-label="// PROTOCOL_INTEL // TELCOCHISEL OS v2026.1">
             <h1>TelcoChisel: <span class="kinetic-gradient">Advanced Telecom Security OS</span> by TelcoSec</h1>
             <p class="subtitle">The definitive high-fidelity live OS for Telecom Security, 5G/4G research, and SDR penetration testing</p>
             <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
-              <span class="telemetry-chip"><span class="pulse-dot"></span>SYS_ACTIVE // 88 TOOLS PRE-LOADED</span>
+              <span class="telemetry-chip"><span class="pulse-dot"></span>SYS_ACTIVE // 94 TOOLS PRE-LOADED</span>
               <span class="telemetry-chip">UBUNTU 24.04 LTS (NOBLE)</span>
               <span class="telemetry-chip">LOW-LATENCY KERNEL</span>
             </div>
@@ -29,12 +29,12 @@
           </div>
 
           <p>
-            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution developed by <strong>TelcoSec</strong>, purpose-built for advanced <strong>Telecom Security</strong> research. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong>, it ships with 88 pre-configured tools for Software Defined Radio (SDR) engineering, baseband auditing, and cellular network penetration testing — ready to use without installation.
+            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution developed by <strong>TelcoSec</strong>, purpose-built for advanced <strong>Telecom Security</strong> research. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong>, it ships with 94 pre-configured tools for Software Defined Radio (SDR) engineering, baseband auditing, and cellular network penetration testing — ready to use without installation.
           </p>
 
           <!-- Download CTA -->
           <div class="download-cta">
-            <span class="beta-badge">RELEASE // v1.1.0</span>
+            <span class="beta-badge">RELEASE // v2026.1</span>
             <button class="btn-download" @click="trackDownload">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>

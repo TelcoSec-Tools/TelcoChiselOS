@@ -7,10 +7,10 @@ windowPlacement: center
 strings:
     productName:         TelcoChisel
     shortProductName:    TelcoChisel
-    version:             4.0.0
-    shortVersion:        4.0.0
-    versionedName:       TelcoChisel OS 4.0.0 (Noble Numbat)
-    shortVersionedName:  TelcoChisel 4.0.0
+    version:             2026.1
+    shortVersion:        2026.1
+    versionedName:       TelcoChisel OS 2026.1 (Noble Numbat)
+    shortVersionedName:  TelcoChisel 2026.1
     bootloaderEntryName: TelcoChisel
     productUrl:          https://chisel.telcosec.net
     supportUrl:          https://community.telcosec.net/
