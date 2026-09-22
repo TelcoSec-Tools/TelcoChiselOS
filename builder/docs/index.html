@@ -8,7 +8,7 @@
 
     <!-- Primary SEO -->
     <meta name="description"
-        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 88 pre-configured tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
+        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 94 pre-configured tools across 11 suites for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
     <meta name="keywords"
         content="telecom security linux, 5G security research, 4G LTE penetration testing, SDR security, baseband analysis, FirmWire, GNU Radio, srsRAN, Open5GS, SIMtrace, HackRF, USRP, BladeRF, TelcoChisel">
     <meta name="author" content="TelcoSec">
@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://chisel.telcosec.net/">
     <meta property="og:title" content="TelcoChisel — 5G/4G Telecom Security Linux Distribution">
     <meta property="og:description"
-        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 88 pre-configured tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
+        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 94 pre-configured tools across 11 suites for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
     <meta property="og:image"
         content="https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png">
     <meta property="og:image:width" content="1280">
@@ -37,7 +37,7 @@
     <meta name="twitter:url" content="https://chisel.telcosec.net/">
     <meta name="twitter:title" content="TelcoChisel — 5G/4G Telecom Security Linux Distribution">
     <meta name="twitter:description"
-        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 88 pre-configured tools for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
+        content="Free bootable Linux OS for 5G and 4G telecom security research. Ships with GNU Radio, FirmWire, srsRAN, Open5GS, SIMtrace 2, and 94 pre-configured tools across 11 suites for SDR analysis, baseband auditing, and cellular protocol penetration testing.">
     <meta name="twitter:image"
         content="https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png">
 
@@ -68,10 +68,10 @@
         "applicationCategory": "SecurityApplication",
         "applicationSubCategory": "Telecommunications Security, Software Defined Radio, Baseband Analysis",
         "operatingSystem": "Linux (Ubuntu 24.04 LTS)",
-        "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 88 pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
+        "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 94 pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
         "url": "https://chisel.telcosec.net/",
         "downloadUrl": "https://sourceforge.net/projects/telcochisel/files/latest/download",
-        "softwareVersion": "3.0.0",
+        "softwareVersion": "2026.1",
         "releaseNotes": "https://github.com/TelcoSec-Tools/TelcoChiselOS/releases",
         "screenshot": "https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png",
         "featureList": [
@@ -132,7 +132,7 @@
             "name": "What is TelcoChisel?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 88 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
+              "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 94 pre-configured tools across 11 suites for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
             }
           },
           {
@@ -357,6 +357,10 @@
 
             <!-- SECTION: OVERVIEW -->
             <section id="overview" class="content-section active">
+                <div class="hero-cover-container" style="margin-bottom: 24px;">
+                    <img src="repo_cover.png" alt="TelcoChisel OS: Advanced Telecom Security Distribution by TelcoSec" style="width: 100%; border-radius: 12px; border: 1px solid rgba(0, 242, 255, 0.25); box-shadow: 0 10px 30px rgba(0, 242, 255, 0.18); display: block;" />
+                </div>
+
                 <div class="section-header" data-label="// Overview :: TelcoChisel v2026.1">
                     <h1>TelcoChisel — Telecom Security Linux Distribution</h1>
                     <p class="subtitle">Bootable live OS for 5G/4G security research, SDR analysis, and baseband
@@ -365,16 +369,17 @@
                 </div>
 
                 <p>
-                    <strong>TelcoChisel</strong> is a free, bootable live Linux distribution purpose-built for
-                    cellular security researchers, Software Defined Radio (SDR) engineers, and hardware pentesters.
-                    Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong> with an XFCE desktop, it ships with
-                    88 pre-configured tools covering SDR drivers, 5G core simulation, baseband emulation, SIM auditing,
+                    <strong>TelcoChisel</strong> is a free, bootable live Linux distribution purpose-built by
+                    <strong><a href="https://telco-sec.com" target="_blank" style="color: var(--accent-cyan); text-decoration: none;">TelcoSec</a></strong> for
+                    telecom security auditors, 5G Standalone (SA) and O-RAN penetration testers, baseband vulnerability researchers, and Software Defined Radio (SDR) engineers.
+                    Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong> with a 1000Hz Low-Latency Kernel, it ships with
+                    <strong>94 pre-configured tools across 11 functional domains</strong> covering SDR drivers, 5G core simulation, baseband emulation, SIM auditing,
                     and telecom protocol fuzzing — ready to use without installation.
                 </p>
 
                 <!-- Download CTA -->
                 <div class="download-cta">
-                    <span class="beta-badge">Beta</span>
+                    <span class="beta-badge">RELEASE // v2026.1</span>
                     <button class="btn-download" onclick="openDownloadModal()">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -385,7 +390,7 @@
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
                         View on GitHub
                     </a>
-                    <span class="download-status">OS stable &middot; Tools integration in progress &middot; <span class="status-ok">&#9733; Users will love it</span></span>
+                    <span class="download-status">System Verified &middot; Air-gapped Field Ready &middot; <span class="status-ok">&#9733; 100% Offline Capable</span></span>
                 </div>
 
                 <!-- Academy Banner Promotion -->
@@ -427,6 +432,38 @@
                     </div>
                 </div>
 
+                <h2>Target Audience & Strategic Roles</h2>
+                <div class="grid-2" style="margin-bottom: 30px;">
+                    <div class="card" style="border-left: 3px solid var(--accent-cyan, #00f2ff);">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-cyan, #00f2ff);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            Telecom Auditors &amp; MNOs
+                        </div>
+                        <p class="card-desc">Validate 5G SA Core security, 3GPP SBA REST APIs, O-RAN E2/O1 interfaces, and SS7/Diameter roaming interconnects against GSMA fraud and interception guidelines (FS.11, FS.19, FS.34).</p>
+                    </div>
+                    <div class="card" style="border-left: 3px solid var(--accent-red, #ff4466);">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-red, #ff4466);"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+                            Red Teams &amp; Pentesters
+                        </div>
+                        <p class="card-desc">Deploy rogue base station simulations (srsRAN, UERANSIM, 5Ghoul), audit cellular baseband modems (Qualcomm DIAG, MediaTek BROM), hop Voice VLANs, and conduct OTA protocol fuzzing.</p>
+                    </div>
+                    <div class="card" style="border-left: 3px solid var(--amber, #f59e0b);">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--amber, #f59e0b);"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                            Government &amp; Defense
+                        </div>
+                        <p class="card-desc">Perform air-gapped forensic investigations, satellite and Non-Terrestrial Network (NTN) Doppler signal interception, SIM card APDU extraction, and communications resilience testing in SCIFs.</p>
+                    </div>
+                    <div class="card" style="border-left: 3px solid var(--accent-teal, #00ffd5);">
+                        <div class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-teal, #00ffd5);"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                            Academic Researchers &amp; Labs
+                        </div>
+                        <p class="card-desc">Rapidly spin up standardized, repeatable testbeds for 5G NR, LTE, and SDR research without managing complex local build pipelines and conflicting dependencies.</p>
+                    </div>
+                </div>
+
                 <h2>Key Platform Capabilities</h2>
                 <div class="grid-2">
                     <div class="card">
@@ -462,7 +499,7 @@
                                 style="color: var(--accent-teal);">
                                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
                             </svg>
-                            Modular 10-Tier Metapackages
+                            Modular 11-Tier Metapackages
                         </div>
                         <p class="card-desc">Debian repository at <code class="inline-code">meta.telcosec.net</code> with <code class="inline-code">telcosec-pkg</code> CLI to selectively install domain suites across SDR, 5G, SIM, Wireline, and Baseband.</p>
                     </div>
@@ -502,9 +539,9 @@
                                 <line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" />
                                 <line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" />
                             </svg>
-                            Baseband Emulation &amp; Fuzzing
+                            Baseband &amp; Firmware Emulation
                         </div>
-                        <p class="card-desc">Audit cellular modem firmware binaries via FirmWire. QCSuper and SCAT stream live radio telemetry directly from test UEs via Qualcomm DIAG USB and MediaTek BROM serial ports.</p>
+                        <p class="card-desc">Audit baseband firmware binaries using FirmWire. QCSuper parses diagnostic logs directly from active test UE devices connected via Qualcomm DIAG USB.</p>
                     </div>
                     <div class="card">
                         <div class="card-title">
@@ -542,8 +579,8 @@
                         <summary class="faq-question">What is TelcoChisel?</summary>
                         <div class="faq-answer">
                             TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with an
-                            XFCE desktop, purpose-built for telecommunications security research. It includes 88
-                            pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing,
+                            XFCE desktop, purpose-built for telecommunications security research. It includes 94
+                            pre-configured tools across 11 domain suites for Software Defined Radio (SDR) analysis, baseband firmware auditing,
                             SIM and eSIM inspection, and 5G/4G core network penetration testing — no installation
                             required.
                         </div>
@@ -999,9 +1036,9 @@ bash docker/pods/pod-deploy.sh stop-podman</code></pre>
 
             <!-- SECTION: TOOLS -->
             <section id="tools" class="content-section">
-                <div class="section-header" data-label="// Tool Catalog :: 88 Instruments">
-                    <h2>Tools Directory — 88 Pre-installed Telecom Security Tools</h2>
-                    <p class="subtitle">Complete catalog of SDR, baseband, SIM, core network, ADSL, VoIP, and signaling tools pre-installed
+                <div class="section-header" data-label="// Tool Catalog :: 94 Instruments">
+                    <h2>Tools Directory — 94 Pre-installed Telecom Security Tools (11 Domain Suites)</h2>
+                    <p class="subtitle">Complete catalog of SDR, baseband, SIM, core network, wireline, VoIP, and signaling tools pre-installed
                         in TelcoChisel</p>
                 </div>
 

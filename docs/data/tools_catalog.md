@@ -1,6 +1,6 @@
 # TelcoChiselOS Default Tools Catalog
 
-TelcoChiselOS includes **88 default tools** organized across 10 specialized functional domains. Tools marked `Ready` are pre-configured and executable immediately. Tools marked `Setup` feature automated first-run helper scripts.
+TelcoChiselOS includes **94 default tools** organized across 11 specialized functional domains. Tools marked `Ready` are pre-configured and executable immediately. Tools marked `Setup` feature automated first-run helper scripts.
 
 ## Software Defined Radio (SDR) & DSP (10 tools)
 

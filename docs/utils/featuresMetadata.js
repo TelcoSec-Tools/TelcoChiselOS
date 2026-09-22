@@ -151,7 +151,7 @@ export const featuresMetadata = {
       "modular telecom security packages",
       "APT repo TelcoChisel"
     ],
-    overview: "TelcoChisel distributes its 88+ telecom security tools through a modular 10-tier Debian metapackage architecture hosted on the Cloudflare Pages global edge network (`meta.telcosec.net`). Security teams can deploy lightweight, domain-specific toolchains — such as SDR, 5G Core, SIM smartcards, mobile modems, or PSTN wireline — onto any standard Ubuntu 24.04 system without installing the complete 20 GB operating system image.",
+    overview: "TelcoChisel distributes its 94 telecom security tools through a modular 11-tier Debian metapackage architecture hosted on the Cloudflare Pages global edge network (`meta.telcosec.net`). Security teams can deploy lightweight, domain-specific toolchains — such as SDR, 5G Core, SIM smartcards, mobile modems, or wireline transport — onto any standard Ubuntu 24.04 system without installing the complete operating system image.",
     config: [
       "Query all available TelcoChisel modular metapackages:\napt-cache search telcochisel-",
       "Inspect package dependencies for the 5G Core assessment suite:\napt-cache depends telcochisel-5g",
@@ -160,7 +160,7 @@ export const featuresMetadata = {
     ],
     troubleshooting: "If `apt-get update` reports an unsigned repository error for `meta.telcosec.net`, re-import the official TelcoSec GPG signing key: `curl -fsSL https://meta.telcosec.net/telcosec.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/telcosec.gpg`.",
     faq: [
-      { q: "What metapackages are available in the repository?", a: "The repository provides 10 modular tiers: telcochisel-core, telcochisel-sdr, telcochisel-2g-3g, telcochisel-4g, telcochisel-5g, telcochisel-sim, telcochisel-mobile-ue, telcochisel-pstn-adsl, telcochisel-voip, and telcochisel-full." },
+      { q: "What metapackages are available in the repository?", a: "The repository provides 11 modular tiers: telcochisel-core, telcochisel-sdr, telcochisel-2g-3g, telcochisel-4g, telcochisel-5g, telcochisel-sim, telcochisel-mobile-ue, telcochisel-signaling, telcochisel-wireline, telcochisel-voip, and telcochisel-full." },
       { q: "Can I install TelcoChisel metapackages on an existing Ubuntu server?", a: "Yes. Any Ubuntu 24.04 LTS (Noble Numbat) system can add the `meta.telcosec.net` APT source and install individual metapackages to equip the system for specialized telecom testing." },
       { q: "How is package integrity guaranteed?", a: "All Debian packages and release manifests in the repository are cryptographically signed using the official TelcoSec GPG key via automated CI/CD build pipelines." }
     ]

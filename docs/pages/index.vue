@@ -17,19 +17,24 @@
 
         <!-- SECTION: OVERVIEW -->
         <section id="overview" class="content-section" :class="{ active: activeSection === 'overview' }" v-show="activeSection === 'overview'">
+          <div class="hero-cover-container" style="margin-bottom: 24px;">
+            <img src="/repo_cover.png" alt="TelcoChisel OS: Advanced Telecom Security Distribution by TelcoSec" style="width: 100%; border-radius: 12px; border: 1px solid rgba(0, 242, 255, 0.25); box-shadow: 0 10px 30px rgba(0, 242, 255, 0.18); display: block;" />
+          </div>
+
           <div class="section-header" data-label="// PROTOCOL_INTEL // TELCOCHISEL OS v2026.1">
             <h1>TelcoChisel: <span class="kinetic-gradient">Advanced Telecom Security OS</span> by TelcoSec</h1>
             <p class="subtitle">The definitive high-fidelity live OS for Telecom Security, 5G/4G research, and SDR penetration testing</p>
             <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
               <span class="telemetry-chip"><span class="pulse-dot"></span>SYS_ACTIVE // 94 TOOLS PRE-LOADED</span>
+              <span class="telemetry-chip">11 DOMAIN SUITES</span>
               <span class="telemetry-chip">UBUNTU 24.04 LTS (NOBLE)</span>
-              <span class="telemetry-chip">LOW-LATENCY KERNEL</span>
+              <span class="telemetry-chip">1000Hz LOW-LATENCY KERNEL</span>
             </div>
             <SpectrumCanvas />
           </div>
 
           <p>
-            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution developed by <strong>TelcoSec</strong>, purpose-built for advanced <strong>Telecom Security</strong> research. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong>, it ships with 94 pre-configured tools for Software Defined Radio (SDR) engineering, baseband auditing, and cellular network penetration testing — ready to use without installation.
+            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution purpose-built by <strong><a href="https://telco-sec.com" target="_blank" style="color: var(--accent-cyan); text-decoration: none;">TelcoSec</a></strong> for telecommunications security auditors, 5G Standalone (SA) and O-RAN penetration testing, cellular baseband vulnerability research, and Software Defined Radio (SDR) transceiver engineering. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong> with a dedicated <strong>Low-Latency Real-Time Kernel</strong>, it provides an air-gapped, turn-key laboratory featuring <strong>94 pre-compiled and verified telecom security instruments across 11 functional domains</strong>.
           </p>
 
           <!-- Download CTA -->
@@ -71,35 +76,81 @@
             <br><strong>Password:</strong> <code class="inline-code">telcosec</code>
           </AppCallout>
 
+          <h2>Target Audience & Strategic Roles</h2>
+          <div class="grid-2" style="margin-bottom: 30px;">
+            <div class="card" style="border-left: 3px solid var(--accent-cyan);">
+              <div class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-cyan);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Telecom Auditors &amp; MNOs
+              </div>
+              <p class="card-desc">Validate 5G SA Core security, 3GPP SBA REST APIs, O-RAN E2/O1 interfaces, and SS7/Diameter roaming interconnects against GSMA fraud and interception guidelines (FS.11, FS.19, FS.34).</p>
+            </div>
+            <div class="card" style="border-left: 3px solid var(--accent-red, #ff4466);">
+              <div class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-red, #ff4466);"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+                Red Teams &amp; Pentesters
+              </div>
+              <p class="card-desc">Deploy rogue base station simulations (srsRAN, UERANSIM, 5Ghoul), audit cellular baseband modems (Qualcomm DIAG, MediaTek BROM), hop Voice VLANs, and conduct OTA protocol fuzzing.</p>
+            </div>
+            <div class="card" style="border-left: 3px solid var(--amber);">
+              <div class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--amber);"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                Government &amp; Defense
+              </div>
+              <p class="card-desc">Perform air-gapped forensic investigations, satellite and Non-Terrestrial Network (NTN) Doppler signal interception, SIM card APDU extraction, and communications resilience testing in SCIFs.</p>
+            </div>
+            <div class="card" style="border-left: 3px solid var(--accent-teal);">
+              <div class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-teal);"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                Academic Researchers &amp; Labs
+              </div>
+              <p class="card-desc">Rapidly spin up standardized, repeatable testbeds for 5G NR, LTE, and SDR research without managing complex local build pipelines and conflicting dependencies.</p>
+            </div>
+          </div>
+
           <h2>Key Platform Capabilities</h2>
           <div class="grid-2">
             <div class="card">
               <div class="card-title">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-teal);"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                SDR Sandbox
+                Deterministic Low-Latency SDR Sandbox
               </div>
-              <p class="card-desc">Radio drivers (UHD, HackRF, BladeRF, LimeSDR) are compiled from source and sandboxed in a dedicated Conda virtual environment, preserving system Python integrity.</p>
+              <p class="card-desc">Radio drivers (UHD, HackRF, BladeRF, LimeSDR) are compiled from source and sandboxed in a dedicated Conda virtual environment, running atop a 1000Hz preemptible kernel with zero-drop 10GbE network tuning.</p>
             </div>
             <div class="card">
               <div class="card-title">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-teal);"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                Baseband Emulation
+                5G SA Core &amp; O-RAN Architecture
               </div>
-              <p class="card-desc">Audit baseband firmware binaries using FirmWire. QCSuper parses diagnostic logs directly from active test UE devices connected via Qualcomm DIAG USB.</p>
+              <p class="card-desc">Pre-configured Open5GS 5G Standalone core, UERANSIM gNodeB/UE simulation, O-RAN E2 Node and O1 NETCONF/YANG auditing modules, and 5Ghoul over-the-air baseband fuzzer.</p>
             </div>
             <div class="card">
               <div class="card-title">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-teal);"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                SIM &amp; eSIM Utilities
+                Baseband Firmware &amp; DIAG Modems
               </div>
-              <p class="card-desc">Audit SIM interfaces using Osmocom SIMtrace 2 and pySim-shell. Manage profiles on eSIM chips using the lpac Local Profile Assistant (LPA).</p>
+              <p class="card-desc">Virtual baseband emulation via FirmWire (Shannon &amp; MediaTek), QCSuper &amp; SCAT diagnostic loggers, Qualcomm EDL 9008 emergency downloaders, and MTKClient BROM exploit tools.</p>
             </div>
             <div class="card">
               <div class="card-title">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-teal);"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                Signaling Scanners
+                Pure Go SIM &amp; eSIM Analysis
               </div>
-              <p class="card-desc">Audit SIGTRAN, Diameter, SIP/VoIP, and GTP cores with Diafuzzer, SigPloit, SIPVicious, and custom Wireshark protocol dissecting profiles.</p>
+              <p class="card-desc">Zero-CGO ISO 7816-3 ATR decoder, Sysmocom SIMtrace 2 live APDU sniffer, lpac GSMA SGP.22 eSIM Local Profile Assistant, and pySim-shell smartcard explorer.</p>
+            </div>
+            <div class="card">
+              <div class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-teal);"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                Signaling &amp; Core Network Auditing
+              </div>
+              <p class="card-desc">Audit SS7, Diameter, 5G SBI REST APIs, SIP/VoIP, and GTP cores with SigPloit, Diafuzzer, 5G SBI Fuzzer, sctpscan, SIPVicious, and custom Wireshark protocol dissecting profiles.</p>
+            </div>
+            <div class="card">
+              <div class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-teal);"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                Unified Operator CLI (telcosec)
+              </div>
+              <p class="card-desc">Centralized command center for pre-flight kernel audits, automatic SDR/modem hardware enumeration, 5G SA core orchestration, 10GbE network tuning, and offline catalog search.</p>
             </div>
           </div>
 
@@ -114,7 +165,7 @@
             <details class="faq-item">
               <summary class="faq-question">What is TelcoChisel?</summary>
               <div class="faq-answer">
-                TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with a lightweight XFCE desktop, purpose-built for telecommunications security research. It includes 88 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing — no installation required.
+                TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with a lightweight XFCE desktop, purpose-built for telecommunications security research. It includes 94 pre-configured tools across 11 domain suites for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing — no installation required.
               </div>
             </details>
 
@@ -1564,7 +1615,7 @@ flowchart TD
     end
 
     %% Applications
-    subgraph Apps[Telecom Security Applications - 88 Tools]
+    subgraph Apps[Telecom Security Applications - 94 Tools across 11 Domains]
         RAN[srsRAN / OAI / OpenBTS / UERANSIM]
         Core[Open5GS / my5G-RANTester / OsmoCore]
         Analysis[Wireshark GSMTAP / Scapy / TShark]
