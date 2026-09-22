@@ -1,5 +1,5 @@
 [Desktop Entry]
 Type=Directory
-Name=05. Core Signaling
+Name=07. Core Signaling
 Icon=utilities-terminal
-Comment=Core network protocols and capture dissectors
+Comment=Core network protocols, SBI, and signaling security tools
