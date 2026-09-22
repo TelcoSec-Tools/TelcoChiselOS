@@ -5,10 +5,10 @@ echo "=== Customizing Desktop Environment (XFCE) ==="
 
 # 1. LightDM Autologin + Wallpaper Directory
 echo "Configuring LightDM autologin..."
-sudo mkdir -p /usr/share/backgrounds/telcosec
-sudo mkdir -p /etc/lightdm/lightdm.conf.d
+mkdir -p /usr/share/backgrounds/telcosec
+mkdir -p /etc/lightdm/lightdm.conf.d
 
-cat << 'EOF' | sudo tee /etc/lightdm/lightdm.conf.d/50-telcosec-autologin.conf
+cat << 'EOF' > /etc/lightdm/lightdm.conf.d/50-telcosec-autologin.conf
 [Seat:*]
 autologin-user=telcosec
 autologin-user-timeout=0
@@ -31,9 +31,9 @@ EOF
 # match to the brand's amber accent (#e8921e), completing the harmonization
 # already done for Calamares/tmux/docs.
 echo "Writing XFCE default configurations..."
-sudo mkdir -p /etc/xdg/xfce4/xfconf/xfce-perchannel-xml /etc/skel/.config/xfce4/xfce4-perchannel-xml /etc/skel/.config/gtk-3.0
+mkdir -p /etc/xdg/xfce4/xfconf/xfce-perchannel-xml /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml /etc/skel/.config/gtk-3.0
 
-cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xsettings" version="1.0">
   <property name="Net" type="empty">
@@ -52,7 +52,7 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 </channel>
 EOF
 
-cat << 'EOF' | sudo tee /etc/skel/.config/gtk-3.0/settings.ini
+cat << 'EOF' > /etc/skel/.config/gtk-3.0/settings.ini
 [Settings]
 gtk-theme-name = Yaru-bark-dark
 gtk-icon-theme-name = Papirus-Dark
@@ -63,7 +63,7 @@ gtk-enable-animations = 1
 gtk-application-prefer-dark-theme = 1
 EOF
 
-cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
+cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-desktop" version="1.0">
   <property name="backdrop" type="empty">
@@ -100,7 +100,7 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.
 </channel>
 EOF
 
-cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
+cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfwm4" version="1.0">
   <property name="general" type="empty">
@@ -126,12 +126,40 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
 </channel>
 EOF
 
-cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml
+cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-session" version="1.0">
   <property name="general" type="empty">
+    <property name="FailsafeSessionName" type="string" value="Failsafe"/>
+    <property name="LockCommand" type="string" value="xflock4"/>
     <property name="SaveOnExit" type="bool" value="false"/>
     <property name="PromptOnLogout" type="bool" value="true"/>
+  </property>
+  <property name="sessions" type="empty">
+    <property name="Failsafe" type="empty">
+      <property name="IsFailsafe" type="bool" value="true"/>
+      <property name="Count" type="int" value="4"/>
+      <property name="Client0_Command" type="array">
+        <value type="string" value="xfsettingsd"/>
+      </property>
+      <property name="Client0_Priority" type="int" value="5"/>
+      <property name="Client0_PerScreen" type="bool" value="false"/>
+      <property name="Client1_Command" type="array">
+        <value type="string" value="xfwm4"/>
+      </property>
+      <property name="Client1_Priority" type="int" value="15"/>
+      <property name="Client1_PerScreen" type="bool" value="false"/>
+      <property name="Client2_Command" type="array">
+        <value type="string" value="xfce4-panel"/>
+      </property>
+      <property name="Client2_Priority" type="int" value="25"/>
+      <property name="Client2_PerScreen" type="bool" value="false"/>
+      <property name="Client3_Command" type="array">
+        <value type="string" value="xfdesktop"/>
+      </property>
+      <property name="Client3_Priority" type="int" value="35"/>
+      <property name="Client3_PerScreen" type="bool" value="false"/>
+    </property>
   </property>
   <property name="compat" type="empty">
     <property name="LaunchGNOME" type="bool" value="false"/>
@@ -144,7 +172,7 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.
 </channel>
 EOF
 
-cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/thunar.xml
+cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/thunar.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="thunar" version="1.0">
   <property name="last-view" type="string" value="ThunarDetailsView"/>
@@ -156,7 +184,7 @@ cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/thunar.xml
 </channel>
 EOF
 
-cat << 'EOF' | sudo tee /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml
+cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-power-manager" version="1.0">
   <property name="xfce4-power-manager" type="empty">
@@ -174,7 +202,7 @@ EOF
 
 # Single top panel: Whisker Menu on the left, Terminator quick launcher next to it,
 # window list with middle-click close filling the middle, workspace switcher + tray + clock on the right.
-cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-panel.xml
+cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-panel" version="1.0">
   <property name="configver" type="int" value="2"/>
@@ -231,7 +259,7 @@ EOF
 # already cover Alt+Tab, Ctrl+Alt+Left/Right workspace switching, etc.) —
 # Super key for one-key Whisker Menu access, and Super+Arrow for basic
 # window tiling, neither of which XFCE binds out of the box.
-cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-keyboard-shortcuts.xml
+cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-keyboard-shortcuts" version="1.0">
   <property name="commands" type="empty">
@@ -258,7 +286,7 @@ EOF
 # Notification daemon: quiet defaults for a research workstation — short
 # display time, top-right position (below the panel), no persistent history
 # clutter.
-cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-notifyd.xml
+cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-notifyd.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-notifyd" version="1.0">
   <property name="theme" type="string" value="Default"/>
@@ -270,9 +298,13 @@ cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/xfce4-perchannel-xml/xfce4-notif
 </channel>
 EOF
 
+# Copy all system XFCE configurations to /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
+mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
+cp -r /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/*.xml /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/
+
 # Pre-configure Whisker Menu favorites, layout dimensions, and panel properties
-sudo mkdir -p /etc/skel/.config/xfce4/panel/launcher-6
-cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/panel/whiskermenu-1.rc
+mkdir -p /etc/skel/.config/xfce4/panel/launcher-6
+cat << 'EOF' > /etc/skel/.config/xfce4/panel/whiskermenu-1.rc
 favorites=net.tenshu.Terminator.desktop,wireshark-mon.desktop,gqrx.desktop,pysim-shell.desktop,sigploit.desktop,firmwire.desktop,diafuzzer.desktop,ueransim-gnb.desktop,5ghoul-fuzzer.desktop,telcosec-docs.desktop
 button-title=TelcoSec
 button-icon=utilities-terminal
@@ -288,7 +320,7 @@ stay-on-focus-out=false
 EOF
 
 # Deploy Terminator launcher for top panel plugin-6
-cat << 'EOF' | sudo tee /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop
+cat << 'EOF' > /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop
 [Desktop Entry]
 Name=Terminator
 Comment=Multiple terminals in one window
@@ -300,17 +332,17 @@ Categories=GNOME;GTK;Utility;TerminalEmulator;System;
 StartupNotify=true
 X-Ubuntu-Gettext-Domain=terminator
 EOF
-sudo cp /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop /etc/skel/.config/xfce4/panel/launcher-6/1.desktop
+cp /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop /etc/skel/.config/xfce4/panel/launcher-6/1.desktop
 
 # Deploy Terminator shortcut to Desktop
 echo "Deploying Terminator desktop shortcut..."
-sudo mkdir -p /etc/skel/Desktop
-sudo cp /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop /etc/skel/Desktop/terminator.desktop
-sudo chmod +x /etc/skel/Desktop/terminator.desktop
+mkdir -p /etc/skel/Desktop
+cp /etc/skel/.config/xfce4/panel/launcher-6/net.tenshu.Terminator.desktop /etc/skel/Desktop/terminator.desktop
+chmod +x /etc/skel/Desktop/terminator.desktop
 
 # Pre-configure Terminator Developer Palette & Behavior
-sudo mkdir -p /etc/skel/.config/terminator
-cat << 'EOF' | sudo tee /etc/skel/.config/terminator/config
+mkdir -p /etc/skel/.config/terminator
+cat << 'EOF' > /etc/skel/.config/terminator/config
 [global_config]
   title_transmit_fg_color = "#e8921e"
   title_transmit_bg_color = "#181a1b"
@@ -318,32 +350,34 @@ cat << 'EOF' | sudo tee /etc/skel/.config/terminator/config
   title_receive_bg_color = "#222222"
   title_inactive_fg_color = "#888888"
   title_inactive_bg_color = "#181a1b"
-  suppress_multiple_term_dialog = True
-  copy_on_selection = True
+  title_use_system_font = False
+  title_font = "IBM Plex Mono Bold 9"
+  focus = "mouse"
+  handle_size = 2
+  window_state = "maximise"
+  tab_position = "bottom"
+  borderless = False
 [keybindings]
-  split_horiz = <Primary><Shift>e
-  split_vert = <Primary><Shift>o
+  split_horiz = "<Primary><Shift>e"
+  split_vert = "<Primary><Shift>o"
+  close_term = "<Primary><Shift>w"
+  toggle_fullscreen = "F11"
+  search = "<Primary><Shift>f"
 [profiles]
   [[default]]
-    background_color = "#121417"
-    foreground_color = "#e0e6ed"
+    background_color = "#0b0c10"
+    foreground_color = "#e8921e"
     cursor_color = "#e8921e"
-    font = IBM Plex Mono 11
+    cursor_color_default = False
+    cursor_shape = "block"
+    cursor_blink = True
+    font = "IBM Plex Mono 11"
     use_system_font = False
-    scrollback_infinite = True
-    palette = "#0d1117:#ff5555:#50fa7b:#e8921e:#58a6ff:#ff79c6:#00ffd5:#e0e6ed:#484f58:#ff6e6e:#69ff94:#f5aa35:#79c0ff:#ff92df:#56f4e6:#ffffff"
-    show_titlebar = False
-[layouts]
-  [[default]]
-    [[[window0]]]
-      type = Window
-      parent = ""
-      size = 900, 600
-    [[[child1]]]
-      type = Terminal
-      parent = window0
-      profile = default
-[plugins]
+    show_titlebar = True
+    scrollbar_position = "hidden"
+    scrollback_lines = 10000
+    copy_on_selection = True
+    palette = "#0b0c10:#e06c75:#98c379:#e5c07b:#61afef:#be5046:#56b6c2:#abb2bf:#5c6370:#e06c75:#98c379:#e8921e:#61afef:#d19a66:#56b6c2:#ffffff"
 EOF
 
 # Optimize Tumbler Thumbnailer (Prevent USB I/O lockups on large dumps and captures)
@@ -363,34 +397,34 @@ MaxFileSize=52428800
 EOF
 
 if [ -d /home/telcosec ]; then
-  sudo mkdir -p /home/telcosec/.config/xfce4/xfce4-perchannel-xml \
-                /home/telcosec/.config/xfce4/panel/launcher-6 \
-                /home/telcosec/.config/gtk-3.0 \
-                /home/telcosec/.config/terminator \
-                /home/telcosec/Desktop
-  sudo cp /etc/skel/.config/xfce4/xfce4-perchannel-xml/*.xml \
-          /home/telcosec/.config/xfce4/xfce4-perchannel-xml/ 2>/dev/null || true
-  sudo cp /etc/skel/.config/xfce4/panel/whiskermenu-1.rc \
-          /home/telcosec/.config/xfce4/panel/
-  sudo cp /etc/skel/.config/xfce4/panel/launcher-6/* \
-          /home/telcosec/.config/xfce4/panel/launcher-6/
-  sudo cp /etc/skel/.config/gtk-3.0/settings.ini \
-          /home/telcosec/.config/gtk-3.0/settings.ini 2>/dev/null || true
-  sudo cp /etc/skel/.config/terminator/config \
-          /home/telcosec/.config/terminator/config 2>/dev/null || true
-  sudo cp /etc/skel/Desktop/terminator.desktop \
-          /home/telcosec/Desktop/
-  sudo chmod +x /home/telcosec/Desktop/*.desktop || true
-  sudo chown -R telcosec:telcosec /home/telcosec/.config /home/telcosec/Desktop
+  mkdir -p /home/telcosec/.config/xfce4/xfconf/xfce-perchannel-xml \
+           /home/telcosec/.config/xfce4/panel/launcher-6 \
+           /home/telcosec/.config/gtk-3.0 \
+           /home/telcosec/.config/terminator \
+           /home/telcosec/Desktop
+  cp /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/*.xml \
+     /home/telcosec/.config/xfce4/xfconf/xfce-perchannel-xml/ 2>/dev/null || true
+  cp /etc/skel/.config/xfce4/panel/whiskermenu-1.rc \
+     /home/telcosec/.config/xfce4/panel/ 2>/dev/null || true
+  cp /etc/skel/.config/xfce4/panel/launcher-6/* \
+     /home/telcosec/.config/xfce4/panel/launcher-6/ 2>/dev/null || true
+  cp /etc/skel/.config/gtk-3.0/settings.ini \
+     /home/telcosec/.config/gtk-3.0/settings.ini 2>/dev/null || true
+  cp /etc/skel/.config/terminator/config \
+     /home/telcosec/.config/terminator/config 2>/dev/null || true
+  cp /etc/skel/Desktop/terminator.desktop \
+     /home/telcosec/Desktop/ 2>/dev/null || true
+  chmod +x /home/telcosec/Desktop/*.desktop 2>/dev/null || true
+  chown -R telcosec:telcosec /home/telcosec/.config /home/telcosec/Desktop
 fi
 
 # 2. Message of the Day (MOTD)
 echo "Configuring MOTD..."
 # Remove default Ubuntu dynamic MOTD scripts for a cleaner look
-sudo rm -f /etc/update-motd.d/10-help-text /etc/update-motd.d/50-motd-news
+rm -f /etc/update-motd.d/10-help-text /etc/update-motd.d/50-motd-news
 
 # Create a custom TelcoSec ASCII Art MOTD
-cat << 'EOF' | sudo tee /etc/update-motd.d/05-telcosec-logo
+cat << 'EOF' > /etc/update-motd.d/05-telcosec-logo
 #!/bin/sh
 echo "  _______    __           _____           "
 echo " |__   __|  | |          / ____|          "
@@ -402,11 +436,11 @@ echo "                                          "
 echo "      --- Telecom Security Platform ---   "
 echo ""
 EOF
-sudo chmod +x /etc/update-motd.d/05-telcosec-logo
+chmod +x /etc/update-motd.d/05-telcosec-logo
 
 # 3. Custom Rich Bash Prompt (Optimized, Simple, Zero-Lag, Single-Line Style)
 echo "Configuring Global Bash Prompt..."
-cat << 'PROMPTEOF' | sudo tee /etc/profile.d/telcosec_prompt.sh
+cat << 'PROMPTEOF' > /etc/profile.d/telcosec_prompt.sh
 # TelcoSec simple prompt: user@host:dir $
 __telcosec_ps1() {
   local EXIT="$?"
@@ -429,7 +463,7 @@ __telcosec_ps1() {
 }
 export PROMPT_COMMAND=__telcosec_ps1
 PROMPTEOF
-sudo chmod +x /etc/profile.d/telcosec_prompt.sh
+chmod +x /etc/profile.d/telcosec_prompt.sh
 
 if ! grep -q "telcosec_prompt" /etc/bash.bashrc 2>/dev/null; then
   cat >> /etc/bash.bashrc << 'BASHRC'
@@ -450,15 +484,15 @@ fi
 
 # 4. Deploy Local Documentation & Configure Firefox Policies
 echo "Deploying local documentation..."
-sudo mkdir -p /usr/share/doc/telcosec/
+mkdir -p /usr/share/doc/telcosec/
 if [ -d /tmp/docs ]; then
-  sudo cp -rf /tmp/docs/. /usr/share/doc/telcosec/
-  sudo find /usr/share/doc/telcosec/ -type f -exec chmod 644 {} +
+  cp -rf /tmp/docs/. /usr/share/doc/telcosec/
+  find /usr/share/doc/telcosec/ -type f -exec chmod 644 {} +
 fi
 
 echo "Configuring Firefox enterprise policies..."
-sudo mkdir -p /etc/firefox/policies/
-cat << 'EOF' | sudo tee /etc/firefox/policies/policies.json
+mkdir -p /etc/firefox/policies/
+cat << 'EOF' > /etc/firefox/policies/policies.json
 {
   "policies": {
     "DisableAppUpdate": true,
@@ -483,8 +517,8 @@ EOF
 
 # 5. Network: DHCP default + dedicated monitoring interface
 echo "Configuring network defaults..."
-sudo mkdir -p /etc/NetworkManager/conf.d
-cat << 'EOF' | sudo tee /etc/NetworkManager/conf.d/telcosec.conf
+mkdir -p /etc/NetworkManager/conf.d
+cat << 'EOF' > /etc/NetworkManager/conf.d/telcosec.conf
 [main]
 dhcp=internal
 
@@ -499,8 +533,8 @@ ipv4.may-fail=yes
 ipv6.may-fail=yes
 EOF
 
-sudo mkdir -p /etc/netplan
-cat << 'EOF' | sudo tee /etc/netplan/90-telcosec-ens160.yaml
+mkdir -p /etc/netplan
+cat << 'EOF' > /etc/netplan/90-telcosec-ens160.yaml
 network:
   version: 2
   renderer: NetworkManager
@@ -511,7 +545,7 @@ network:
       optional: true
 EOF
 
-cat << 'EOF' | sudo tee /usr/local/bin/telcosec-mon-setup
+cat << 'EOF' > /usr/local/bin/telcosec-mon-setup
 #!/bin/bash
 WLAN=$(iw dev 2>/dev/null | awk '/Interface/{print $2}' | grep -v '^mon' | head -1)
 if [ -z "$WLAN" ]; then
@@ -529,9 +563,9 @@ iw dev "$WLAN" interface add mon0 type monitor 2>/dev/null || \
 ip link set mon0 up 2>/dev/null || true
 ip link set "$WLAN" up 2>/dev/null || true
 EOF
-sudo chmod +x /usr/local/bin/telcosec-mon-setup
+chmod +x /usr/local/bin/telcosec-mon-setup
 
-cat << 'EOF' | sudo tee /etc/systemd/system/telcosec-mon.service
+cat << 'EOF' > /etc/systemd/system/telcosec-mon.service
 [Unit]
 Description=TelcoSec Monitoring Interface (mon0)
 After=network.target
@@ -545,47 +579,47 @@ RemainAfterExit=yes
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo systemctl enable telcosec-mon.service 2>/dev/null || true
+systemctl enable telcosec-mon.service 2>/dev/null || true
 
 # Note: Wireshark preferences (capture.default_interface=mon0, prom_mode, etc.)
 # are written later by 08-system-optimization.sh from the canonical
 # builder/wireshark/preferences file — not duplicated here.
 
 grep -q '^TERMINAL=' /etc/environment 2>/dev/null && \
-  sudo sed -i 's/^TERMINAL=.*/TERMINAL=terminator/' /etc/environment || \
-  echo 'TERMINAL=terminator' | sudo tee -a /etc/environment
+  sed -i 's/^TERMINAL=.*/TERMINAL=terminator/' /etc/environment || \
+  echo 'TERMINAL=terminator' >> /etc/environment
 
-sudo update-alternatives --set x-terminal-emulator /usr/bin/terminator 2>/dev/null || true
+update-alternatives --set x-terminal-emulator /usr/bin/terminator 2>/dev/null || true
 
-sudo mkdir -p /etc/skel/.config
-cat << 'EOF' | sudo tee /etc/skel/.config/mimeapps.list
+mkdir -p /etc/skel/.config
+cat << 'EOF' > /etc/skel/.config/mimeapps.list
 [Default Applications]
 x-scheme-handler/terminal=net.tenshu.Terminator.desktop
 EOF
 if [ -d /home/telcosec ]; then
-  sudo cp /etc/skel/.config/mimeapps.list /home/telcosec/.config/mimeapps.list
-  sudo chown telcosec:telcosec /home/telcosec/.config/mimeapps.list
+  cp /etc/skel/.config/mimeapps.list /home/telcosec/.config/mimeapps.list
+  chown telcosec:telcosec /home/telcosec/.config/mimeapps.list
 fi
 
 # Thunar bookmarks
-sudo mkdir -p /etc/skel/.config/gtk-3.0
-cat << 'EOF' | sudo tee /etc/skel/.config/gtk-3.0/bookmarks
+mkdir -p /etc/skel/.config/gtk-3.0
+cat << 'EOF' > /etc/skel/.config/gtk-3.0/bookmarks
 file:///usr/share/wordlists/telecom Telecom Wordlists
 file:///opt/telcosec TelcoSec Tools
 file:///usr/share/doc/telcosec TelcoSec Docs
 EOF
 
 # Disable Ubuntu crash reporter
-sudo systemctl disable apport 2>/dev/null || true
-sudo systemctl mask apport 2>/dev/null || true
-sudo rm -f /etc/apport/crashdb.conf 2>/dev/null || true
+systemctl disable apport 2>/dev/null || true
+systemctl mask apport 2>/dev/null || true
+rm -f /etc/apport/crashdb.conf 2>/dev/null || true
 
 # 7. tmux configuration
 # Status bar accent uses the brand's amber phosphor color (#e8921e, matching
 # docs/assets/main.css --amber) rather than the previous cyan/teal (#00FFD5),
 # to stay consistent with the rest of the TelcoSec visual identity.
 echo "Configuring tmux status and defaults..."
-cat << 'EOF' | sudo tee /etc/skel/.tmux.conf
+cat << 'EOF' > /etc/skel/.tmux.conf
 set -g default-terminal "screen-256color"
 set-option -sa terminal-overrides ",xterm-256color:RGB"
 set -g mouse on
@@ -623,14 +657,14 @@ set -g visual-bell off
 EOF
 
 if [ -d /home/telcosec ]; then
-    sudo cp /etc/skel/.tmux.conf /home/telcosec/.tmux.conf
-    sudo chown telcosec:telcosec /home/telcosec/.tmux.conf
+    cp /etc/skel/.tmux.conf /home/telcosec/.tmux.conf
+    chown telcosec:telcosec /home/telcosec/.tmux.conf
 fi
 
 # 8. LightDM GTK Greeter configuration
 echo "Branding LightDM login screen..."
-sudo mkdir -p /etc/lightdm
-cat << 'EOF' | sudo tee /etc/lightdm/lightdm-gtk-greeter.conf
+mkdir -p /etc/lightdm
+cat << 'EOF' > /etc/lightdm/lightdm-gtk-greeter.conf
 [greeter]
 background=/usr/share/backgrounds/telcosec/wallpaper.jpg
 theme-name=Yaru-bark-dark
@@ -647,9 +681,9 @@ EOF
 
 # 10. i3 Tiling Window Manager Configuration (Operational Mode)
 echo "Configuring i3 Tiling Window Manager for Telecom Operations..."
-sudo mkdir -p /etc/skel/.config/i3 /etc/skel/.config/i3status
+mkdir -p /etc/skel/.config/i3 /etc/skel/.config/i3status
 
-cat << 'EOF' | sudo tee /etc/skel/.config/i3/config
+cat << 'EOF' > /etc/skel/.config/i3/config
 # TelcoChisel i3 Configuration — Telecom Operational Mode
 set $mod Mod4
 
@@ -755,7 +789,7 @@ exec --no-startup-id picom -b --config /dev/null
 exec --no-startup-id terminator -e "bash -c 'tmux new-session -A -s op-center; exec bash'"
 EOF
 
-cat << 'EOF' | sudo tee /etc/skel/.config/i3status/config
+cat << 'EOF' > /etc/skel/.config/i3status/config
 general {
     colors = true
     color_good = "#e8921e"
@@ -802,7 +836,7 @@ tztime local {
 EOF
 
 # Deploy LightDM Session Selector Hook
-cat << 'EOF' | sudo tee /usr/local/bin/telcosec-session-select > /dev/null
+cat << 'EOF' > /usr/local/bin/telcosec-session-select
 #!/bin/bash
 # Selects desktop session based on kernel cmdline 'desktop=i3'
 if grep -q "desktop=i3" /proc/cmdline 2>/dev/null; then
@@ -815,10 +849,10 @@ user-session=i3
 LIGHTDM
 fi
 EOF
-sudo chmod +x /usr/local/bin/telcosec-session-select
+chmod +x /usr/local/bin/telcosec-session-select
 
 # Add systemd oneshot to execute session selector before LightDM starts
-cat << 'EOF' | sudo tee /etc/systemd/system/telcosec-session-select.service > /dev/null
+cat << 'EOF' > /etc/systemd/system/telcosec-session-select.service
 [Unit]
 Description=TelcoSec Boot Desktop Session Selector
 Before=lightdm.service
@@ -831,12 +865,12 @@ ExecStart=/usr/local/bin/telcosec-session-select
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo systemctl enable telcosec-session-select.service 2>/dev/null || true
+systemctl enable telcosec-session-select.service 2>/dev/null || true
 
 # Copy i3 configs to home if exists
 if [ -d /home/telcosec ]; then
-    sudo mkdir -p /home/telcosec/.config/i3 /home/telcosec/.config/i3status
-    sudo cp /etc/skel/.config/i3/config /home/telcosec/.config/i3/config
-    sudo cp /etc/skel/.config/i3status/config /home/telcosec/.config/i3status/config
-    sudo chown -R telcosec:telcosec /home/telcosec/.config || true
+    mkdir -p /home/telcosec/.config/i3 /home/telcosec/.config/i3status
+    cp /etc/skel/.config/i3/config /home/telcosec/.config/i3/config
+    cp /etc/skel/.config/i3status/config /home/telcosec/.config/i3status/config
+    chown -R telcosec:telcosec /home/telcosec/.config || true
 fi
