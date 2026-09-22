@@ -23,16 +23,9 @@ PKGS_BASE=(
   # Kernel (Low-latency default for SDR & 5G real-time operations + Generic fallback)
   linux-image-lowlatency linux-headers-lowlatency
   linux-image-generic linux-headers-generic
-  # Bootloader — needed INSIDE the chroot/squashfs, not just on the build
-  # host. build-iso.sh's own prereq check requires these on the HOST to
-  # build/sign the live ISO's own boot media, but that's a separate concern
-  # from what ships in the installed system. Without these here, Calamares'
-  # `bootloader` module (which chroots into the freshly-installed target and
-  # runs grub-install) finds no grub-install/update-grub binary at all —
-  # BIOS or UEFI, Secure Boot or not. grub-efi-amd64-signed + shim-signed
-  # additionally let Ubuntu's patched grub-install auto-install the signed
-  # shim so the installed system also boots under Secure Boot.
+  # Bootloader & Filesystem / Partitioning Tools (Required for Calamares installation & EFI setup)
   grub-pc-bin grub-efi-amd64-bin shim-signed grub-efi-amd64-signed
+  rsync squashfs-tools dosfstools e2fsprogs parted gparted
   # Desktop (XFCE + i3 Tiling WM + LightDM)
   xfce4 xfce4-goodies lightdm thunar
   i3 i3status i3lock rofi feh picom
@@ -192,8 +185,8 @@ PKGS_ADVANCED=(
   ppp wvdial
   # SNMP / BSS management
   snmp snmp-mibs-downloader snmpd libsnmp-dev
-  # Calamares installer
-  calamares
+  # Calamares installer & Unpack/Partitioning Tools
+  calamares rsync squashfs-tools dosfstools e2fsprogs parted
   qml-module-qtquick-controls qml-module-qtquick-controls2
   qml-module-qtquick-dialogs qml-module-qtquick-layouts
   qml-module-qtquick-window2
