@@ -414,8 +414,8 @@
 
         <!-- SECTION: TOOLS -->
         <section id="tools" class="content-section" :class="{ active: activeSection === 'tools' }" v-show="activeSection === 'tools'">
-          <div class="section-header" data-label="// Tool Catalog :: 88 Instruments">
-            <h2>Tools Directory — 88 Pre-installed Telecom Security Tools</h2>
+          <div class="section-header" data-label="// Tool Catalog :: 94 Instruments">
+            <h2>Tools Directory — 94 Pre-installed Telecom Security Tools</h2>
             <p class="subtitle">Complete catalog of SDR, baseband, SIM, RAN, and signaling tools pre-installed in TelcoChisel</p>
           </div>
 
@@ -1333,7 +1333,7 @@ useHead({
               "name": "What is TelcoChisel?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 88 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
+                "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 94 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
               }
             },
             {

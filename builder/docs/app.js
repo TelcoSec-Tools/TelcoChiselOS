@@ -767,7 +767,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const mobileToggle = document.getElementById("mobileToggle");
     const sidebarOverlay = document.getElementById("sidebarOverlay");
 
-    const VALID_SECTIONS = ["overview", "features", "tools", "drivers", "fuzzer", "builder", "projects"];
+    const VALID_SECTIONS = ["overview", "features", "tools", "drivers", "fuzzer", "scenarios", "prolabs", "academy", "builder", "projects"];
 
     function activateSection(target) {
         if (!VALID_SECTIONS.includes(target)) target = "overview";

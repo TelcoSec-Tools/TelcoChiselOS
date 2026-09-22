@@ -304,6 +304,32 @@
                         </a>
                     </li>
                 </ul>
+
+                <div class="nav-section-title">Cyber Range &amp; Training</div>
+                <ul class="nav-menu">
+                    <li>
+                        <a class="nav-link" data-target="prolabs" id="navLinkProlabs" href="#prolabs">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                            </svg>
+                            TelcoSec ProLabs
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link" data-target="academy" id="navLinkAcademy" href="#academy">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                                <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                            </svg>
+                            TelcoSec Academy
+                        </a>
+                    </li>
+                </ul>
             </nav>
 
             <!-- Academy Sidebar Funnel Widget -->
@@ -1679,6 +1705,176 @@ sudo 5ghoul-run --Attack.Name=NAS_5GS_Fuzz --UE.IMSI=001011234567890</code></pre
                         </div>
                     </div>
 
+            <!-- SECTION: PROLABS -->
+            <section id="prolabs" class="content-section">
+                <div class="section-header" data-label="// Range Testbeds :: ProLabs">
+                    <h2>TelcoSec ProLabs &mdash; Telecom Cyber Range &amp; Target Pods</h2>
+                    <p class="subtitle">Access dedicated carrier core slices, 5G SA testbed pods, and virtual target environments over secure VPN tunnels</p>
+                </div>
+
+                <p>
+                    <strong>TelcoSec ProLabs</strong> is a purpose-built cloud cyber range platform designed for telecom operators, government test labs, and security red teams.
+                    Operators can deploy and attack dedicated carrier-grade network slices, multi-vendor 5G SA cores, rogue gNodeB injection targets, and smartcard OTA endpoints in a secure, isolated testbed.
+                </p>
+
+                <div class="callout callout-info" style="margin-bottom: 24px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    <div>
+                        <div class="callout-title">ProLabs Cyber Range Portal</div>
+                        <div class="callout-content">
+                            Access your remote testbeds and VPN credentials at <a href="https://app.telcosec.net/prolabs" target="_blank" style="color: var(--accent-teal); font-weight: 600;">app.telcosec.net/prolabs</a>.
+                            All ISO images include the native <code class="inline-code">telcosec-prolabs</code> CLI connector.
+                        </div>
+                    </div>
+                </div>
+
+                <h3>ProLabs CLI Range Connector (<code class="inline-code">telcosec prolabs</code>)</h3>
+                <div class="grid-2">
+                    <div class="card highlight-teal">
+                        <div class="card-title">Check Range Connectivity</div>
+                        <p class="card-desc">Inspect active WireGuard (<code class="inline-code">prolabs0</code>) and OpenVPN (<code class="inline-code">tun-prolabs</code>) tunnels and assigned IP addresses.</p>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>telcosec prolabs status</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec prolabs status')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card highlight-teal">
+                        <div class="card-title">Connect to Target Testbed</div>
+                        <p class="card-desc">Establish an encrypted point-to-point tunnel to your dedicated 5G SA or O-RAN target pod.</p>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>telcosec prolabs connect 5g-sa-core</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec prolabs connect 5g-sa-core')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card highlight-teal">
+                        <div class="card-title">List Available Lab Profiles</div>
+                        <p class="card-desc">Enumerate local and cloud range configuration profiles available for connection.</p>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>telcosec prolabs list</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec prolabs list')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card highlight-teal">
+                        <div class="card-title">Tear Down Active Tunnels</div>
+                        <p class="card-desc">Disconnect all cyber range tunnels and purge temporary routing tables.</p>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>telcosec prolabs disconnect</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec prolabs disconnect')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Available ProLabs Range Topologies</h3>
+                <div class="grid-3">
+                    <div class="card">
+                        <div class="card-title" style="color: var(--accent-cyan);"><span class="tag tag-5g">5G SA</span> 5G Core Security Slice</div>
+                        <p class="card-desc" style="font-size: 0.85rem;">Full 3GPP Rel-16 Service Based Architecture (AMF, SMF, UPF, AUSF, UDM, NRF). Practice SBA REST tampering, mTLS bypass, and PFCP session hijack.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title" style="color: var(--accent-teal);"><span class="tag tag-ran">O-RAN</span> Open RAN Near-RT RIC</div>
+                        <p class="card-desc" style="font-size: 0.85rem;">E2 interface fuzzing, xApp policy manipulation, and O1 Netconf/YANG audit against disaggregated RAN architectures.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title" style="color: var(--amber);"><span class="tag tag-core">Interconnect</span> SS7 &amp; Diameter Roaming</div>
+                        <p class="card-desc" style="font-size: 0.85rem;">STP/DRA signaling nodes for location tracking (SendRoutingInfo), SMS intercept (ForwardSM), and roaming fraud assessment.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: ACADEMY -->
+            <section id="academy" class="content-section">
+                <div class="section-header" data-label="// Practice & Training :: Academy">
+                    <h2>TelcoSec Academy &mdash; Practice Lessons &amp; Course Labs</h2>
+                    <p class="subtitle">Hands-on course curriculum, downloadable PCAPs, I/Q datasets, and interactive training modules</p>
+                </div>
+
+                <p>
+                    <strong>TelcoSec Academy</strong> delivers specialized hands-on training for telecom security researchers, baseband reverse engineers, and cellular penetration testers.
+                    Each course module includes dedicated student runbooks, exercise PCAPs, I/Q sample recordings, and self-hosted practice containers.
+                </p>
+
+                <div class="callout callout-info" style="margin-bottom: 24px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                    </svg>
+                    <div>
+                        <div class="callout-title">Academy Training Portal</div>
+                        <div class="callout-content">
+                            Explore courses and interactive training sandboxes online at <a href="https://app.telcosec.net/courses" target="_blank" style="color: var(--accent-teal); font-weight: 600;">app.telcosec.net/courses</a>.
+                            Manage your local practice sessions using the <code class="inline-code">telcosec-academy</code> CLI tool.
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Academy CLI Practice Manager (<code class="inline-code">telcosec academy</code>)</h3>
+                <div class="grid-2">
+                    <div class="card highlight-teal">
+                        <div class="card-title">Browse Practice Courses</div>
+                        <p class="card-desc">List available telecom penetration testing courses, syllabi, and practice tracks.</p>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>telcosec academy courses</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec academy courses')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card highlight-teal">
+                        <div class="card-title">Start Practice Lab Session</div>
+                        <p class="card-desc">Open the interactive lab guide and launch local exercise sandbox containers.</p>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>telcosec academy practice 5g-sec-101</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec academy practice 5g-sec-101')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card highlight-teal">
+                        <div class="card-title">Download Exercise Datasets &amp; PCAPs</div>
+                        <p class="card-desc">Fetch sample cellular traffic captures, I/Q recordings, and SIM APDU sequences.</p>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>telcosec academy download</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec academy download')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card highlight-teal">
+                        <div class="card-title">Check Local Practice Container Status</div>
+                        <p class="card-desc">View running practice containers (Open5GS, UERANSIM, srsRAN, Osmocom) on your machine.</p>
+                        <div class="terminal-block">
+                            <div class="terminal-body">
+                                <code>telcosec academy status</code>
+                                <button class="terminal-copy-btn" onclick="copyCommand(this, 'telcosec academy status')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Featured Training Tracks</h3>
+                <div class="grid-3">
+                    <div class="card">
+                        <div class="card-title" style="color: var(--accent-cyan);">[5G-SEC-101] 5G Standalone Security</div>
+                        <p class="card-desc" style="font-size: 0.85rem;">NG-RAN security, 5G Core SBA REST APIs, Subscriber Identity Concealment (SUCI/SUPI), and GTP-U tunnel security.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title" style="color: var(--accent-teal);">[RAN-SDR-201] SDR &amp; Cellular Interception</div>
+                        <p class="card-desc" style="font-size: 0.85rem;">SDR signal processing, GSM/LTE air interface decoding, IMSI catcher detection, and GNU Radio flowgraph authoring.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title" style="color: var(--amber);">[SIM-APDU-401] SIM/eSIM Penetration Testing</div>
+                        <p class="card-desc" style="font-size: 0.85rem;">Smartcard ISO-7816 protocols, pySim APDU scripting, eSIM LPA profile extraction, and USIM Milenage authentication vectors.</p>
+                    </div>
                 </div>
             </section>
 

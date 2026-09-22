@@ -23,7 +23,7 @@ on:
         default: 'full'
         type: choice
         options:
-          - full      # Flagship Field Edition (~5.0 GB, all 88 tools)
+          - full      # Flagship Field Edition (~5.0 GB, all 94 tools)
           - lite      # Modular Lite Edition (~1.8 GB, base + telcosec-pkg)
 
 concurrency:

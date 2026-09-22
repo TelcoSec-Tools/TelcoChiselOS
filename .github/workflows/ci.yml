@@ -39,7 +39,7 @@ jobs:
       - name: Verify catalog parity across doc portals
         run: node scripts/sync-catalogs.js
 
-      - name: Validate 88 tool definitions
+      - name: Validate 94 tool definitions
         run: node scripts/validate_all_tools.js
 
   lint-yaml:
