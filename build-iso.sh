@@ -137,6 +137,13 @@ fi
 # Normalize version: strip leading 'v'
 ISO_VERSION="${ISO_VERSION#v}"
 
+# Resolve human-readable flavor label
+if [ "$BUILD_FLAVOR" = "lite" ]; then
+  DISTRO_FLAVOR_LABEL="Lite Edition"
+else
+  DISTRO_FLAVOR_LABEL="Field Edition"
+fi
+
 # ─── Header ───────────────────────────────────────────────────────────────────
 echo "=== TelcoChisel ISO Builder ==="
 echo "    Version: $ISO_VERSION"
@@ -828,61 +835,71 @@ fi
 # username/hostname are set here so casper's 10adduser hook picks them up.
 # noeject/noprompt: suppress casper's "remove disc and press enter" prompts.
 
-menuentry "TelcoChisel OS ${ISO_VERSION} ${DISTRO_FLAVOR_LABEL} Live (Low-Latency Kernel - Default for SDR & 5G)" {
+menuentry "TelcoChisel OS Live (Low-Latency Realtime — Default)" --class telcochisel --class os {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel OS ${ISO_VERSION} ${DISTRO_FLAVOR_LABEL} Live (Persistent Mode - Encrypted/casper-rw)" {
+menuentry "TelcoChisel OS Live (Encrypted Persistence)" --class telcochisel --class os {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper persistent noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel OS ${ISO_VERSION} ${DISTRO_FLAVOR_LABEL} Live (i3 Tiling WM - Operational Mode)" {
-    set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper desktop=i3 noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
-    initrd /casper/initrd
-}
-
-menuentry "TelcoChisel OS ${ISO_VERSION} ${DISTRO_FLAVOR_LABEL} Live (Load to RAM - Zero Trace Mode)" {
+menuentry "TelcoChisel OS Live (RAM Mode — Zero Trace)" --class telcochisel --class os {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 toram ---
     initrd /casper/initrd
 }
 
-if [ -f /casper/vmlinuz-generic ]; then
-menuentry "TelcoChisel OS ${ISO_VERSION} ${DISTRO_FLAVOR_LABEL} Live (Generic Kernel - Compatibility Mode)" {
+menuentry "TelcoChisel OS Live (i3 Tiling Window Manager)" --class telcochisel --class os {
     set gfxpayload=keep
-    linux /casper/vmlinuz-generic boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
-    initrd /casper/initrd-generic
-}
-fi
-
-menuentry "TelcoChisel OS ${ISO_VERSION} ${DISTRO_FLAVOR_LABEL} Live (Safe Graphics - nomodeset)" {
-    set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel nomodeset usbcore.usbfs_memory_mb=1000 ---
+    linux /casper/vmlinuz boot=casper desktop=i3 noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel OS ${ISO_VERSION} ${DISTRO_FLAVOR_LABEL} Live (Install to Hard Disk)" {
+menuentry "Install TelcoChisel OS to Hard Disk (Calamares Installer)" --class calamares --class os {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel calamares quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel OS ${ISO_VERSION} ${DISTRO_FLAVOR_LABEL} Live (Debug — verbose boot)" {
-    set gfxpayload=keep
-    linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel debug systemd.log_level=debug usbcore.usbfs_memory_mb=1000 ---
-    initrd /casper/initrd
-}
+submenu "Advanced Hardware & Diagnostic Options..." --class submenu {
+    menuentry "TelcoChisel OS Live (Safe Graphics — nomodeset)" --class recovery {
+        set gfxpayload=keep
+        linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel nomodeset usbcore.usbfs_memory_mb=1000 ---
+        initrd /casper/initrd
+    }
 
-if [ "\$grub_platform" = "efi" ]; then
-menuentry "UEFI Firmware Settings" {
-    fwsetup
+    if [ -f /casper/vmlinuz-generic ]; then
+    menuentry "TelcoChisel OS Live (Generic Kernel Compatibility)" --class recovery {
+        set gfxpayload=keep
+        linux /casper/vmlinuz-generic boot=casper noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
+        initrd /casper/initrd-generic
+    }
+    fi
+
+    menuentry "TelcoChisel OS Live (Verbose Debug Boot)" --class recovery {
+        set gfxpayload=keep
+        linux /casper/vmlinuz boot=casper noeject noprompt username=telcosec hostname=TelcoChisel debug systemd.log_level=debug usbcore.usbfs_memory_mb=1000 ---
+        initrd /casper/initrd
+    }
+
+    if [ "\$grub_platform" = "efi" ]; then
+    menuentry "UEFI Firmware Settings" --class uefi {
+        fwsetup
+    }
+    fi
+
+    menuentry "Reboot System" --class reboot {
+        reboot
+    }
+
+    menuentry "Power Off System" --class shutdown {
+        halt
+    }
 }
-fi
 GRUB
 
 # ─── Build ISO ────────────────────────────────────────────────────────────────
