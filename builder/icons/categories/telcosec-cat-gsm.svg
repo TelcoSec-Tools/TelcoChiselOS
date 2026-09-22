@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="grad-gsm" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#58a6ff"/>
+      <stop offset="100%" stop-color="#79c0ff"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="#181a1b" stroke="#30363d" stroke-width="2"/>
+  <!-- GSM Cellular Tower Lattice Structure -->
+  <path d="M24 10 L14 38 M24 10 L34 38" stroke="url(#grad-gsm)" stroke-width="2" stroke-linecap="round"/>
+  <!-- Cross Braces -->
+  <path d="M19 22 L29 22 M16 30 L32 30" stroke="#58a6ff" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M19 22 L32 30 M29 22 L16 30" stroke="#58a6ff" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+  <!-- Tower Mast Top Transmitter Beacon -->
+  <circle cx="24" cy="10" r="2.5" fill="#e8921e"/>
+  <!-- 2G Radiation Waves -->
+  <path d="M17 7 A10 10 0 0 0 17 15" fill="none" stroke="#e8921e" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M31 7 A10 10 0 0 1 31 15" fill="none" stroke="#e8921e" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- 2G Badge Text / Indicator -->
+  <rect x="29" y="27" width="13" height="12" rx="3" fill="#e8921e"/>
+  <text x="35.5" y="36" fill="#0d1117" font-size="8" font-family="monospace" font-weight="900" text-anchor="middle">2G</text>
+</svg>

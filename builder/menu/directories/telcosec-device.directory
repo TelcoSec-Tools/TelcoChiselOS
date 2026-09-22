@@ -2,4 +2,4 @@
 Type=Directory
 Name=08. Device Tools
 Comment=Android ADB, Samsung Heimdall, Qualcomm EDL, MediaTek tools
-Icon=phone
+Icon=telcosec-cat-device

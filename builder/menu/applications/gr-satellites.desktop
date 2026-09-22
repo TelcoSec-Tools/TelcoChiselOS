@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=gr-satellites (NTN Telemetry Decoder)
+Comment=GNU Radio telemetry decoders for Non-Terrestrial Networks and LEO Satellites
+Exec=terminator -e "gr_satellites --help; bash"
+Icon=telcosec-cat-sdr
+Terminal=false
+Type=Application
+Categories=TelcoSec-SDR;System;

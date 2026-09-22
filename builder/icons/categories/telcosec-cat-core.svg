@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="grad-core" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8921e"/>
+      <stop offset="100%" stop-color="#ff5555"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="#181a1b" stroke="#30363d" stroke-width="2"/>
+  <!-- Central Signaling Switch Hub -->
+  <circle cx="24" cy="24" r="5" fill="#21262d" stroke="url(#grad-core)" stroke-width="2"/>
+  <!-- 4 Satellite Network Functions (AMF, SMF, UDM, HLR/STP) -->
+  <circle cx="12" cy="14" r="3.5" fill="#e8921e"/>
+  <circle cx="36" cy="14" r="3.5" fill="#e8921e"/>
+  <circle cx="12" cy="34" r="3.5" fill="#ff5555"/>
+  <circle cx="36" cy="34" r="3.5" fill="#ff5555"/>
+  <!-- Signaling Links -->
+  <path d="M14.5 16.5 L20.5 21.5 M33.5 16.5 L27.5 21.5" stroke="#e8921e" stroke-width="1.8" stroke-dasharray="2,2"/>
+  <path d="M14.5 31.5 L20.5 26.5 M33.5 31.5 L27.5 26.5" stroke="#ff5555" stroke-width="1.8" stroke-dasharray="2,2"/>
+  <!-- Central Lightning Bolt / Fast Routing Pulse -->
+  <path d="M25 21 L22 24.5 L25 24.5 L23 27" stroke="#00ffd5" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+</svg>

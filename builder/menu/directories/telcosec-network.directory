@@ -2,4 +2,4 @@
 Type=Directory
 Name=09. Network Analysis
 Comment=Packet capture, wireless scanning, and protocol analysis
-Icon=network-transmit-receive
+Icon=telcosec-cat-network
