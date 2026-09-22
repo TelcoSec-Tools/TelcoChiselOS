@@ -46,7 +46,11 @@ for arg in "$@"; do
 done
 
 if [ -z "${ISO_VERSION:-}" ]; then
-    ISO_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || git describe --tags --always 2>/dev/null || echo "3.0.0")
+    if [ -f "VERSION" ]; then
+        ISO_VERSION=$(head -n 1 VERSION | tr -d '[:space:]')
+    else
+        ISO_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || git describe --tags --always 2>/dev/null || echo "4.0.0")
+    fi
     ISO_VERSION="${ISO_VERSION#v}"
 fi
 ENV_PREFIX="BUILD_FLAVOR=${BUILD_FLAVOR} ISO_VERSION=${ISO_VERSION} SQUASHFS_LEVEL=${SQUASHFS_LEVEL:-6}"
