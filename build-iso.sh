@@ -128,7 +128,11 @@ fi
 # Resolve version if unset
 if [ -z "$ISO_VERSION" ]; then
   git config --global --add safe.directory "$PWD" 2>/dev/null || true
-  ISO_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || git describe --tags --always 2>/dev/null || echo "3.0.0")
+  if [ -f "VERSION" ]; then
+    ISO_VERSION=$(head -n 1 VERSION | tr -d '[:space:]')
+  else
+    ISO_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || git describe --tags --always 2>/dev/null || echo "4.0.0")
+  fi
 fi
 # Normalize version: strip leading 'v'
 ISO_VERSION="${ISO_VERSION#v}"
