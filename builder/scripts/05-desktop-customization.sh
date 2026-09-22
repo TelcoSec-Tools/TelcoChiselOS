@@ -1272,7 +1272,7 @@ mkdir -p /etc/skel/.config/i3 /etc/skel/.config/i3status /etc/skel/.config/rofi 
 
 # 10.1 Dedicated i3 Configuration
 cat << 'EOF' > /etc/skel/.config/i3/config
-# TelcoChisel i3 Configuration — Telecom Red Team Operational Mode
+# TelcoChisel i3 Configuration — Telecom Red Team Operational Mode (RFS Style)
 set $mod Mod4
 
 font pango:IBM Plex Mono, Ubuntu 11
@@ -1298,21 +1298,20 @@ for_window [title="TelcoSec Pre-flight Doctor"] floating enable, resize set 960 
 for_window [title="TelcoSec Hardware Probe"] floating enable, resize set 960 640
 for_window [title="5G SA Core Status"] floating enable, resize set 960 640
 for_window [title="10GbE Network Zero-Drop Tuning"] floating enable, resize set 960 640
+for_window [title="TelcoSec ProLabs Range Status"] floating enable, resize set 960 640
+for_window [title="TelcoSec Academy Course Manager"] floating enable, resize set 960 640
 for_window [class="Gqrx"] floating enable, resize set 1100 750
 for_window [class="Inspectrum"] floating enable, resize set 1100 750
 for_window [class="URH"] floating enable, resize set 1200 800
 
-# 10 Dedicated Telecom Operational Workspaces
-set $ws1  "1: 📡 RF-DSP"
-set $ws2  "2: 📻 GSM-2G3G"
-set $ws3  "3: 📶 4G-5G-RAN"
-set $ws4  "4: 💳 SIM-BB"
-set $ws5  "5: ⚡ SIG-CORE"
-set $ws6  "6: 🔍 DISSECT"
-set $ws7  "7: ⚔️ EXPLOIT"
-set $ws8  "8: 📟 OPERATOR"
-set $ws9  "9: 📝 EVIDENCE"
-set $ws10 "10: 🌐 INTEL-DOC"
+# 7 Dedicated Telecom Operational Workspaces (Harmonized with XFCE)
+set $ws1 "1: 📡 RF-DSP"
+set $ws2 "2: 📻 GSM-RAN"
+set $ws3 "3: ⚡ CORE-5G"
+set $ws4 "4: 🧪 PRO-LABS"
+set $ws5 "5: 🎓 ACADEMY"
+set $ws6 "6: 🔍 DISSECT"
+set $ws7 "7: 📝 EVIDENCE"
 
 # Switch Workspaces
 bindsym $mod+1 workspace $ws1
@@ -1322,9 +1321,6 @@ bindsym $mod+4 workspace $ws4
 bindsym $mod+5 workspace $ws5
 bindsym $mod+6 workspace $ws6
 bindsym $mod+7 workspace $ws7
-bindsym $mod+8 workspace $ws8
-bindsym $mod+9 workspace $ws9
-bindsym $mod+0 workspace $ws10
 
 # Move Containers to Workspaces
 bindsym $mod+Shift+1 move container to workspace $ws1
@@ -1334,18 +1330,15 @@ bindsym $mod+Shift+4 move container to workspace $ws4
 bindsym $mod+Shift+5 move container to workspace $ws5
 bindsym $mod+Shift+6 move container to workspace $ws6
 bindsym $mod+Shift+7 move container to workspace $ws7
-bindsym $mod+Shift+8 move container to workspace $ws8
-bindsym $mod+Shift+9 move container to workspace $ws9
-bindsym $mod+Shift+0 move container to workspace $ws10
 
 # Auto-Assignment of Telecom Applications to Workspaces
-assign [class="(?i)gnuradio|gqrx|inspectrum|urh|gpredict"] $ws1
-assign [class="(?i)osmocom|openbts|yate|kalibrate"]        $ws2
-assign [class="(?i)open5gs|ueransim|srsran|5ghoul"]        $ws3
-assign [class="(?i)pysim|simtrace|firmwire|qcsuper"]       $ws4
-assign [class="(?i)sigploit|diafuzzer|sctpscan"]           $ws5
-assign [class="(?i)wireshark"]                             $ws6
-assign [class="(?i)firefox|chromium"]                      $ws10
+assign [class="(?i)gnuradio|gqrx|inspectrum|urh|gpredict|cubicsdr"] $ws1
+assign [class="(?i)osmocom|openbts|yate|kalibrate|modmobmap"]       $ws2
+assign [class="(?i)open5gs|ueransim|srsran|5ghoul"]                $ws3
+assign [title="(?i)prolabs"]                                       $ws4
+assign [title="(?i)academy|course"]                                $ws5
+assign [class="(?i)wireshark"]                                     $ws6
+assign [class="(?i)firefox|chromium|cherrytree|leafpad|mousepad"]  $ws7
 
 # Core Navigation & Window Controls
 bindsym $mod+Return exec terminator
@@ -1386,6 +1379,8 @@ bindsym $mod+F1 exec --no-startup-id terminator -T "TelcoSec Pre-flight Doctor" 
 bindsym $mod+F2 exec --no-startup-id terminator -T "TelcoSec Hardware Probe" --geometry=960x640 -e "telcosec hardware; echo ''; read -p 'Press enter to exit...'"
 bindsym $mod+F3 exec --no-startup-id terminator -T "5G SA Core Status" --geometry=960x640 -e "telcosec 5g-sa status; echo ''; read -p 'Press enter to exit...'"
 bindsym $mod+F4 exec --no-startup-id terminator -T "10GbE Network Zero-Drop Tuning" --geometry=960x640 -e "sudo telcosec sdr 10g tune; echo ''; read -p 'Press enter to exit...'"
+bindsym $mod+F5 exec --no-startup-id terminator -T "TelcoSec ProLabs Range Status" --geometry=960x640 -e "telcosec prolabs status; echo ''; read -p 'Press enter to exit...'"
+bindsym $mod+F6 exec --no-startup-id terminator -T "TelcoSec Academy Course Manager" --geometry=960x640 -e "telcosec academy status; echo ''; read -p 'Press enter to exit...'"
 
 # Direct Telecom Tool Launch Shortcuts
 bindsym $mod+Shift+w exec --no-startup-id wireshark-mon
@@ -1393,8 +1388,10 @@ bindsym $mod+Shift+g exec --no-startup-id gqrx
 bindsym $mod+Shift+s exec --no-startup-id pysim-shell
 bindsym $mod+Shift+p exec --no-startup-id sigploit
 bindsym $mod+Shift+f exec --no-startup-id 5ghoul-fuzzer
-bindsym $mod+Shift+d exec --no-startup-id xdg-open https://telcochisel.com
 bindsym $mod+Shift+t exec --no-startup-id /usr/local/bin/telcosec-tmux-redteam
+bindsym $mod+Shift+x exec --no-startup-id telcosec-prolabs open
+bindsym $mod+Shift+m exec --no-startup-id telcosec-academy open
+bindsym $mod+Shift+d exec --no-startup-id firefox file:///usr/share/doc/telcosec/index.html
 
 # Operational Status Bar
 bar {
@@ -1429,8 +1426,10 @@ general {
 
 order += "wireless _first_"
 order += "ethernet _first_"
-order += "tun0"
-order += "wg0"
+order += "ethernet prolabs0"
+order += "ethernet tun-prolabs"
+order += "ethernet wg0"
+order += "ethernet tun0"
 order += "load"
 order += "memory"
 order += "tztime utc"
@@ -1446,13 +1445,23 @@ ethernet _first_ {
     format_down = "🌐 ETH: down"
 }
 
-tun0 {
-    format_up = "🛡️ VPN: %ip"
+ethernet prolabs0 {
+    format_up = "🧪 PROLABS: %ip"
     format_down = ""
 }
 
-wg0 {
+ethernet tun-prolabs {
+    format_up = "🧪 PROLABS-OVPN: %ip"
+    format_down = ""
+}
+
+ethernet wg0 {
     format_up = "🛡️ WG: %ip"
+    format_down = ""
+}
+
+ethernet tun0 {
+    format_up = "🛡️ VPN: %ip"
     format_down = ""
 }
 
@@ -1482,7 +1491,7 @@ configuration {
     modi: "drun,run,window";
     font: "IBM Plex Mono Medium 12";
     show-icons: true;
-    display-drun: "📡 Telecom Tools";
+    display-drun: "📡 TelcoSec [94 Tools]";
     display-run: "⚡ Exec";
     display-window: "🪟 Windows";
     drun-display-format: "{name}";
@@ -1529,7 +1538,7 @@ prompt {
 }
 
 entry {
-    placeholder: "Search 94 telecom security tools, SDR drivers, protocols...";
+    placeholder: "Search 94 telecom tools, ProLabs ranges, Academy labs, SDR drivers...";
     placeholder-color: #6e7681;
     text-color: @fg;
 }
