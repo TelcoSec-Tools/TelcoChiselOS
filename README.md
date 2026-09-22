@@ -215,7 +215,7 @@ When booting the Live USB media, the GRUB menu provides specialized operational 
 1. **TelcoChisel OS Live (Low-Latency Realtime — Default)**: Boots into the full XFCE desktop environment with real-time audio, RF processing, and auto-configured hardware access.
 2. **TelcoChisel OS Live (Encrypted Persistence)**: Mounts an AES-XTS LUKS-encrypted `casper-rw` partition for secure evidence preservation, custom PCAP storage, and report generation in the field.
 3. **TelcoChisel OS Live (RAM Mode — Zero Trace)**: Copies the root filesystem entirely into RAM (`toram`), maximizing I/O performance and allowing the physical USB drive to be safely detached during operations.
-4. **TelcoChisel OS Live (i3 Tiling Window Manager)**: Ultra-lightweight, keyboard-driven operational session minimizing CPU/RAM overhead on field laptops.
+4. **TelcoChisel OS Live (i3 Tiling Window Manager — RFS Style)**: Ultra-lightweight, keyboard-driven operational session minimizing CPU/RAM overhead on field laptops with 10 dedicated telecom workspaces.
 
 ---
 

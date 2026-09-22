@@ -853,7 +853,7 @@ menuentry "TelcoChisel OS Live (RAM Mode — Zero Trace)" --class telcochisel --
     initrd /casper/initrd
 }
 
-menuentry "TelcoChisel OS Live (i3 Tiling Window Manager)" --class telcochisel --class os {
+menuentry "TelcoChisel OS Live (i3 Tiling Window Manager — RFS Style)" --class telcochisel --class os {
     set gfxpayload=keep
     linux /casper/vmlinuz boot=casper desktop=i3 noeject noprompt username=telcosec hostname=TelcoChisel quiet splash fastboot loglevel=3 usbcore.usbfs_memory_mb=1000 ---
     initrd /casper/initrd
