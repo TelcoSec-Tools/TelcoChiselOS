@@ -1,5 +1,5 @@
 [Desktop Entry]
 Type=Directory
-Name=03. SIM Card Auditing
+Name=06. SIM & Smartcard
 Icon=smartcard
-Comment=SIMtrace and smartcard auditing
+Comment=SIMtrace, lpac eSIM, and smartcard auditing tools
