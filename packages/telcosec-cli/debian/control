@@ -21,7 +21,7 @@ Description: Unified Telecom Security Operator CLI and diagnostics suite
    * High-throughput USBFS buffer management for continuous MSPS SDRs
    * 10GbE network optimization (MTU 9000, 4096 ring descriptors, 64MB socket buffers)
    * Open5GS 5G Standalone core lifecycle and subscriber provisioning
-   * Modular 10-tier Debian metapackage suite management (telcosec pkg)
+   * Modular 11-tier Debian metapackage suite management (telcosec pkg)
    * Pure Go ISO/IEC 7816-3 ATR smartcard decoder and eSIM LPA inspection (telcosec sim)
    * Embedded shell autocompletion for Bash, Zsh, and Fish
-   * Offline telecom tools catalog search across 88 security suites
+   * Offline telecom tools catalog search across 94 security instruments

@@ -4,7 +4,7 @@
 
 NAME := telcosec
 MODULE := github.com/TelcoSec-Tools/telcosec-cli
-VERSION ?= 4.0.0
+VERSION ?= 2026.1
 COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "release")
 BUILD_DATE := $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 

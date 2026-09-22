@@ -131,7 +131,7 @@ if [ -z "$ISO_VERSION" ]; then
   if [ -f "VERSION" ]; then
     ISO_VERSION=$(head -n 1 VERSION | tr -d '[:space:]')
   else
-    ISO_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || git describe --tags --always 2>/dev/null || echo "4.0.0")
+    ISO_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || git describe --tags --always 2>/dev/null || echo "2026.1")
   fi
 fi
 # Normalize version: strip leading 'v'
