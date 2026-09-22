@@ -1,7 +1,7 @@
 ---
 componentName:  telcosec
 windowExpanding: normal
-windowSize:      900px,600px
+windowSize:      960px,640px
 windowPlacement: center
 
 strings:
@@ -9,32 +9,26 @@ strings:
     shortProductName:    TelcoChisel
     version:             2026.1
     shortVersion:        2026.1
-    versionedName:       TelcoChisel OS 2026.1 (Noble Numbat)
+    versionedName:       TelcoChisel OS 2026.1 (Noble Cellular)
     shortVersionedName:  TelcoChisel 2026.1
     bootloaderEntryName: TelcoChisel
     productUrl:          https://telcochisel.com
-    supportUrl:          https://community.telcosec.net/
+    supportUrl:          https://telcochisel.com
+    bugTrackerUrl:       https://github.com/TelcoSec-Tools/TelcoChiselOS/issues
     knownIssuesUrl:      https://github.com/TelcoSec-Tools/TelcoChiselOS/issues
     releaseNotesUrl:     https://github.com/TelcoSec-Tools/TelcoChiselOS/releases
+    donateUrl:           https://sourceforge.net/projects/telcochisel/
 
 images:
     productLogo:     "logo.png"
     productIcon:     "logo.png"
-    # productWelcome previously referenced "languages.png", which was never
-    # added to this directory (the welcome screen's image would fail to
-    # load). Reusing the existing brand logo here is the lowest-risk fix —
-    # it guarantees this key always resolves to a real, valid image file
-    # without needing new artwork designed for the language-selector screen.
     productWelcome:  "logo.png"
 
 slideshow:  "show.qml"
 slideshowAPI:  2
 
 style:
-    # Amber phosphor accent, matching the docs portal's design system
-    # (docs/assets/main.css --amber / --amber-hi). Previously teal (#00d1b2),
-    # a leftover from before the brand's color identity settled on amber.
-    sidebarBackground:    "#181a1b"
-    sidebarText:          "#e8e6e3"
-    sidebarTextSelect:    "#e8921e"
-    sidebarTextHighlight: "#f5aa35"
+    sidebarBackground:    "#0e121a"
+    sidebarText:          "#e6edf3"
+    sidebarTextSelect:    "#00ffd5"
+    sidebarTextHighlight: "#e8921e"

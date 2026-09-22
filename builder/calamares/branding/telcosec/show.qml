@@ -4,17 +4,17 @@ import QtQuick.Layouts 1.15
 
 Rectangle {
     id: root
-    color: "#181a1b"
+    color: "#0e121a"
     anchors.fill: parent
 
     // Animated background grid (telecom-style)
     Canvas {
         id: bgGrid
         anchors.fill: parent
-        opacity: 0.06
+        opacity: 0.08
         onPaint: {
             var ctx = getContext("2d");
-            ctx.strokeStyle = "#e8921e";
+            ctx.strokeStyle = "#00ffd5";
             ctx.lineWidth = 0.5;
             var step = 40;
             for (var x = 0; x < width; x += step) {
@@ -29,19 +29,19 @@ Rectangle {
     // Animated glowing background orb
     Rectangle {
         id: glowOrb
-        width: 340; height: 340
-        radius: 170
+        width: 360; height: 360
+        radius: 180
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: -40
+        anchors.verticalCenterOffset: -30
         color: "transparent"
-        border.color: "#e8921e"
+        border.color: "#00ffd5"
         border.width: 1
         opacity: 0.12
 
         SequentialAnimation on opacity {
             loops: Animation.Infinite
-            NumberAnimation { to: 0.22; duration: 2500 }
+            NumberAnimation { to: 0.25; duration: 2500 }
             NumberAnimation { to: 0.08; duration: 2500 }
         }
     }
@@ -50,7 +50,7 @@ Rectangle {
     property int currentSlide: 0
 
     Timer {
-        interval: 6500
+        interval: 7000
         running: true
         repeat: true
         onTriggered: {
@@ -60,37 +60,47 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 30
+        anchors.margins: 28
         spacing: 0
 
         // Header Brand Banner
         RowLayout {
             Layout.alignment: Qt.AlignHCenter
-            spacing: 12
+            spacing: 14
 
             Image {
                 source: "logo.png"
-                sourceSize.width: 42
-                sourceSize.height: 42
+                sourceSize.width: 44
+                sourceSize.height: 44
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            Text {
-                text: "TelcoSec TelcoChisel"
-                color: "#e8921e"
-                font.pixelSize: 24
-                font.bold: true
-                font.letterSpacing: 2
-                Layout.alignment: Qt.AlignVCenter
+            ColumnLayout {
+                spacing: 2
+                Text {
+                    text: "TELCOCHISEL OS"
+                    color: "#00ffd5"
+                    font.pixelSize: 22
+                    font.bold: true
+                    font.letterSpacing: 3
+                }
+                Text {
+                    text: "Telecom Security & Cellular Red Team Workstation"
+                    color: "#8b949e"
+                    font.pixelSize: 11
+                    font.letterSpacing: 1
+                }
             }
         }
 
-        Item { height: 15 }
+        Item { height: 16 }
 
         // Separator Line
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
-            width: parent.width * 0.8; height: 1; color: "#e8921e"; opacity: 0.4
+            width: parent.width * 0.85
+            height: 1
+            color: "#21262d"
         }
 
         Item { Layout.fillHeight: true }
@@ -98,78 +108,78 @@ Rectangle {
         // Slide Container with Fade Transitions
         Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: 260
+            Layout.preferredHeight: 280
 
             // Slide 1: Welcome & OS Vision
             Item {
                 anchors.fill: parent
                 opacity: root.currentSlide === 0 ? 1.0 : 0.0
-                Behavior on opacity { NumberAnimation { duration: 600 } }
+                Behavior on opacity { NumberAnimation { duration: 500 } }
 
                 ColumnLayout {
                     anchors.centerIn: parent
                     spacing: 12
 
                     Text {
-                        text: "Advanced Telecom Security OS — v3.0.0"
-                        color: "#f5aa35"
+                        text: "TelcoChisel OS 2026.1 (Noble Cellular)"
+                        color: "#00ffd5"
                         font.pixelSize: 22
                         font.bold: true
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Text {
-                        text: "Ubuntu 24.04 LTS (Noble Numbat) • Real-Time Low-Latency Kernel (1000Hz)"
-                        color: "#e8e6e3"
+                        text: "Ubuntu 24.04 LTS • Linux Real-Time Kernel (1000Hz PREEMPT) • Dual Desktop (XFCE + i3 RFS Style)"
+                        color: "#e6edf3"
                         font.pixelSize: 13
                         Layout.alignment: Qt.AlignHCenter
                     }
 
-                    Item { height: 8 }
+                    Item { height: 6 }
 
                     Text {
-                        text: "• Dual-Tier Distribution: Flagship Field Edition (5.0 GB) & Modular Lite Edition (1.8 GB)\n• Pre-loaded with 88 specialized cellular, SDR, 5G SA & radio analysis tools\n• Standardized training platform for TelcoSec Academy (app.telcosec.net)"
-                        color: "#a0a5aa"
+                        text: "• Curated arsenal of 94 specialized telecom security instruments across 11 domains\n• Out-of-the-box hardware integration for USRP, BladeRF, LimeSDR, HackRF, SIMtrace2 & PCSC\n• Flagship Field Edition (5.5 GB full offline) & Modular Lite Edition (1.8 GB on-demand)"
+                        color: "#8b949e"
                         font.pixelSize: 12
-                        lineHeight: 1.4
+                        lineHeight: 1.5
                         horizontalAlignment: Text.AlignHCenter
                         Layout.alignment: Qt.AlignHCenter
                     }
                 }
             }
 
-            // Slide 2: Software Defined Radio (SDR)
+            // Slide 2: Software Defined Radio (SDR) & RF DSP
             Item {
                 anchors.fill: parent
                 opacity: root.currentSlide === 1 ? 1.0 : 0.0
-                Behavior on opacity { NumberAnimation { duration: 600 } }
+                Behavior on opacity { NumberAnimation { duration: 500 } }
 
                 ColumnLayout {
                     anchors.centerIn: parent
                     spacing: 12
 
                     Text {
-                        text: "Software Defined Radio (SDR) Suite"
-                        color: "#f5aa35"
+                        text: "Software Defined Radio & RF Signal Processing"
+                        color: "#00ffd5"
                         font.pixelSize: 22
                         font.bold: true
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Text {
-                        text: "GNU Radio 3.10 • SoapySDR • UHD • HackRF • GQRX • gr-gsm"
-                        color: "#e8e6e3"
+                        text: "GNU Radio 3.10 • UHD • SoapySDR • Gqrx • Inspectrum • URH • Gpredict • gr-gsm"
+                        color: "#e6edf3"
                         font.pixelSize: 13
                         Layout.alignment: Qt.AlignHCenter
                     }
 
-                    Item { height: 8 }
+                    Item { height: 6 }
 
                     Text {
-                        text: "• Isolated telcosec-sdr Conda environment to prevent Python ABI conflicts\n• Low-latency kernel tuning with USB autosuspend disabled for RF stability\n• Pre-compiled drivers for USRP B210/X310, BladeRF 2.0 xA4 & LimeSDR"
-                        color: "#a0a5aa"
+                        text: "• Dedicated telcosec-sdr Conda environment with ABI-shielded Python bindings\n• Real-time tuned kernel profile with 1000MB USBFS allocation and zero-drop USB\n• Pre-compiled FPGA bitstreams & automated driver udev permissions for non-root users"
+                        color: "#8b949e"
                         font.pixelSize: 12
-                        lineHeight: 1.4
+                        lineHeight: 1.5
                         horizontalAlignment: Text.AlignHCenter
                         Layout.alignment: Qt.AlignHCenter
                     }
@@ -180,72 +190,72 @@ Rectangle {
             Item {
                 anchors.fill: parent
                 opacity: root.currentSlide === 2 ? 1.0 : 0.0
-                Behavior on opacity { NumberAnimation { duration: 600 } }
+                Behavior on opacity { NumberAnimation { duration: 500 } }
 
                 ColumnLayout {
                     anchors.centerIn: parent
                     spacing: 12
 
                     Text {
-                        text: "4G/5G RAN & Core Network Simulation"
-                        color: "#f5aa35"
+                        text: "4G LTE & 5G Standalone (SA) Core Simulation"
+                        color: "#00ffd5"
                         font.pixelSize: 22
                         font.bold: true
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Text {
-                        text: "UERANSIM 5G SA • srsRAN • Open5GS 5G Core • 5Ghoul Baseband Fuzzer"
-                        color: "#e8e6e3"
+                        text: "Open5GS 2.7 • UERANSIM • srsRAN 4G/5G • 5Ghoul Baseband Fuzzer • my5G-RANTester"
+                        color: "#e6edf3"
                         font.pixelSize: 13
                         Layout.alignment: Qt.AlignHCenter
                     }
 
-                    Item { height: 8 }
+                    Item { height: 6 }
 
                     Text {
-                        text: "• Complete 5G Standalone (SA) gNodeB and UE emulation pre-configured\n• Automated 5Ghoul fuzzer harness for 5G NR baseband vulnerability testing\n• Zero-ZMQ backend support for high-speed local core network simulation"
-                        color: "#a0a5aa"
+                        text: "• End-to-end 5G Standalone (SA) core network pre-configured for instant deployment\n• High-concurrency gNodeB / UE emulation with multi-SIM traffic injection\n• Over-the-air 5G NR baseband fuzzing with automated 5Ghoul exploit harness"
+                        color: "#8b949e"
                         font.pixelSize: 12
-                        lineHeight: 1.4
+                        lineHeight: 1.5
                         horizontalAlignment: Text.AlignHCenter
                         Layout.alignment: Qt.AlignHCenter
                     }
                 }
             }
 
-            // Slide 4: Baseband & SIM Smartcard Auditing
+            // Slide 4: Baseband Emulation & SIM Smartcard Auditing
             Item {
                 anchors.fill: parent
                 opacity: root.currentSlide === 3 ? 1.0 : 0.0
-                Behavior on opacity { NumberAnimation { duration: 600 } }
+                Behavior on opacity { NumberAnimation { duration: 500 } }
 
                 ColumnLayout {
                     anchors.centerIn: parent
                     spacing: 12
 
                     Text {
-                        text: "Baseband Emulation & SIM Smartcard Auditing"
-                        color: "#f5aa35"
+                        text: "Baseband Security & SIM/eSIM Auditing"
+                        color: "#00ffd5"
                         font.pixelSize: 22
                         font.bold: true
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Text {
-                        text: "FirmWire • QCSuper • MTKClient • pySim • Osmocom SIMtrace 2 • lpac"
-                        color: "#e8e6e3"
+                        text: "FirmWire • QCSuper • SCAT • pySim-shell • Osmocom SIMtrace 2 • lpac (eSIM)"
+                        color: "#e6edf3"
                         font.pixelSize: 13
                         Layout.alignment: Qt.AlignHCenter
                     }
 
-                    Item { height: 8 }
+                    Item { height: 6 }
 
                     Text {
-                        text: "• QEMU-based firmware emulation for Samsung Shannon & MediaTek modems\n• Hardware ISO 7816 smartcard sniffing with SIMtrace 2 & SIMurai\n• Command-line eSIM (SGP.22) profile management via lpac"
-                        color: "#a0a5aa"
+                        text: "• QEMU-based firmware emulation for Shannon & MediaTek modem basebands\n• Live ISO-7816 APDU trace sniffing with Sysmocom SIMtrace 2 & software UICC simulation\n• GSMA SGP.22 eSIM Local Profile Assistant (lpac) profile download and management"
+                        color: "#8b949e"
                         font.pixelSize: 12
-                        lineHeight: 1.4
+                        lineHeight: 1.5
                         horizontalAlignment: Text.AlignHCenter
                         Layout.alignment: Qt.AlignHCenter
                     }
@@ -256,34 +266,34 @@ Rectangle {
             Item {
                 anchors.fill: parent
                 opacity: root.currentSlide === 4 ? 1.0 : 0.0
-                Behavior on opacity { NumberAnimation { duration: 600 } }
+                Behavior on opacity { NumberAnimation { duration: 500 } }
 
                 ColumnLayout {
                     anchors.centerIn: parent
                     spacing: 12
 
                     Text {
-                        text: "Core Signaling & Protocol Auditing"
-                        color: "#f5aa35"
+                        text: "Signaling Protocols, Dissection & Exploitation"
+                        color: "#00ffd5"
                         font.pixelSize: 22
                         font.bold: true
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Text {
-                        text: "Wireshark (GSMTAP/GTP Profiles) • SigPloit • Diafuzzer • sctpscan • Scapy"
-                        color: "#e8e6e3"
+                        text: "Wireshark 4.2+ (GSMTAP & 5G SBI OpenAPI) • SigPloit • DiaFuzzer • sctpscan • Scapy"
+                        color: "#e6edf3"
                         font.pixelSize: 13
                         Layout.alignment: Qt.AlignHCenter
                     }
 
-                    Item { height: 8 }
+                    Item { height: 6 }
 
                     Text {
-                        text: "• Custom Wireshark protocol column formats for 5G NAS, GTP-U & GSMTAP\n• SS7, Diameter & GTP signaling exploitation & fuzzing toolkits\n• Scapy packet crafting with MAP, TCAP, and Diameter protocol definitions"
-                        color: "#a0a5aa"
+                        text: "• Pre-loaded GSMTAP, GSMTAPv3, and 3GPP Release 17 OpenAPI YAML SBI dissectors\n• SS7, Diameter, GTP, and SIP protocol fuzzing and vulnerability assessment\n• Telecom Scapy packet crafting with MAP, TCAP, Diameter & GTP dissectors"
+                        color: "#8b949e"
                         font.pixelSize: 12
-                        lineHeight: 1.4
+                        lineHeight: 1.5
                         horizontalAlignment: Text.AlignHCenter
                         Layout.alignment: Qt.AlignHCenter
                     }
@@ -294,34 +304,34 @@ Rectangle {
             Item {
                 anchors.fill: parent
                 opacity: root.currentSlide === 5 ? 1.0 : 0.0
-                Behavior on opacity { NumberAnimation { duration: 600 } }
+                Behavior on opacity { NumberAnimation { duration: 500 } }
 
                 ColumnLayout {
                     anchors.centerIn: parent
                     spacing: 12
 
                     Text {
-                        text: "Modular Metapackages & TelcoSec Academy"
-                        color: "#f5aa35"
+                        text: "Modular Metapackages & Ecosystem"
+                        color: "#00ffd5"
                         font.pixelSize: 22
                         font.bold: true
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Text {
-                        text: "telcosec-pkg CLI • meta.telcosec.net • 8 Domain Suites • Interactive Labs"
-                        color: "#e8e6e3"
+                        text: "telcosec-pkg CLI • meta.telcosec.net • 10 Metapackages • telcochisel.com"
+                        color: "#e6edf3"
                         font.pixelSize: 13
                         Layout.alignment: Qt.AlignHCenter
                     }
 
-                    Item { height: 8 }
+                    Item { height: 6 }
 
                     Text {
-                        text: "• Install specialized domains on-demand: 5g-sa, 4g-lte, sdr, sim, baseband, wireline\n• Dedicated telcosec CLI for SDR diagnostics, kernel tuning, and 5G SA startup\n• Direct integration with TelcoSec Academy interactive labs at app.telcosec.net"
-                        color: "#a0a5aa"
+                        text: "• Install specialized domains on-demand: 5g, sdr, sim, 4g, 2g-3g, wireline, ue, full\n• Dedicated telcosec CLI for live SDR diagnostics, hardware probing, and 5G core control\n• Community support, documentation, and training at telcochisel.com"
+                        color: "#8b949e"
                         font.pixelSize: 12
-                        lineHeight: 1.4
+                        lineHeight: 1.5
                         horizontalAlignment: Text.AlignHCenter
                         Layout.alignment: Qt.AlignHCenter
                     }
@@ -342,22 +352,22 @@ Rectangle {
                     width: index === root.currentSlide ? 24 : 8
                     height: 8
                     radius: 4
-                    color: index === root.currentSlide ? "#e8921e" : "#444444"
+                    color: index === root.currentSlide ? "#00ffd5" : "#21262d"
                     Behavior on width { NumberAnimation { duration: 300 } }
                 }
             }
         }
 
-        Item { height: 20 }
+        Item { height: 16 }
 
         // Installation Progress Message
         Text {
             id: progressMsg
             Layout.alignment: Qt.AlignHCenter
-            text: "Installing TelcoChisel to disk..."
+            text: "Installing TelcoChisel OS to disk..."
             color: "#e8921e"
             font.pixelSize: 13
-            opacity: 0.85
+            opacity: 0.9
 
             SequentialAnimation on opacity {
                 loops: Animation.Infinite
@@ -366,6 +376,6 @@ Rectangle {
             }
         }
 
-        Item { height: 10 }
+        Item { height: 8 }
     }
 }
