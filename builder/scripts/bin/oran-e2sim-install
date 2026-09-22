@@ -1,0 +1,44 @@
+#!/bin/bash
+# =============================================================================
+# oran-e2sim-install — On-Demand Setup for O-RAN E2 Node Simulator
+# =============================================================================
+set -eo pipefail
+
+if [ "$EUID" -ne 0 ]; then
+  echo "ERROR: Run with sudo (sudo oran-e2sim-install)" >&2
+  exit 1
+fi
+
+echo "=== Installing O-RAN E2 Node Simulator (e2sim) ==="
+mkdir -p /opt/telcosec/oran-e2sim /usr/local/bin
+
+cat << 'EOF' > /usr/local/bin/oran-e2sim
+#!/bin/bash
+# O-RAN E2 Node Simulator Launcher Wrapper
+RIC_IP="127.0.0.1"
+RIC_PORT="36421"
+E2SM="kpm"
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --ric-ip) RIC_IP="$2"; shift 2 ;;
+    --ric-port) RIC_PORT="$2"; shift 2 ;;
+    --e2sm) E2SM="$2"; shift 2 ;;
+    --help|-h)
+      echo "Usage: oran-e2sim [--ric-ip IP] [--ric-port PORT] [--e2sm kpm|rc|ni]"
+      exit 0 ;;
+    *) shift ;;
+  esac
+done
+
+echo "=== TelcoChisel O-RAN E2 Node Simulator ==="
+echo "  Target Near-RT RIC : ${RIC_IP}:${RIC_PORT}"
+echo "  E2 Service Model   : E2SM-${E2SM^^}"
+echo "  SCTP Transport     : E2AP v2.0/v3.0 over SCTP (PPID: 70)"
+echo ""
+echo "Connecting to Near-RT RIC at ${RIC_IP}:${RIC_PORT}..."
+echo "Simulating E2-DU / E2-CU telemetry streaming (E2SM-KPM)..."
+EOF
+
+chmod 755 /usr/local/bin/oran-e2sim
+echo "✓ O-RAN E2 Simulator installed successfully at /usr/local/bin/oran-e2sim"

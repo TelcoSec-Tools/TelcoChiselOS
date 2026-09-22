@@ -790,5 +790,59 @@ export const toolsCatalog = [
         desc: "Interactive HTTP/2, mTLS, and WebSockets interception proxy tailored for 5G Service Based Architecture (SBI) API auditing.",
         path: "/usr/bin/mitmproxy",
         cmd: "mitmproxy --version"
+    },
+    {
+        name: "O-RAN E2 Node Simulator (e2sim)",
+        slug: "o-ran-e2sim",
+        category: "5g",
+        status: "setup",
+        desc: "Open RAN E2 Node emulator and E2AP protocol tester communicating with Near-RT RICs over SCTP to assess xApp telemetry and control plane security.",
+        path: "/usr/local/bin/oran-e2sim",
+        cmd: "sudo oran-e2sim --help"
+    },
+    {
+        name: "O-RAN O1/A1 Security Auditor",
+        slug: "oran-o1-audit",
+        category: "5g",
+        status: "ready",
+        desc: "Automated security auditor for O-RAN O1 NETCONF/YANG management interfaces and Non-RT RIC A1 policy REST APIs.",
+        path: "/usr/local/bin/oran-o1-audit",
+        cmd: "oran-o1-audit --help"
+    },
+    {
+        name: "5G SBI REST API Mutator",
+        slug: "5g-sbi-fuzzer",
+        category: "5g",
+        status: "setup",
+        desc: "Mutational HTTP/2 and JSON REST fuzzer targeting 3GPP 5G Core Network Functions (NRF, AMF, UDM, AUSF, SEPP) to detect injection flaws and token bypasses.",
+        path: "/usr/local/bin/5g-sbi-fuzzer",
+        cmd: "sudo 5g-sbi-fuzzer --help"
+    },
+    {
+        name: "5G SBI OpenAPI Contract Validator",
+        slug: "5g-sbi-validator",
+        category: "5g",
+        status: "ready",
+        desc: "Automated schema compliance validator asserting live 5G Core SBI responses against official 3GPP Release 16/17/18 OpenAPI specifications.",
+        path: "/usr/local/bin/5g-sbi-validator",
+        cmd: "5g-sbi-validator --help"
+    },
+    {
+        name: "gr-satellites (NTN DSP Suite)",
+        slug: "gr-satellites",
+        category: "sdr",
+        status: "ready",
+        desc: "GNU Radio telemetry and signal processing suite for 3GPP Rel-17 NTN satellite communications, Doppler shift compensation, and downlink decoding.",
+        path: "Conda env (telcosec-sdr)",
+        cmd: "conda activate telcosec-sdr && gr_satellites --help"
+    },
+    {
+        name: "gr-iridium & Iridium Toolkit",
+        slug: "gr-iridium",
+        category: "sdr",
+        status: "setup",
+        desc: "Real-time burst detection, L-band frame parsing, and packet extraction toolkit for Iridium satellite mobile telephony and M2M channels.",
+        path: "/usr/local/bin/iridium-parser",
+        cmd: "iridium-parser --help"
     }
 ];

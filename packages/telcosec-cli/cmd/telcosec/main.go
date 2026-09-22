@@ -15,7 +15,10 @@ import (
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/docs"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/evidence"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/network"
+	"github.com/TelcoSec-Tools/telcosec-cli/pkg/ntn"
+	"github.com/TelcoSec-Tools/telcosec-cli/pkg/oran"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/packages"
+	"github.com/TelcoSec-Tools/telcosec-cli/pkg/sbi"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/sdr"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/search"
 	"github.com/TelcoSec-Tools/telcosec-cli/pkg/sim"
@@ -50,9 +53,12 @@ Commands:
   doctor               Unified hardware, RF, SIM, modem, and kernel diagnostic probe
   check | status       Comprehensive system, kernel, hardware, and services audit
   hardware             Enumerate and probe attached SDRs, modems, and SIM readers
-  search <query>       Search installed 88 tools and desktop launchers by keyword
+  search <query>       Search installed 94 tools and desktop launchers by keyword
   docs                 Open offline documentation & operator reference in browser
   sdr [action]         SDR drivers, USB & 10GbE management (status | usb | 10g | firmware)
+  oran [action]        O-RAN Alliance security suite (status | e2-sim | o1-scan)
+  sbi [action]         5G Core Service-Based Interface auditing (status | validate | fuzz)
+  ntn [action]         Non-Terrestrial Networks & Satellite telecom (status | doppler)
   10g [action]         10Gbps network SDR interface optimization (status | tune | setup | probe)
   firmware             Inspect and manage offline SDR FPGA bitstreams (BladeRF, USRP)
   update-assets [grp]  Inspect and synchronize offline FPGA images, specs, and wordlists
@@ -84,6 +90,96 @@ func main() {
 	case "doctor", "dr":
 		printBanner()
 		doctor.RunDoctor(os.Stdout)
+
+	case "oran", "openran", "e2":
+		action := "status"
+		if len(args) > 0 {
+			action = strings.ToLower(args[0])
+		}
+		switch action {
+		case "status":
+			printBanner()
+			oran.PrintStatus(os.Stdout)
+		case "e2-sim", "e2sim", "sim":
+			printBanner()
+			ricIP := "127.0.0.1"
+			if len(args) > 1 {
+				ricIP = args[1]
+			}
+			cfg := oran.E2SimConfig{
+				RicIP:        ricIP,
+				RicPort:      36421,
+				ServiceModel: "kpm",
+			}
+			_ = oran.RunE2Sim(os.Stdout, cfg)
+		case "o1-scan", "o1", "scan":
+			printBanner()
+			target := "127.0.0.1"
+			if len(args) > 1 {
+				target = args[1]
+			}
+			oran.RunO1Scan(os.Stdout, target, 830)
+		default:
+			fmt.Printf("Unknown O-RAN action: %s\nUsage: telcosec oran [status|e2-sim [ric_ip]|o1-scan [target]]\n", action)
+			os.Exit(1)
+		}
+
+	case "sbi", "sba", "5g-sbi":
+		action := "status"
+		if len(args) > 0 {
+			action = strings.ToLower(args[0])
+		}
+		switch action {
+		case "status":
+			printBanner()
+			sbi.PrintStatus(os.Stdout)
+		case "validate", "check":
+			printBanner()
+			endpoint := "http://127.0.0.1:7777"
+			nf := "nrf"
+			if len(args) > 1 {
+				endpoint = args[1]
+			}
+			if len(args) > 2 {
+				nf = args[2]
+			}
+			sbi.ValidateEndpoint(os.Stdout, endpoint, nf)
+		case "fuzz", "mutate":
+			printBanner()
+			target := "http://127.0.0.1:7777"
+			nf := "nrf"
+			if len(args) > 1 {
+				target = args[1]
+			}
+			if len(args) > 2 {
+				nf = args[2]
+			}
+			_ = sbi.RunFuzzer(os.Stdout, target, nf)
+		default:
+			fmt.Printf("Unknown SBI action: %s\nUsage: telcosec sbi [status|validate [endpoint] [nf]|fuzz [target] [nf]]\n", action)
+			os.Exit(1)
+		}
+
+	case "ntn", "sat", "satellite":
+		action := "status"
+		if len(args) > 0 {
+			action = strings.ToLower(args[0])
+		}
+		switch action {
+		case "status":
+			printBanner()
+			ntn.PrintStatus(os.Stdout)
+		case "doppler", "calc":
+			printBanner()
+			orbit := "leo"
+			if len(args) > 1 {
+				orbit = args[1]
+			}
+			ntn.CalculateDoppler(os.Stdout, 1621.25e6, orbit)
+		default:
+			fmt.Printf("Unknown NTN action: %s\nUsage: telcosec ntn [status|doppler [leo|meo|geo]]\n", action)
+			os.Exit(1)
+		}
 
 	case "update-assets", "assets", "update-wordlists":
 		printBanner()

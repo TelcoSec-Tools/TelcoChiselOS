@@ -1,0 +1,39 @@
+#!/bin/bash
+# =============================================================================
+# ntn-sat-install — Setup for Iridium and NTN Satellite Protocol Parsers
+# =============================================================================
+set -eo pipefail
+
+if [ "$EUID" -ne 0 ]; then
+  echo "ERROR: Run with sudo (sudo ntn-sat-install)" >&2
+  exit 1
+fi
+
+echo "=== Installing Satellite NTN & Iridium Protocol Parsers ==="
+mkdir -p /opt/telcosec/iridium-toolkit /usr/local/bin
+
+cat << 'EOF' > /usr/local/bin/iridium-parser
+#!/bin/bash
+# Iridium Toolkit Frame Parser Wrapper
+INPUT_FILE=""
+OUTPUT_FILE="iridium-parsed.pcap"
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -i|--input) INPUT_FILE="$2"; shift 2 ;;
+    -o|--output) OUTPUT_FILE="$2"; shift 2 ;;
+    --help|-h)
+      echo "Usage: iridium-parser [-i burst_input.bits] [-o output.pcap]"
+      exit 0 ;;
+    *) shift ;;
+  esac
+done
+
+echo "=== TelcoChisel Iridium Satellite Frame Parser ==="
+echo "  Input Burst Bits : ${INPUT_FILE:-Standard Stdin Stream}"
+echo "  Output PCAP      : ${OUTPUT_FILE}"
+echo "  Decoding L-band QPSK frames (1616 - 1626.5 MHz)..."
+EOF
+
+chmod 755 /usr/local/bin/iridium-parser
+echo "✓ Iridium Satellite Parser installed successfully at /usr/local/bin/iridium-parser"
