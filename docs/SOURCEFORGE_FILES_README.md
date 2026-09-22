@@ -5,6 +5,8 @@
 
 [![Download TelcoChisel](https://img.shields.io/sourceforge/dt/telcochisel?logo=sourceforge&label=Downloads&color=00ffd5)](https://sourceforge.net/projects/telcochisel/files/latest/download)
 [![SourceForge Reviews](https://img.shields.io/sourceforge/reviews/telcochisel?logo=sourceforge&label=User%20Reviews&color=f59e0b)](https://sourceforge.net/projects/telcochisel/reviews/new)
+[![DistroWatch](https://img.shields.io/badge/DistroWatch-Specification_Ready-00ffd5?logo=linux&logoColor=black)](https://github.com/TelcoSec-Tools/TelcoChiselOS/blob/main/DISTROWATCH.md)
+[![News Feed](https://img.shields.io/badge/News_Feed-RSS_2.0-ff6600?logo=rss&logoColor=white)](https://telcochisel.com/feed.xml)
 [![GitHub Stars](https://img.shields.io/github/stars/TelcoSec-Tools/TelcoChiselOS?logo=github&label=GitHub%20Stars&color=6366f1)](https://github.com/TelcoSec-Tools/TelcoChiselOS)
 
 ---

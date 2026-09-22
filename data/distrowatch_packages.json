@@ -1,0 +1,66 @@
+{
+  "distribution": {
+    "name": "TelcoChisel OS",
+    "version": "2026.1",
+    "release_name": "Noble Cellular",
+    "based_on": "Ubuntu 24.04 LTS (Noble Numbat)",
+    "architecture": "x86_64",
+    "category": [
+      "Security",
+      "Telecommunications",
+      "Forensics",
+      "Live Medium",
+      "Data Rescue"
+    ],
+    "desktops": [
+      "XFCE 4.18",
+      "i3 4.23 (RFS Style)"
+    ],
+    "init_system": "systemd",
+    "package_manager": "dpkg, apt, telcosec-pkg",
+    "website": "https://telcochisel.com",
+    "download_url": "https://sourceforge.net/projects/telcochisel/files/",
+    "documentation_url": "https://telcochisel.com",
+    "repository_url": "https://github.com/TelcoSec-Tools/TelcoChiselOS",
+    "issue_tracker": "https://github.com/TelcoSec-Tools/TelcoChiselOS/issues",
+    "rss_feed": "https://telcochisel.com/feed.xml",
+    "news_sitemap": "https://telcochisel.com/sitemap-news.xml"
+  },
+  "tracked_packages": {
+    "kernel": "6.8.0-lowlatency",
+    "xorg_server": "21.1.11",
+    "xfce": "4.18.1",
+    "i3": "4.23",
+    "picom": "11.2",
+    "calamares": "3.3.6",
+    "lightdm": "1.30.0",
+    "glibc": "2.39",
+    "gcc": "13.2.0",
+    "python3": "3.12.3",
+    "golang": "1.22.2",
+    "network_manager": "1.46.0",
+    "wireshark": "4.2.4",
+    "gnuradio": "3.10.10",
+    "uhd": "4.6.0.0",
+    "open5gs": "2.7.2",
+    "ueransim": "3.2.6",
+    "sctp": "1.0.19"
+  },
+  "telecom_tool_summary": {
+    "total_tools": 94,
+    "categories_count": 11,
+    "categories": [
+      "Radio Frequency & DSP",
+      "2G / 3G / GSM Auditing",
+      "4G / 5G RAN & Core",
+      "SIM & Smart Card Security",
+      "Signaling & Core Network",
+      "Protocol Dissection",
+      "O-RAN & Open Radio",
+      "Baseband Vulnerability Research",
+      "Physical & Wireless Audit",
+      "Evidence & Reporting",
+      "Operator Diagnostics"
+    ]
+  }
+}

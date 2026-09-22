@@ -10,6 +10,8 @@
   [![Build Status](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/release.yml/badge.svg)](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/release.yml)
   [![CI Validation](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/ci.yml/badge.svg)](https://github.com/TelcoSec-Tools/TelcoChiselOS/actions/workflows/ci.yml)
   [![Docs Portal](https://img.shields.io/badge/Docs_Portal-telcochisel.com-e8921e?logo=cloudflare&logoColor=white)](https://telcochisel.com)
+  [![DistroWatch Status](https://img.shields.io/badge/DistroWatch-Specification_Ready-00ffd5?logo=linux&logoColor=black)](DISTROWATCH.md)
+  [![Google News RSS](https://img.shields.io/badge/News_Feed-RSS_2.0-ff6600?logo=rss&logoColor=white)](https://telcochisel.com/feed.xml)
   [![Ubuntu 24.04 LTS](https://img.shields.io/badge/Base_OS-Ubuntu_24.04_LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com)
   [![Kernel](https://img.shields.io/badge/Kernel-Low--Latency_1000Hz-00ffd5?logo=linux&logoColor=black)](https://telcochisel.com)
   [![Tools](https://img.shields.io/badge/Tools-94_Pre--installed-e8921e?logo=gnuradio&logoColor=black)](https://telcochisel.com/#tools)
@@ -29,9 +31,9 @@
 
   <br/><br/>
 
-  [**Official Documentation**](https://telcochisel.com) • [**Download Live ISO**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**TelcoSec Academy**](https://app.telcosec.net) • [**SourceForge Portal**](https://sourceforge.net/projects/telcochisel/) • [**Discord Community**](https://discord.gg/RykzXTQFXF)
+  [**Official Documentation**](https://telcochisel.com) • [**Download Live ISO**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**DistroWatch Spec**](DISTROWATCH.md) • [**Release Feed**](https://telcochisel.com/feed.xml) • [**SourceForge Portal**](https://sourceforge.net/projects/telcochisel/) • [**Discord**](https://discord.gg/RykzXTQFXF)
   <br/>
-  [**Release Architecture**](RELEASES.md) • [**Changelog**](CHANGELOG.md) • [**Contributing**](CONTRIBUTING.md) • [**Security Policy**](SECURITY.md)
+  [**Release Architecture**](RELEASES.md) • [**Changelog**](CHANGELOG.md) • [**Contributing**](CONTRIBUTING.md) • [**Security Policy**](SECURITY.md) • [**Code of Conduct**](.github/CODE_OF_CONDUCT.md)
 
   ---
 
