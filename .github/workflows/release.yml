@@ -218,11 +218,11 @@ jobs:
           fi
 
           # Collect commits since last stable tag for the changelog
-          LAST_TAG=$(git tag --list 'v*.*.*' --sort=-version:refname | head -1 || true)
+          LAST_TAG=$(git tag --list 'v*.*.*' --sort=-version:refname --merged HEAD 2>/dev/null | tail -n +1 | head -1 || true)
           if [[ -n "$LAST_TAG" ]]; then
-            CHANGELOG=$(git log "${LAST_TAG}..HEAD" --oneline --no-decorate | head -30)
+            CHANGELOG=$(git log "${LAST_TAG}..HEAD" --oneline --no-decorate --max-count=30 || true)
           else
-            CHANGELOG=$(git log --oneline --no-decorate -20)
+            CHANGELOG=$(git log --oneline --no-decorate --max-count=20 || true)
           fi
           # Store changelog as multiline output
           {
