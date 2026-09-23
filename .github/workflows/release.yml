@@ -39,8 +39,10 @@ concurrency:
 #     actions/cache save/restore steps are skipped on self-hosted
 # Flip `runs-on` back to `ubuntu-24.04` to return to GitHub-hosted runners —
 # all hosted-only steps are gated on RUNNER_ENVIRONMENT.
+# NOTE: ISO is intentionally absent here — it is set per-run by the
+# "Set ISO Environment Name" step via $GITHUB_ENV (versioned or nightly
+# name). A static default here would shadow that and cause stale filenames.
 env:
-  ISO: TelcoChisel-live.iso
   SF_USER: rfs85
   SF_PROJECT: telcochisel
   SF_HOST: frs.sourceforge.net
@@ -224,11 +226,14 @@ jobs:
           else
             CHANGELOG=$(git log --oneline --no-decorate --max-count=20 || true)
           fi
-          # Store changelog as multiline output
+          # Store changelog as multiline output — use a random delimiter so
+          # a commit message containing a bare "EOF" line cannot truncate the
+          # output value and corrupt every downstream step that reads it.
+          DELIM=$(openssl rand -hex 8)
           {
-            echo "changelog<<EOF"
+            echo "changelog<<${DELIM}"
             echo "$CHANGELOG"
-            echo "EOF"
+            echo "${DELIM}"
           } >> "$GITHUB_OUTPUT"
 
           {
@@ -243,10 +248,14 @@ jobs:
       # Split ONCE into workspace and copy chunks to /tmp/iso-chunks for upload.
       - name: Split ISO for artifact upload & GitHub Release
         run: |
+          # Guard: build-iso.sh writes build-info.json at its very last step.
+          # If the build exited early or used a non-standard path the file won't
+          # exist, causing rsync, gh release upload, and artifact copy to fail.
+          # Create a minimal placeholder so every downstream reference is safe.
+          [ -f "${ISO}.build-info.json" ] || printf '{}' > "${ISO}.build-info.json"
           split -b 1900M "$ISO" "${ISO}.part-"
           mkdir -p /tmp/iso-chunks
-          cp "${ISO}.part-"* "${ISO}.sha256" /tmp/iso-chunks/
-          cp -f "${ISO}.build-info.json" /tmp/iso-chunks/ 2>/dev/null || true
+          cp "${ISO}.part-"* "${ISO}.sha256" "${ISO}.build-info.json" /tmp/iso-chunks/
 
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
@@ -377,9 +386,16 @@ jobs:
           # Upload into a private staging subdir first — a network blip or
           # runner timeout mid-transfer never touches the public path, so
           # nobody can download a partial/corrupt ISO mid-upload.
+          # nullglob: if TelcoChisel-live.iso* expands to nothing (the hardlink
+          # at build time silently failed via || true), collect zero companions
+          # instead of passing the literal glob string to rsync which would fail.
+          shopt -s nullglob
+          LIVE_COMPANIONS=(TelcoChisel-live.iso*)
+          shopt -u nullglob
           rsync -avP --partial \
             -e "$SF_SSH" \
-            "$ISO" "${ISO}.sha256" "${ISO}.md5" "${ISO}.build-info.json" TelcoChisel-live.iso* "README.md" \
+            "$ISO" "${ISO}.sha256" "${ISO}.md5" "${ISO}.build-info.json" \
+            "${LIVE_COMPANIONS[@]}" "README.md" \
             "$SF_TARGET:$SF_TMP/"
 
           # Publish: back up whatever's currently public (non-fatal — nothing
@@ -443,9 +459,16 @@ jobs:
           # Upload into a private staging subdir first — a network blip or
           # runner timeout mid-transfer never touches the public path, so
           # nobody can download a partial/corrupt ISO mid-upload.
+          # nullglob: if TelcoChisel-live.iso* expands to nothing (the hardlink
+          # at build time silently failed via || true), collect zero companions
+          # instead of passing the literal glob string to rsync which would fail.
+          shopt -s nullglob
+          LIVE_COMPANIONS=(TelcoChisel-live.iso*)
+          shopt -u nullglob
           rsync -avP --partial \
             -e "$SF_SSH" \
-            "$ISO" "${ISO}.sha256" "${ISO}.md5" "${ISO}.build-info.json" TelcoChisel-live.iso* "README.md" \
+            "$ISO" "${ISO}.sha256" "${ISO}.md5" "${ISO}.build-info.json" \
+            "${LIVE_COMPANIONS[@]}" "README.md" \
             "$SF_TARGET:$SF_TMP/"
 
           # Publish: back up whatever's currently public (non-fatal — nothing
