@@ -638,7 +638,6 @@ jobs:
           else
             gh release create "$ROLLING_TAG" \
               ${ISO}.part-* "${ISO}.sha256" "${ISO}.build-info.json" \
-              --tag "$ROLLING_TAG" \
               --prerelease \
               --title "TelcoChisel Rolling — Nightly ${DATE}" \
               --notes "$NOTES"
