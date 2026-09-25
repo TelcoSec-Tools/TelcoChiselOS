@@ -63,6 +63,127 @@ gtk-enable-animations = 1
 gtk-application-prefer-dark-theme = 1
 EOF
 
+# Deploy custom TelcoChisel Cyberpunk GTK 3 theme for XFCE panel, menus, and widgets
+mkdir -p /etc/xdg/gtk-3.0 /etc/skel/.config/gtk-3.0
+cat << 'EOF' | tee /etc/xdg/gtk-3.0/gtk.css > /etc/skel/.config/gtk-3.0/gtk.css
+/* TelcoChisel OS — Cyberpunk Telecom XFCE & Panel GTK 3 Theme */
+.xfce4-panel {
+  background-color: rgba(10, 14, 23, 0.95);
+  color: #e6edf3;
+  border-bottom: 2px solid #00ffd5;
+  box-shadow: 0 2px 10px rgba(0, 255, 213, 0.15);
+  font-family: "Ubuntu", "Segoe UI", sans-serif;
+  font-size: 10pt;
+}
+
+.xfce4-panel button {
+  background-color: transparent;
+  color: #c9d1d9;
+  border: none;
+  border-radius: 4px;
+  margin: 2px 1px;
+  padding: 0 4px;
+  transition: all 150ms ease;
+}
+
+.xfce4-panel button:hover {
+  background-color: rgba(0, 255, 213, 0.14);
+  color: #00ffd5;
+}
+
+.xfce4-panel button:checked,
+.xfce4-panel button:active {
+  background-color: rgba(0, 255, 213, 0.22);
+  color: #ffffff;
+  border-bottom: 2px solid #00ffd5;
+}
+
+.xfce4-panel .tasklist button {
+  padding: 0 8px;
+  border-radius: 3px;
+  margin: 2px 2px;
+  border-bottom: 2px solid transparent;
+}
+
+.xfce4-panel .tasklist button:hover {
+  background-color: rgba(0, 255, 213, 0.12);
+  border-bottom: 2px solid rgba(0, 255, 213, 0.5);
+}
+
+.xfce4-panel .tasklist button:checked {
+  background-color: rgba(14, 23, 38, 0.95);
+  color: #00ffd5;
+  border-bottom: 2px solid #00ffd5;
+}
+
+#whiskermenu-button {
+  font-weight: bold;
+  color: #00ffd5;
+  padding: 0 8px;
+}
+
+#whiskermenu-button:hover {
+  background-color: rgba(0, 255, 213, 0.20);
+  color: #ffffff;
+}
+
+#whiskermenu-window {
+  background-color: #0b0f19;
+  border: 1px solid #00ffd5;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  color: #e6edf3;
+}
+
+#whiskermenu-window entry {
+  background-color: #141a26;
+  border: 1px solid #21262d;
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 6px 10px;
+}
+
+#whiskermenu-window entry:focus {
+  border-color: #00ffd5;
+  box-shadow: 0 0 8px rgba(0, 255, 213, 0.3);
+}
+
+#whiskermenu-window treeview:selected {
+  background-color: rgba(0, 255, 213, 0.20);
+  color: #00ffd5;
+  border-left: 3px solid #00ffd5;
+}
+
+.xfce4-panel .pager button {
+  background-color: rgba(22, 27, 34, 0.7);
+  border: 1px solid #21262d;
+  color: #8b949e;
+  border-radius: 3px;
+  margin: 2px 1px;
+}
+
+.xfce4-panel .pager button:hover {
+  border-color: #e8921e;
+  color: #e8921e;
+}
+
+.xfce4-panel .pager button:checked {
+  background-color: rgba(0, 255, 213, 0.18);
+  border: 1px solid #00ffd5;
+  color: #00ffd5;
+  font-weight: bold;
+}
+
+tooltip {
+  background-color: rgba(11, 15, 25, 0.96);
+  border: 1px solid #00ffd5;
+  border-radius: 4px;
+  color: #e6edf3;
+  padding: 4px 8px;
+}
+EOF
+
+
 cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-desktop" version="1.0">
@@ -234,9 +355,10 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
       <property name="length" type="uint" value="100"/>
       <property name="length-adjust" type="bool" value="true"/>
       <property name="position-locked" type="bool" value="true"/>
-      <property name="size" type="uint" value="32"/>
+      <property name="size" type="uint" value="34"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="1"/>
+        <value type="int" value="14"/>
         <value type="int" value="6"/>
         <value type="int" value="7"/>
         <value type="int" value="8"/>
@@ -245,8 +367,11 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
         <value type="int" value="11"/>
         <value type="int" value="12"/>
         <value type="int" value="13"/>
+        <value type="int" value="15"/>
         <value type="int" value="2"/>
+        <value type="int" value="16"/>
         <value type="int" value="3"/>
+        <value type="int" value="17"/>
         <value type="int" value="4"/>
         <value type="int" value="5"/>
       </property>
@@ -254,9 +379,13 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
   </property>
   <property name="plugins" type="empty">
     <property name="plugin-1" type="string" value="whiskermenu">
-      <property name="button-title" type="string" value="TelcoSec"/>
-      <property name="button-icon" type="string" value="utilities-terminal"/>
+      <property name="button-title" type="string" value="TelcoChisel"/>
+      <property name="button-icon" type="string" value="telcosec"/>
       <property name="show-button-title" type="bool" value="true"/>
+      <property name="show-button-icon" type="bool" value="true"/>
+    </property>
+    <property name="plugin-14" type="string" value="separator">
+      <property name="style" type="uint" value="0"/>
     </property>
     <property name="plugin-6" type="string" value="launcher">
       <property name="items" type="array">
@@ -298,6 +427,9 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
         <value type="string" value="telcosec-docs.desktop"/>
       </property>
     </property>
+    <property name="plugin-15" type="string" value="separator">
+      <property name="style" type="uint" value="1"/>
+    </property>
     <property name="plugin-2" type="string" value="tasklist">
       <property name="expand" type="bool" value="true"/>
       <property name="grouping" type="uint" value="1"/>
@@ -305,15 +437,21 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
       <property name="flat-buttons" type="bool" value="true"/>
       <property name="show-labels" type="bool" value="true"/>
     </property>
+    <property name="plugin-16" type="string" value="separator">
+      <property name="style" type="uint" value="0"/>
+    </property>
     <property name="plugin-3" type="string" value="pager">
       <property name="rows" type="uint" value="1"/>
       <property name="miniature-view" type="bool" value="false"/>
+    </property>
+    <property name="plugin-17" type="string" value="separator">
+      <property name="style" type="uint" value="1"/>
     </property>
     <property name="plugin-4" type="string" value="systray"/>
     <property name="plugin-5" type="string" value="clock">
       <property name="digital-layout" type="uint" value="2"/>
       <property name="digital-time-format" type="string" value="%H:%M"/>
-      <property name="digital-date-format" type="string" value="%d %b"/>
+      <property name="digital-date-format" type="string" value="%a %d %b"/>
     </property>
   </property>
 </channel>
@@ -377,16 +515,16 @@ mkdir -p /etc/skel/.config/xfce4/panel/launcher-6 \
          /etc/skel/.config/xfce4/panel/launcher-13
 
 cat << 'EOF' > /etc/skel/.config/xfce4/panel/whiskermenu-1.rc
-favorites=net.tenshu.Terminator.desktop,telcosec-tmux-redteam.desktop,telcosec-prolabs.desktop,telcosec-academy.desktop,wireshark-mon.desktop,gqrx.desktop,pysim-shell.desktop,sigploit.desktop,firmwire.desktop,diafuzzer.desktop,ueransim-gnb.desktop,5ghoul-fuzzer.desktop,telcosec-docs.desktop
-button-title=TelcoSec
-button-icon=utilities-terminal
+favorites=net.tenshu.Terminator.desktop,telcosec-tmux-redteam.desktop,telcosec-prolabs.desktop,telcosec-academy.desktop,wireshark-mon.desktop,gqrx.desktop,pysim-shell.desktop,sigploit.desktop,firmwire.desktop,diafuzzer.desktop,ueransim-gnb.desktop,5ghoul-fuzzer.desktop,falcon.desktop,telcosec-ran-status.desktop,sdr-info.desktop,telcosec-docs.desktop
+button-title=TelcoChisel
+button-icon=telcosec
 show-button-title=true
 show-button-icon=true
-category-icon-size=1
+category-icon-size=2
 item-icon-size=2
-menu-width=520
-menu-height=600
-menu-opacity=95
+menu-width=560
+menu-height=620
+menu-opacity=98
 position-search-alternate=true
 stay-on-focus-out=false
 EOF

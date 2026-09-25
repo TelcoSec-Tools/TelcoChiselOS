@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=SCTP Port Scanner (sctpscan)
+Comment=Fast SCTP port scanner to discover S1AP, NGAP, Diameter, and M3UA SIGTRAN endpoints
+Exec=x-terminal-emulator -e "bash -c 'sctpscan --help; echo; read -rp \"Press Enter to close...\"'"
+Icon=telcosec-cat-core
+Terminal=false
+Categories=TelcoSec-Core;

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TelcoSec RAN Status
+Comment=Real-time cellular radio access network emission monitor and gNodeB/eNodeB telemetry
+Exec=x-terminal-emulator -e "bash -c 'telcosec-ran-status; echo; read -rp \"Press Enter to close...\"'"
+Icon=telcosec-cat-5gnr
+Terminal=false
+Categories=TelcoSec-5GNR;

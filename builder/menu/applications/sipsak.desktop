@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=SIP Swiss Army Knife (sipsak)
+Comment=Command-line SIP diagnostic tool for OPTIONS health checks, hops and proxy stress tests
+Exec=x-terminal-emulator -e "bash -c 'sipsak --help; echo; read -rp \"Press Enter to close...\"'"
+Icon=telcosec-cat-voip
+Terminal=false
+Categories=TelcoSec-VoIP;

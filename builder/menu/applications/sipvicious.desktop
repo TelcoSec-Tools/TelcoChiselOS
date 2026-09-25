@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=SIPVicious Suite
+Comment=Audit toolset for SIP-based VoIP telephony systems, PBX extensions & SIP proxies
+Exec=x-terminal-emulator -e "bash -c 'svmap --help; echo; svwar --help; echo; read -rp \"Press Enter to close...\"'"
+Icon=telcosec-cat-voip
+Terminal=false
+Categories=TelcoSec-VoIP;

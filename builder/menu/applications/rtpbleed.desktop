@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=RTP Bleed Scanner
+Comment=Vulnerability scanner and audio extractor targeting leaky RTP media proxies and SBCs
+Exec=x-terminal-emulator -e "bash -c 'rtpbleed --help; echo; read -rp \"Press Enter to close...\"'"
+Icon=telcosec-cat-voip
+Terminal=false
+Categories=TelcoSec-VoIP;

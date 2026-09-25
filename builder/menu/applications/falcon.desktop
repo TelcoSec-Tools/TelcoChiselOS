@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Falcon (LTE Security Analyzer)
+Comment=Over-the-air cellular protocol analyzer for LTE rogue base stations & RRC inspection
+Exec=x-terminal-emulator -e "bash -c 'falcon --help; echo; read -rp \"Press Enter to close...\"'"
+Icon=telcosec-cat-lte
+Terminal=false
+Categories=TelcoSec-LTE;
