@@ -138,7 +138,7 @@ Rectangle {
                     Item { height: 6 }
 
                     Text {
-                        text: "• Curated arsenal of 94 specialized telecom security instruments across 11 domains\n• Out-of-the-box hardware integration for USRP, BladeRF, LimeSDR, HackRF, SIMtrace2 & PCSC\n• Flagship Field Edition (5.5 GB full offline) & Modular Lite Edition (1.8 GB on-demand)"
+                        text: "• Curated arsenal of 100 specialized telecom security instruments across 11 domains\n• Out-of-the-box hardware integration for USRP, BladeRF, LimeSDR, HackRF, SIMtrace2 & PCSC\n• Flagship Field Edition (5.5 GB full offline) & Modular Lite Edition (1.8 GB on-demand)"
                         color: "#8b949e"
                         font.pixelSize: 12
                         lineHeight: 1.5
@@ -167,7 +167,7 @@ Rectangle {
                     }
 
                     Text {
-                        text: "GNU Radio 3.10 • UHD • SoapySDR • Gqrx • Inspectrum • URH • Gpredict • gr-gsm"
+                        text: "GNU Radio 3.10 • UHD • SoapySDR • LimeSuite • Gqrx • Inspectrum • URH • gr-gsm"
                         color: "#e6edf3"
                         font.pixelSize: 13
                         Layout.alignment: Qt.AlignHCenter
@@ -205,7 +205,7 @@ Rectangle {
                     }
 
                     Text {
-                        text: "Open5GS 2.7 • UERANSIM • srsRAN 4G/5G • 5Ghoul Baseband Fuzzer • my5G-RANTester"
+                        text: "Open5GS 2.7 • UERANSIM • srsRAN 4G/5G • Falcon LTE • 5Ghoul Fuzzer • my5G-RANTester"
                         color: "#e6edf3"
                         font.pixelSize: 13
                         Layout.alignment: Qt.AlignHCenter
@@ -214,7 +214,7 @@ Rectangle {
                     Item { height: 6 }
 
                     Text {
-                        text: "• End-to-end 5G Standalone (SA) core network pre-configured for instant deployment\n• High-concurrency gNodeB / UE emulation with multi-SIM traffic injection\n• Over-the-air 5G NR baseband fuzzing with automated 5Ghoul exploit harness"
+                        text: "• End-to-end 5G Standalone (SA) core network pre-configured for instant deployment\n• High-concurrency gNodeB / UE emulation with multi-SIM traffic injection\n• Over-the-air 5G NR baseband fuzzing & Falcon LTE security analysis"
                         color: "#8b949e"
                         font.pixelSize: 12
                         lineHeight: 1.5
@@ -281,7 +281,7 @@ Rectangle {
                     }
 
                     Text {
-                        text: "Wireshark 4.2+ (GSMTAP & 5G SBI OpenAPI) • SigPloit • DiaFuzzer • sctpscan • Scapy"
+                        text: "Wireshark 4.2+ (GSMTAP & 5G SBI) • SigPloit • DiaFuzzer • sctpscan • SIPVicious • Scapy"
                         color: "#e6edf3"
                         font.pixelSize: 13
                         Layout.alignment: Qt.AlignHCenter
@@ -290,7 +290,7 @@ Rectangle {
                     Item { height: 6 }
 
                     Text {
-                        text: "• Pre-loaded GSMTAP, GSMTAPv3, and 3GPP Release 17 OpenAPI YAML SBI dissectors\n• SS7, Diameter, GTP, and SIP protocol fuzzing and vulnerability assessment\n• Telecom Scapy packet crafting with MAP, TCAP, Diameter & GTP dissectors"
+                        text: "• Pre-loaded GSMTAP, GSMTAPv3, and 3GPP Release 17 OpenAPI YAML SBI dissectors\n• SS7, Diameter, GTP, SCTP, and SIP/VoIP vulnerability assessment & packet crafting\n• Specialized suites: sctpscan, SIPVicious, RTPBleed, Mausezahn & VoIP Hopper"
                         color: "#8b949e"
                         font.pixelSize: 12
                         lineHeight: 1.5
@@ -328,7 +328,7 @@ Rectangle {
                     Item { height: 6 }
 
                     Text {
-                        text: "• Install specialized domains on-demand: 5g, sdr, sim, 4g, 2g-3g, wireline, ue, full\n• Dedicated telcosec CLI for live SDR diagnostics, hardware probing, and 5G core control\n• Community support, documentation, and training at telcochisel.com"
+                        text: "• Install specialized domains on-demand: 5g, sdr, sim, 4g, 2g-3g, core, voip, wireline, ue, full\n• Dedicated telcosec CLI for live SDR diagnostics, hardware probing, and 5G core control\n• Community support, documentation, and training at telcochisel.com"
                         color: "#8b949e"
                         font.pixelSize: 12
                         lineHeight: 1.5
