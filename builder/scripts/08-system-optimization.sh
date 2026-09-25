@@ -144,10 +144,13 @@ if [ -f /tmp/boot/grub-theme.conf ]; then
   chmod 644 /etc/default/grub.d/99-telcosec.cfg
 fi
 
-# Deploy the logo and wallpaper backgrounds
+# Deploy the logo, GRUB splash, and desktop wallpaper backgrounds
 mkdir -p /usr/share/backgrounds/telcosec/
 if [ -f /tmp/calamares-config/branding/telcosec/logo.png ]; then
   cp /tmp/calamares-config/branding/telcosec/logo.png /usr/share/backgrounds/telcosec/logo.png
+fi
+if [ -f /tmp/boot/grub_background.png ]; then
+  cp /tmp/boot/grub_background.png /usr/share/backgrounds/telcosec/grub_background.png
 fi
 if [ -f /tmp/boot/wallpaper.jpg ]; then
   cp /tmp/boot/wallpaper.jpg /usr/share/backgrounds/telcosec/wallpaper.jpg
