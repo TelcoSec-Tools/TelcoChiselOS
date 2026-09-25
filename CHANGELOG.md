@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.1.0] - 2026-09-26 (Noble Cellular)
+
+### Added
+- **Telecom Security Arsenal Expansion (100 Instruments)**:
+  - Expanded the tool catalog across 11 domains to reach 100 specialized tools.
+  - Added desktop launchers and interactive terminal wrappers for:
+    - `falcon`: Falcon LTE/4G cellular security analyzer.
+    - `lime-suite`: LimeSuite LimeUtil multi-device SDR manager.
+    - `sdr-info`: Multi-SDR transceiver hardware prober.
+    - `telcosec-ran-status`: RAN emission, frequency assignment, and gNodeB telemetry reporter.
+    - `sctpscan`: SCTP raw port scanner and multi-homing analyzer.
+    - `sipvicious`: SIPVicious VoIP and IMS penetration testing suite (`svmap`, `svwar`, `svcrack`).
+    - `mausezahn`: High-speed hardware-rate carrier Ethernet and VLAN packet crafter.
+    - `voiphopper`: Voice VLAN hopping security audit tool.
+    - `rtpbleed`: Real-time RTP audio stream bleeding and interception scanner.
+    - `sipsak`: SIP Swiss Army Knife for SIP server and PBX stress testing.
+- **Brand Vector Icons & XFCE Desktop Theme**:
+  - Designed scalable vector SVG brand icons (`telcosec.svg` and `telcochisel.svg`) installed to `/usr/share/icons/hicolor/scalable/apps/` and Papirus-Dark paths.
+  - Deployed custom GTK3 CSS (`gtk.css`) styling the XFCE 4.18 panel (`rgba(10, 14, 23, 0.95)` with `#00ffd5` bottom line), active window outlines, and Whisker Menu.
+  - Added 7-workspace pager configuration with telecom-tailored desktop shortcuts.
+  - Regenerated 1920x1080 wallpaper (`wallpaper.jpg`) with polar radar angle ticks, frequency crosshairs, telemetry pill badge, and typography exclusion masking.
+- **Calamares Installer Cyberpunk Redesign**:
+  - Developed custom dark-mode Qt stylesheet (`stylesheet.qss`) matching the TelcoChisel obsidian `#0c0f16` and neon cyan `#00ffd5` palette.
+  - Updated installer QML slideshow (`show.qml`) highlighting 100 tools, Falcon LTE, LimeSuite, VoIP tools, and modular metapackages.
+  - Hardened post-installation cleanup hooks (`shellprocess-cleanup.conf`) to remove installer CLI wrappers and live environment artifacts from target drives.
+  - Mapped branded `telcochisel` icon to the live desktop installer shortcut.
+- **Bootloader & Plymouth Boot Enhancements**:
+  - Created 1920x1080 GRUB splash screen (`grub_background.png`) with radar grid.
+  - Configured `GRUB_GFXMODE="1920x1080,1280x720,auto"` and `GRUB_GFXPAYLOAD_LINUX="keep"` for seamless, flicker-free boot transitions.
+  - Set menu highlight to brand neon cyan (`light-cyan/black`).
+  - Aligned Plymouth boot theme branding to TelcoChisel OS.
+- **Tool Permissions & Non-Root Capabilities**:
+  - Configured Linux network capabilities (`setcap cap_net_raw,cap_net_admin+eip`) for `dumpcap`, `mz` (Mausezahn), `sctpscan`, and `tcpdump`.
+  - Added PAM real-time scheduling priority limits (`rtprio 99`, `memlock unlimited`) for the `@usrp` group in `/etc/security/limits.d/99-realtime.conf`.
+  - Guaranteed `chmod 755` executable permissions across all `/usr/local/bin/*` tool wrappers and `/opt/telcosec/` environments.
+  - Enrolled user `telcosec` in `wireshark`, `netdev`, and `dialout` groups.
+
+### Fixed
+- **SourceForge Git Mirror Sync**: Reconciled divergent initial commit history between GitHub and SourceForge git remotes.
+- **Desktop Entry BOMs**: Removed invisible UTF-8 Byte Order Marks (BOM) from desktop launchers and protocol wordlists that disrupted FreeDesktop parsers.
+- **Asset Generator Encoding**: Added standard fallback handling in `generate-assets.py` to prevent UnicodeEncodeError on cp1252/ASCII terminals.
+
+---
+
 ## [3.0.0] - 2026-09-05 (Noble Numbat)
 
 ### Added
