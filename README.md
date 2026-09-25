@@ -31,7 +31,7 @@
 
   <br/><br/>
 
-  [**Official Documentation**](https://telcochisel.com) • [**Download Live ISO**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**DistroWatch Spec**](DISTROWATCH.md) • [**Release Feed**](https://telcochisel.com/feed.xml) • [**SourceForge Portal**](https://sourceforge.net/projects/telcochisel/) • [**Discord**](https://discord.gg/RykzXTQFXF)
+  [**Official Documentation**](https://telcochisel.com) • [**Download Live ISO**](https://sourceforge.net/projects/telcochisel/files/latest/download) • [**Rolling Release**](https://github.com/TelcoSec-Tools/TelcoChiselOS/releases/tag/rolling) • [**DistroWatch Spec**](DISTROWATCH.md) • [**Release Feed**](https://telcochisel.com/feed.xml) • [**SourceForge Portal**](https://sourceforge.net/projects/telcochisel/) • [**Discord**](https://discord.gg/RykzXTQFXF)
   <br/>
   [**Release Architecture**](RELEASES.md) • [**Changelog**](CHANGELOG.md) • [**Contributing**](CONTRIBUTING.md) • [**Security Policy**](SECURITY.md) • [**Code of Conduct**](.github/CODE_OF_CONDUCT.md)
 
