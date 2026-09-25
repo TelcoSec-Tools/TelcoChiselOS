@@ -14,7 +14,7 @@
   [![Google News RSS](https://img.shields.io/badge/News_Feed-RSS_2.0-ff6600?logo=rss&logoColor=white)](https://telcochisel.com/feed.xml)
   [![Ubuntu 24.04 LTS](https://img.shields.io/badge/Base_OS-Ubuntu_24.04_LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com)
   [![Kernel](https://img.shields.io/badge/Kernel-Low--Latency_1000Hz-00ffd5?logo=linux&logoColor=black)](https://telcochisel.com)
-  [![Tools](https://img.shields.io/badge/Tools-94_Pre--installed-e8921e?logo=gnuradio&logoColor=black)](https://telcochisel.com/#tools)
+  [![Tools](https://img.shields.io/badge/Tools-100_Pre--installed-e8921e?logo=gnuradio&logoColor=black)](https://telcochisel.com/#tools)
   [![Metapackages](https://img.shields.io/badge/Metapackages-11_Suites-0099ff?logo=debian&logoColor=white)](https://meta.telcosec.net)
   [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-00ffd5.svg)](LICENSE)
   <br/>
@@ -46,7 +46,7 @@
 
 **TelcoChisel OS** is a specialized, production-ready Linux operating system purpose-built by [TelcoSec](https://telco-sec.com) for telecommunications security audits, 5G Standalone (SA) and O-RAN penetration testing, cellular baseband vulnerability research, and Software Defined Radio (SDR) transceiver engineering.
 
-Built upon an **Ubuntu 24.04 LTS (Noble Numbat)** foundation with a dedicated **Low-Latency Real-Time Kernel** (`linux-image-lowlatency`), TelcoChisel provides an air-gapped, turn-key research laboratory featuring **94 pre-compiled and verified telecom security instruments across 11 functional domains**.
+Built upon an **Ubuntu 24.04 LTS (Noble Numbat)** foundation with a dedicated **Low-Latency Real-Time Kernel** (`linux-image-lowlatency`), TelcoChisel provides an air-gapped, turn-key research laboratory featuring **100 pre-compiled and verified telecom security instruments across 11 functional domains**.
 
 ```mermaid
 flowchart TD
@@ -71,7 +71,7 @@ flowchart TD
         TELCOPKG["telcosec-pkg<br/>(11-Tier Modular Metapackage Client via meta.telcosec.net)"]
     end
 
-    subgraph L4["4. 94 Pre-Configured Telecom Instruments (11 Categories)"]
+    subgraph L4["4. 100 Pre-Configured Telecom Instruments (11 Categories)"]
         C01["01. SDR & RF DSP (GNU Radio 3.10, UHD, Gqrx, URH, Inspectrum)"]
         C02["02. GSM & 2G Stacks (OsmocomBB, OpenBTS, YateBTS, OsmoGSM)"]
         C03["03. LTE & 4G RAN (srsRAN, srsUE, LTE-CellScanner, LTESniffer)"]
@@ -112,7 +112,7 @@ TelcoChisel eliminates the weeks of fragile compilation, kernel patching, driver
 │ ❌ Generic desktop scheduler  │ ⚠️ Kernel tuning breaks on OS │ ✅ 1000Hz Low-Latency   │
 │   causes SDR I/Q sample drops │    updates; high jitter       │    Kernel pre-tuned     │
 ├───────────────────────────────┼───────────────────────────────┼─────────────────────────┤
-│ ❌ Generic pentest focus      │ ⚠️ Fragile Python 2/3 and     │ ✅ 94 telecom-specific  │
+│ ❌ Generic pentest focus      │ ⚠️ Fragile Python 2/3 and     │ ✅ 100 telecom-specific │
 │   (missing 5G, O-RAN, Baseband)│    UHD/GNU Radio conflicts    │    tools across 11 suites│
 ├───────────────────────────────┼───────────────────────────────┼─────────────────────────┤
 │ ❌ Default network stack drops│ ⚠️ Manual MTU and buffer      │ ✅ One-command 10GbE &  │
@@ -169,7 +169,7 @@ telcosec hardware          # Automatically enumerate connected SDRs, modems, and
 telcosec 5g-sa start       # Orchestrate local Open5GS 5G Standalone core network
 telcosec sim atr [hex]     # Decode ISO 7816-3 smartcard ATR parameters and telecommunications profile
 telcosec sdr 10g tune eth0 # Optimize 10GbE network interface for zero-drop USRP X310/N310 streaming
-telcosec search <query>    # Query the offline catalog across all 94 pre-installed instruments
+telcosec search <query>    # Query the offline catalog across all 100 pre-installed instruments
 telcosec docs              # Launch local offline documentation portal in default browser
 ```
 
@@ -208,7 +208,7 @@ TelcoChisel is published in two official edition flavors:
 
 | Edition Flavor | Primary ISO Image | Image Size | Deployment Scope |
 | :--- | :--- | :--- | :--- |
-| **Flagship Field Edition** *(Default)* | `TelcoChisel-2026.1-amd64.iso` | **~5.5 GB** | **100% Self-Contained & Air-Gapped**: All 94 tools pre-compiled, offline UHD FPGA bitstreams, Conda SDR environment, Open5GS, O-RAN, and 5Ghoul ready for immediate live execution without network access. |
+| **Flagship Field Edition** *(Default)* | `TelcoChisel-2026.1-amd64.iso` | **~5.5 GB** | **100% Self-Contained & Air-Gapped**: All 100 tools pre-compiled, offline UHD FPGA bitstreams, Conda SDR environment, Open5GS, O-RAN, and 5Ghoul ready for immediate live execution without network access. |
 | **Modular Lite Edition** | `TelcoChisel-2026.1-lite-amd64.iso` | **~1.8 GB** | **Minimal Footprint**: Base XFCE desktop, 1000Hz Low-Latency Kernel, Wireshark, and `telcosec-pkg` client to pull domain suites on-demand from `meta.telcosec.net`. |
 
 ### Four High-Assurance Boot Modes

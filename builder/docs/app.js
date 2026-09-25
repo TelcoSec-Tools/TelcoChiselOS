@@ -756,6 +756,54 @@ const toolsCatalog = [
             "desc": "Real-time burst detection, L-band frame parsing, and packet extraction toolkit for Iridium satellite mobile telephony and M2M channels.",
             "path": "/usr/local/bin/iridium-parser",
             "cmd": "iridium-parser --help"
+    },
+    {
+            "name": "Falcon (LTE Security Analyzer)",
+            "category": "4g",
+            "status": "ready",
+            "desc": "Fast cellular over-the-air protocol analysis framework for detecting LTE rogue base stations, tracking temporary mobile identifiers, and inspecting RRC connection setups.",
+            "path": "/usr/local/bin/falcon",
+            "cmd": "falcon --help"
+    },
+    {
+            "name": "TelcoSec APN Permutator",
+            "category": "core",
+            "status": "ready",
+            "desc": "Telecom APN wordlist permutation and discovery utility for identifying hidden GGSN/PGW access point names and unauthenticated GTP-U tunnel endpoints.",
+            "path": "/usr/local/bin/telcosec-apn-permutator",
+            "cmd": "telcosec-apn-permutator --help"
+    },
+    {
+            "name": "TelcoSec IMSI Generator",
+            "category": "sim",
+            "status": "ready",
+            "desc": "International Mobile Subscriber Identity (IMSI) permutation and MCC/MNC range generator for subscriber auditing, roaming tests, and test USIM programming.",
+            "path": "/usr/local/bin/telcosec-imsi-generator",
+            "cmd": "telcosec-imsi-generator --help"
+    },
+    {
+            "name": "LimeSuite (LimeUtil)",
+            "category": "sdr",
+            "status": "ready",
+            "desc": "Device configuration utility and FPGA bitstream management CLI for LimeSDR USB, LimeSDR Mini, and PCIe cellular transceiver hardware.",
+            "path": "/usr/local/bin/LimeUtil",
+            "cmd": "LimeUtil --find"
+    },
+    {
+            "name": "sdr-info",
+            "category": "sdr",
+            "status": "ready",
+            "desc": "Unified multi-vendor Software Defined Radio hardware probe detecting USB throughput, FPGA firmware status, and RF clock synchronization across all connected transceivers.",
+            "path": "/usr/local/bin/sdr-info",
+            "cmd": "sdr-info"
+    },
+    {
+            "name": "telcosec-ran-status",
+            "category": "5g",
+            "status": "ready",
+            "desc": "Real-time cellular radio access network emission monitor and telemetry dashboard for tracking active 4G eNodeB and 5G gNodeB transmission states.",
+            "path": "/usr/local/bin/telcosec-ran-status",
+            "cmd": "telcosec-ran-status"
     }
 ];
 

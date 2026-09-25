@@ -47,7 +47,7 @@
     "sctp": "1.0.19"
   },
   "telecom_tool_summary": {
-    "total_tools": 94,
+    "total_tools": 100,
     "categories_count": 11,
     "categories": [
       "Radio Frequency & DSP",

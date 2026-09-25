@@ -39,7 +39,7 @@ graph TD
     A --> C["Modular Lite Edition (lite)"]
     
     B --> B1["~5.5 GB Bootable Hybrid Live ISO"]
-    B --> B2["94 Pre-installed & Compiled Telecom Tools across 11 Categories"]
+    B --> B2["100 Pre-installed & Compiled Telecom Tools across 11 Categories"]
     B --> B3["Offline Conda SDR, O-RAN & 5Ghoul Runtime Environments"]
     
     C --> C1["~1.8 GB Bootable Minimal ISO"]
@@ -49,7 +49,7 @@ graph TD
 
 ### 1. Flagship Field Edition (`full` — Default)
 - **Artifact**: `TelcoChisel-2026.1-amd64.iso` (~5.5 GB)
-- **Characteristics**: 100% self-contained, air-gapped field workstation with all 94 telecom security tools pre-compiled and pre-configured.
+- **Characteristics**: 100% self-contained, air-gapped field workstation with all 100 telecom security tools pre-compiled and pre-configured.
 - **Includes**: Real-time low-latency kernel, SDR transceivers, O-RAN, 5G Core, SIM/eSIM, and 5Ghoul fuzzer environments.
 
 ### 2. Modular Lite Edition (`lite`)
@@ -80,7 +80,7 @@ Every release build generates a standard quartet of integrity assets:
   "base_os": "Ubuntu 24.04 LTS (Noble Numbat)",
   "kernel": "linux-image-lowlatency (6.8.0-lowlatency)",
   "sha256": "1e2d14b72799fe4b490f230722bb3d6e5d8a68a571ea3a669bc029ca99f4bf88",
-  "tool_count": 94
+  "tool_count": 100
 }
 ```
 

@@ -17,7 +17,7 @@ TelcoChisel is distributed in two official editions tailored for offensive secur
 
 | Edition | Primary ISO File | Approx Size | Target Profile | Key Capabilities |
 | :--- | :--- | :--- | :--- | :--- |
-| **Flagship Field Edition (Full)** | `TelcoChisel-2026.1-amd64.iso`<br>*(symlinked as `TelcoChisel-live.iso`)* | **~5.5 GB** | Field auditing, air-gapped cellular testing, complete radio labs | All 94 telecom security tools pre-installed across 11 categories; UHD FPGA images, GNU Radio 3.10, Open5GS, srsRAN, O-RAN E2/O1, 5G SBI fuzzers, FirmWire, 5Ghoul, PySIM, Wireshark dissectors offline ready. |
+| **Flagship Field Edition (Full)** | `TelcoChisel-2026.1-amd64.iso`<br>*(symlinked as `TelcoChisel-live.iso`)* | **~5.5 GB** | Field auditing, air-gapped cellular testing, complete radio labs | All 100 telecom security tools pre-installed across 11 categories; UHD FPGA images, GNU Radio 3.10, Open5GS, srsRAN, O-RAN E2/O1, 5G SBI fuzzers, FirmWire, 5Ghoul, PySIM, Wireshark dissectors offline ready. |
 | **Modular Lite Edition (Lite)** | `TelcoChisel-2026.1-lite-amd64.iso` | **~1.8 GB** | Lightweight deployments, VMs, custom tailored toolsets | Clean base XFCE desktop, 1000Hz Low-Latency kernel, Wireshark, Python runtime + `telcosec-pkg` CLI to pull modular domain metapackages on-demand. |
 
 - **Base Distribution:** Ubuntu 24.04 LTS (*Noble Numbat*)
@@ -72,7 +72,7 @@ telcosec sdr
 # 3. Spin up full local 5G Standalone core network (Open5GS)
 sudo telcosec 5g-sa start
 
-# 4. Search and verify tool catalog (94 tools)
+# 4. Search and verify tool catalog (100 tools)
 telcosec search gsm
 
 # 5. Launch offline documentation and lab scenarios in browser

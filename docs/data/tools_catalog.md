@@ -1,8 +1,8 @@
 # TelcoChiselOS Default Tools Catalog
 
-TelcoChiselOS includes **94 default tools** organized across 11 specialized functional domains. Tools marked `Ready` are pre-configured and executable immediately. Tools marked `Setup` feature automated first-run helper scripts.
+TelcoChiselOS includes **100 default tools** organized across 10 specialized functional domains. Tools marked `Ready` are pre-configured and executable immediately. Tools marked `Setup` feature automated first-run helper scripts.
 
-## Software Defined Radio (SDR) & DSP (10 tools)
+## Software Defined Radio (SDR) & DSP (14 tools)
 
 | Tool Name | Status | Command / Executable | Description |
 | :--- | :---: | :--- | :--- |
@@ -16,6 +16,10 @@ TelcoChiselOS includes **94 default tools** organized across 11 specialized func
 | **Inspectrum** | `Ready` | `inspectrum --help` | Offline I/Q file visualizer and signal analyzer for measuring symbol periods, FSK frequency deviation, and preamble detection. |
 | **URH (Universal Radio Hacker)** | `Ready` | `urh --help` | Complete wireless protocol reverse engineering suite supporting demodulation, bit extraction, frame parsing, and signal replay. |
 | **Gpredict** | `Ready` | `gpredict --help` | Real-time satellite tracking and orbit prediction system for calculating Doppler frequency shifts in 3GPP NTN and satellite SDR captures. |
+| **gr-satellites (NTN DSP Suite)** | `Ready` | `conda activate telcosec-sdr && gr_satellites --help` | GNU Radio telemetry and signal processing suite for 3GPP Rel-17 NTN satellite communications, Doppler shift compensation, and downlink decoding. |
+| **gr-iridium & Iridium Toolkit** | `Setup` | `iridium-parser --help` | Real-time burst detection, L-band frame parsing, and packet extraction toolkit for Iridium satellite mobile telephony and M2M channels. |
+| **LimeSuite (LimeUtil)** | `Ready` | `LimeUtil --find` | Device configuration utility and FPGA bitstream management CLI for LimeSDR USB, LimeSDR Mini, and PCIe cellular transceiver hardware. |
+| **sdr-info** | `Ready` | `sdr-info` | Unified multi-vendor Software Defined Radio hardware probe detecting USB throughput, FPGA firmware status, and RF clock synchronization across all connected transceivers. |
 
 ## 2G / GSM Security (5 tools)
 
@@ -27,7 +31,7 @@ TelcoChiselOS includes **94 default tools** organized across 11 specialized func
 | **Kalibrate GSM** | `Ready` | `kal-gsm -s GSM900 -g 40` | GSM-band frequency offset calibration tool using broadcast channel timing from live base stations. Complements kalibrate-rtl for calibrating BladeRF. |
 | **OsmocomBB** | `Ready` | `sudo osmocombb-install` | Osmocom GSM Mobile Station baseband protocol stack, providing layer 1-3 mobile phone emulation and CCCH/BCCH channel scanning. |
 
-## 4G LTE Security (5 tools)
+## 4G LTE Security (6 tools)
 
 | Tool Name | Status | Command / Executable | Description |
 | :--- | :---: | :--- | :--- |
@@ -36,8 +40,9 @@ TelcoChiselOS includes **94 default tools** organized across 11 specialized func
 | **LTESniffer** | `Ready` | `ltesniffer -A 2 -f 2630e6 -C -m 0` | Open-source LTE downlink and uplink sniffer. Decodes physical layer frames and logs RRC, NAS, and user-plane traffic to PCAP. |
 | **SCAT** | `Ready` | `scat -t qc -d /dev/ttyUSB0 -o capture.pcap` | DIAG protocol parser for Qualcomm and Samsung modems. Decodes OTA messages from USB-connected phones to PCAP with full NAS/RRC content. |
 | **Modmobmap** | `Ready` | `modmobmap -m /dev/ttyUSB1` | Maps 2G/3G/4G cells visible to a USB modem by issuing AT commands. Generates cell-tower geolocation data and signal reports. |
+| **Falcon (LTE Security Analyzer)** | `Ready` | `falcon --help` | Fast cellular over-the-air protocol analysis framework for detecting LTE rogue base stations, tracking temporary mobile identifiers, and inspecting RRC connection setups. |
 
-## 5G NR Security & Fuzzing (5 tools)
+## 5G NR Security & Fuzzing (10 tools)
 
 | Tool Name | Status | Command / Executable | Description |
 | :--- | :---: | :--- | :--- |
@@ -46,6 +51,11 @@ TelcoChiselOS includes **94 default tools** organized across 11 specialized func
 | **OAI UE (OpenAirInterface)** | `Setup` | `sudo oai-install` | OpenAirInterface 5G NR UE implementation from EURECOM. Full PHY/MAC/RLC stack for 5G SA and NSA testing with real radio hardware. |
 | **my5G-RANTester** | `Ready` | `my5g-rantester --help` | Scalable 5G Standalone multi-UE and gNodeB simulator for load testing and traffic generation over N1, N2, and N3 interfaces. |
 | **mitmproxy (5G SBI)** | `Ready` | `mitmproxy --version` | Interactive HTTP/2, mTLS, and WebSockets interception proxy tailored for 5G Service Based Architecture (SBI) API auditing. |
+| **O-RAN E2 Node Simulator (e2sim)** | `Setup` | `sudo oran-e2sim --help` | Open RAN E2 Node emulator and E2AP protocol tester communicating with Near-RT RICs over SCTP to assess xApp telemetry and control plane security. |
+| **O-RAN O1/A1 Security Auditor** | `Ready` | `oran-o1-audit --help` | Automated security auditor for O-RAN O1 NETCONF/YANG management interfaces and Non-RT RIC A1 policy REST APIs. |
+| **5G SBI REST API Mutator** | `Setup` | `sudo 5g-sbi-fuzzer --help` | Mutational HTTP/2 and JSON REST fuzzer targeting 3GPP 5G Core Network Functions (NRF, AMF, UDM, AUSF, SEPP) to detect injection flaws and token bypasses. |
+| **5G SBI OpenAPI Contract Validator** | `Ready` | `5g-sbi-validator --help` | Automated schema compliance validator asserting live 5G Core SBI responses against official 3GPP Release 16/17/18 OpenAPI specifications. |
+| **telcosec-ran-status** | `Ready` | `telcosec-ran-status` | Real-time cellular radio access network emission monitor and telemetry dashboard for tracking active 4G eNodeB and 5G gNodeB transmission states. |
 
 ## Baseband & UE Firmware Analysis (13 tools)
 
@@ -65,7 +75,7 @@ TelcoChiselOS includes **94 default tools** organized across 11 specialized func
 | **ModemManager GUI** | `Ready` | `modem-manager-gui` | Graphical frontend for ModemManager, dbus, and NetworkManager. Allows sending SMS, USSD, and reading SIM contacts directly from the desktop. |
 | **SP Flash Tool (Helper)** | `Setup` | `spflashtool-install` | Proprietary flash tool for MediaTek devices. The pre-installed helper script provides download links and extraction instructions. |
 
-## Core Signaling & Protocol Auditing (14 tools)
+## Core Signaling & Protocol Auditing (15 tools)
 
 | Tool Name | Status | Command / Executable | Description |
 | :--- | :---: | :--- | :--- |
@@ -83,8 +93,9 @@ TelcoChiselOS includes **94 default tools** organized across 11 specialized func
 | **Kismet** | `Ready` | `sudo kismet -c mon0` | Wireless network detector, sniffer, and intrusion detection system. Captures raw 802.11 frames on mon0 and logs device fingerprints. |
 | **tcpdump** | `Ready` | `sudo tcpdump -i mon0 -w capture.pcap` | CLI packet capture tool. Used in TelcoSec scripts to capture raw traffic on the monitoring interface and pipe to Wireshark. |
 | **TelcoSec Profile Switcher** | `Ready` | `sudo telcosec-profile status` | Operational security profile switcher to toggle between Lab Mode (SDR low-latency, rp_filter=0) and Field Mode (hardened firewall, strict rp_filter, rate-limited SSH). |
+| **TelcoSec APN Permutator** | `Ready` | `telcosec-apn-permutator --help` | Telecom APN wordlist permutation and discovery utility for identifying hidden GGSN/PGW access point names and unauthenticated GTP-U tunnel endpoints. |
 
-## SIM & eSIM Smartcard Auditing (7 tools)
+## SIM & eSIM Smartcard Auditing (8 tools)
 
 | Tool Name | Status | Command / Executable | Description |
 | :--- | :---: | :--- | :--- |
@@ -95,6 +106,7 @@ TelcoChiselOS includes **94 default tools** organized across 11 specialized func
 | **PCSC Daemon (pcscd)** | `Ready` | `systemctl status pcscd` | Smartcard interface daemon facilitating reader communication between hardware card slot readers and software tools. |
 | **pcsc-tools** | `Ready` | `pcsc_scan -v` | Smartcard reader discovery toolset featuring pcsc_scan to monitor card insertions and decode Answer-to-Reset (ATR) strings. |
 | **OpenSC** | `Ready` | `pkcs11-tool -L` | Comprehensive smartcard and UICC management library and tools (pkcs11-tool, opensc-tool, opensc-explorer) for cryptographic tokens. |
+| **TelcoSec IMSI Generator** | `Ready` | `telcosec-imsi-generator --help` | International Mobile Subscriber Identity (IMSI) permutation and MCC/MNC range generator for subscriber auditing, roaming tests, and test USIM programming. |
 
 ## VoIP & SIP Security (8 tools)
 

@@ -24,4 +24,4 @@ Description: Unified Telecom Security Operator CLI and diagnostics suite
    * Modular 11-tier Debian metapackage suite management (telcosec pkg)
    * Pure Go ISO/IEC 7816-3 ATR smartcard decoder and eSIM LPA inspection (telcosec sim)
    * Embedded shell autocompletion for Bash, Zsh, and Fish
-   * Offline telecom tools catalog search across 94 security instruments
+   * Offline telecom tools catalog search across 100 security instruments

@@ -83,7 +83,7 @@ while [ $# -gt 0 ]; do
 Usage: sudo ./build-iso.sh [OPTIONS]
 
   (no options)           Full clean build — wipes chroot and starts fresh
-  --flavor=FLAVOR        Build flavor: full (default, all 94 tools offline) or
+  --flavor=FLAVOR        Build flavor: full (default, all 100 tools offline) or
                            lite (~1.8 GB, base desktop + telcosec-pkg)
   --lite                 Shortcut for --flavor=lite
   --full                 Shortcut for --flavor=full
@@ -414,7 +414,7 @@ if ! $PACK_ONLY; then
     _phase  8 "08 · System optimization"             chroot_run 08-system-optimization.sh
     _phase 12 "12 · Install Dashboard & CLI"         chroot_run 12-install-dashboard.sh
   else
-    echo "--> Running provisioning scripts (Field Full Edition: all 94 telecom tools)..."
+    echo "--> Running provisioning scripts (Field Full Edition: all 100 telecom tools)..."
     _phase  0 "00 · Consolidated package install"    chroot_run 00-install-all-packages.sh
     _phase  1 "01 · Base system + desktop"           chroot_run 01-install-base.sh
     _phase  2 "02 · SDR drivers + conda env"         chroot_run 02-install-sdr.sh

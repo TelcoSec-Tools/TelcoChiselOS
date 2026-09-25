@@ -1,5 +1,5 @@
 /**
- * Dynamic metadata and guides for the 94 tools in the TelcoChisel catalog.
+ * Dynamic metadata and guides for the 100 tools in the TelcoChisel catalog.
  * Provides high-traffic keywords, detailed guides, troubleshooting, and FAQs.
  */
 
@@ -468,7 +468,7 @@ const specificMetadata = {
 };
 
 /**
- * Fallback metadata generator to ensure all 94 tools are populated with high-quality SEO/AEO content.
+ * Fallback metadata generator to ensure all 100 tools are populated with high-quality SEO/AEO content.
  */
 export function getToolMetadata(tool) {
   const slug = tool.slug;

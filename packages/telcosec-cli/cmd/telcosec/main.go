@@ -53,7 +53,7 @@ Commands:
   doctor               Unified hardware, RF, SIM, modem, and kernel diagnostic probe
   check | status       Comprehensive system, kernel, hardware, and services audit
   hardware             Enumerate and probe attached SDRs, modems, and SIM readers
-  search <query>       Search installed 94 tools and desktop launchers by keyword
+  search <query>       Search installed 100 tools and desktop launchers by keyword
   docs                 Open offline documentation & operator reference in browser
   sdr [action]         SDR drivers, USB & 10GbE management (status | usb | 10g | firmware)
   oran [action]        O-RAN Alliance security suite (status | e2-sim | o1-scan)

@@ -123,7 +123,7 @@ sudo make install
 | `telcosec sim` | `status`, `readers`, `atr [hex]`, `trace [list\|sniff]`, `lpac`, `shell` | Smartcard, SIM & eSIM auditing suite (PC/SC, ISO 7816-3 ATR decoder, SIMtrace 2, lpac). |
 | `telcosec 5g-sa` | `start`, `stop`, `status`, `add-sub` | Manage local Open5GS 5G Standalone core network and provision test SIMs. |
 | `telcosec scan` | `sctp`, `sip`, `asleap` | Launch telecom signaling assessment wizards and scanners. |
-| `telcosec search` | `<query>` | Search the 94 installed telecom tools and desktop entries by keyword. |
+| `telcosec search` | `<query>` | Search the 100 installed telecom tools and desktop entries by keyword. |
 | `telcosec docs` | | Open local offline documentation (`/usr/share/doc/telcosec/index.html`) or online docs portal. |
 | `telcosec academy`| | Launch TelcoSec Academy interactive field labs bridge (`app.telcosec.net`). |
 | `telcosec feedback`| `review` | Open SourceForge user reviews and community support channels. |

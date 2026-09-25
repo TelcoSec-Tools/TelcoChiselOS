@@ -1491,7 +1491,7 @@ configuration {
     modi: "drun,run,window";
     font: "IBM Plex Mono Medium 12";
     show-icons: true;
-    display-drun: "📡 TelcoSec [94 Tools]";
+    display-drun: "📡 TelcoSec [100 Tools]";
     display-run: "⚡ Exec";
     display-window: "🪟 Windows";
     drun-display-format: "{name}";
@@ -1538,7 +1538,7 @@ prompt {
 }
 
 entry {
-    placeholder: "Search 94 telecom tools, ProLabs ranges, Academy labs, SDR drivers...";
+    placeholder: "Search 100 telecom tools, ProLabs ranges, Academy labs, SDR drivers...";
     placeholder-color: #6e7681;
     text-color: @fg;
 }

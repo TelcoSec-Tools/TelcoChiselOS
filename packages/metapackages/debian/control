@@ -153,4 +153,4 @@ Depends: ${misc:Depends},
  telcosec-cli
 Description: TelcoChisel Complete Telecom Security Metapackage Umbrella
  Umbrella metapackage installing the entire TelcoChisel telecom security
- ecosystem with all 94 specialized instruments across all 11 domains.
+ ecosystem with all 100 specialized instruments across all 11 domains.

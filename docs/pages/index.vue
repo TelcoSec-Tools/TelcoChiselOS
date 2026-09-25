@@ -25,7 +25,7 @@
             <h1>TelcoChisel: <span class="kinetic-gradient">Advanced Telecom Security OS</span> by TelcoSec</h1>
             <p class="subtitle">The definitive high-fidelity live OS for Telecom Security, 5G/4G research, and SDR penetration testing</p>
             <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
-              <span class="telemetry-chip"><span class="pulse-dot"></span>SYS_ACTIVE // 94 TOOLS PRE-LOADED</span>
+              <span class="telemetry-chip"><span class="pulse-dot"></span>SYS_ACTIVE // 100 TOOLS PRE-LOADED</span>
               <span class="telemetry-chip">11 DOMAIN SUITES</span>
               <span class="telemetry-chip">UBUNTU 24.04 LTS (NOBLE)</span>
               <span class="telemetry-chip">1000Hz LOW-LATENCY KERNEL</span>
@@ -34,7 +34,7 @@
           </div>
 
           <p>
-            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution purpose-built by <strong><a href="https://telco-sec.com" target="_blank" style="color: var(--accent-cyan); text-decoration: none;">TelcoSec</a></strong> for telecommunications security auditors, 5G Standalone (SA) and O-RAN penetration testing, cellular baseband vulnerability research, and Software Defined Radio (SDR) transceiver engineering. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong> with a dedicated <strong>Low-Latency Real-Time Kernel</strong>, it provides an air-gapped, turn-key laboratory featuring <strong>94 pre-compiled and verified telecom security instruments across 11 functional domains</strong>.
+            <strong>TelcoChisel</strong> is a free, bootable live Linux distribution purpose-built by <strong><a href="https://telco-sec.com" target="_blank" style="color: var(--accent-cyan); text-decoration: none;">TelcoSec</a></strong> for telecommunications security auditors, 5G Standalone (SA) and O-RAN penetration testing, cellular baseband vulnerability research, and Software Defined Radio (SDR) transceiver engineering. Based on <strong>Ubuntu 24.04 LTS (Noble Numbat)</strong> with a dedicated <strong>Low-Latency Real-Time Kernel</strong>, it provides an air-gapped, turn-key laboratory featuring <strong>100 pre-compiled and verified telecom security instruments across 11 functional domains</strong>.
           </p>
 
           <!-- Download CTA -->
@@ -165,7 +165,7 @@
             <details class="faq-item">
               <summary class="faq-question">What is TelcoChisel?</summary>
               <div class="faq-answer">
-                TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with a lightweight XFCE desktop, purpose-built for telecommunications security research. It includes 94 pre-configured tools across 11 domain suites for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing — no installation required.
+                TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS with a lightweight XFCE desktop, purpose-built for telecommunications security research. It includes 100 pre-configured tools across 11 domain suites for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing — no installation required.
               </div>
             </details>
 
@@ -289,7 +289,7 @@
                 <span style="font-size: 0.7rem; background: rgba(232,146,30,0.15); border: 1px solid var(--amber); color: var(--amber); padding: 2px 6px; border-radius: 3px;">~5.5 GB · Recommended</span>
               </div>
               <p class="card-desc" style="margin-top: 8px;">
-                Complete air-gapped field environment. Pre-baked with all 94 telecom security tools across 11 categories, Low-Latency Realtime kernel, GNU Radio 3.10, Open5GS, O-RAN E2/O1, 5Ghoul, UHD FPGA bitstreams, and hardware SDR driver stacks. Zero internet access required after flashing.
+                Complete air-gapped field environment. Pre-baked with all 100 telecom security tools across 11 categories, Low-Latency Realtime kernel, GNU Radio 3.10, Open5GS, O-RAN E2/O1, 5Ghoul, UHD FPGA bitstreams, and hardware SDR driver stacks. Zero internet access required after flashing.
               </p>
               <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
                 <a href="https://sourceforge.net/projects/telcochisel/files/latest/download" target="_blank" class="btn-download" style="font-size: 0.78rem; width: 100%; justify-content: center;">
@@ -414,8 +414,8 @@
 
         <!-- SECTION: TOOLS -->
         <section id="tools" class="content-section" :class="{ active: activeSection === 'tools' }" v-show="activeSection === 'tools'">
-          <div class="section-header" data-label="// Tool Catalog :: 94 Instruments">
-            <h2>Tools Directory — 94 Pre-installed Telecom Security Tools</h2>
+          <div class="section-header" data-label="// Tool Catalog :: 100 Instruments">
+            <h2>Tools Directory — 100 Pre-installed Telecom Security Tools</h2>
             <p class="subtitle">Complete catalog of SDR, baseband, SIM, RAN, and signaling tools pre-installed in TelcoChisel</p>
           </div>
 
@@ -1137,7 +1137,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
                   <strong style="color: #fff; font-size: 0.85rem;">Flagship Field Edition (Full)</strong>
                   <span style="font-size: 0.72rem; color: var(--amber); font-weight: 600;">~5.5 GB</span>
                 </div>
-                <div style="font-size: 0.75rem; color: var(--tx-dim); margin-top: 4px;">All 94 telecom security tools pre-installed across 11 categories. 100% offline air-gapped field readiness.</div>
+                <div style="font-size: 0.75rem; color: var(--tx-dim); margin-top: 4px;">All 100 telecom security tools pre-installed across 11 categories. 100% offline air-gapped field readiness.</div>
               </a>
 
               <a href="https://sourceforge.net/projects/telcochisel/files/" target="_blank" class="dl-edition-card" @click="downloadModalOpen = false" style="display: block; padding: 12px 14px; background: var(--bg-inset); border: 1px solid var(--bdr-mid); border-left: 3px solid #00ffd5; text-decoration: none; border-radius: 3px;">
@@ -1153,7 +1153,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
               <div class="dl-modal-status-dot"></div>
               <div class="dl-modal-status-text">
                 <strong>OS: Production-Ready.</strong> Ubuntu 24.04 LTS (Noble Numbat), Low-Latency Kernel (1000Hz), Calamares installer, encrypted persistence.<br>
-                <strong>Tools:</strong> 94 tools across 11 telecom security domains (SDR, GSM, LTE, 5G NR, Baseband, SIM, Core, Device, Network, VoIP, Chisel).
+                <strong>Tools:</strong> 100 tools across 11 telecom security domains (SDR, GSM, LTE, 5G NR, Baseband, SIM, Core, Device, Network, VoIP, Chisel).
               </div>
             </div>
 
@@ -1200,7 +1200,7 @@ function trackAcademy() {
 
 useSeoMeta({
   title: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec',
-  description: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 94 pre-configured tools across 11 suites for SDR analysis, 5G SA/O-RAN, baseband auditing, and cellular penetration testing.',
+  description: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 100 pre-configured tools across 11 suites for SDR analysis, 5G SA/O-RAN, baseband auditing, and cellular penetration testing.',
   keywords: 'TelcoSec, TelcoChisel, Telecom Security, 5G security research, 4G LTE penetration testing, SDR security, baseband analysis, FirmWire, GNU Radio, srsRAN, Open5GS',
   author: 'TelcoSec',
   themeColor: '#00ffd5',
@@ -1208,7 +1208,7 @@ useSeoMeta({
   ogSiteName: 'TelcoSec',
   ogUrl: 'https://telcochisel.com/',
   ogTitle: 'TelcoChisel: Advanced Telecom Security OS by TelcoSec',
-  ogDescription: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 94 pre-configured tools across 11 suites for SDR analysis, 5G SA/O-RAN, baseband auditing, and cellular penetration testing.',
+  ogDescription: 'TelcoChisel by TelcoSec is the ultimate free bootable Linux OS for advanced Telecom Security research. Ships with 100 pre-configured tools across 11 suites for SDR analysis, 5G SA/O-RAN, baseband auditing, and cellular penetration testing.',
   ogImage: 'https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png',
   ogImageWidth: 1280,
   ogImageHeight: 640,
@@ -1270,7 +1270,7 @@ useHead({
           "applicationCategory": "SecurityApplication",
           "applicationSubCategory": "Telecommunications Security, Software Defined Radio, Baseband Analysis",
           "operatingSystem": "Linux (Ubuntu 24.04 LTS)",
-          "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 94 pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
+          "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 100 pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
           "url": "https://telcochisel.com/",
           "downloadUrl": "https://sourceforge.net/projects/telcochisel/files/latest/download",
           "softwareVersion": "2026.1",
@@ -1333,7 +1333,7 @@ useHead({
               "name": "What is TelcoChisel?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 94 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
+                "text": "TelcoChisel is a free, bootable live Linux distribution based on Ubuntu 24.04 LTS (Noble Numbat) with an XFCE desktop, purpose-built for telecommunications security research. It includes 100 pre-configured tools for Software Defined Radio (SDR) analysis, baseband firmware auditing, SIM and eSIM inspection, and 5G/4G core network penetration testing."
               }
             },
             {
@@ -1615,7 +1615,7 @@ flowchart TD
     end
 
     %% Applications
-    subgraph Apps[Telecom Security Applications - 94 Tools across 11 Domains]
+    subgraph Apps[Telecom Security Applications - 100 Tools across 11 Domains]
         RAN[srsRAN / OAI / OpenBTS / UERANSIM]
         Core[Open5GS / my5G-RANTester / OsmoCore]
         Analysis[Wireshark GSMTAP / Scapy / TShark]

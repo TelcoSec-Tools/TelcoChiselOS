@@ -43,7 +43,7 @@ This document provides the complete, structured submission package for listing *
 
 **TelcoChisel OS** is a specialized, security-hardened Linux distribution engineered specifically for **telecommunication security professionals, cellular red teams, radio frequency (RF) researchers, government defense auditors, and critical infrastructure pentesting teams**.
 
-Built upon Ubuntu 24.04 LTS with an ultra-low-latency 1000Hz preemptible real-time Linux kernel, TelcoChisel OS bridges the gap between raw hardware Software-Defined Radios (SDR) and complex cellular signaling protocols. It ships with a curated, pre-compiled arsenal of **94 specialized telecom security tools** spanning 11 core operational domains:
+Built upon Ubuntu 24.04 LTS with an ultra-low-latency 1000Hz preemptible real-time Linux kernel, TelcoChisel OS bridges the gap between raw hardware Software-Defined Radios (SDR) and complex cellular signaling protocols. It ships with a curated, pre-compiled arsenal of **100 specialized telecom security tools** spanning 11 core operational domains:
 1. **Radio Frequency & DSP**: GNU Radio 3.10, Gqrx, Inspectrum, URH, Gpredict, SoapySDR.
 2. **2G / 3G / GSM Auditing**: Osmocom suite (OsmoBTS, OsmoNITB, OsmoBSC), OpenBTS, YateBTS, Kalibrate.
 3. **4G / 5G RAN & Core**: Open5GS 2.7.2, UERANSIM, srsRAN, 5Ghoul Baseband Fuzzer, Free5GC testbeds.
@@ -90,7 +90,7 @@ DistroWatch tracks specific package versions across distributions. TelcoChisel O
 
 | Edition | ISO Image Filename | Size | Target Environment |
 | :--- | :--- | :--- | :--- |
-| **Flagship Field Edition** | `TelcoChisel-2026.1-amd64.iso` | ~5.5 GB | Full offline air-gapped field operations with all 94 tools, FPGA bitstreams, and offline documentation |
+| **Flagship Field Edition** | `TelcoChisel-2026.1-amd64.iso` | ~5.5 GB | Full offline air-gapped field operations with all 100 tools, FPGA bitstreams, and offline documentation |
 | **Modular Lite Edition** | `TelcoChisel-2026.1-lite-amd64.iso` | ~1.8 GB | Lightweight virtual machines and field laptops with on-demand `telcosec-pkg` modular suite fetching |
 
 ### Four High-Assurance Boot Modes in GRUB:
