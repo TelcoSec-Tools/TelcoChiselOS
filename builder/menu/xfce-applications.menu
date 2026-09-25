@@ -22,6 +22,7 @@
       <Directory>telcosec-gsm.directory</Directory>
       <Include>
         <Category>TelcoSec-GSM</Category>
+        <Category>TelcoSec-2G3G</Category>
       </Include>
     </Menu>
 
@@ -36,10 +37,11 @@
 
     <!-- 04. 5G NR -->
     <Menu>
-      <Name>5G NR</Name>
+      <Name>5G NR &amp; O-RAN</Name>
       <Directory>telcosec-5gnr.directory</Directory>
       <Include>
         <Category>TelcoSec-5GNR</Category>
+        <Category>TelcoSec-5G</Category>
       </Include>
     </Menu>
 

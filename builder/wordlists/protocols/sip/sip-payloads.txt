@@ -1,4 +1,4 @@
-﻿# TelcoSec Academy - https://app.telcosec.net/
+# TelcoSec Academy - https://app.telcosec.net/
 
 ' OR '1'='1
 ' OR 1=1--

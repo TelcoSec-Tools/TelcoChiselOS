@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=LimeSuite (LimeUtil)
+Comment=Device configuration and FPGA bitstream management CLI for LimeSDR hardware
+Exec=x-terminal-emulator -e "bash -c 'LimeUtil --find; echo; read -rp \"Press Enter to close...\"'"
+Icon=telcosec-cat-sdr
+Terminal=false
+Categories=TelcoSec-SDR;

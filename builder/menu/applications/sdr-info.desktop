@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=SDR Hardware Probe (sdr-info)
+Comment=Unified multi-vendor Software Defined Radio hardware, USB throughput & clock probe
+Exec=x-terminal-emulator -e "bash -c 'sdr-info; echo; read -rp \"Press Enter to close...\"'"
+Icon=telcosec-cat-sdr
+Terminal=false
+Categories=TelcoSec-SDR;

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Mausezahn (mz)
+Comment=High-speed carrier Ethernet and multi-protocol packet crafter (VLAN QinQ, MPLS, BPDU)
+Exec=x-terminal-emulator -e "bash -c 'mz --help; echo; read -rp \"Press Enter to close...\"'"
+Icon=telcosec-cat-network
+Terminal=false
+Categories=TelcoSec-Network;

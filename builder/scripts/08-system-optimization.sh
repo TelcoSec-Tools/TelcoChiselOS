@@ -58,10 +58,18 @@ if [ -d /tmp/menu/applications ]; then
   chmod +x /usr/share/applications/*.desktop || true
 fi
 
-# Deploy Dedicated TelcoSec Category Vector Icons
-echo "Deploying custom TelcoSec category icons and refreshing icon cache..."
+# Deploy Dedicated TelcoSec Category & Brand Vector Icons
+echo "Deploying custom TelcoSec category and brand icons and refreshing icon cache..."
 mkdir -p /usr/share/icons/hicolor/scalable/categories/
 mkdir -p /usr/share/icons/hicolor/scalable/apps/
+mkdir -p /usr/share/icons/hicolor/48x48/apps/
+mkdir -p /usr/share/pixmaps/
+
+if [ -d /tmp/icons ]; then
+  cp -rf /tmp/icons/*.svg /usr/share/icons/hicolor/scalable/apps/ 2>/dev/null || true
+  cp -rf /tmp/icons/*.svg /usr/share/pixmaps/ 2>/dev/null || true
+fi
+
 if [ -d /tmp/icons/categories ]; then
   cp -rf /tmp/icons/categories/*.svg /usr/share/icons/hicolor/scalable/categories/
   cp -rf /tmp/icons/categories/*.svg /usr/share/icons/hicolor/scalable/apps/
@@ -71,11 +79,27 @@ if [ -d /tmp/icons/categories ]; then
   # Also link into active Papirus/Yaru themes if present
   if [ -d /usr/share/icons/Papirus-Dark ]; then
     mkdir -p /usr/share/icons/Papirus-Dark/48x48/categories/
+    mkdir -p /usr/share/icons/Papirus-Dark/48x48/apps/
     cp -rf /tmp/icons/categories/*.svg /usr/share/icons/Papirus-Dark/48x48/categories/ 2>/dev/null || true
+    cp -rf /tmp/icons/*.svg /usr/share/icons/Papirus-Dark/48x48/apps/ 2>/dev/null || true
   fi
   if [ -d /usr/share/icons/Papirus ]; then
     mkdir -p /usr/share/icons/Papirus/48x48/categories/
+    mkdir -p /usr/share/icons/Papirus/48x48/apps/
     cp -rf /tmp/icons/categories/*.svg /usr/share/icons/Papirus/48x48/categories/ 2>/dev/null || true
+    cp -rf /tmp/icons/*.svg /usr/share/icons/Papirus/48x48/apps/ 2>/dev/null || true
+  fi
+fi
+
+# Deploy branding logo as telcosec.png and telcochisel.png
+if [ -f /tmp/calamares-config/branding/telcosec/logo.png ]; then
+  cp -f /tmp/calamares-config/branding/telcosec/logo.png /usr/share/pixmaps/telcosec.png
+  cp -f /tmp/calamares-config/branding/telcosec/logo.png /usr/share/pixmaps/telcochisel.png
+  cp -f /tmp/calamares-config/branding/telcosec/logo.png /usr/share/icons/hicolor/48x48/apps/telcosec.png
+  cp -f /tmp/calamares-config/branding/telcosec/logo.png /usr/share/icons/hicolor/48x48/apps/telcochisel.png
+  if [ -d /usr/share/icons/Papirus-Dark ]; then
+    cp -f /tmp/calamares-config/branding/telcosec/logo.png /usr/share/icons/Papirus-Dark/48x48/apps/telcosec.png
+    cp -f /tmp/calamares-config/branding/telcosec/logo.png /usr/share/icons/Papirus-Dark/48x48/apps/telcochisel.png
   fi
 fi
 

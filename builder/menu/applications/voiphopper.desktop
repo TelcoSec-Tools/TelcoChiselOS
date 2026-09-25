@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=VoIP Hopper
+Comment=Automated VoIP security tool to discover and hop into VoIP Voice VLANs via CDP & LLDP
+Exec=x-terminal-emulator -e "bash -c 'sudo voiphopper --help; echo; read -rp \"Press Enter to close...\"'"
+Icon=telcosec-cat-voip
+Terminal=false
+Categories=TelcoSec-VoIP;

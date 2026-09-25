@@ -1,4 +1,4 @@
-﻿# TelcoSec Academy - https://app.telcosec.net/
+# TelcoSec Academy - https://app.telcosec.net/
 
 User-Name (1)
 Visited-PLMN-Id (1407)
