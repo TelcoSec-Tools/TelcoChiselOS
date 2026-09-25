@@ -83,7 +83,7 @@ while [ $# -gt 0 ]; do
 Usage: sudo ./build-iso.sh [OPTIONS]
 
   (no options)           Full clean build — wipes chroot and starts fresh
-  --flavor=FLAVOR        Build flavor: full (default, all 88 tools offline) or
+  --flavor=FLAVOR        Build flavor: full (default, all 94 tools offline) or
                            lite (~1.8 GB, base desktop + telcosec-pkg)
   --lite                 Shortcut for --flavor=lite
   --full                 Shortcut for --flavor=full
@@ -264,6 +264,12 @@ elif $RESUME; then
   rm -rf "$ROOTFS/tmp/boot" && cp -r builder/boot "$ROOTFS/tmp/boot"
   rm -rf "$ROOTFS/tmp/wordlists" && cp -r builder/wordlists "$ROOTFS/tmp/wordlists"
   rm -rf "$ROOTFS/tmp/icons" && cp -r builder/icons "$ROOTFS/tmp/icons" 2>/dev/null || true
+  # Bug 4 fix: sync telcosec-cli package (was missing from the resume path
+  # even though the full-build path copies it — any resumed build that needs
+  # /tmp/telcosec-cli inside the chroot was reading a stale/empty directory).
+  if [ -d packages/telcosec-cli ]; then
+    rm -rf "$ROOTFS/tmp/telcosec-cli" && cp -r packages/telcosec-cli "$ROOTFS/tmp/telcosec-cli"
+  fi
   # Guarantee Unix LF line endings across all copied builder assets inside chroot
   find "$ROOTFS/tmp" -type f -exec sed -i -e 's/\r$//' {} + 2>/dev/null || true
 
@@ -403,19 +409,19 @@ if ! $PACK_ONLY; then
     echo "--> Running provisioning scripts (Lite Edition: base desktop + installer + telcosec-pkg)..."
     _phase  0 "00 · Consolidated package install"    chroot_run 00-install-all-packages.sh
     _phase  1 "01 · Base system + desktop"           chroot_run 01-install-base.sh
-    _phase  6 "05 · Desktop customization"           chroot_run 05-desktop-customization.sh
+    _phase  5 "05 · Desktop customization"           chroot_run 05-desktop-customization.sh
     _phase  7 "07 · Calamares installer"             chroot_run 07-install-installer.sh
     _phase  8 "08 · System optimization"             chroot_run 08-system-optimization.sh
     _phase 12 "12 · Install Dashboard & CLI"         chroot_run 12-install-dashboard.sh
   else
-    echo "--> Running provisioning scripts (Field Full Edition: all 88 telecom tools)..."
+    echo "--> Running provisioning scripts (Field Full Edition: all 94 telecom tools)..."
     _phase  0 "00 · Consolidated package install"    chroot_run 00-install-all-packages.sh
     _phase  1 "01 · Base system + desktop"           chroot_run 01-install-base.sh
     _phase  2 "02 · SDR drivers + conda env"         chroot_run 02-install-sdr.sh
     _phase  3 "03 · Core network (srsRAN/Open5GS)"   chroot_run 03-install-core-network.sh
     _phase  4 "04 · Security tools"                  chroot_run 04-install-tools.sh
-    _phase  5 "06 · UE analysis + baseband"          chroot_run 06-install-ue-analysis.sh
-    _phase  6 "05 · Desktop customization"           chroot_run 05-desktop-customization.sh
+    _phase  5 "05 · Desktop customization"           chroot_run 05-desktop-customization.sh
+    _phase  6 "06 · UE analysis + baseband"          chroot_run 06-install-ue-analysis.sh
     _phase  7 "07 · Calamares installer"             chroot_run 07-install-installer.sh
     _phase  8 "08 · System optimization"             chroot_run 08-system-optimization.sh
     _phase  9 "09 · 5Ghoul helpers"                  chroot_run 09-install-5ghoul.sh

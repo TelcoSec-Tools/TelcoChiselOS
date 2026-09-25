@@ -43,7 +43,7 @@ fi
 cd "$INSTALL_DIR"
 mkdir -p build && cd build
 echo "[2/3] Configuring with cmake..."
-cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON -DENABLE_BLADERF=ON -DENABLE_LIMESDR=ON
+cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
 echo "[3/3] Compiling (this takes 10-20 min)..."
 make -j$(nproc)
 make install

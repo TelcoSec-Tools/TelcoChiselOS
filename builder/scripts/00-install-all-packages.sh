@@ -305,7 +305,7 @@ chmod +x /usr/local/bin/telcosec-install-rust
 
 # ─── 9. JAVA_HOME environment ────────────────────────────────────────────────
 echo "  Setting JAVA_HOME..."
-JAVA_PATH=$(update-alternatives --list java 2>/dev/null | grep java-17 | head -1 || true)
+JAVA_PATH=$(update-alternatives --list java 2>/dev/null | grep -m1 java-17 || true)
 if [ -n "$JAVA_PATH" ]; then
   JAVA_HOME_DIR=$(dirname "$(dirname "$JAVA_PATH")")
   cat > /etc/profile.d/java.sh << EOF

@@ -35,30 +35,30 @@ record_tool "SIPVicious" "$(command -v svmap 2>/dev/null || command -v sipviciou
 
 # Compile and Install sctpscan
 echo "Compiling and installing sctpscan..."
-sudo mkdir -p /opt/telcosec
+mkdir -p /opt/telcosec
 clone_if_missing https://github.com/philpraxis/sctpscan.git /opt/telcosec/sctpscan
 cd /opt/telcosec/sctpscan
 # Patch 1: Remove legacy STREAMS header (dropped in glibc 2.30 / Ubuntu 24.04)
-sudo sed -i '/#include <stropts.h>/d' sctpscan.c
+sed -i '/#include <stropts.h>/d' sctpscan.c
 # Patch 2: Fix old BSD two-arg setpgrp(0, getpid()) — modern POSIX takes no args
-sudo sed -i 's/setpgrp(0, getpid())/setpgrp()/g' sctpscan.c
+sed -i 's/setpgrp(0, getpid())/setpgrp()/g' sctpscan.c
 # Patch 3: Add sys/ioctl.h for ioctl() (no longer pulled in transitively)
-sudo sed -i '/#include <sys\/socket.h>/a #include <sys\/ioctl.h>' sctpscan.c
+sed -i '/#include <sys\/socket.h>/a #include <sys\/ioctl.h>' sctpscan.c
 # Suppress harmless pointer-to-int-cast and unused-result warnings
 gcc -O2 -Wno-pointer-to-int-cast -Wno-unused-result \
   sctpscan.c -o sctpscan $(pkg-config --cflags --libs glib-2.0)
-sudo cp sctpscan /usr/local/bin/
-sudo chmod 755 /usr/local/bin/sctpscan
-sudo chown -R telcosec:telcosec /opt/telcosec/sctpscan
+cp sctpscan /usr/local/bin/
+chmod 755 /usr/local/bin/sctpscan
+chown -R telcosec:telcosec /opt/telcosec/sctpscan
 cd -
 
 # ─── SigPloit (SS7/Diameter/GTP Exploitation Framework) ─────────────────────
 # Python 2.7 is EOL and building from source is slow. SigPloit is containerized.
 echo "Setting up SigPloit Docker environment..."
-sudo mkdir -p /opt/telcosec/sigploit
+mkdir -p /opt/telcosec/sigploit
 clone_if_missing https://github.com/SigPloiter/SigPloit.git /opt/telcosec/sigploit
 
-cat << 'EOF' | sudo tee /opt/telcosec/sigploit/Dockerfile
+cat << 'EOF' > /opt/telcosec/sigploit/Dockerfile
 FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y python2 python-pip libsctp-dev git && rm -rf /var/lib/apt/lists/*
@@ -68,18 +68,18 @@ WORKDIR /app
 ENTRYPOINT ["python2", "sigploit.py"]
 EOF
 
-cat << 'EOF' | sudo tee /usr/local/bin/sigploit
+cat << 'EOF' > /usr/local/bin/sigploit
 #!/bin/bash
 cd /opt/telcosec/sigploit
-if ! docker image inspect sigploit:latest >/dev/null 2>&1; then
+if ! docker image inspect sigploit:latest > /dev/null 2>&1; then
   echo "Building SigPloit Docker image for the first time..."
   docker build -t sigploit:latest .
 fi
 # Run interactively with host networking so SCTP sockets bind directly
 exec docker run -it --rm --net=host -v "$PWD:/app" sigploit:latest "$@"
 EOF
-sudo chmod +x /usr/local/bin/sigploit
-sudo chown -R telcosec:telcosec /opt/telcosec/sigploit
+chmod +x /usr/local/bin/sigploit
+chown -R telcosec:telcosec /opt/telcosec/sigploit
 
 # Install Diafuzzer (Orange Diameter Fuzzer)
 echo "Installing Diafuzzer..."
@@ -87,8 +87,8 @@ clone_if_missing https://github.com/Orange-OpenSource/diafuzzer.git /opt/telcose
 if [ -f /opt/telcosec/diafuzzer/requirements.txt ]; then
   pip3 install -r /opt/telcosec/diafuzzer/requirements.txt --break-system-packages || true
 fi
-sudo chown -R telcosec:telcosec /opt/telcosec/diafuzzer
-cat << 'EOF' | sudo tee /usr/local/bin/diafuzzer
+chown -R telcosec:telcosec /opt/telcosec/diafuzzer
+cat << 'EOF' > /usr/local/bin/diafuzzer
 #!/bin/bash
 if [ -f /opt/telcosec/diafuzzer/dia_fuzzer.py ]; then
   exec python3 /opt/telcosec/diafuzzer/dia_fuzzer.py "$@"
@@ -99,7 +99,7 @@ else
   exit 1
 fi
 EOF
-sudo chmod +x /usr/local/bin/diafuzzer
+chmod +x /usr/local/bin/diafuzzer
 record_tool "Diafuzzer" "/usr/local/bin/diafuzzer" "core"
 
 # Wireshark permissions (dpkg-reconfigure already done in 00-install-all-packages.sh)
@@ -110,33 +110,33 @@ fi
 if ! getent group wireshark >/dev/null; then
   sudo groupadd -r wireshark
 fi
-sudo usermod -a -G wireshark telcosec || true
+usermod -a -G wireshark telcosec || true
 
 # Install telecom-specific wordlists
 echo "Installing TelcoSec wordlists..."
-sudo mkdir -p /usr/share/wordlists/telecom
+mkdir -p /usr/share/wordlists/telecom
 if [ -d "/tmp/wordlists" ] && [ "$(ls -A /tmp/wordlists 2>/dev/null)" ]; then
-  sudo cp -r /tmp/wordlists/. /usr/share/wordlists/telecom/
+  cp -r /tmp/wordlists/. /usr/share/wordlists/telecom/
 else
   clone_if_missing https://github.com/TelcoSec-Tools/TelcoSec-Wordlists /usr/share/wordlists/telecom || true
 fi
-sudo find /usr/share/wordlists/telecom -type f -exec chmod 644 {} + 2>/dev/null || true
-sudo find /usr/share/wordlists/telecom -type d -exec chmod 755 {} + 2>/dev/null || true
+find /usr/share/wordlists/telecom -type f -exec chmod 644 {} + 2>/dev/null || true
+find /usr/share/wordlists/telecom -type d -exec chmod 755 {} + 2>/dev/null || true
 echo "Wordlists installed: $(find /usr/share/wordlists/telecom -type f 2>/dev/null | wc -l) files"
 
 # Install wordlist helper scripts as system tools
 echo "Installing wordlist helper scripts..."
-[ -f /usr/share/wordlists/telecom/scripts/apn_permutator.py ] && sudo install -m 755 /usr/share/wordlists/telecom/scripts/apn_permutator.py  /usr/local/bin/telcosec-apn-permutator || true
-[ -f /usr/share/wordlists/telecom/scripts/imsi_generator.py ] && sudo install -m 755 /usr/share/wordlists/telecom/scripts/imsi_generator.py  /usr/local/bin/telcosec-imsi-generator || true
+[ -f /usr/share/wordlists/telecom/scripts/apn_permutator.py ] && install -m 755 /usr/share/wordlists/telecom/scripts/apn_permutator.py  /usr/local/bin/telcosec-apn-permutator || true
+[ -f /usr/share/wordlists/telecom/scripts/imsi_generator.py ] && install -m 755 /usr/share/wordlists/telecom/scripts/imsi_generator.py  /usr/local/bin/telcosec-imsi-generator || true
 
 # Ensure mausezahn and mz from netsniff-ng package are easily accessible in PATH
 if [ -f /usr/sbin/mausezahn ] && [ ! -f /usr/local/bin/mausezahn ]; then
-  sudo ln -sf /usr/sbin/mausezahn /usr/local/bin/mausezahn
+  ln -sf /usr/sbin/mausezahn /usr/local/bin/mausezahn
 fi
 if [ -f /usr/sbin/mz ] && [ ! -f /usr/local/bin/mz ]; then
-  sudo ln -sf /usr/sbin/mz /usr/local/bin/mz
+  ln -sf /usr/sbin/mz /usr/local/bin/mz
 elif [ -f /usr/sbin/mausezahn ] && [ ! -f /usr/local/bin/mz ]; then
-  sudo ln -sf /usr/sbin/mausezahn /usr/local/bin/mz
+  ln -sf /usr/sbin/mausezahn /usr/local/bin/mz
 fi
 record_tool "mausezahn (mz)" "$(command -v mz 2>/dev/null || command -v mausezahn 2>/dev/null || echo '/usr/sbin/mausezahn')" "adsl"
 record_tool "SIPp" "$(command -v sipp 2>/dev/null || echo '/usr/local/bin/sipp')" "voip"

@@ -928,7 +928,7 @@ EOF
 
 cat << 'EOF' > /usr/local/bin/telcosec-mon-setup
 #!/bin/bash
-WLAN=$(iw dev 2>/dev/null | awk '/Interface/{print $2}' | grep -v '^mon' | head -1)
+WLAN=$(iw dev 2>/dev/null | awk '/Interface/{print $2}' | grep -vm1 '^mon' || true)
 if [ -z "$WLAN" ]; then
   echo "telcosec-mon-setup: no wireless interface found, skipping mon0 creation"
   exit 0
