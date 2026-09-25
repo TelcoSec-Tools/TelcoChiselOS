@@ -600,46 +600,47 @@ jobs:
           > **Live boot credentials:** \`telcosec:telcosec\`
           EOF
           )
-          # Manage the "nightly" tag via the REST API instead of git-push so
+          # Manage the "rolling" tag via the REST API instead of git-push so
           # that push-path protections (GH013) are never triggered.
           # Try to move the existing tag ref first (PATCH = atomic update).
           # If the ref doesn't exist yet the API returns 422, so fall back to
-          # creating it (POST). At every point a valid nightly tag exists.
-          NIGHTLY_SHA=$(git rev-parse HEAD)
+          # creating it (POST). At every point a valid rolling tag exists.
+          ROLLING_TAG="rolling"
+          ROLLING_SHA=$(git rev-parse HEAD)
           REPO="${GITHUB_REPOSITORY}"
-          if gh api "repos/${REPO}/git/refs/tags/nightly" \
+          if gh api "repos/${REPO}/git/refs/tags/${ROLLING_TAG}" \
                --method PATCH \
-               -f sha="${NIGHTLY_SHA}" \
+               -f sha="${ROLLING_SHA}" \
                -F force=true \
                > /dev/null 2>&1; then
-            echo "✓ nightly tag ref updated to ${NIGHTLY_SHA}"
+            echo "✓ ${ROLLING_TAG} tag ref updated to ${ROLLING_SHA}"
           else
             gh api "repos/${REPO}/git/refs" \
               --method POST \
-              -f ref="refs/tags/nightly" \
-              -f sha="${NIGHTLY_SHA}"
-            echo "✓ nightly tag ref created at ${NIGHTLY_SHA}"
+              -f ref="refs/tags/${ROLLING_TAG}" \
+              -f sha="${ROLLING_SHA}"
+            echo "✓ ${ROLLING_TAG} tag ref created at ${ROLLING_SHA}"
           fi
 
-          if gh release view nightly >/dev/null 2>&1; then
+          if gh release view "$ROLLING_TAG" >/dev/null 2>&1; then
             # Purge all stale assets before re-uploading — part filenames
             # embed the build SHA so --clobber never matches across runs;
             # without this, old parts accumulate indefinitely.
-            gh release view nightly --json assets --jq '.assets[].name' \
-              | xargs -I{} gh release delete-asset nightly {} --yes 2>/dev/null || true
-            gh release edit nightly \
+            gh release view "$ROLLING_TAG" --json assets --jq '.assets[].name' \
+              | xargs -I{} gh release delete-asset "$ROLLING_TAG" {} --yes 2>/dev/null || true
+            gh release edit "$ROLLING_TAG" \
               --prerelease \
-              --title "Nightly — ${DATE}" \
+              --title "TelcoChisel Rolling — Nightly ${DATE}" \
               --notes "$NOTES"
-            gh release upload nightly \
+            gh release upload "$ROLLING_TAG" \
               ${ISO}.part-* "${ISO}.sha256" "${ISO}.build-info.json" \
               --clobber
           else
-            gh release create nightly \
+            gh release create "$ROLLING_TAG" \
               ${ISO}.part-* "${ISO}.sha256" "${ISO}.build-info.json" \
-              --tag nightly \
+              --tag "$ROLLING_TAG" \
               --prerelease \
-              --title "Nightly — ${DATE}" \
+              --title "TelcoChisel Rolling — Nightly ${DATE}" \
               --notes "$NOTES"
           fi
 
