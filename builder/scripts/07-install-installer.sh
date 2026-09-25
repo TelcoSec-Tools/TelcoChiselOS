@@ -25,11 +25,27 @@ cp -rf /tmp/calamares-config/modules/. /etc/calamares/modules/
 cp -rf /tmp/calamares-config/branding/telcosec/. /usr/share/calamares/branding/telcosec/
 cp -rf /tmp/calamares-config/branding/telcosec/. /etc/calamares/branding/telcosec/
 
-# 2. Create Desktop Shortcut
-echo "Creating Desktop Launcher..."
+# 2. Create CLI Installer Launcher and Desktop Shortcut
+echo "Creating Installer Launchers..."
+
+# CLI wrapper so users can run 'install-telcosec' or 'telcosec-install' directly
+cat << 'EOF' > /usr/local/bin/install-telcosec
+#!/bin/bash
+# TelcoChisel Installer CLI Launcher
+if [ "$(id -u)" -ne 0 ]; then
+  exec sudo -E calamares "$@"
+else
+  exec calamares "$@"
+fi
+EOF
+chmod 755 /usr/local/bin/install-telcosec
+ln -sf /usr/local/bin/install-telcosec /usr/local/bin/telcosec-install
+
 mkdir -p /etc/skel/Desktop
 
+# Polyglot desktop entry: valid INI desktop launcher in GUI + executable shell script if invoked via ./install-telcosec.desktop
 cat << 'EOF' > /etc/skel/Desktop/install-telcosec.desktop
+#!/usr/bin/env -S sh -c "exec /usr/local/bin/install-telcosec \"$@\""
 [Desktop Entry]
 Type=Application
 Version=1.0
