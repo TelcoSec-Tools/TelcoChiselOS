@@ -29,11 +29,12 @@ elif [ -f /tmp/security/99-realtime.conf ]; then
   cp /tmp/security/99-realtime.conf /etc/security/limits.d/
   chmod 644 /etc/security/limits.d/99-realtime.conf
 fi
-# Add the realtime, usrp, and plugdev groups and ensure telcosec user is enrolled
+# Add realtime, usrp, plugdev, and wireshark groups and ensure telcosec user is enrolled
 groupadd -r realtime 2>/dev/null || true
 groupadd -r usrp 2>/dev/null || true
 groupadd -r plugdev 2>/dev/null || true
-usermod -aG realtime,usrp,plugdev telcosec 2>/dev/null || true
+groupadd -r wireshark 2>/dev/null || true
+usermod -aG realtime,usrp,plugdev,wireshark,netdev,dialout telcosec 2>/dev/null || true
 
 # 3. Custom Desktop Menu & Tool Categories
 echo "Deploying custom XFCE tool menus and categories..."
@@ -540,7 +541,31 @@ EOF
 echo "Deploying system CLI tools from /tmp/scripts/bin..."
 if [ -d /tmp/scripts/bin ]; then
   cp -rf /tmp/scripts/bin/* /usr/local/bin/ 2>/dev/null || true
-  chmod 755 /usr/local/bin/telcosec* /usr/local/bin/*-install 2>/dev/null || true
+fi
+chmod 755 /usr/local/bin/* 2>/dev/null || true
+
+# Enforce execute permissions across all /opt/telcosec tool repositories and venvs
+if [ -d /opt/telcosec ]; then
+  echo "Ensuring execute permissions across /opt/telcosec tools and environments..."
+  find /opt/telcosec -type d -exec chmod 755 {} + 2>/dev/null || true
+  find /opt/telcosec -type f \( -name "*.sh" -o -name "*.py" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
+fi
+
+# Configure Linux network capabilities for non-root packet injection & sniffing
+echo "Configuring Linux capabilities for non-root telecom network capture & packet crafting..."
+if command -v dumpcap &>/dev/null; then
+  chgrp wireshark "$(command -v dumpcap)" 2>/dev/null || true
+  chmod 750 "$(command -v dumpcap)" 2>/dev/null || true
+  setcap cap_net_raw,cap_net_admin+eip "$(command -v dumpcap)" 2>/dev/null || true
+fi
+if command -v mz &>/dev/null; then
+  setcap cap_net_raw,cap_net_admin+eip "$(command -v mz)" 2>/dev/null || true
+fi
+if command -v sctpscan &>/dev/null; then
+  setcap cap_net_raw+eip "$(command -v sctpscan)" 2>/dev/null || true
+fi
+if command -v tcpdump &>/dev/null; then
+  setcap cap_net_raw,cap_net_admin+eip "$(command -v tcpdump)" 2>/dev/null || true
 fi
 
 echo "Deploying global tool PATH environment..."
