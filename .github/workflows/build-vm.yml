@@ -1,0 +1,195 @@
+name: Build VM Appliances
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target Hypervisor Appliance'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - proxmox
+          - vmware
+          - virtualbox
+      iso_url:
+        description: 'Custom Live ISO URL (leave empty to download latest release)'
+        required: false
+        default: ''
+        type: string
+      compress:
+        description: 'Compress appliances with zstd'
+        required: false
+        default: true
+        type: boolean
+      publish_sf:
+        description: 'Deploy to SourceForge (virtual-machines/)'
+        required: false
+        default: true
+        type: boolean
+
+concurrency:
+  group: build-vm
+  cancel-in-progress: false
+
+env:
+  SF_USER: rfs85
+  SF_PROJECT: telcochisel
+  SF_HOST: frs.sourceforge.net
+  SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+
+jobs:
+  build-vm:
+    name: Build VM Appliances (${{ github.event.inputs.target }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Maximize Runner Disk Space
+        run: |
+          echo "Initial disk space:"
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo docker system prune -af --volumes 2>/dev/null || true
+          echo "Disk space after cleanup:"
+          df -h /
+
+      - name: Install Build Prerequisites
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            qemu-utils \
+            fdisk \
+            util-linux \
+            dosfstools \
+            e2fsprogs \
+            squashfs-tools \
+            rsync \
+            tar \
+            zstd \
+            grub-efi-amd64-bin \
+            qemu-system-x86 \
+            ovmf
+
+      - name: Resolve Release Version
+        id: version
+        run: |
+          if [ -f VERSION ]; then
+            VER=$(head -n 1 VERSION | tr -d '[:space:]')
+          else
+            VER="2026.1"
+          fi
+          VER="${VER#v}"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "Target Version: $VER"
+
+      - name: Acquire Source ISO
+        id: iso
+        run: |
+          ISO_TARGET="TelcoChisel-${{ steps.version.outputs.version }}-amd64.iso"
+          CUSTOM_URL="${{ github.event.inputs.iso_url }}"
+
+          if [ -n "$CUSTOM_URL" ]; then
+            echo "[*] Downloading custom ISO from $CUSTOM_URL..."
+            curl -fLC - --retry 3 --retry-delay 5 "$CUSTOM_URL" -o "$ISO_TARGET"
+          else
+            echo "[*] Fetching latest release ISO from GitHub Releases / SourceForge..."
+            LATEST_URL="https://downloads.sourceforge.net/project/${SF_PROJECT}/nightly/TelcoChisel-live.iso"
+            echo "Attempting download from: $LATEST_URL"
+            curl -fLC - --retry 3 --retry-delay 5 "$LATEST_URL" -o "$ISO_TARGET" || {
+              echo "[-] Fallback to GitHub Releases..."
+              gh release download --pattern "*.iso" --dir . || true
+              mv *.iso "$ISO_TARGET" 2>/dev/null || true
+            }
+          fi
+
+          if [ ! -f "$ISO_TARGET" ]; then
+            echo "[-] ERROR: Failed to acquire Source ISO for VM building!"
+            exit 1
+          fi
+
+          echo "iso_path=$ISO_TARGET" >> "$GITHUB_OUTPUT"
+          ls -lh "$ISO_TARGET"
+
+      - name: Build Virtual Machine Appliances
+        id: build
+        run: |
+          EXTRA_FLAGS=""
+          if [ "${{ github.event.inputs.compress }}" = "true" ]; then
+            EXTRA_FLAGS="--compress"
+          fi
+
+          sudo ./builder/vm/build-vm.sh \
+            --iso "${{ steps.iso.outputs.iso_path }}" \
+            --target "${{ github.event.inputs.target }}" \
+            --version "${{ steps.version.outputs.version }}" \
+            --output-dir "./dist/vm" \
+            $EXTRA_FLAGS
+
+      - name: Verify VM Appliance Boot via QEMU
+        run: |
+          if [ -f dist/vm/TelcoChisel-*-Proxmox.qcow2 ]; then
+            echo "[*] Smoke-testing Proxmox QCOW2 in QEMU..."
+            ./scripts/test-vm-boot.sh --timeout=90 dist/vm/TelcoChisel-*-Proxmox.qcow2
+          else
+            echo "[*] Proxmox QCOW2 not built in this run; skipping boot test."
+          fi
+
+      - name: Upload Build Artifacts to GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: telcochisel-vm-${{ github.event.inputs.target }}
+          path: dist/vm/
+          retention-days: 7
+
+      - name: Setup SSH for SourceForge
+        if: github.event.inputs.publish_sf == 'true' && env.SF_SSH_KEY != ''
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SF_SSH_KEY" > ~/.ssh/sf_deploy
+          chmod 600 ~/.ssh/sf_deploy
+          ssh-keyscan -H "$SF_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy Appliances to SourceForge
+        if: github.event.inputs.publish_sf == 'true' && env.SF_SSH_KEY != ''
+        run: |
+          set -euo pipefail
+          SF_TARGET="$SF_USER,$SF_PROJECT@$SF_HOST"
+          SF_SSH="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR"
+          SF_VM_ROOT="/home/frs/project/$SF_PROJECT/virtual-machines"
+
+          cat > sftp_batch << EOF
+          -mkdir /home/frs/project/$SF_PROJECT/virtual-machines
+          -mkdir /home/frs/project/$SF_PROJECT/virtual-machines/proxmox
+          -mkdir /home/frs/project/$SF_PROJECT/virtual-machines/vmware
+          -mkdir /home/frs/project/$SF_PROJECT/virtual-machines/virtualbox
+          EOF
+          sftp -i ~/.ssh/sf_deploy -o BatchMode=yes -o LogLevel=ERROR -b sftp_batch "$SF_TARGET" || true
+
+          # Upload Proxmox files
+          if ls dist/vm/*Proxmox* 1>/dev/null 2>&1; then
+            rsync -avP -e "$SF_SSH" dist/vm/*Proxmox* "$SF_TARGET:$SF_VM_ROOT/proxmox/"
+          fi
+
+          # Upload VMware files
+          if ls dist/vm/*VMware* 1>/dev/null 2>&1; then
+            rsync -avP -e "$SF_SSH" dist/vm/*VMware* "$SF_TARGET:$SF_VM_ROOT/vmware/"
+          fi
+
+          # Upload VirtualBox files
+          if ls dist/vm/*VirtualBox* 1>/dev/null 2>&1; then
+            rsync -avP -e "$SF_SSH" dist/vm/*VirtualBox* "$SF_TARGET:$SF_VM_ROOT/virtualbox/"
+          fi
+
+          # Upload Checksums
+          if [ -f dist/vm/SHA256SUMS ]; then
+            rsync -avP -e "$SF_SSH" dist/vm/SHA256SUMS "$SF_TARGET:$SF_VM_ROOT/"
+          fi
+
+          echo "✓ Appliances successfully published to SourceForge virtual-machines/"

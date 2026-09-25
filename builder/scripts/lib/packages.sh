@@ -39,7 +39,11 @@ PKGS_BASE=(
   ubuntu-drivers-common
   network-manager-gnome
   terminator firefox
+  # Hypervisor guest integrations (VMware, Proxmox/KVM, VirtualBox, Cloud-Init)
   open-vm-tools open-vm-tools-desktop
+  qemu-guest-agent spice-vdagent
+  virtualbox-guest-utils virtualbox-guest-x11
+  cloud-init cloud-initramfs-growroot
   # Themes
   yaru-theme-gtk yaru-theme-icon papirus-icon-theme
   # Boot splash (telcosec Plymouth theme — see builder/boot/plymouth/)

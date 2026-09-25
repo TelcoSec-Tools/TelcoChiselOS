@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Envelope xmlns="http://schemas.dmtf.org/ovf/envelope/1"
+          xmlns:cim="http://schemas.dmtf.org/wbem/wscim/1/common"
+          xmlns:ovf="http://schemas.dmtf.org/ovf/envelope/1"
+          xmlns:rasd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData"
+          xmlns:vmw="http://www.vmware.com/schema/ovf"
+          xmlns:vssd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <References>
+    <File ovf:id="file1" ovf:href="@DISK_FILENAME@" ovf:size="@DISK_SIZE@"/>
+  </References>
+  <DiskSection>
+    <Info>Virtual disk information</Info>
+    <Disk ovf:capacity="@CAPACITY_MB@"
+          ovf:capacityAllocationUnits="byte * 2^20"
+          ovf:diskId="vmdisk1"
+          ovf:fileRef="file1"
+          ovf:format="http://www.vmware.com/interfaces/specifications/vmdk.html#streamOptimized"/>
+  </DiskSection>
+  <NetworkSection>
+    <Info>Logical networks used in the package</Info>
+    <Network ovf:name="VM Network">
+      <Description>The VM Network network</Description>
+    </Network>
+  </NetworkSection>
+  <VirtualSystem ovf:id="TelcoChisel-@VERSION@-VMware">
+    <Info>TelcoChisel OS Telecom Security &amp; Cellular Audit Workstation</Info>
+    <Name>TelcoChisel OS @VERSION@ (VMware)</Name>
+    <OperatingSystemSection ovf:id="102" vmw:osType="ubuntu64Guest">
+      <Info>Guest Operating System: Ubuntu 24.04 LTS (64-bit)</Info>
+      <Description>Ubuntu 24.04 LTS (Noble Numbat) 64-bit Low-Latency Real-Time Kernel</Description>
+    </OperatingSystemSection>
+    <VirtualHardwareSection ovf:transport="iso">
+      <Info>Virtual hardware configuration</Info>
+      <System>
+        <vssd:ElementName>Virtual Hardware Family</vssd:ElementName>
+        <vssd:InstanceID>0</vssd:InstanceID>
+        <vssd:VirtualSystemIdentifier>TelcoChisel-@VERSION@</vssd:VirtualSystemIdentifier>
+        <vssd:VirtualSystemType>vmx-19</vssd:VirtualSystemType>
+      </System>
+      <!-- vCPUs -->
+      <Item>
+        <rasd:AllocationUnits>hertz * 10^6</rasd:AllocationUnits>
+        <rasd:Description>Number of Virtual CPUs</rasd:Description>
+        <rasd:ElementName>4 virtual CPUs</rasd:ElementName>
+        <rasd:InstanceID>1</rasd:InstanceID>
+        <rasd:ResourceType>3</rasd:ResourceType>
+        <rasd:VirtualQuantity>4</rasd:VirtualQuantity>
+      </Item>
+      <!-- Memory: 8192 MB -->
+      <Item>
+        <rasd:AllocationUnits>byte * 2^20</rasd:AllocationUnits>
+        <rasd:Description>Memory Size</rasd:Description>
+        <rasd:ElementName>8192MB RAM</rasd:ElementName>
+        <rasd:InstanceID>2</rasd:InstanceID>
+        <rasd:ResourceType>4</rasd:ResourceType>
+        <rasd:VirtualQuantity>8192</rasd:VirtualQuantity>
+      </Item>
+      <!-- SCSI Controller: PVSCSI -->
+      <Item>
+        <rasd:Address>0</rasd:Address>
+        <rasd:Description>SCSI Controller</rasd:Description>
+        <rasd:ElementName>SCSI Controller 0</rasd:ElementName>
+        <rasd:InstanceID>3</rasd:InstanceID>
+        <rasd:ResourceSubType>VirtualSCSI</rasd:ResourceSubType>
+        <rasd:ResourceType>6</rasd:ResourceType>
+      </Item>
+      <!-- Hard Disk (40 GB) -->
+      <Item>
+        <rasd:AddressOnParent>0</rasd:AddressOnParent>
+        <rasd:ElementName>Hard Disk 1</rasd:ElementName>
+        <rasd:HostResource>ovf:/disk/vmdisk1</rasd:HostResource>
+        <rasd:InstanceID>4</rasd:InstanceID>
+        <rasd:Parent>3</rasd:Parent>
+        <rasd:ResourceType>17</rasd:ResourceType>
+      </Item>
+      <!-- Network: VMXNET3 -->
+      <Item>
+        <rasd:AddressOnParent>1</rasd:AddressOnParent>
+        <rasd:AutomaticAllocation>true</rasd:AutomaticAllocation>
+        <rasd:Connection>VM Network</rasd:Connection>
+        <rasd:Description>VMXNET3 Virtual Network Adapter</rasd:Description>
+        <rasd:ElementName>Network Adapter 1</rasd:ElementName>
+        <rasd:InstanceID>5</rasd:InstanceID>
+        <rasd:ResourceSubType>VMXNET3</rasd:ResourceSubType>
+        <rasd:ResourceType>10</rasd:ResourceType>
+      </Item>
+      <!-- USB 3.1 xHCI Controller (Essential for USRP/HackRF/BladeRF/LimeSDR SDRs) -->
+      <Item>
+        <rasd:Address>0</rasd:Address>
+        <rasd:Description>USB xHCI Controller</rasd:Description>
+        <rasd:ElementName>USB 3.1 Controller</rasd:ElementName>
+        <rasd:InstanceID>6</rasd:InstanceID>
+        <rasd:ResourceSubType>vmware.usb.xhci</rasd:ResourceSubType>
+        <rasd:ResourceType>23</rasd:ResourceType>
+      </Item>
+    </VirtualHardwareSection>
+  </VirtualSystem>
+</Envelope>
