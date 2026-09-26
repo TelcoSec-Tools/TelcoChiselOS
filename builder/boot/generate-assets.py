@@ -240,57 +240,193 @@ bg.convert("RGB").save(os.path.join(boot_dir, "grub_background.png"))
 print("  -> grub_background.png")
 
 
-# ── 4. Desktop wallpaper (1920×1080) ─────────────────────────────────────────
-print("Generating desktop wallpaper (1920x1080) ...")
+# ── 4. Desktop wallpaper (1920×1080) — Polar Radar Crosshair Edition ─────────
+print("Generating desktop wallpaper — Polar Radar Crosshair (1920x1080) ...")
 W, H = 1920, 1080
 
-# Gradient background (top BG, bottom BG_DEEP)
+# ── 4a. Gradient background (top BG → bottom BG_DEEP) ────────────────────────
 wall = Image.new("RGBA", (W, H), BG)
 for y in range(H):
     t = y / H
-    r = int(BG[0] * (1 - t) + BG_DEEP[0] * t)
-    g = int(BG[1] * (1 - t) + BG_DEEP[1] * t)
-    b = int(BG[2] * (1 - t) + BG_DEEP[2] * t)
+    rv = int(BG[0] * (1 - t) + BG_DEEP[0] * t)
+    gv = int(BG[1] * (1 - t) + BG_DEEP[1] * t)
+    bv = int(BG[2] * (1 - t) + BG_DEEP[2] * t)
     for x in range(W):
-        wall.putpixel((x, y), (r, g, b, 255))
+        wall.putpixel((x, y), (rv, gv, bv, 255))
 
-LOGO_SIZE   = 400
-LOGO_CX, LOGO_CY = W // 2, int(H * 0.40)
+# ── 4b. Polar radar origin — slightly above vertical centre for logo room ─────
+LOGO_SIZE   = 380
+RADAR_CX    = W // 2
+RADAR_CY    = int(H * 0.415)   # slightly above centre
 
-# Exclusion zone for dots so text and logo stay crystal clear
-exclude = (LOGO_CX - 420, LOGO_CY - 220, LOGO_CX + 420, LOGO_CY + 360)
-draw_hex_grid(wall, cell_size=64, colour=(0, 212, 230, 8), exclude_box=exclude)
+# Hex dot grid (very faint), excluding a band around radar and typography zone
+exclude = (RADAR_CX - 460, RADAR_CY - 300, RADAR_CX + 460, RADAR_CY + 420)
+draw_hex_grid(wall, cell_size=64, colour=(0, 212, 230, 7), exclude_box=exclude)
 
-# Central radial cyan glow
-draw_radial_glow(wall, LOGO_CX, LOGO_CY, 520, 0, 212, 230, 36)
-draw_radial_glow(wall, LOGO_CX, LOGO_CY, 260, 0, 255, 213, 24)
+# ── 4c. Deep ambient glow under the entire radar disc ────────────────────────
+draw_radial_glow(wall, RADAR_CX, RADAR_CY, 560, 0, 212, 230, 22)
+draw_radial_glow(wall, RADAR_CX, RADAR_CY, 260, 0, 255, 213, 14)
 
-# Signal wave rings radiating from logo centre
+# ── 4d. Polar Radar Crosshair ─────────────────────────────────────────────────
 wd = ImageDraw.Draw(wall)
-draw_signal_rings(wd, LOGO_CX, LOGO_CY, 7, 240, 75, colour=(0, 212, 230, 20), width=1)
-draw_signal_rings(wd, LOGO_CX, LOGO_CY, 2, 700, 80, colour=(0, 212, 230, 14), width=1)
 
-# Polar angle radial tick marks (every 15 degrees)
-for deg in range(0, 360, 15):
-    rad = math.radians(deg)
-    r_in = 315 if deg % 45 == 0 else 315 + 8
-    r_out = 315 + 16 if deg % 45 == 0 else 315 + 12
-    x1 = LOGO_CX + r_in * math.cos(rad)
-    y1 = LOGO_CY + r_in * math.sin(rad)
-    x2 = LOGO_CX + r_out * math.cos(rad)
-    y2 = LOGO_CY + r_out * math.sin(rad)
-    wd.line([(x1, y1), (x2, y2)], fill=(0, 212, 230, 45 if deg % 45 == 0 else 25), width=1)
+# Range rings — 5 concentric circles mapped to dB labels (-60 → 0 dBm per step)
+# Outer ring at r=440px, inner at r=88px; step=88px (5 rings)
+RING_STEP   = 88
+N_RINGS     = 5
+RING_LABELS = ["-60 dBm", "-48 dBm", "-36 dBm", "-24 dBm", "-12 dBm"]
+font_radar_label = load_font(10, bold=False)
 
-# Subtle crosshair axis lines with center gap
-wd.line([(LOGO_CX - 460, LOGO_CY), (LOGO_CX - 220, LOGO_CY)], fill=(0, 212, 230, 35), width=1)
-wd.line([(LOGO_CX + 220, LOGO_CY), (LOGO_CX + 460, LOGO_CY)], fill=(0, 212, 230, 35), width=1)
-wd.line([(LOGO_CX, LOGO_CY - 340), (LOGO_CX, LOGO_CY - 220)], fill=(0, 212, 230, 35), width=1)
+for i in range(1, N_RINGS + 1):
+    r   = i * RING_STEP
+    alp = 30 if i == N_RINGS else (22 if i > 2 else 14)  # outermost ring brightest
+    col = (0, 212, 230, alp)
+    wd.ellipse(
+        (RADAR_CX - r, RADAR_CY - r, RADAR_CX + r, RADAR_CY + r),
+        outline=col, width=1,
+    )
+    # dBm label at 3 o'clock (due-East), slightly inside the ring
+    lx = RADAR_CX + r + 4
+    ly = RADAR_CY - 7
+    wd.text((lx, ly), RING_LABELS[i - 1], fill=(0, 212, 230, 55), font=font_radar_label)
 
-# Logo
+# ── 4e. Bearing tick marks ────────────────────────────────────────────────────
+# Three tick sizes: major every 45° (longest), medium every 15°, minor every 5°
+OUTER_R = N_RINGS * RING_STEP   # 440
+
+for deg in range(0, 360, 5):
+    rad      = math.radians(deg - 90)   # 0° = North (top)
+    is_major = deg % 45 == 0
+    is_med   = deg % 15 == 0
+
+    if is_major:
+        r_in  = OUTER_R - 24
+        r_out = OUTER_R + 16
+        alp   = 65
+        lw    = 2
+    elif is_med:
+        r_in  = OUTER_R - 14
+        r_out = OUTER_R + 8
+        alp   = 42
+        lw    = 1
+    else:
+        r_in  = OUTER_R - 6
+        r_out = OUTER_R + 4
+        alp   = 22
+        lw    = 1
+
+    x1 = RADAR_CX + r_in  * math.cos(rad)
+    y1 = RADAR_CY + r_in  * math.sin(rad)
+    x2 = RADAR_CX + r_out * math.cos(rad)
+    y2 = RADAR_CY + r_out * math.sin(rad)
+    wd.line([(x1, y1), (x2, y2)], fill=(0, 212, 230, alp), width=lw)
+
+# ── 4f. Cardinal + intercardinal direction labels ─────────────────────────────
+font_cardinal = load_font(13, bold=True)
+font_intercard = load_font(10, bold=False)
+
+LABEL_R = OUTER_R + 40   # label ring radius
+
+cardinal_labels = {
+    0:   ("N",    font_cardinal,  (0, 255, 213, 180)),
+    90:  ("E",    font_cardinal,  (0, 212, 230, 140)),
+    180: ("S",    font_cardinal,  (0, 212, 230, 140)),
+    270: ("W",    font_cardinal,  (0, 212, 230, 140)),
+    45:  ("NE",   font_intercard, (0, 212, 230, 90)),
+    135: ("SE",   font_intercard, (0, 212, 230, 90)),
+    225: ("SW",   font_intercard, (0, 212, 230, 90)),
+    315: ("NW",   font_intercard, (0, 212, 230, 90)),
+}
+
+for deg, (lbl, fnt, col) in cardinal_labels.items():
+    rad = math.radians(deg - 90)
+    lx  = RADAR_CX + LABEL_R * math.cos(rad)
+    ly  = RADAR_CY + LABEL_R * math.sin(rad)
+    # Compute text bounding box to centre the label on the point
+    try:
+        bb    = wd.textbbox((0, 0), lbl, font=fnt)
+        tw_lw = bb[2] - bb[0]
+        tw_lh = bb[3] - bb[1]
+    except AttributeError:
+        tw_lw, tw_lh = wd.textsize(lbl, font=fnt)
+    wd.text((lx - tw_lw / 2, ly - tw_lh / 2), lbl, fill=col, font=fnt)
+
+# ── 4g. Crosshair axis lines (cardinal arms, gap at logo) ────────────────────
+AXIS_GAP   = 200    # clear gap around logo centre
+AXIS_END   = OUTER_R + 56  # extend slightly past outer ring
+
+# Horizontal axis: left arm + right arm
+wd.line([(RADAR_CX - AXIS_END, RADAR_CY), (RADAR_CX - AXIS_GAP, RADAR_CY)],
+        fill=(0, 212, 230, 38), width=1)
+wd.line([(RADAR_CX + AXIS_GAP, RADAR_CY), (RADAR_CX + AXIS_END, RADAR_CY)],
+        fill=(0, 212, 230, 38), width=1)
+
+# Vertical axis: up arm + down arm (down arm stops before typography zone)
+wd.line([(RADAR_CX, RADAR_CY - AXIS_END), (RADAR_CX, RADAR_CY - AXIS_GAP)],
+        fill=(0, 212, 230, 38), width=1)
+wd.line([(RADAR_CX, RADAR_CY + AXIS_GAP), (RADAR_CX, RADAR_CY + AXIS_END)],
+        fill=(0, 212, 230, 38), width=1)
+
+# Diagonal 45° arms (NE, SW, SE, NW — very subtle)
+D_END = int(OUTER_R * 0.90)
+D_GAP = 165
+for ang_deg in (45, 135, 225, 315):
+    rad    = math.radians(ang_deg - 90)
+    cos_r  = math.cos(rad)
+    sin_r  = math.sin(rad)
+    x1i, y1i = RADAR_CX + D_GAP * cos_r, RADAR_CY + D_GAP * sin_r
+    x1o, y1o = RADAR_CX + D_END  * cos_r, RADAR_CY + D_END  * sin_r
+    wd.line([(x1i, y1i), (x1o, y1o)], fill=(0, 212, 230, 18), width=1)
+
+# ── 4h. Radar sweep-gradient arc (CW from North, ~120° sweep) ────────────────
+# Simulated with many thin lines from the centre, each with decreasing alpha
+SWEEP_START = -90       # North
+SWEEP_SPAN  =  120      # degrees CW
+SWEEP_STEPS =  240      # one line per 0.5°
+MAX_SWEEP_A =  28       # peak alpha at leading edge
+
+for s in range(SWEEP_STEPS):
+    fraction = s / SWEEP_STEPS            # 0 = trailing, 1 = leading edge
+    alpha    = int(MAX_SWEEP_A * fraction * fraction)   # quadratic: bright at tip
+    ang      = math.radians(SWEEP_START + SWEEP_SPAN * fraction)
+    ex       = RADAR_CX + OUTER_R * math.cos(ang)
+    ey       = RADAR_CY + OUTER_R * math.sin(ang)
+    wd.line([(RADAR_CX, RADAR_CY), (ex, ey)],
+            fill=(0, 255, 80, alpha), width=1)   # green sweep for classic radar feel
+
+# Bright leading-edge line
+lead_rad = math.radians(SWEEP_START + SWEEP_SPAN)
+lx2 = RADAR_CX + OUTER_R * math.cos(lead_rad)
+ly2 = RADAR_CY + OUTER_R * math.sin(lead_rad)
+wd.line([(RADAR_CX, RADAR_CY), (lx2, ly2)], fill=(0, 255, 130, 55), width=2)
+
+# ── 4i. Centre origin dot ─────────────────────────────────────────────────────
+wd.ellipse(
+    (RADAR_CX - 4, RADAR_CY - 4, RADAR_CX + 4, RADAR_CY + 4),
+    fill=(0, 255, 213, 200),
+)
+wd.ellipse(
+    (RADAR_CX - 8, RADAR_CY - 8, RADAR_CX + 8, RADAR_CY + 8),
+    outline=(0, 212, 230, 55), width=1,
+)
+
+# ── 4j. Outer radar border circle (outermost thin ring) ───────────────────────
+BORDER_R = OUTER_R + 2
+wd.ellipse(
+    (RADAR_CX - BORDER_R, RADAR_CY - BORDER_R,
+     RADAR_CX + BORDER_R, RADAR_CY + BORDER_R),
+    outline=(0, 212, 230, 45), width=1,
+)
+
+# ── 4k. Logo centred on radar origin ─────────────────────────────────────────
 logo_w = logo_orig.resize((LOGO_SIZE, LOGO_SIZE), LANCZOS)
-wall.paste(logo_w, (LOGO_CX - LOGO_SIZE // 2, LOGO_CY - LOGO_SIZE // 2), logo_w)
+# Composite at 88% opacity so radar rings faintly ghost through
+logo_alpha = logo_w.split()[3]
+logo_alpha = logo_alpha.point(lambda p: int(p * 0.88))
+logo_w.putalpha(logo_alpha)
+wall.paste(logo_w, (RADAR_CX - LOGO_SIZE // 2, RADAR_CY - LOGO_SIZE // 2), logo_w)
 
-# ── Typography ────────────────────────────────────────────────────────────────
+# ── 4l. Typography ────────────────────────────────────────────────────────────
 tw = ImageDraw.Draw(wall)
 
 font_title    = load_font(48, bold=True)
@@ -298,22 +434,24 @@ font_subtitle = load_font(20, bold=False)
 font_badge    = load_font(13, bold=True)
 font_small    = load_font(12, bold=False)
 
-# "TelcoChisel OS" — brand cyan, centred below logo
+# "TELCOCHISEL OS" — brand cyan, centred below logo
 title_text = "TELCOCHISEL   OS"
 tw_w, tw_h = text_size(tw, title_text, font_title)
-title_y    = LOGO_CY + LOGO_SIZE // 2 + 36
+title_y    = RADAR_CY + LOGO_SIZE // 2 + 38
 
-# Soft drop shadow for title
-tw.text(((W - tw_w) // 2 + 1, title_y + 1), title_text, fill=(0, 40, 50, 180), font=font_title)
+# Soft glow behind title (4 offset shadows in cardinal directions)
+for dx, dy in ((-1, -1), (1, -1), (-1, 1), (1, 1), (0, 2)):
+    tw.text(((W - tw_w) // 2 + dx, title_y + dy), title_text,
+            fill=(0, 40, 50, 120), font=font_title)
 tw.text(((W - tw_w) // 2, title_y), title_text, fill=(0, 255, 213, 245), font=font_title)
 
-# Tagline — soft clean white
+# Tagline
 tagline   = "Telecom Security, 5G SA & SDR Research Platform"
 tl_w, tl_h = text_size(tw, tagline, font_subtitle)
 tagline_y = title_y + tw_h + 10
 tw.text(((W - tl_w) // 2, tagline_y), tagline, fill=(210, 225, 235, 190), font=font_subtitle)
 
-# Telemetry Pill Badge
+# Telemetry pill badge
 badge_text = "UBUNTU 24.04 LTS NOBLE  •  1000Hz RT-PREEMPT KERNEL  •  100 TELECOM TOOLS"
 tb_w, tb_h = text_size(tw, badge_text, font_badge)
 badge_y    = tagline_y + tl_h + 16
@@ -322,31 +460,31 @@ bx1 = (W - tb_w) // 2 - pad_x
 by1 = badge_y - pad_y
 bx2 = (W + tb_w) // 2 + pad_x
 by2 = badge_y + tb_h + pad_y
-
-# Badge background + border
-tw.rounded_rectangle([(bx1, by1), (bx2, by2)], radius=4, fill=(14, 22, 34, 180), outline=(0, 212, 230, 80), width=1)
+tw.rounded_rectangle([(bx1, by1), (bx2, by2)], radius=4,
+                     fill=(14, 22, 34, 180), outline=(0, 212, 230, 80), width=1)
 tw.text(((W - tb_w) // 2, badge_y), badge_text, fill=(232, 146, 30, 220), font=font_badge)
 
-# Bottom separator line
+# ── Bottom separator + corner labels ────────────────────────────────────────
 line_y = H - 44
 tw.line([(60, line_y), (W - 60, line_y)], fill=(0, 212, 230, 60), width=1)
 
-# Corner Telemetry / Labels
-tw.text((64, 40), "RF BANDWIDTH: 3GPP REL-18 | SUB-6GHz & mmWave", fill=(0, 212, 230, 100), font=font_small)
-top_r = "KERNEL: LINUX-IMAGE-LOWLATENCY (1000Hz)"
+tw.text((64, 40), "RF BANDWIDTH: 3GPP REL-18 | SUB-6GHz & mmWave",
+        fill=(0, 212, 230, 100), font=font_small)
+top_r  = "KERNEL: LINUX-IMAGE-LOWLATENCY (1000Hz)"
 tr_w, _ = text_size(tw, top_r, font_small)
 tw.text((W - 64 - tr_w, 40), top_r, fill=(0, 212, 230, 100), font=font_small)
 
-tw.text((64, line_y + 12), "telcochisel.com  •  telco-sec.com", fill=(0, 212, 230, 140), font=font_small)
-bot_r = "FLAGSHIP FIELD EDITION 2026.1  •  AIR-GAPPED FIELD WORKSTATION"
+tw.text((64, line_y + 12), "telcochisel.com  •  telco-sec.com",
+        fill=(0, 212, 230, 140), font=font_small)
+bot_r  = "FLAGSHIP FIELD EDITION 2026.1  •  AIR-GAPPED FIELD WORKSTATION"
 br_w, _ = text_size(tw, bot_r, font_small)
 tw.text((W - 64 - br_w, line_y + 12), bot_r, fill=(140, 160, 180, 120), font=font_small)
-yr_text  = "2026"
-yr_w, _  = text_size(tw, yr_text, font_small)
-tw.text((W - 88 - yr_w, line_y + 10), yr_text,
-        fill=(100, 120, 140, 100), font=font_small)
+yr_text = "2026"
+yr_w, _ = text_size(tw, yr_text, font_small)
+tw.text((W - 88 - yr_w, line_y + 10), yr_text, fill=(100, 120, 140, 100), font=font_small)
 
 wall.convert("RGB").save(os.path.join(boot_dir, "wallpaper.jpg"))
 print("  -> wallpaper.jpg")
 
 print("\nAll assets generated successfully.")
+
