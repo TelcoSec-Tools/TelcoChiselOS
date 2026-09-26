@@ -13,7 +13,7 @@ on:
         required: false
         default: true
   push:
-    tags: ['v*.*.*']
+    tags: ['v*.*.*', 'v*.*']
 
 concurrency:
   group: docker-release
@@ -37,6 +37,7 @@ jobs:
       packages: write
     outputs:
       version: ${{ steps.meta.outputs.version }}
+      clean_version: ${{ steps.meta.outputs.clean_version }}
       owner_lc: ${{ steps.meta.outputs.owner_lc }}
       base_tag: ${{ steps.meta.outputs.base_tag }}
       has_dockerhub: ${{ steps.meta.outputs.has_dockerhub }}
@@ -56,8 +57,10 @@ jobs:
           else
             VERSION="nightly-$(git rev-parse --short HEAD)"
           fi
+          CLEAN_VERSION="${VERSION#v}"
           echo "owner_lc=${OWNER_LC}" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "clean_version=${CLEAN_VERSION}" >> "$GITHUB_OUTPUT"
           echo "base_tag=${{ env.REGISTRY }}/${OWNER_LC}/telcochisel-base:${VERSION}" >> "$GITHUB_OUTPUT"
           if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
             echo "has_dockerhub=true" >> "$GITHUB_OUTPUT"
@@ -99,6 +102,8 @@ jobs:
           context: .
           file: docker/base.Dockerfile
           push: true
+          build-args: |
+            VERSION=${{ steps.meta.outputs.clean_version }}
           tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha,scope=telcochisel-base
           cache-to: type=gha,mode=max,scope=telcochisel-base
@@ -175,6 +180,7 @@ jobs:
           push: true
           build-args: |
             BASE_IMAGE=${{ needs.base.outputs.base_tag }}
+            VERSION=${{ needs.base.outputs.clean_version }}
           tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha,scope=telcochisel-${{ matrix.image }}
           cache-to: type=gha,mode=max,scope=telcochisel-${{ matrix.image }}

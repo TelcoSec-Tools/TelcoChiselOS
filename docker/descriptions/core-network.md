@@ -1,10 +1,11 @@
 # TelcoSec TelcoChisel Core Network Container
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/telcosec/telcochisel-core-network.svg)](https://hub.docker.com/r/telcosec/telcochisel-core-network)
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Website: telcosec.net](https://img.shields.io/badge/Website-telcosec.net-orange.svg)](https://telcosec.net)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Website: telcochisel.com](https://img.shields.io/badge/Website-telcochisel.com-00ffd5.svg)](https://telcochisel.com)
+[![Academy: app.telcosec.net](https://img.shields.io/badge/Academy-app.telcosec.net-e8921e.svg)](https://app.telcosec.net)
 
-Official 4G/5G Core and Radio Access Network (RAN) emulation and security evaluation container image for **TelcoChisel**, developed by **TelcoSec** ([telcosec.net](https://telcosec.net)).
+Official 4G/5G Core and Radio Access Network (RAN) emulation and security evaluation container image for **TelcoChisel OS** (`v2026.2`), developed by **TelcoSec** ([telco-sec.com](https://telco-sec.com) • [telcochisel.com](https://telcochisel.com)).
 
 Extends `telcochisel-base` with build-dependency toolchains and automated first-run installers for full cellular stacks.
 

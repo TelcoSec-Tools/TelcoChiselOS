@@ -12,13 +12,15 @@ dashboard are either unavailable or degraded in a container. See "Known
 limitations" below before choosing a container over the ISO for a given task.
 
 > 🎓 **Hands-On Telecom Security Training & Live Labs:**  
-> Learn how to execute signaling assessments, 5G SA core exploits, and SDR wireless testing with interactive labs at the **[TelcoSec Academy](https://app.telcosec.net)**.
+> Learn how to execute signaling assessments, 5G SA core exploits, and SDR wireless testing with interactive labs at the **[TelcoSec Academy](https://app.telcosec.net)**:
+> - 📡 **Interactive Courses & Certifications:** [app.telcosec.net/courses](https://app.telcosec.net/courses)
+> - 🛠️ **ProLabs Cellular Testbeds:** [app.telcosec.net/prolabs](https://app.telcosec.net/prolabs)
 
-## Images
+## Images (`v2026.2`)
 
 | Image | Contents | Runtime needs |
 |-------|----------|----------------|
-| `telcochisel-base` | Headless CLI toolset: nmap, tshark, Scapy, SIPVicious, sctpscan, SigPloit, Diafuzzer, FirmWire, QCSuper, MTKClient, pySim, lpac, SIMtrace2, SIMurai, UERANSIM, SCAT, kalibrate-gsm, SIMTester, LTESniffer, RouterSploit, sipp, asleap, snmp-check, docsis, sipsak, voiphopper, rtpbleed, mausezahn (mz), mitmproxy, pcsc-tools, OpenSC, telecom wordlists | none |
+| `telcochisel-base` | Headless CLI toolset: nmap, tshark, Scapy, SIPVicious, sctpscan, SigPloit, Diafuzzer, FirmWire, QCSuper, MTKClient, pySim, lpac, SIMtrace2, SIMurai, UERANSIM, SCAT, kalibrate-gsm, SIMTester, LTESniffer, RouterSploit, sipp, asleap, snmp-check, docsis, sipsak, voiphopper, rtpbleed, mausezahn (mz), sdr-info, telcosec-ran-status, telcosec-pkg, telcosec-academy, telcosec-prolabs, mitmproxy, pcsc-tools, OpenSC, telecom wordlists | none |
 | `telcochisel-sdr` | `FROM base` + SoapySDR/UHD/LimeSuite/HackRF/BladeRF/rtl-sdr, GNU Radio 3.10, GQRX, gr-gsm, kalibrate-rtl, URH, Inspectrum, Gpredict (conda `telcosec-sdr` env) | USB device passthrough; X11 for GUI tools |
 | `telcochisel-core-network` | `FROM base` + srsRAN/Open5GS/OAI-UE/5Ghoul first-run helper stubs and their build deps prebaked | `NET_ADMIN`, `/dev/net/tun`, often host networking |
 | `telcochisel-device-tools` | `FROM base` + Heimdall, ADB/Fastboot, MTKClient wrappers, QCSuper, EDL, AT console | USB/serial device passthrough |

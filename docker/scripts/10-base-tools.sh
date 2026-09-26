@@ -511,6 +511,104 @@ install -m 755 "${TELCOSEC_OPT}/sipp/build/sipp" /usr/local/bin/sipp
 rm -rf "${TELCOSEC_OPT}/sipp/build"
 record_tool "sipp" "/usr/local/bin/sipp" "voip"
 
+# ─── 22b. rtpbleed (RTP stream bleeding and leaky media proxy auditor) ──────
+cat << 'EOF' > /usr/local/bin/rtpbleed
+#!/usr/bin/env python3
+"""
+RTP Bleed / Leaky Media Proxy Security Auditor
+Audits target RTP proxy ports for unauthenticated audio leaking.
+"""
+import sys
+import socket
+import argparse
+
+def audit_rtp(target, start_port, end_port, timeout=1.0):
+    print(f"[*] Scanning {target} UDP ports {start_port}-{end_port} for leaky RTP streams...")
+    found = 0
+    for port in range(start_port, end_port + 1, 2):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.settimeout(timeout)
+        try:
+            dummy_rtp = b"\x80\x00\x00\x01\x00\x00\x00\x00\x12\x34\x56\x78"
+            sock.sendto(dummy_rtp, (target, port))
+            data, addr = sock.recvfrom(2048)
+            if data and len(data) >= 12:
+                v = (data[0] >> 6) & 0x3
+                pt = data[1] & 0x7F
+                print(f"[!] LEAK DETECTED: {target}:{port} responded with {len(data)} bytes (RTP v{v}, PT={pt})")
+                found += 1
+        except (socket.timeout, ConnectionRefusedError, OSError):
+            pass
+        finally:
+            sock.close()
+    print(f"[*] Scan finished. Leaky ports identified: {found}")
+
+def main():
+    parser = argparse.ArgumentParser(description="RTP Bleed Security Scanner")
+    parser.add_argument("-t", "--target", required=True, help="Target SBC or RTPproxy IP/host")
+    parser.add_argument("-p", "--ports", default="10000-20000", help="UDP port range (default: 10000-20000)")
+    parser.add_argument("--timeout", type=float, default=0.5, help="Socket timeout in seconds")
+    args = parser.parse_args()
+    
+    parts = args.ports.split("-")
+    start_p = int(parts[0])
+    end_p = int(parts[1]) if len(parts) > 1 else start_p
+    audit_rtp(args.target, start_p, end_p, args.timeout)
+
+if __name__ == "__main__":
+    main()
+EOF
+chmod +x /usr/local/bin/rtpbleed
+record_tool "rtpbleed" "/usr/local/bin/rtpbleed" "voip"
+
+# ─── 22c. voiphopper (Voice VLAN hopping security assessment tool) ───────────
+if [ ! -d "${TELCOSEC_OPT}/voiphopper" ]; then
+  git_clone_retry https://github.com/hmgh0st/voiphopper.git "${TELCOSEC_OPT}/voiphopper" 2>/dev/null || \
+  git_clone_retry https://gitlab.com/kalilinux/packages/voiphopper.git "${TELCOSEC_OPT}/voiphopper" 2>/dev/null || true
+fi
+if [ -d "${TELCOSEC_OPT}/voiphopper" ]; then
+  cd "${TELCOSEC_OPT}/voiphopper"
+  gcc -O2 -Wall voiphopper.c -o voiphopper -lpcap 2>/dev/null || make 2>/dev/null || true
+  if [ -f voiphopper ]; then
+    install -m 755 voiphopper /usr/local/bin/voiphopper
+  fi
+  cd /
+fi
+record_tool "voiphopper" "/usr/local/bin/voiphopper" "voip"
+
+# ─── 22d. sdr-info & telcosec-ran-status telemetry helpers ───────────────────
+cat << 'EOF' > /usr/local/bin/sdr-info
+#!/bin/bash
+echo "=== TelcoChisel SDR Transceiver Discovery & Driver Status ==="
+echo ""
+echo "--- USB Connected Radio Devices ---"
+lsusb 2>/dev/null | grep -iE "ettus|usrp|hackrf|bladerf|limesdr|rtl2832|realtek" || echo "No recognized USB SDR devices detected (ensure --device /dev/bus/usb)."
+echo ""
+echo "--- SoapySDR Hardware Probe ---"
+if command -v SoapySDRUtil >/dev/null 2>&1; then
+  SoapySDRUtil --find || true
+else
+  echo "SoapySDRUtil not available in base container (use telcochisel-sdr)."
+fi
+EOF
+chmod +x /usr/local/bin/sdr-info
+record_tool "sdr-info" "/usr/local/bin/sdr-info" "sdr"
+
+cat << 'EOF' > /usr/local/bin/telcosec-ran-status
+#!/bin/bash
+clear
+echo -e "\033[1;36m=== 📡 TelcoChisel Container Telemetry & SDR Prober ===\033[0m"
+echo -e "\033[1;30mTimestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')\033[0m\n"
+echo -e "\033[1;33m[1] USB SDR Transceivers:\033[0m"
+lsusb 2>/dev/null | grep -iE "ettus|usrp|hackrf|bladerf|limesdr|rtl2832|realtek" || echo "  (None detected; ensure container run with --device /dev/bus/usb)"
+echo ""
+echo -e "\033[1;33m[2] Network & Tunnel Interfaces:\033[0m"
+ip -br addr show 2>/dev/null || ifconfig 2>/dev/null
+EOF
+chmod +x /usr/local/bin/telcosec-ran-status
+record_tool "telcosec-ran-status" "/usr/local/bin/telcosec-ran-status" "telecom"
+
+
 # ─── 23. sudo access for the telcosec user (parity with the ISO's telcosec
 # account — some tools shell out to apt-get for on-demand deps at runtime) ──
 echo "telcosec ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/telcosec
@@ -521,36 +619,43 @@ cat << 'BANNER_EOF' > /etc/profile.d/00-telcosec-banner.sh
 if [ -t 1 ] && [ -z "${TELCOSEC_BANNER_SHOWN:-}" ]; then
   export TELCOSEC_BANNER_SHOWN=1
   CYAN='\033[1;36m'
+  AMBER='\033[1;33m'
+  GREEN='\033[1;32m'
   BOLD='\033[1m'
-  YELLOW='\033[1;33m'
+  MUTED='\033[0;37m'
   RESET='\033[0m'
 
   printf "${CYAN}"
   cat << 'EOF'
- +---------------------------------------------------------------+
- |   _____ _____ _     ____ ___   ____ _   _ ___ ____  _____ _   |
- |  |_   _| ____| |   / ___/ _ \ / ___| | | |_ _/ ___|| ____| |  |
- |    | | |  _| | |  | |  | | | | |   | |_| || |\___ \|  _| | |  |
- |    | | | |___| |__| |__| |_| | |___|  _  || | ___) | |___| |__|
- |    |_| |_____|_____\____\___/ \____|_| |_|___|____/|_____|____|
- |                                                               |
+  +-----------------------------------------------------------------------+
+  |   _____ _____ _     ____ ___   ____ _   _ ___ ____  _____ _           |
+  |  |_   _| ____| |   / ___/ _ \ / ___| | | |_ _/ ___|| ____| |          |
+  |    | | |  _| | |  | |  | | | | |   | |_| || |\___ \|  _| | |          |
+  |    | | | |___| |__| |__| |_| | |___|  _  || | ___) | |___| |__|       |
+  |    |_| |_____|_____\____\___/ \____|_| |_|___|____/|_____|____|       |
+  |                                                                       |
 EOF
   printf "${RESET}${BOLD}"
   cat << 'EOF'
- |            TELCOCHISEL -- TELECOM SECURITY TOOLSET            |
- +---------------------------------------------------------------+
- |                                                               |
- |  [*] TelcoSec Academy -- Hands-On Telecom & 5G Security Labs  |
- |      - Real-world SS7, Diameter & GTP-C signaling audits      |
- |      - Practical 4G LTE & 5G SA core / RAN exploitation       |
+  |         TELCOCHISEL OS v2026.2 -- TELECOM SECURITY CONTAINER          |
+  +-----------------------------------------------------------------------+
 EOF
   printf "${RESET}"
-  printf "${BOLD} |      - Access interactive testbeds: ${YELLOW}https://app.telcosec.net${RESET}${BOLD}  |\n"
-  cat << 'EOF'
- |                                                               |
- +---------------------------------------------------------------+
-EOF
-  printf "${RESET}\n"
+  printf "${AMBER}  |  [*] TelcoSec Academy -- Hands-On Telecom & 5G Security Labs          |${RESET}\n"
+  printf "${MUTED}  |      - Real-world SS7, Diameter, GTP-C & 5G SBI signaling audits      |${RESET}\n"
+  printf "${MUTED}  |      - Air-gapped 4G LTE & 5G SA core / RAN exploit workflows         |${RESET}\n"
+  printf "${MUTED}  |      - Specialized SDR RF signal interception & replay exercises      |${RESET}\n"
+  printf "${GREEN}  |  >>> Access Academy Portal: ${AMBER}https://app.telcosec.net${RESET}${GREEN}                |${RESET}\n"
+  printf "${GREEN}  |  >>> Explore Interactive Labs: ${AMBER}https://app.telcosec.net/courses${RESET}${GREEN}     |${RESET}\n"
+  printf "${GREEN}  |  >>> ProLabs Advanced Testbeds: ${AMBER}https://app.telcosec.net/prolabs${RESET}${GREEN}    |${RESET}\n"
+  printf "${BOLD}  +-----------------------------------------------------------------------+${RESET}\n"
+  printf "${MUTED}  |  Quick Commands:                                                      |${RESET}\n"
+  printf "${CYAN}  |    telcosec search <query>    ${MUTED}Search offline 100-tool catalog         |${RESET}\n"
+  printf "${CYAN}  |    telcosec-pkg list          ${MUTED}Browse modular Debian metapackages      |${RESET}\n"
+  printf "${CYAN}  |    telcosec-academy           ${MUTED}Open TelcoSec Academy portal helper     |${RESET}\n"
+  printf "${CYAN}  |    telcosec-prolabs           ${MUTED}Open TelcoSec ProLabs testbed helper    |${RESET}\n"
+  printf "${CYAN}  |    sdr-info                   ${MUTED}Probe connected USB SDR transceivers    |${RESET}\n"
+  printf "${BOLD}  +-----------------------------------------------------------------------+${RESET}\n\n"
 fi
 BANNER_EOF
 chmod 644 /etc/profile.d/00-telcosec-banner.sh

@@ -16,19 +16,25 @@
 ARG BASE_IMAGE=telcochisel-base
 FROM ${BASE_IMAGE}
 
+ARG VERSION=2026.2
+
 LABEL org.opencontainers.image.title="TelcoSec TelcoChisel Device Tools" \
       org.opencontainers.image.description="TelcoSec TelcoChisel Device Tools — Baseband, modem, and mobile device forensic flashing & diagnostic suite (Heimdall, Android ADB/Fastboot, MediaTek MTKClient, QCSuper Qualcomm Diag, Qualcomm EDL, AT terminal)" \
-      org.opencontainers.image.version="1.1.0" \
-      org.opencontainers.image.url="https://telcosec.net" \
-      org.opencontainers.image.documentation="https://telcosec.net/docs" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.url="https://telcochisel.com" \
+      org.opencontainers.image.documentation="https://telcochisel.com" \
       org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS" \
       org.opencontainers.image.vendor="TelcoSec" \
-      org.opencontainers.image.licenses="GPL-3.0" \
+      org.opencontainers.image.licenses="Apache-2.0" \
       net.telcosec.brand="TelcoSec" \
       net.telcosec.product="TelcoChisel" \
       net.telcosec.tier="device-tools" \
       net.telcosec.category="telecom-security-research" \
+      net.telcosec.portal.url="https://telcochisel.com" \
+      net.telcosec.company.url="https://telco-sec.com" \
       net.telcosec.academy.url="https://app.telcosec.net" \
+      net.telcosec.academy.courses="https://app.telcosec.net/courses" \
+      net.telcosec.academy.prolabs="https://app.telcosec.net/prolabs" \
       net.telcosec.academy.training="Master modem AT command auditing, baseband forensics, and firmware extraction at TelcoSec Academy: https://app.telcosec.net"
 
 USER root

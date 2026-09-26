@@ -15,20 +15,26 @@
 # =============================================================================
 FROM ubuntu:24.04
 
+ARG VERSION=2026.2
+
 LABEL org.opencontainers.image.title="TelcoSec TelcoChisel Base" \
-      org.opencontainers.image.description="TelcoSec TelcoChisel Base — Headless CLI telecom security penetration testing and research toolset (nmap, tshark, Scapy, SIPVicious, sctpscan, SigPloit, Diafuzzer, FirmWire, QCSuper, MTKClient, pySim, lpac, SIMtrace2, SIMurai, UERANSIM, SCAT, LTESniffer, sipp, asleap, snmp-check, docsis, routersploit)" \
-      org.opencontainers.image.version="1.1.0" \
-      org.opencontainers.image.url="https://telcosec.net" \
-      org.opencontainers.image.documentation="https://telcosec.net/docs" \
+      org.opencontainers.image.description="TelcoSec TelcoChisel Base — Headless CLI telecom security penetration testing and research toolset (nmap, tshark, Scapy, SIPVicious, sctpscan, SigPloit, Diafuzzer, FirmWire, QCSuper, MTKClient, pySim, lpac, SIMtrace2, SIMurai, UERANSIM, SCAT, LTESniffer, sipp, asleap, snmp-check, docsis, routersploit, rtpbleed, voiphopper, sipsak)" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.url="https://telcochisel.com" \
+      org.opencontainers.image.documentation="https://telcochisel.com" \
       org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS" \
       org.opencontainers.image.vendor="TelcoSec" \
-      org.opencontainers.image.licenses="GPL-3.0" \
+      org.opencontainers.image.licenses="Apache-2.0" \
       net.telcosec.brand="TelcoSec" \
       net.telcosec.product="TelcoChisel" \
       net.telcosec.tier="base" \
       net.telcosec.category="telecom-security-research" \
+      net.telcosec.portal.url="https://telcochisel.com" \
+      net.telcosec.company.url="https://telco-sec.com" \
       net.telcosec.academy.url="https://app.telcosec.net" \
-      net.telcosec.academy.training="Master telecom security, 5G SA signaling, and SDR exploitation at TelcoSec Academy: https://app.telcosec.net"
+      net.telcosec.academy.courses="https://app.telcosec.net/courses" \
+      net.telcosec.academy.prolabs="https://app.telcosec.net/prolabs" \
+      net.telcosec.academy.training="Master telecom security, 5G SA signaling, and SDR wireless audits at TelcoSec Academy: https://app.telcosec.net"
 
 ENV DEBIAN_FRONTEND=noninteractive \
     TELCOSEC_OPT=/opt/telcosec \
@@ -64,9 +70,15 @@ COPY builder/scripts/lib/pip-constraints.txt /opt/telcosec/lib/pip-constraints.t
 COPY builder/scripts/lib/record-tool.sh      /opt/telcosec/lib/record-tool.sh
 COPY builder/wordlists/                      /opt/telcosec/wordlists/
 COPY docker/scripts/00-container-common.sh   /opt/telcosec/lib/00-container-common.sh
+COPY builder/scripts/bin/telcosec            /usr/local/bin/telcosec
+COPY builder/scripts/bin/telcosec-pkg        /usr/local/bin/telcosec-pkg
+COPY builder/scripts/bin/telcosec-academy    /usr/local/bin/telcosec-academy
+COPY builder/scripts/bin/telcosec-prolabs    /usr/local/bin/telcosec-prolabs
 COPY docker/scripts/10-base-tools.sh         /tmp/10-base-tools.sh
 
-RUN bash /tmp/10-base-tools.sh && rm -f /tmp/10-base-tools.sh
+RUN chmod +x /usr/local/bin/telcosec* \
+ && bash /tmp/10-base-tools.sh \
+ && rm -f /tmp/10-base-tools.sh
 
 WORKDIR /home/telcosec
 USER telcosec

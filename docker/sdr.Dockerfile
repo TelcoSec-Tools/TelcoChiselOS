@@ -20,19 +20,25 @@
 ARG BASE_IMAGE=telcochisel-base
 FROM ${BASE_IMAGE}
 
+ARG VERSION=2026.2
+
 LABEL org.opencontainers.image.title="TelcoSec TelcoChisel SDR" \
-      org.opencontainers.image.description="TelcoSec TelcoChisel SDR — Software Defined Radio cellular research toolchain (SoapySDR, UHD USRP, LimeSuite, HackRF, BladeRF, rtl-sdr, GNU Radio, GQRX, gr-gsm)" \
-      org.opencontainers.image.version="1.1.0" \
-      org.opencontainers.image.url="https://telcosec.net" \
-      org.opencontainers.image.documentation="https://telcosec.net/docs" \
+      org.opencontainers.image.description="TelcoSec TelcoChisel SDR — Software Defined Radio cellular research toolchain (SoapySDR, UHD USRP, LimeSuite, HackRF, BladeRF, rtl-sdr, GNU Radio, GQRX, gr-gsm, URH, Inspectrum, Gpredict)" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.url="https://telcochisel.com" \
+      org.opencontainers.image.documentation="https://telcochisel.com" \
       org.opencontainers.image.source="https://github.com/TelcoSec-Tools/TelcoChiselOS" \
       org.opencontainers.image.vendor="TelcoSec" \
-      org.opencontainers.image.licenses="GPL-3.0" \
+      org.opencontainers.image.licenses="Apache-2.0" \
       net.telcosec.brand="TelcoSec" \
       net.telcosec.product="TelcoChisel" \
       net.telcosec.tier="sdr" \
       net.telcosec.category="telecom-security-research" \
+      net.telcosec.portal.url="https://telcochisel.com" \
+      net.telcosec.company.url="https://telco-sec.com" \
       net.telcosec.academy.url="https://app.telcosec.net" \
+      net.telcosec.academy.courses="https://app.telcosec.net/courses" \
+      net.telcosec.academy.prolabs="https://app.telcosec.net/prolabs" \
       net.telcosec.academy.training="Master SDR cellular analysis and 2G-5G radio security at TelcoSec Academy: https://app.telcosec.net"
 
 USER root
