@@ -92,24 +92,39 @@ jobs:
       - name: Acquire Source ISO
         id: iso
         run: |
-          ISO_TARGET="TelcoChisel-${{ steps.version.outputs.version }}-amd64.iso"
+          TARGET_VER="${{ steps.version.outputs.version }}"
+          ISO_TARGET="TelcoChisel-${TARGET_VER}-amd64.iso"
           CUSTOM_URL="${{ github.event.inputs.iso_url }}"
 
           if [ -n "$CUSTOM_URL" ]; then
             echo "[*] Downloading custom ISO from $CUSTOM_URL..."
             curl -fLC - --retry 3 --retry-delay 5 "$CUSTOM_URL" -o "$ISO_TARGET"
           else
-            echo "[*] Fetching latest release ISO from GitHub Releases / SourceForge..."
-            LATEST_URL="https://downloads.sourceforge.net/project/${SF_PROJECT}/nightly/TelcoChisel-live.iso"
-            echo "Attempting download from: $LATEST_URL"
-            curl -fLC - --retry 3 --retry-delay 5 "$LATEST_URL" -o "$ISO_TARGET" || {
-              echo "[-] Fallback to GitHub Releases..."
-              gh release download --pattern "*.iso" --dir . || true
-              mv *.iso "$ISO_TARGET" 2>/dev/null || true
-            }
+            echo "[*] Fetching release ISO for version ${TARGET_VER}..."
+            SF_VERSION_URL="https://downloads.sourceforge.net/project/${SF_PROJECT}/v${TARGET_VER}/${ISO_TARGET}"
+            SF_NIGHTLY_URL="https://downloads.sourceforge.net/project/${SF_PROJECT}/nightly/TelcoChisel-live.iso"
+
+            echo "Attempting download from SourceForge versioned release: $SF_VERSION_URL"
+            if curl -fLC - --retry 3 --retry-delay 5 "$SF_VERSION_URL" -o "$ISO_TARGET"; then
+              echo "✓ Acquired $ISO_TARGET from SourceForge versioned release"
+            elif curl -fLC - --retry 3 --retry-delay 5 "$SF_NIGHTLY_URL" -o "$ISO_TARGET"; then
+              echo "✓ Acquired $ISO_TARGET from SourceForge nightly"
+            else
+              echo "[-] SourceForge download unavailable, falling back to GitHub Releases..."
+              if gh release download "v${TARGET_VER}" --pattern "${ISO_TARGET}.part-*" --pattern "${ISO_TARGET}.sha256" --dir . 2>/dev/null; then
+                echo "[*] Reassembling split ISO parts from GitHub Release..."
+                cat "${ISO_TARGET}.part-"* > "$ISO_TARGET"
+                rm -f "${ISO_TARGET}.part-"*
+                if [ -f "${ISO_TARGET}.sha256" ]; then
+                  sha256sum -c "${ISO_TARGET}.sha256"
+                fi
+              elif gh release download --pattern "*.iso" --dir . 2>/dev/null; then
+                mv *.iso "$ISO_TARGET" 2>/dev/null || true
+              fi
+            fi
           fi
 
-          if [ ! -f "$ISO_TARGET" ]; then
+          if [ ! -f "$ISO_TARGET" ] || [ ! -s "$ISO_TARGET" ]; then
             echo "[-] ERROR: Failed to acquire Source ISO for VM building!"
             exit 1
           fi
