@@ -44,13 +44,14 @@ BUILD_DEPS=(
   build-essential cmake pkg-config autoconf automake libtool
   python3-dev libusb-1.0-0-dev libmnl-dev libssl-dev libncurses-dev
   libsctp-dev libglib2.0-dev libpcsclite-dev librocksdb-dev libmd-dev libfftw3-dev
-  bison flex libpcap-dev libsnmp-dev libgsl-dev libnet1-dev
+  bison flex libpcap-dev libsnmp-dev libgsl-dev libnet1-dev libmbedtls-dev libhackrf-dev
 )
 
 # Explicitly install runtime shared libraries so purging -dev packages does not remove them
 RUNTIME_LIBRARIES=(
   libglib2.0-0t64 libsctp1 libusb-1.0-0 libmnl0 libncurses6
   libpcsclite1 libmd0 libfftw3-double3 libpcap0.8t64 libgsl27 libgslcblas0
+  libhackrf0 libmbedcrypto7t64 libmbedtls14t64 libmbedx509-1t64
 )
 
 apt_retry install -y --no-install-recommends \
@@ -329,6 +330,7 @@ if cmake -DCMAKE_BUILD_TYPE=Release .. && make -j"$(nproc)"; then
 else
   echo "WARNING: lpac build failed — tool will be unavailable"
 fi
+cd /
 record_tool "lpac" "/usr/local/bin/lpac" "sim"
 
 # ─── 14. SIMtrace 2 host tools (from 06-install-ue-analysis.sh) ────────────
@@ -339,6 +341,7 @@ autoreconf -fi
 make -j"$(nproc)"
 make install
 ldconfig
+cd /
 record_tool "simtrace2" "$(command -v simtrace2-list 2>/dev/null)" "sim"
 
 # ─── 15. SIMurai (from 06-install-ue-analysis.sh) ───────────────────────────
@@ -353,6 +356,7 @@ if [ -d "${TELCOSEC_OPT}/simurai/swsim" ]; then
 
   cd "${TELCOSEC_OPT}/simurai/swicc-pcsc"
   make main -j"$(nproc)" && make install || echo "WARNING: swicc-pcsc build/install failed"
+  cd /
 fi
 record_tool "SIMurai" "/usr/local/bin/simurai" "sim"
 
@@ -365,6 +369,7 @@ install -m 755 build/nr-gnb /usr/local/bin/nr-gnb
 install -m 755 build/nr-ue  /usr/local/bin/nr-ue
 install -m 755 build/nr-cli /usr/local/bin/nr-cli
 rm -rf build
+cd /
 record_tool "UERANSIM" "/usr/local/bin/nr-ue" "5g"
 
 # ─── 17. SCAT (from 10-install-telecom-advanced.sh) ─────────────────────────
@@ -372,19 +377,13 @@ pip_retry install scat --break-system-packages
 record_tool "SCAT" "$(command -v scat 2>/dev/null || echo '/usr/local/bin/scat')" "baseband"
 
 # ─── 18. Kalibrate-GSM (from 10-install-telecom-advanced.sh) ───────────────
-# Mirrors the ISO's own non-fatal handling: this upstream URL is already
-# broken there too (steve-m/kalibrate-gsm returns 404 — likely never existed
-# under that name; the working repo is steve-m/kalibrate-rtl, already built
-# in step for the sdr image, or upstream ttsou/kalibrate). The ISO script
-# guards this exact clone with `2>/dev/null || true` for the same reason —
-# see builder/scripts/10-install-telecom-advanced.sh.
-git_clone_retry --depth 1 https://github.com/steve-m/kalibrate-gsm "${TELCOSEC_OPT}/kalibrate-gsm" 2>/dev/null || true
+git_clone_retry --depth 1 https://github.com/scateu/kalibrate-hackrf "${TELCOSEC_OPT}/kalibrate-gsm" 2>/dev/null || true
 if [ -d "${TELCOSEC_OPT}/kalibrate-gsm" ]; then
   cd "${TELCOSEC_OPT}/kalibrate-gsm"
   ./bootstrap.sh 2>/dev/null || autoreconf -fi
   ./configure && make -j"$(nproc)"
-  cp src/kal /usr/local/bin/kal-gsm 2>/dev/null || true
-  cd "${TELCOSEC_OPT}"
+  [ -f src/kal ] && cp -f src/kal /usr/local/bin/kal-gsm || true
+  cd /
 fi
 record_tool "kalibrate-gsm" "/usr/local/bin/kal-gsm" "2g"
 
@@ -414,6 +413,7 @@ if [ -n "$SNIFFER_BIN" ] && [ -f "$SNIFFER_BIN" ]; then
 elif [ -f "${TELCOSEC_OPT}/ltesniffer/src/LTESniffer" ]; then
   install -m 755 "${TELCOSEC_OPT}/ltesniffer/src/LTESniffer" /usr/local/bin/ltesniffer
 fi
+cd /
 rm -rf "${TELCOSEC_OPT}/ltesniffer/build"
 record_tool "LTESniffer" "/usr/local/bin/ltesniffer" "4g"
 
@@ -426,6 +426,7 @@ cat << 'EOF' > /usr/local/bin/routersploit
 python3 /opt/telcosec/routersploit/rsf.py "$@"
 EOF
 chmod +x /usr/local/bin/routersploit
+cd /
 record_tool "RouterSploit" "/usr/local/bin/routersploit" "adsl"
 
 # ─── 21b. Asleap (PPPoE / MS-CHAPv2 offline cracker) ───────────────────────

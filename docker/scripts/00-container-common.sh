@@ -104,6 +104,7 @@ filter_pkgs() {
 # whose source can't be fetched should fail the build loudly, not silently.
 git_clone_retry() {
   local attempt
+  [ -d "$PWD" ] 2>/dev/null || cd /tmp
   for attempt in 1 2 3; do
     git clone "$@" && return 0
     echo "  git clone attempt ${attempt}/3 failed — retrying in 10s..." >&2
