@@ -6,7 +6,16 @@ const dynamicRoutes = [
   ...toolsCatalog.map(t => `/tools/${t.slug}`),
   ...Array.from(new Set(toolsCatalog.map(t => t.category))).map(c => `/tools/category/${c}`),
   ...featuresCatalog.map(f => `/features/${f.slug}`),
-  ...driversCatalog.map(d => `/drivers/${d.slug}`)
+  ...driversCatalog.map(d => `/drivers/${d.slug}`),
+  '/playbooks/5g-sa-audit',
+  '/playbooks/oran-e2-audit',
+  '/playbooks/5g-sbi-audit',
+  '/playbooks/esim-lpa-audit',
+  '/playbooks/baseband-firmwire',
+  '/playbooks/satellite-ntn-audit',
+  '/playbooks/5ghoul-fuzzing',
+  '/playbooks/vm-appliances',
+  '/playbooks/containers'
 ]
 
 export default defineNuxtConfig({
