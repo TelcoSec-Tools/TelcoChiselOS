@@ -65,14 +65,22 @@ EOF
 
 # Deploy custom TelcoChisel Cyberpunk GTK 3 theme for XFCE panel, menus, and widgets
 mkdir -p /etc/xdg/gtk-3.0 /etc/skel/.config/gtk-3.0
-cat << 'EOF' | tee /etc/xdg/gtk-3.0/gtk.css > /etc/skel/.config/gtk-3.0/gtk.css
-/* TelcoChisel OS — Cyberpunk Telecom XFCE & Panel GTK 3 Theme */
+cat << 'GTKEOF' | tee /etc/xdg/gtk-3.0/gtk.css > /etc/skel/.config/gtk-3.0/gtk.css
+/* ==========================================================================
+   TelcoChisel OS — Tactical Cyberpunk GTK 3 Theme
+   Palette:
+     Canvas:        #0a0e17   Surface:     #0e121a   Elevate:     #161b22
+     Cyan accent:   #00ffd5   Amber warn:  #e8921e   Alert:       #ff4466
+     Border subtle: #21262d   Text:        #e6edf3   Muted:       #8b949e
+   ========================================================================== */
+
+/* ── Panel ─────────────────────────────────────────────────────────────────── */
 .xfce4-panel {
-  background-color: rgba(10, 14, 23, 0.95);
+  background-color: rgba(10, 14, 23, 0.97);
   color: #e6edf3;
   border-bottom: 2px solid #00ffd5;
-  box-shadow: 0 2px 10px rgba(0, 255, 213, 0.15);
-  font-family: "Ubuntu", "Segoe UI", sans-serif;
+  box-shadow: 0 2px 12px rgba(0, 255, 213, 0.12);
+  font-family: "Ubuntu", sans-serif;
   font-size: 10pt;
 }
 
@@ -83,7 +91,7 @@ cat << 'EOF' | tee /etc/xdg/gtk-3.0/gtk.css > /etc/skel/.config/gtk-3.0/gtk.css
   border-radius: 4px;
   margin: 2px 1px;
   padding: 0 4px;
-  transition: all 150ms ease;
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
 .xfce4-panel button:hover {
@@ -98,6 +106,7 @@ cat << 'EOF' | tee /etc/xdg/gtk-3.0/gtk.css > /etc/skel/.config/gtk-3.0/gtk.css
   border-bottom: 2px solid #00ffd5;
 }
 
+/* ── Tasklist ──────────────────────────────────────────────────────────────── */
 .xfce4-panel .tasklist button {
   padding: 0 8px;
   border-radius: 3px;
@@ -106,8 +115,8 @@ cat << 'EOF' | tee /etc/xdg/gtk-3.0/gtk.css > /etc/skel/.config/gtk-3.0/gtk.css
 }
 
 .xfce4-panel .tasklist button:hover {
-  background-color: rgba(0, 255, 213, 0.12);
-  border-bottom: 2px solid rgba(0, 255, 213, 0.5);
+  background-color: rgba(0, 255, 213, 0.10);
+  border-bottom: 2px solid rgba(0, 255, 213, 0.45);
 }
 
 .xfce4-panel .tasklist button:checked {
@@ -116,50 +125,15 @@ cat << 'EOF' | tee /etc/xdg/gtk-3.0/gtk.css > /etc/skel/.config/gtk-3.0/gtk.css
   border-bottom: 2px solid #00ffd5;
 }
 
-#whiskermenu-button {
-  font-weight: bold;
-  color: #00ffd5;
-  padding: 0 8px;
-}
-
-#whiskermenu-button:hover {
-  background-color: rgba(0, 255, 213, 0.20);
-  color: #ffffff;
-}
-
-#whiskermenu-window {
-  background-color: #0b0f19;
-  border: 1px solid #00ffd5;
-  border-radius: 6px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
-  color: #e6edf3;
-}
-
-#whiskermenu-window entry {
-  background-color: #141a26;
-  border: 1px solid #21262d;
-  border-radius: 4px;
-  color: #ffffff;
-  padding: 6px 10px;
-}
-
-#whiskermenu-window entry:focus {
-  border-color: #00ffd5;
-  box-shadow: 0 0 8px rgba(0, 255, 213, 0.3);
-}
-
-#whiskermenu-window treeview:selected {
-  background-color: rgba(0, 255, 213, 0.20);
-  color: #00ffd5;
-  border-left: 3px solid #00ffd5;
-}
-
+/* ── Workspace Pager ───────────────────────────────────────────────────────── */
 .xfce4-panel .pager button {
   background-color: rgba(22, 27, 34, 0.7);
   border: 1px solid #21262d;
   color: #8b949e;
   border-radius: 3px;
   margin: 2px 1px;
+  padding: 0 4px;
+  font-size: 8pt;
 }
 
 .xfce4-panel .pager button:hover {
@@ -174,14 +148,378 @@ cat << 'EOF' | tee /etc/xdg/gtk-3.0/gtk.css > /etc/skel/.config/gtk-3.0/gtk.css
   font-weight: bold;
 }
 
-tooltip {
-  background-color: rgba(11, 15, 25, 0.96);
-  border: 1px solid #00ffd5;
+/* ── Whisker Menu button ───────────────────────────────────────────────────── */
+#whiskermenu-button {
+  font-weight: bold;
+  color: #00ffd5;
+  padding: 0 10px;
+  letter-spacing: 0.5px;
+}
+
+#whiskermenu-button:hover {
+  background-color: rgba(0, 255, 213, 0.18);
+  color: #ffffff;
+}
+
+/* ── Whisker Menu window ───────────────────────────────────────────────────── */
+#whiskermenu-window {
+  background-color: #0b0f19;
+  border: 1px solid rgba(0, 255, 213, 0.5);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+  color: #e6edf3;
+}
+
+#whiskermenu-window entry {
+  background-color: #141a26;
+  border: 1px solid #21262d;
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 6px 10px;
+  caret-color: #00ffd5;
+}
+
+#whiskermenu-window entry:focus {
+  border-color: #00ffd5;
+  box-shadow: 0 0 8px rgba(0, 255, 213, 0.28);
+  outline: none;
+}
+
+#whiskermenu-window treeview {
+  background-color: transparent;
+  color: #c9d1d9;
+}
+
+#whiskermenu-window treeview:selected {
+  background-color: rgba(0, 255, 213, 0.18);
+  color: #00ffd5;
+  border-left: 3px solid #00ffd5;
+}
+
+#whiskermenu-window treeview:hover {
+  background-color: rgba(0, 255, 213, 0.08);
+}
+
+/* Category list column */
+#whiskermenu-window .sidebar treeview:selected {
+  background-color: rgba(0, 255, 213, 0.22);
+  color: #00ffd5;
+  font-weight: bold;
+}
+
+/* ── Application Menu / Context Menu ──────────────────────────────────────── */
+menu,
+.menu,
+.context-menu {
+  background-color: #0e121a;
+  border: 1px solid #21262d;
+  border-radius: 5px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
+  padding: 4px 0;
+  color: #e6edf3;
+}
+
+menuitem {
+  padding: 5px 14px;
+  border-radius: 3px;
+  margin: 1px 4px;
+  color: #c9d1d9;
+  font-size: 10pt;
+}
+
+menuitem:hover,
+menuitem:selected {
+  background-color: rgba(0, 255, 213, 0.16);
+  color: #00ffd5;
+}
+
+menuitem:disabled {
+  color: #484f58;
+}
+
+menu separator,
+menuseparator {
+  background-color: #21262d;
+  margin: 4px 8px;
+  min-height: 1px;
+}
+
+/* ── GtkEntry / Input Fields ───────────────────────────────────────────────── */
+entry {
+  background-color: #161b22;
+  border: 1px solid #21262d;
   border-radius: 4px;
   color: #e6edf3;
+  padding: 5px 8px;
+  caret-color: #00ffd5;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+entry:focus {
+  border-color: #00ffd5;
+  box-shadow: 0 0 0 2px rgba(0, 255, 213, 0.18);
+  outline: none;
+}
+
+entry:disabled {
+  background-color: #0e121a;
+  color: #484f58;
+  border-color: #21262d;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+button {
+  background-color: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 4px;
+  color: #e6edf3;
+  padding: 5px 12px;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+button:hover {
+  background-color: rgba(0, 255, 213, 0.12);
+  border-color: rgba(0, 255, 213, 0.4);
+  color: #00ffd5;
+}
+
+button:active,
+button:checked {
+  background-color: rgba(0, 255, 213, 0.22);
+  border-color: #00ffd5;
+  color: #ffffff;
+}
+
+button.suggested-action {
+  background-color: rgba(0, 255, 213, 0.20);
+  border-color: #00ffd5;
+  color: #00ffd5;
+  font-weight: bold;
+}
+
+button.destructive-action {
+  background-color: rgba(255, 68, 102, 0.18);
+  border-color: #ff4466;
+  color: #ff4466;
+}
+
+/* ── CheckButton / RadioButton ─────────────────────────────────────────────── */
+checkbutton check,
+radiobutton radio {
+  background-color: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 3px;
+  min-width: 14px;
+  min-height: 14px;
+}
+
+checkbutton:hover check,
+radiobutton:hover radio {
+  border-color: #00ffd5;
+}
+
+checkbutton:checked check,
+radiobutton:checked radio {
+  background-color: #00ffd5;
+  border-color: #00ffd5;
+  color: #0a0e17;
+}
+
+/* ── ComboBox ──────────────────────────────────────────────────────────────── */
+combobox button {
   padding: 4px 8px;
 }
-EOF
+
+combobox > .linked > button:last-child {
+  border-left: none;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+scrollbar {
+  background-color: transparent;
+  border: none;
+}
+
+scrollbar slider {
+  background-color: rgba(0, 255, 213, 0.22);
+  border-radius: 10px;
+  min-width: 6px;
+  min-height: 6px;
+  margin: 2px;
+  transition: background-color 120ms ease;
+}
+
+scrollbar slider:hover {
+  background-color: rgba(0, 255, 213, 0.45);
+}
+
+scrollbar slider:active {
+  background-color: #00ffd5;
+}
+
+/* ── Notebook / Tabs (Terminator, Firefox, etc.) ───────────────────────────── */
+notebook > header {
+  background-color: #0a0e17;
+  border-bottom: 1px solid #21262d;
+  padding: 0;
+}
+
+notebook > header tab {
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #8b949e;
+  padding: 6px 14px;
+  margin: 0 1px;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+
+notebook > header tab:hover {
+  color: #c9d1d9;
+  border-bottom-color: rgba(0, 255, 213, 0.4);
+}
+
+notebook > header tab:checked {
+  color: #00ffd5;
+  border-bottom-color: #00ffd5;
+  font-weight: bold;
+}
+
+/* ── GtkHeaderBar (Firefox, Thunar) ────────────────────────────────────────── */
+headerbar {
+  background-color: #0e121a;
+  border-bottom: 1px solid #21262d;
+  color: #e6edf3;
+  padding: 4px 8px;
+  box-shadow: none;
+}
+
+headerbar entry {
+  background-color: #161b22;
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+
+/* ── Window / Dialog ───────────────────────────────────────────────────────── */
+window,
+dialog {
+  background-color: #0e121a;
+  color: #e6edf3;
+}
+
+dialog .dialog-action-area button {
+  min-width: 80px;
+}
+
+/* ── Treeview (Thunar file list) ───────────────────────────────────────────── */
+treeview {
+  background-color: #0e121a;
+  color: #c9d1d9;
+}
+
+treeview:selected {
+  background-color: rgba(0, 255, 213, 0.18);
+  color: #00ffd5;
+}
+
+treeview:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+treeview header button {
+  background-color: #0a0e17;
+  border-bottom: 1px solid #21262d;
+  color: #8b949e;
+  border-radius: 0;
+  padding: 4px 8px;
+}
+
+treeview header button:hover {
+  color: #00ffd5;
+}
+
+/* ── Sidebar (Thunar, Files) ───────────────────────────────────────────────── */
+.sidebar {
+  background-color: #0a0e17;
+  border-right: 1px solid #21262d;
+  color: #c9d1d9;
+}
+
+.sidebar row:selected,
+.sidebar row:selected:focus {
+  background-color: rgba(0, 255, 213, 0.16);
+  color: #00ffd5;
+}
+
+.sidebar row:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Progressbar ───────────────────────────────────────────────────────────── */
+progressbar trough {
+  background-color: #161b22;
+  border-radius: 10px;
+  min-height: 6px;
+}
+
+progressbar progress {
+  background-color: #00ffd5;
+  border-radius: 10px;
+}
+
+/* ── Scale (sliders) ───────────────────────────────────────────────────────── */
+scale trough {
+  background-color: #161b22;
+  border-radius: 4px;
+  min-height: 4px;
+}
+
+scale highlight {
+  background-color: #00ffd5;
+  border-radius: 4px;
+}
+
+scale slider {
+  background-color: #00ffd5;
+  border-radius: 50%;
+  min-width: 14px;
+  min-height: 14px;
+  box-shadow: 0 0 4px rgba(0, 255, 213, 0.4);
+}
+
+/* ── Tooltip ───────────────────────────────────────────────────────────────── */
+tooltip {
+  background-color: rgba(10, 14, 23, 0.97);
+  border: 1px solid rgba(0, 255, 213, 0.5);
+  border-radius: 4px;
+  color: #e6edf3;
+  padding: 5px 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Status Bar ────────────────────────────────────────────────────────────── */
+statusbar {
+  background-color: #0a0e17;
+  border-top: 1px solid #21262d;
+  color: #8b949e;
+  padding: 2px 8px;
+  font-size: 9pt;
+}
+
+/* ── Genmon panel label spans (pango markup colour pass-through) ─────────────
+   Genmon renders via a GtkLabel — no extra CSS needed; colours come from
+   <span foreground='...'> pango markup. Ensure the panel label baseline
+   colour doesn't interfere with the span overrides.                        */
+.xfce4-panel label {
+  color: #8b949e;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9pt;
+}
+GTKEOF
+
+# Also install as system GTK theme override for LightDM greeter
+mkdir -p /etc/gtk-3.0
+cp /etc/xdg/gtk-3.0/gtk.css /etc/gtk-3.0/gtk.css
 
 
 cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
@@ -594,6 +932,145 @@ menu-opacity=98
 position-search-alternate=true
 stay-on-focus-out=false
 EOF
+# ─── Whisker Menu 11-Domain XDG Applications Menu ────────────────────────────
+# Creates a custom .menu file that groups all TelcoSec desktop entries into
+# the 11 canonical security domains visible in the Whisker Menu category pane.
+# Each <Category> here must match a Categories= entry in the .desktop files.
+echo "Deploying TelcoSec 11-domain XDG applications menu..."
+mkdir -p /etc/xdg/menus /usr/share/desktop-directories
+
+cat << 'EOF' > /etc/xdg/menus/telcosec-applications.menu
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+  "http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
+<Menu>
+  <Name>Applications</Name>
+  <MergeFile type="parent">/etc/xdg/menus/applications.menu</MergeFile>
+
+  <!-- ══ 01. SDR & Spectrum Analysis ═══════════════════════════════════════ -->
+  <Menu>
+    <Name>01-SDR-Spectrum</Name>
+    <Directory>telcosec-01-sdr.directory</Directory>
+    <Include><Category>TelcoSec-SDR</Category></Include>
+  </Menu>
+
+  <!-- ══ 02. GSM / 2G Cellular ════════════════════════════════════════════ -->
+  <Menu>
+    <Name>02-GSM-2G</Name>
+    <Directory>telcosec-02-gsm.directory</Directory>
+    <Include><Category>TelcoSec-GSM</Category></Include>
+  </Menu>
+
+  <!-- ══ 03. LTE / 4G Cellular ════════════════════════════════════════════ -->
+  <Menu>
+    <Name>03-LTE-4G</Name>
+    <Directory>telcosec-03-lte.directory</Directory>
+    <Include><Category>TelcoSec-LTE</Category></Include>
+  </Menu>
+
+  <!-- ══ 04. 5G NR & O-RAN ════════════════════════════════════════════════ -->
+  <Menu>
+    <Name>04-5GNR-ORAN</Name>
+    <Directory>telcosec-04-5g.directory</Directory>
+    <Include><Category>TelcoSec-5G</Category></Include>
+  </Menu>
+
+  <!-- ══ 05. Baseband & Firmware ══════════════════════════════════════════ -->
+  <Menu>
+    <Name>05-Baseband-Firmware</Name>
+    <Directory>telcosec-05-baseband.directory</Directory>
+    <Include><Category>TelcoSec-Baseband</Category></Include>
+  </Menu>
+
+  <!-- ══ 06. SIM / Smartcard Security ════════════════════════════════════ -->
+  <Menu>
+    <Name>06-SIM-Smartcard</Name>
+    <Directory>telcosec-06-sim.directory</Directory>
+    <Include><Category>TelcoSec-SIM</Category></Include>
+  </Menu>
+
+  <!-- ══ 07. Protocol Fuzzing & Exploit ═══════════════════════════════════ -->
+  <Menu>
+    <Name>07-Fuzzing-Exploit</Name>
+    <Directory>telcosec-07-fuzzing.directory</Directory>
+    <Include><Category>TelcoSec-Fuzzing</Category></Include>
+  </Menu>
+
+  <!-- ══ 08. Forensics & Evidence ════════════════════════════════════════ -->
+  <Menu>
+    <Name>08-Forensics-Evidence</Name>
+    <Directory>telcosec-08-forensics.directory</Directory>
+    <Include><Category>TelcoSec-Forensics</Category></Include>
+  </Menu>
+
+  <!-- ══ 09. Core Network & Packet Analysis ══════════════════════════════ -->
+  <Menu>
+    <Name>09-Core-Network</Name>
+    <Directory>telcosec-09-core.directory</Directory>
+    <Include><Category>TelcoSec-Core</Category></Include>
+  </Menu>
+
+  <!-- ══ 10. ProLabs & Academy ════════════════════════════════════════════ -->
+  <Menu>
+    <Name>10-ProLabs-Academy</Name>
+    <Directory>telcosec-10-prolabs.directory</Directory>
+    <Include><Category>TelcoSec-ProLabs</Category></Include>
+  </Menu>
+
+  <!-- ══ 11. TelcoSec Tools (catch-all) ═══════════════════════════════════ -->
+  <Menu>
+    <Name>11-TelcoSec-All</Name>
+    <Directory>telcosec-11-all.directory</Directory>
+    <Include><Category>TelcoSec-Tools</Category></Include>
+    <Exclude>
+      <Category>TelcoSec-SDR</Category>
+      <Category>TelcoSec-GSM</Category>
+      <Category>TelcoSec-LTE</Category>
+      <Category>TelcoSec-5G</Category>
+      <Category>TelcoSec-Baseband</Category>
+      <Category>TelcoSec-SIM</Category>
+      <Category>TelcoSec-Fuzzing</Category>
+      <Category>TelcoSec-Forensics</Category>
+      <Category>TelcoSec-Core</Category>
+      <Category>TelcoSec-ProLabs</Category>
+    </Exclude>
+  </Menu>
+</Menu>
+EOF
+
+# Write .directory files (icon + display name for each category)
+for entry in \
+  "telcosec-01-sdr.directory|📻 SDR & Spectrum Analysis|gqrx" \
+  "telcosec-02-gsm.directory|📡 GSM / 2G Cellular|network-wireless" \
+  "telcosec-03-lte.directory|📶 LTE / 4G Cellular|network-wireless-signal-excellent" \
+  "telcosec-04-5g.directory|⚡ 5G NR & O-RAN|network-wireless-signal-excellent-symbolic" \
+  "telcosec-05-baseband.directory|🔬 Baseband & Firmware|applications-engineering" \
+  "telcosec-06-sim.directory|💳 SIM / Smartcard|smartcard" \
+  "telcosec-07-fuzzing.directory|💥 Fuzzing & Exploit|security-high" \
+  "telcosec-08-forensics.directory|🔍 Forensics & Evidence|document-properties" \
+  "telcosec-09-core.directory|🌐 Core Network & Packets|network-wired" \
+  "telcosec-10-prolabs.directory|🧪 ProLabs & Academy|applications-education" \
+  "telcosec-11-all.directory|🛠️ TelcoSec Tools|telcosec"
+do
+  fname="${entry%%|*}"
+  name="$(echo "$entry" | cut -d'|' -f2)"
+  icon="$(echo "$entry" | cut -d'|' -f3)"
+  cat << DIREOF > "/usr/share/desktop-directories/${fname}"
+[Desktop Entry]
+Version=1.0
+Type=Directory
+Name=${name}
+Icon=${icon}
+DIREOF
+done
+
+# Install the custom menu as the default for XFCE's applications
+# xdg-menu reads XDG_MENU_PREFIX; we set it to 'telcosec-' via the file above
+if [ -f /etc/xdg/menus/applications.menu ]; then
+  cp /etc/xdg/menus/applications.menu /etc/xdg/menus/applications.menu.bak 2>/dev/null || true
+fi
+ln -sf /etc/xdg/menus/telcosec-applications.menu /etc/xdg/menus/xfce-applications.menu 2>/dev/null || \
+  cp  /etc/xdg/menus/telcosec-applications.menu /etc/xdg/menus/xfce-applications.menu
+# ─────────────────────────────────────────────────────────────────────────────
 
 # Deploy panel launcher desktop entries
 # Launcher 6: Terminator
