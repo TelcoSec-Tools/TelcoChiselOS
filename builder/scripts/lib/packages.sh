@@ -28,7 +28,7 @@ PKGS_BASE=(
   rsync squashfs-tools dosfstools e2fsprogs parted gparted
   # Desktop (XFCE + i3 Tiling WM + LightDM)
   xfce4 xfce4-goodies lightdm thunar
-  i3 i3status i3lock rofi feh picom
+  i3 i3status i3lock rofi feh picom conky-all
   xserver-xorg xserver-xorg-input-all
   # GPU Drivers, OpenCL & Hardware Acceleration (Intel, AMD, NVIDIA, Vulkan, VA-API)
   xserver-xorg-video-all xserver-xorg-video-nouveau

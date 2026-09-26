@@ -468,14 +468,36 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcut
     <property name="custom" type="empty">
       <property name="Super_L" type="string" value="xfce4-popup-whiskermenu"/>
       <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="terminator"/>
+      <property name="&lt;Super&gt;Return" type="string" value="terminator"/>
       <property name="&lt;Super&gt;e" type="string" value="thunar"/>
       <property name="&lt;Super&gt;l" type="string" value="xflock4"/>
+      <property name="&lt;Super&gt;&lt;Shift&gt;w" type="string" value="wireshark -k -Y gsmtap"/>
+      <property name="&lt;Super&gt;&lt;Shift&gt;g" type="string" value="gqrx"/>
+      <property name="&lt;Super&gt;&lt;Shift&gt;s" type="string" value="terminator -e pysim-shell"/>
+      <property name="&lt;Super&gt;&lt;Shift&gt;t" type="string" value="/usr/local/bin/telcosec-tmux-redteam"/>
+      <property name="&lt;Super&gt;&lt;Shift&gt;h" type="string" value="/usr/local/bin/telcosec-toggle-hud"/>
+      <property name="&lt;Super&gt;&lt;Shift&gt;x" type="string" value="telcosec-prolabs open"/>
+      <property name="&lt;Super&gt;&lt;Shift&gt;m" type="string" value="telcosec-academy open"/>
+      <property name="&lt;Super&gt;&lt;Shift&gt;d" type="string" value="firefox file:///usr/share/doc/telcosec/index.html"/>
+      <property name="&lt;Super&gt;F1" type="string" value="terminator -T &quot;TelcoSec Pre-flight Doctor&quot; --geometry=960x640 -e &quot;telcosec check; echo ''; read -p 'Press enter to exit...'&quot;"/>
+      <property name="&lt;Super&gt;F2" type="string" value="terminator -T &quot;TelcoSec Hardware Probe&quot; --geometry=960x640 -e &quot;telcosec hardware; echo ''; read -p 'Press enter to exit...'&quot;"/>
+      <property name="&lt;Super&gt;F3" type="string" value="terminator -T &quot;5G SA Core Status&quot; --geometry=960x640 -e &quot;telcosec 5g-sa status; echo ''; read -p 'Press enter to exit...'&quot;"/>
+      <property name="&lt;Super&gt;F4" type="string" value="terminator -T &quot;10GbE Network Zero-Drop Tuning&quot; --geometry=960x640 -e &quot;sudo telcosec sdr 10g tune; echo ''; read -p 'Press enter to exit...'&quot;"/>
+      <property name="&lt;Super&gt;F5" type="string" value="terminator -T &quot;TelcoSec ProLabs Range Status&quot; --geometry=960x640 -e &quot;telcosec prolabs status; echo ''; read -p 'Press enter to exit...'&quot;"/>
+      <property name="&lt;Super&gt;F6" type="string" value="terminator -T &quot;TelcoSec Academy Course Manager&quot; --geometry=960x640 -e &quot;telcosec academy status; echo ''; read -p 'Press enter to exit...'&quot;"/>
     </property>
   </property>
   <property name="xfwm4" type="empty">
     <property name="custom" type="empty">
       <property name="&lt;Primary&gt;&lt;Alt&gt;Left" type="string" value="left_workspace_key"/>
       <property name="&lt;Primary&gt;&lt;Alt&gt;Right" type="string" value="right_workspace_key"/>
+      <property name="&lt;Super&gt;1" type="string" value="workspace_1_key"/>
+      <property name="&lt;Super&gt;2" type="string" value="workspace_2_key"/>
+      <property name="&lt;Super&gt;3" type="string" value="workspace_3_key"/>
+      <property name="&lt;Super&gt;4" type="string" value="workspace_4_key"/>
+      <property name="&lt;Super&gt;5" type="string" value="workspace_5_key"/>
+      <property name="&lt;Super&gt;6" type="string" value="workspace_6_key"/>
+      <property name="&lt;Super&gt;7" type="string" value="workspace_7_key"/>
       <property name="&lt;Super&gt;Left" type="string" value="tile_left_key"/>
       <property name="&lt;Super&gt;Right" type="string" value="tile_right_key"/>
       <property name="&lt;Super&gt;Up" type="string" value="tile_up_key"/>
@@ -705,6 +727,39 @@ cat << 'EOF' > /etc/skel/.config/Thunar/uca.xml
 	<other-files/>
 	<text-files/>
 </action>
+<action>
+	<icon>wireshark</icon>
+	<name>Extract IMSI / TMSI Identifiers (SCAT)</name>
+	<submenu></submenu>
+	<unique-id>1700000000000000-6</unique-id>
+	<command>terminator -e "echo '=== IMSI/TMSI Extraction via SCAT ==='; scat -t qc -i %f -o /tmp/scat-extract.pcap 2>&amp;1; echo ''; echo 'Output: /tmp/scat-extract.pcap'; read -p 'Press enter to exit...'"</command>
+	<description>Extract IMSI, TMSI, and subscriber identifiers from Qualcomm DIAG capture using SCAT</description>
+	<range></range>
+	<patterns>*.pcap;*.pcapng;*.cap;*.qmdl;*.hdf;*.pcap.gz</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>network-wired</icon>
+	<name>Filter 5G NAS Messages (TShark)</name>
+	<submenu></submenu>
+	<unique-id>1700000000000000-7</unique-id>
+	<command>terminator -e "echo '=== 5G NAS Registration &amp; Authentication Messages ==='; tshark -r %f -Y 'nas-5gs or ngap or sctp' -V 2>/dev/null | head -200; echo ''; read -p 'Press enter to exit...'"</command>
+	<description>Decode and display 5G NAS, NGAP, and SCTP signaling messages from PCAP capture</description>
+	<range></range>
+	<patterns>*.pcap;*.pcapng;*.cap</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>media-record</icon>
+	<name>Demodulate RF Signal (Universal Radio Hacker)</name>
+	<submenu></submenu>
+	<unique-id>1700000000000000-8</unique-id>
+	<command>urh %f</command>
+	<description>Open RF I/Q recording in Universal Radio Hacker for protocol analysis and demodulation</description>
+	<range></range>
+	<patterns>*.cfile;*.iq;*.raw;*.bin;*.cs8;*.cs16;*.cf32;*.wav</patterns>
+	<other-files/>
+</action>
 </actions>
 EOF
 cp /etc/skel/.config/Thunar/uca.xml /etc/xdg/Thunar/uca.xml
@@ -796,6 +851,204 @@ if [ -d /home/telcosec ]; then
   chmod 755 /home/telcosec/Desktop/*.desktop 2>/dev/null || true
   gio set -t string /home/telcosec/Desktop/*.desktop metadata::trusted true 2>/dev/null || true
   chown -R telcosec:telcosec /home/telcosec/.config /home/telcosec/Desktop
+fi
+
+# 1b. Tactical Desktop Conky HUD & RF Telemetry Engine
+echo "Configuring Tactical Desktop Conky HUD and telemetry..."
+mkdir -p /etc/skel/.config/conky /etc/xdg/autostart /usr/share/applications
+
+cat << 'EOF' > /etc/skel/.config/conky/conky.conf
+-- =============================================================================
+-- TelcoChisel OS — Tactical Desktop HUD Configuration (Cyberpunk Dark)
+-- =============================================================================
+
+conky.config = {
+    alignment = 'top_right',
+    gap_x = 24,
+    gap_y = 48,
+    minimum_width = 380,
+    maximum_width = 420,
+    update_interval = 2.0,
+    double_buffer = true,
+    no_buffers = true,
+    text_buffer_size = 2048,
+
+    own_window = true,
+    own_window_type = 'desktop',
+    own_window_transparent = false,
+    own_window_argb_visual = true,
+    own_window_argb_value = 215,
+    own_window_colour = '0a0e17',
+    own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+
+    border_inner_margin = 14,
+    border_outer_margin = 0,
+    border_width = 1,
+    draw_borders = true,
+    draw_graph_borders = true,
+    draw_outline = false,
+    draw_shades = false,
+
+    use_xft = true,
+    font = 'IBM Plex Mono:size=9',
+    xftalpha = 1.0,
+    uppercase = false,
+
+    default_color = 'e6edf3',
+    color0 = '21262d', -- Subtle border
+    color1 = '00ffd5', -- Cyan/Teal primary accent
+    color2 = 'e8921e', -- Electric Amber telemetry
+    color3 = '8b949e', -- Muted gray
+    color4 = '00f2ff', -- Bright focus cyan
+    color5 = 'ff4466', -- Alert coral
+};
+
+conky.text = [[
+${color1}${font IBM Plex Mono:bold:size=10}📡 TELCOCHISEL OS — TACTICAL HUD${font}${alignr}${color3}v2026.1
+${color0}${hr 1}
+${color3}Host:${color} ${nodename}${alignr}${color3}Uptime:${color} ${uptime_short}
+${color3}Kernel:${color} ${kernel} ${alignr}${color1}[Low-Latency]${color}
+${color3}UTC Time:${color} ${utime %H:%M:%S}${alignr}${color3}Local:${color} ${time %H:%M}
+
+${color1}${font IBM Plex Mono:bold:size=9}📻 RF HARDWARE & TRANSCEIVERS${font}${color}
+${color0}${hr 1}
+${color3}SDR Probes:${color}
+${color}${execi 3 /usr/local/bin/telcosec-hud-sdr}${color}
+${color3}USBFS Buffer:${color} ${execi 5 cat /sys/module/usbcore/parameters/usbfs_memory_mb 2>/dev/null || echo "N/A"} MB ${alignr}${color1}[1000MB Target]${color}
+
+${color1}${font IBM Plex Mono:bold:size=9}⚡ CELLULAR & NETWORK INTERFACES${font}${color}
+${color0}${hr 1}
+${if_existing /sys/class/net/ogstun}${color2}ogstun (5G Core):${color} ${addr ogstun}${alignr}${color1}[UP]${color}${else}${color3}ogstun (5G Core): [Standby]${color}${endif}
+${if_existing /sys/class/net/mon0}${color2}mon0 (GSMTAP):${color} Mon Mode Active${alignr}${color1}[SNIFF]${color}${endif}
+${if_existing /sys/class/net/tun-prolabs}${color2}prolabs (Range):${color} ${addr tun-prolabs}${alignr}${color1}[CONNECTED]${color}${endif}
+${if_existing /sys/class/net/wg0}${color2}wg0 (WireGuard):${color} ${addr wg0}${alignr}${color1}[TUNNEL]${color}${endif}
+${if_existing /sys/class/net/tun0}${color2}tun0 (OpenVPN):${color} ${addr tun0}${alignr}${color1}[TUNNEL]${color}${endif}
+${color3}Primary Net:${color} ${alignr}${color}${addr eth0}${color}${addr ens160}${color}${addr wlan0}
+${color3}Bandwidth:${color} Down: ${color1}${downspeedf eth0}${downspeedf ens160}${downspeedf wlan0} KB/s${color} | Up: ${color2}${upspeedf eth0}${upspeedf ens160}${upspeedf wlan0} KB/s${color}
+
+${color1}${font IBM Plex Mono:bold:size=9}🧠 SYSTEM & ZERO-DROP ENGINE${font}${color}
+${color0}${hr 1}
+${color3}CPU Load:${color} ${cpu cpu0}% ${color1}${cpubar 6,140 cpu0}${alignr}${color}${freq_g} GHz
+${color3}Memory:${color}   ${mem} / ${memmax} (${memperc}%)
+${color1}${membar 6}${color}
+${color3}Root Disk:${color} ${fs_used /} / ${fs_size /} (${fs_used_perc /}%) ${alignr}${color1}[SSD Trim]${color}
+
+${color2}${font IBM Plex Mono:bold:size=9}🎯 TELECOM FREQUENCY CHEATSHEET${font}${color}
+${color0}${hr 1}
+${color4}GSM-900${color}:  UL 890-915 MHz   | DL 935-960 MHz
+${color4}DCS-1800${color}: UL 1710-1785 MHz | DL 1805-1880 MHz
+${color4}LTE B3${color}:   UL 1710-1785 MHz | DL 1805-1880 MHz
+${color4}LTE B20${color}:  UL 832-862 MHz   | DL 791-821 MHz
+${color4}5G n78${color}:   3300 - 3800 MHz (C-Band TDD)
+
+${color1}${font IBM Plex Mono:bold:size=9}⌨️ TACTICAL OPERATOR SHORTCUTS${font}${color}
+${color0}${hr 1}
+${color4}Super+Return${color}: Terminator     ${color4}Super+Shift+W${color}: Wireshark
+${color4}Super+Shift+T${color}: 4-Pane Matrix ${color4}Super+Shift+G${color}: Gqrx SDR
+${color4}Super+Shift+S${color}: pySim-shell  ${color4}Super+Shift+H${color}: Toggle HUD
+${color4}Super+1..7${color}:   Workspaces     ${color4}Super+F1..F6${color}:  Diag Doctor
+]];
+EOF
+
+# Deploy SDR Hardware Telemetry Helper for HUD
+cat << 'EOF' > /usr/local/bin/telcosec-hud-sdr
+#!/bin/bash
+# =============================================================================
+# telcosec-hud-sdr — Live Conky SDR Hardware Telemetry Helper
+# =============================================================================
+found=0
+
+if lsusb 2>/dev/null | grep -qi "2500:0020"; then
+    echo "  • USRP B200/B210 (FX3 Bootloader - 2500:0020)"
+    found=1
+elif lsusb 2>/dev/null | grep -qi "2500:0021"; then
+    echo "  • USRP B200/B210 (Operational - USB 3.0)"
+    found=1
+elif lsusb 2>/dev/null | grep -qi "2500"; then
+    echo "  • Ettus Research USRP Transceiver"
+    found=1
+fi
+
+if lsusb 2>/dev/null | grep -qi "1d50:6089\|HackRF"; then
+    echo "  • HackRF One (1d50:6089)"
+    found=1
+fi
+
+if lsusb 2>/dev/null | grep -qi "BladeRF\|2cf0:5246"; then
+    echo "  • Nuand BladeRF 2.0 micro (2cf0:5246)"
+    found=1
+fi
+
+if lsusb 2>/dev/null | grep -qi "LimeSDR\|0403:601f"; then
+    echo "  • MyriadRF LimeSDR-USB (0403:601f)"
+    found=1
+fi
+
+if lsusb 2>/dev/null | grep -qi "RTL2838\|RTL2832"; then
+    echo "  • RTL-SDR Receiver (R820T2/R828D)"
+    found=1
+fi
+
+if lsusb 2>/dev/null | grep -qi "1d50:60e3\|simtrace"; then
+    echo "  • Sysmocom SIMtrace 2 Smartcard Sniffer"
+    found=1
+fi
+
+if [ $found -eq 0 ]; then
+    echo "  • [No SDR connected — Plug USRP/HackRF/BladeRF]"
+fi
+EOF
+chmod 755 /usr/local/bin/telcosec-hud-sdr
+
+# Deploy Tactical HUD Toggle Utility
+cat << 'EOF' > /usr/local/bin/telcosec-toggle-hud
+#!/bin/bash
+# =============================================================================
+# telcosec-toggle-hud — Show/Hide Tactical Desktop Conky HUD
+# =============================================================================
+if pgrep -x conky >/dev/null 2>&1; then
+    killall conky
+    notify-send -u low -i preferences-desktop-display "Tactical HUD" "Desktop HUD Hidden" 2>/dev/null || true
+else
+    conky -c ~/.config/conky/conky.conf 2>/dev/null || conky -c /etc/skel/.config/conky/conky.conf &
+    notify-send -u low -i preferences-desktop-display "Tactical HUD" "Desktop HUD Active" 2>/dev/null || true
+fi
+EOF
+chmod 755 /usr/local/bin/telcosec-toggle-hud
+
+# Deploy Desktop Menu Entry for HUD Toggle
+cat << 'EOF' > /usr/share/applications/telcosec-hud-toggle.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Toggle Tactical Desktop HUD
+Comment=Show or hide live RF SDR and cellular telemetry HUD
+Exec=/usr/local/bin/telcosec-toggle-hud
+Icon=preferences-desktop-display
+Terminal=false
+Categories=TelcoSec-Tools;System;Utility;
+Keywords=hud;conky;telemetry;sdr;rf;status;
+EOF
+chmod 644 /usr/share/applications/telcosec-hud-toggle.desktop
+
+# Deploy Autostart for Conky Tactical HUD
+cat << 'EOF' > /etc/xdg/autostart/telcosec-conky.desktop
+[Desktop Entry]
+Type=Application
+Name=TelcoSec Tactical Desktop HUD
+Comment=Live SDR, Cellular, and RF telemetry desktop overlay
+Exec=sh -c "sleep 3 && conky -c /etc/skel/.config/conky/conky.conf"
+Terminal=false
+StartupNotify=false
+Hidden=false
+OnlyShowIn=XFCE;
+EOF
+chmod 644 /etc/xdg/autostart/telcosec-conky.desktop
+
+if [ -d /home/telcosec ]; then
+  mkdir -p /home/telcosec/.config/conky
+  cp /etc/skel/.config/conky/conky.conf /home/telcosec/.config/conky/conky.conf 2>/dev/null || true
+  chown -R telcosec:telcosec /home/telcosec/.config/conky 2>/dev/null || true
 fi
 
 # 2. Message of the Day (MOTD)
