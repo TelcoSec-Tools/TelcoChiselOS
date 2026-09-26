@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # =============================================================================
-# scripts/deploy_menu.sh — TelcoSec TelcoChisel Service Deployment Navigator
+# scripts/deploy_menu.sh — TelcoSec TelcoChisel Service & Build Navigator
 #
-# Interactive and programmatic service deployment tool for TelcoChisel OS:
+# Interactive and programmatic deployment and build manager for TelcoChisel OS:
 #   - Docker Container Services (Base, SDR, Core Network, Device Tools, Compose)
 #   - Kubernetes & Rootless Podman Telecom PODs (5G SA Core, SDR RF, Red Team)
+#   - Live ISO Image Builders (Full Field Edition, Modular Lite, Cloud CI)
+#   - Virtual Machine Appliance Builders (Proxmox, VMware, VirtualBox, Cloud CI)
+#   - WSL2 Distro Generator
 #   - Host Daemons & System Services (ChiselControl HUD, Open5GS, SigPloit)
 #   - Real-time Observability, Healthchecks, and Teardown
 #   - Direct TelcoSec Academy & Documentation Integration
@@ -12,6 +15,9 @@
 # Usage:
 #   ./deploy_menu.sh                     (Interactive TUI menu)
 #   ./deploy_menu.sh --deploy <service>  (Deploy specific service)
+#   ./deploy_menu.sh --build-iso [full|lite|repack|ci]
+#   ./deploy_menu.sh --build-vm [all|proxmox|vmware|virtualbox|ci]
+#   ./deploy_menu.sh --build-wsl
 #   ./deploy_menu.sh --status            (Inspect status of all services)
 #   ./deploy_menu.sh --stop <service>    (Stop/tear down specific service)
 #   ./deploy_menu.sh --help              (Show CLI options)
@@ -56,7 +62,7 @@ show_banner() {
   |    |_| |_____|_____\____\___/ \____|_| |_|___|____/|_____|____|         |
 BANNER_ART
   printf "${NC}${BOLD}"
-  printf "  |        TELCOCHISEL OS v%-7s -- SERVICE DEPLOYMENT MANAGER       |\n" "$VERSION"
+  printf "  |        TELCOCHISEL OS v%-7s -- SERVICE & BUILD NAVIGATOR        |\n" "$VERSION"
   printf "  +-------------------------------------------------------------------------+\n"
   printf "${NC}"
   printf "${AMBER}  |  [*] TelcoSec Academy Portal: ${GREEN}https://app.telcosec.net${NC}\n"
@@ -67,7 +73,7 @@ BANNER_ART
 
 # ─── Environment Probing ──────────────────────────────────────────────────────
 check_runtimes() {
-  printf "${BOLD}=== System Runtime Environment ===${NC}\n"
+  printf "${BOLD}=== System Runtime & Tooling Environment ===${NC}\n"
   
   if command -v docker &>/dev/null; then
     if docker info >/dev/null 2>&1; then
@@ -89,6 +95,22 @@ check_runtimes() {
     printf "  [✓] Kubernetes CLI:    ${GREEN}Available${NC} ($(kubectl version --client 2>/dev/null | grep -o 'v[0-9]*\.[0-9]*\.[0-9]*' | head -1 || echo 'Installed'))\n"
   else
     printf "  [ ] Kubernetes CLI:    ${MUTED}Not detected${NC}\n"
+  fi
+
+  if command -v qemu-img &>/dev/null; then
+    printf "  [✓] QEMU Utilities:    ${GREEN}Available${NC} (qemu-img ready for VM builds)\n"
+  else
+    printf "  [ ] QEMU Utilities:    ${MUTED}Not installed (apt install qemu-utils for local VM builds)${NC}\n"
+  fi
+
+  if command -v gh &>/dev/null; then
+    if gh auth status >/dev/null 2>&1; then
+      printf "  [✓] GitHub CLI (gh):   ${GREEN}Authenticated${NC} (CI dispatch available)\n"
+    else
+      printf "  [!] GitHub CLI (gh):   ${AMBER}Installed but not authenticated${NC}\n"
+    fi
+  else
+    printf "  [ ] GitHub CLI (gh):   ${MUTED}Not installed (install gh for remote CI triggers)${NC}\n"
   fi
 
   if systemctl is-system-running &>/dev/null; then
@@ -255,6 +277,136 @@ deploy_host_open5gs() {
   fi
 }
 
+# ─── Build Engine Functions (ISO, VMs, WSL) ───────────────────────────────────
+
+build_iso_action() {
+  local flavor="${1:-full}"
+  local ver="${2:-$VERSION}"
+  local extra_args=("${@:3}")
+
+  printf "${CYAN}[*] Building TelcoSec TelcoChisel Live ISO (${flavor}, v${ver})...${NC}\n"
+  if [ ! -f "${REPO_ROOT}/build-iso.sh" ]; then
+    printf "${RED}[-] ERROR: build-iso.sh not found in repository root.${NC}\n"
+    return 1
+  fi
+
+  if [ "$EUID" -ne 0 ]; then
+    printf "${AMBER}[!] Root privileges required. Executing with sudo...${NC}\n"
+    sudo bash "${REPO_ROOT}/build-iso.sh" --flavor="${flavor}" --version="${ver}" "${extra_args[@]}"
+  else
+    bash "${REPO_ROOT}/build-iso.sh" --flavor="${flavor}" --version="${ver}" "${extra_args[@]}"
+  fi
+}
+
+build_vm_action() {
+  local target="${1:-all}"
+  local ver="${2:-$VERSION}"
+  local iso_path="${3:-}"
+  
+  if [ -z "$iso_path" ]; then
+    shopt -s nullglob
+    local isos=("${REPO_ROOT}"/TelcoChisel-*.iso)
+    shopt -u nullglob
+    if [ ${#isos[@]} -gt 0 ]; then
+      iso_path="${isos[0]}"
+      printf "  Using local ISO: %s\n" "$iso_path"
+    fi
+  fi
+
+  printf "${CYAN}[*] Building TelcoSec VM Appliance (${target}, v${ver})...${NC}\n"
+  if [ ! -f "${REPO_ROOT}/builder/vm/build-vm.sh" ]; then
+    printf "${RED}[-] ERROR: builder/vm/build-vm.sh not found.${NC}\n"
+    return 1
+  fi
+
+  local cmd_args=(--target "$target" --version "$ver" --compress)
+  [ -n "$iso_path" ] && cmd_args+=(--iso "$iso_path")
+
+  if [ "$EUID" -ne 0 ]; then
+    printf "${AMBER}[!] Root privileges required. Executing with sudo...${NC}\n"
+    sudo "${REPO_ROOT}/builder/vm/build-vm.sh" "${cmd_args[@]}"
+  else
+    "${REPO_ROOT}/builder/vm/build-vm.sh" "${cmd_args[@]}"
+  fi
+}
+
+build_wsl_action() {
+  printf "${CYAN}[*] Building TelcoSec WSL2 Distro Tarball...${NC}\n"
+  if [ ! -f "${REPO_ROOT}/build-wsl.sh" ]; then
+    printf "${RED}[-] ERROR: build-wsl.sh not found.${NC}\n"
+    return 1
+  fi
+
+  if [ "$EUID" -ne 0 ]; then
+    printf "${AMBER}[!] Root privileges required. Executing with sudo...${NC}\n"
+    sudo bash "${REPO_ROOT}/build-wsl.sh"
+  else
+    bash "${REPO_ROOT}/build-wsl.sh"
+  fi
+}
+
+trigger_ci_iso() {
+  local flavor="${1:-full}"
+  printf "${CYAN}[*] Dispatching GitHub Actions Release Workflow (Live ISO)...${NC}\n"
+  if ! command -v gh &>/dev/null; then
+    printf "${RED}[-] ERROR: GitHub CLI ('gh') is not installed.${NC}\n"
+    return 1
+  fi
+  gh workflow run release.yml -f flavor="$flavor" -f release_type=patch
+  printf "${GREEN}[✓] Release pipeline dispatched! Track run status with:${NC}\n"
+  printf "    gh run list --workflow=release.yml\n"
+}
+
+trigger_ci_vm() {
+  local target="${1:-all}"
+  printf "${CYAN}[*] Dispatching GitHub Actions VM Appliance Builder...${NC}\n"
+  if ! command -v gh &>/dev/null; then
+    printf "${RED}[-] ERROR: GitHub CLI ('gh') is not installed.${NC}\n"
+    return 1
+  fi
+  gh workflow run build-vm.yml -f target="$target" -f compress=true -f publish_sf=true
+  printf "${GREEN}[✓] VM builder pipeline dispatched! Track run status with:${NC}\n"
+  printf "    gh run list --workflow=build-vm.yml\n"
+}
+
+iso_menu() {
+  printf "\n${CYAN}=== TelcoChisel Live ISO Builder Menu ===${NC}\n"
+  echo "  1) Build Local Full ISO        (All 100 tools offline, ~5.0 GB)"
+  echo "  2) Build Local Modular Lite    (~1.8 GB, core desktop + telcosec-pkg)"
+  echo "  3) Repack Existing Chroot      (--pack-only, fast squashfs rebuild)"
+  echo "  4) Trigger Remote GitHub CI    (Build and publish to SourceForge & GitHub Releases)"
+  echo "  5) Back to main menu"
+  read -rp "Enter choice [1-5]: " iso_c
+
+  case "$iso_c" in
+    1) build_iso_action full "$VERSION" ;;
+    2) build_iso_action lite "$VERSION" ;;
+    3) build_iso_action full "$VERSION" --pack-only ;;
+    4) trigger_ci_iso full ;;
+    *) return 0 ;;
+  esac
+}
+
+vm_menu() {
+  printf "\n${CYAN}=== TelcoChisel Virtual Machine Appliance Builder Menu ===${NC}\n"
+  echo "  1) Build All Appliances Locally   (Proxmox .qcow2 + VMware .ova + VirtualBox .ova)"
+  echo "  2) Build Proxmox Appliance Only   (.qcow2 with Cloud-Init & QEMU Agent)"
+  echo "  3) Build VMware Appliance Only    (.ova with streamOptimized VMDK)"
+  echo "  4) Build VirtualBox Appliance     (.ova with xHCI USB 3.0 passthrough)"
+  echo "  5) Trigger Remote GitHub CI       (Build on GitHub Actions & publish to SourceForge)"
+  echo "  6) Back to main menu"
+  read -rp "Enter choice [1-6]: " vm_c
+
+  case "$vm_c" in
+    1) build_vm_action all "$VERSION" ;;
+    2) build_vm_action proxmox "$VERSION" ;;
+    3) build_vm_action vmware "$VERSION" ;;
+    4) build_vm_action virtualbox "$VERSION" ;;
+    5) trigger_ci_vm all ;;
+    *) return 0 ;;
+  esac
+}
+
 show_all_status() {
   printf "\n${BOLD}========================================================================${NC}\n"
   printf "${BOLD}             TelcoChisel Active Services & Workloads Status              ${NC}\n"
@@ -299,6 +451,32 @@ show_all_status() {
     done
     printf "\n"
   fi
+
+  # Local Artifacts
+  printf "${CYAN}--- [Local Built Artifacts] ---${NC}\n"
+  shopt -s nullglob
+  local built_isos=("${REPO_ROOT}"/TelcoChisel-*.iso)
+  local built_vms=("${REPO_ROOT}"/dist/vm/*)
+  shopt -u nullglob
+
+  if [ ${#built_isos[@]} -gt 0 ]; then
+    printf "  ISO Images:\n"
+    for f in "${built_isos[@]}"; do
+      printf "    - %s (%s)\n" "$(basename "$f")" "$(du -h "$f" | cut -f1)"
+    done
+  fi
+
+  if [ ${#built_vms[@]} -gt 0 ]; then
+    printf "  VM Appliances:\n"
+    for f in "${built_vms[@]}"; do
+      printf "    - %s (%s)\n" "$(basename "$f")" "$(du -h "$f" | cut -f1)"
+    done
+  fi
+
+  if [ ${#built_isos[@]} -eq 0 ] && [ ${#built_vms[@]} -eq 0 ]; then
+    printf "  (No local ISOs or VM appliances found in repository root or dist/vm)\n"
+  fi
+  printf "\n"
 }
 
 stop_services() {
@@ -366,7 +544,7 @@ interactive_menu() {
     show_banner
     check_runtimes
 
-    printf "${BOLD}Select a service to deploy or inspect:${NC}\n\n"
+    printf "${BOLD}Select an action, deployment, or build workflow:${NC}\n\n"
 
     printf "${CYAN}  [Docker Container Suite]${NC}\n"
     printf "    1) Base Telecom Security CLI       (SS7, Diameter, GTP, VoIP, SIM, 5G Tools)\n"
@@ -382,17 +560,22 @@ interactive_menu() {
     printf "    9) Red Team Telecom Suite POD       (k8s-telecom-suite-pod.yaml)\n"
     printf "   10) Turnkey Rootless Podman POD      (podman-telecom-pod.yaml)\n\n"
 
+    printf "${CYAN}  [Build Engine: ISO, VMs & WSL]${NC}\n"
+    printf "   11) Build Live ISO Image             (Full Field Edition, Modular Lite, or CI)\n"
+    printf "   12) Build VM Appliances              (Proxmox QCOW2, VMware, VirtualBox OVA)\n"
+    printf "   13) Build WSL2 Distro Tarball        (Run TelcoChisel inside Windows WSL2)\n\n"
+
     printf "${CYAN}  [Host & Dashboard Services]${NC}\n"
-    printf "   11) ChiselControl Web HUD            (Port :8080)\n"
-    printf "   12) Host Open5GS 5G Core Daemons     (systemd / installer)\n\n"
+    printf "   14) ChiselControl Web HUD            (Port :8080)\n"
+    printf "   15) Host Open5GS 5G Core Daemons     (systemd / installer)\n\n"
 
     printf "${CYAN}  [Observability, Management & Training]${NC}\n"
-    printf "   13) Inspect Status & Active Services (Live container, pod & host probe)\n"
-    printf "   14) Stop / Tear Down Services        (Selective or full shutdown)\n"
-    printf "   15) TelcoSec Academy & Testbeds      (Explore courses & ProLabs)\n"
-    printf "   16) Exit Navigator\n\n"
+    printf "   16) Inspect Status & Active Services (Live container, pod, host & artifact probe)\n"
+    printf "   17) Stop / Tear Down Services        (Selective or full shutdown)\n"
+    printf "   18) TelcoSec Academy & Testbeds      (Explore courses & ProLabs)\n"
+    printf "   19) Exit Navigator\n\n"
 
-    read -rp "Enter selection [1-16]: " choice
+    read -rp "Enter selection [1-19]: " choice
     echo ""
 
     case "$choice" in
@@ -406,12 +589,15 @@ interactive_menu() {
       8)  deploy_k8s_device ;;
       9)  deploy_k8s_suite ;;
       10) deploy_podman_pod ;;
-      11) deploy_host_chiselcontrol ;;
-      12) deploy_host_open5gs ;;
-      13) show_all_status ;;
-      14) stop_services ;;
-      15) open_academy ;;
-      16|q|Q|exit)
+      11) iso_menu ;;
+      12) vm_menu ;;
+      13) build_wsl_action ;;
+      14) deploy_host_chiselcontrol ;;
+      15) deploy_host_open5gs ;;
+      16) show_all_status ;;
+      17) stop_services ;;
+      18) open_academy ;;
+      19|q|Q|exit)
         printf "${GREEN}Thank you for using TelcoChisel OS. Secure the signaling!${NC}\n"
         exit 0
         ;;
@@ -450,6 +636,39 @@ case "${1:-}" in
     esac
     ;;
 
+  --build-iso)
+    subtarget="${2:-full}"
+    case "$subtarget" in
+      full)   build_iso_action full "$VERSION" ;;
+      lite)   build_iso_action lite "$VERSION" ;;
+      repack) build_iso_action full "$VERSION" --pack-only ;;
+      ci)     trigger_ci_iso full ;;
+      *)
+        echo "Unknown ISO build option: $subtarget. Options: full, lite, repack, ci" >&2
+        exit 1
+        ;;
+    esac
+    ;;
+
+  --build-vm)
+    subtarget="${2:-all}"
+    case "$subtarget" in
+      all)        build_vm_action all "$VERSION" ;;
+      proxmox)    build_vm_action proxmox "$VERSION" ;;
+      vmware)     build_vm_action vmware "$VERSION" ;;
+      virtualbox) build_vm_action virtualbox "$VERSION" ;;
+      ci)         trigger_ci_vm all ;;
+      *)
+        echo "Unknown VM build option: $subtarget. Options: all, proxmox, vmware, virtualbox, ci" >&2
+        exit 1
+        ;;
+    esac
+    ;;
+
+  --build-wsl)
+    build_wsl_action
+    ;;
+
   --status|-s|status)
     show_all_status
     ;;
@@ -466,12 +685,15 @@ case "${1:-}" in
     show_banner
     cat << 'EOF'
 Usage:
-  ./deploy_menu.sh                     Launch interactive TUI service navigator
-  ./deploy_menu.sh --deploy <target>   Deploy specific service non-interactively
-  ./deploy_menu.sh --status            Show status of running containers, pods & host services
-  ./deploy_menu.sh --stop              Interactive teardown menu
-  ./deploy_menu.sh --academy           Display TelcoSec Academy courses & ProLabs testbeds
-  ./deploy_menu.sh --help              Show this help message
+  ./deploy_menu.sh                          Launch interactive TUI service navigator
+  ./deploy_menu.sh --deploy <target>        Deploy specific service non-interactively
+  ./deploy_menu.sh --build-iso [flavor]     Build Live ISO (full, lite, repack, ci)
+  ./deploy_menu.sh --build-vm [target]      Build VM appliances (all, proxmox, vmware, virtualbox, ci)
+  ./deploy_menu.sh --build-wsl              Build WSL2 distro tarball
+  ./deploy_menu.sh --status                 Show status of running containers, pods, services & artifacts
+  ./deploy_menu.sh --stop                   Interactive teardown menu
+  ./deploy_menu.sh --academy                Display TelcoSec Academy courses & ProLabs testbeds
+  ./deploy_menu.sh --help                   Show this help message
 
 Available deploy targets:
   base, sdr, core, device, compose, 5g-core, sdr-pod, device-pod, suite, podman, chiselcontrol, open5gs
