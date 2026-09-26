@@ -2172,14 +2172,6 @@ if [ -d /home/telcosec ]; then
   chown telcosec:telcosec /home/telcosec/.config/mimeapps.list
 fi
 
-# Thunar bookmarks
-mkdir -p /etc/skel/.config/gtk-3.0
-cat << 'EOF' > /etc/skel/.config/gtk-3.0/bookmarks
-file:///usr/share/wordlists/telecom Telecom Wordlists
-file:///opt/telcosec TelcoSec Tools
-file:///usr/share/doc/telcosec TelcoSec Docs
-EOF
-
 # Disable Ubuntu crash reporter
 systemctl disable apport 2>/dev/null || true
 systemctl mask apport 2>/dev/null || true
