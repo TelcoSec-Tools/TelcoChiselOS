@@ -249,21 +249,31 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
       <value type="string" value="🔍 6: DISSECT"/>
       <value type="string" value="📝 7: EVIDENCE"/>
     </property>
-    <property name="use_compositing" type="bool" value="true"/>
+    <!-- Compositor: disabled — Picom GLX handles compositing externally -->
+    <!-- xfwm4 built-in compositor is OFF to avoid double-compositing overhead -->
+    <property name="use_compositing" type="bool" value="false"/>
+    <!-- Unredirect full-screen overlays (SDR waterfalls bypass compositor entirely) -->
     <property name="unredirect_overlays" type="bool" value="true"/>
+    <!-- VBlank via XPresent for lowest-latency GPU sync (requires mesa 20+) -->
+    <property name="vblank_mode" type="string" value="xpresent"/>
     <property name="cycle_preview" type="bool" value="true"/>
     <property name="cycle_tabwin_mode" type="int" value="1"/>
     <property name="zoom_desktop" type="bool" value="false"/>
-    <property name="vblank_mode" type="string" value="auto"/>
     <property name="show_dock_shadow" type="bool" value="false"/>
     <property name="show_popup_shadow" type="bool" value="false"/>
     <property name="frame_opacity" type="int" value="100"/>
     <property name="inactive_opacity" type="int" value="100"/>
     <property name="snap_to_border" type="bool" value="true"/>
     <property name="snap_to_windows" type="bool" value="true"/>
+    <property name="snap_resist" type="bool" value="true"/>
     <property name="tile_on_move" type="bool" value="true"/>
+    <!-- Solid drag/resize for clear feedback during spectrum window moves -->
     <property name="box_move" type="bool" value="false"/>
     <property name="box_resize" type="bool" value="false"/>
+    <!-- Focus-follows-mouse: operator looks at the window they're typing into -->
+    <property name="click_to_focus" type="bool" value="false"/>
+    <property name="raise_on_focus" type="bool" value="false"/>
+    <property name="raise_on_click" type="bool" value="true"/>
   </property>
 </channel>
 EOF
@@ -1247,11 +1257,91 @@ OnlyShowIn=XFCE;
 EOF
 chmod 644 /etc/xdg/autostart/telcosec-conky.desktop
 
+# Autostart: Picom GLX compositor for XFCE session
+# Picom must start AFTER the XFCE compositor is disabled (xfwm4 use_compositing=false)
+# to avoid double-compositing overhead. sleep 2 gives xfwm4 time to initialize.
+cat << 'EOF' > /etc/xdg/autostart/telcosec-picom.desktop
+[Desktop Entry]
+Type=Application
+Name=TelcoSec Picom GLX Compositor
+Comment=Zero-drop GLX compositor for SDR FFT waterfall rendering
+Exec=sh -c "sleep 2 && picom --config /etc/xdg/picom/picom.conf -b 2>/dev/null"
+Terminal=false
+StartupNotify=false
+Hidden=false
+OnlyShowIn=XFCE;
+EOF
+chmod 644 /etc/xdg/autostart/telcosec-picom.desktop
+
 if [ -d /home/telcosec ]; then
   mkdir -p /home/telcosec/.config/conky
   cp /etc/skel/.config/conky/conky.conf /home/telcosec/.config/conky/conky.conf 2>/dev/null || true
   chown -R telcosec:telcosec /home/telcosec/.config/conky 2>/dev/null || true
 fi
+
+# ─── Thunar Sidebar Bookmarks + Telecom Directory Scaffold ───────────────────
+echo "Deploying Thunar sidebar bookmarks and telecom directory scaffold..."
+
+# Create canonical telecom working directories (skel + live user)
+mkdir -p \
+    /etc/skel/captures \
+    /etc/skel/captures/pcap \
+    /etc/skel/captures/iq \
+    /etc/skel/captures/apdu \
+    /etc/skel/captures/evidence
+
+# Write placeholder READMEs so the directories are not empty in the live image
+cat << 'EOF' > /etc/skel/captures/README.md
+# TelcoChisel Captures Directory
+
+| Subdirectory | Purpose |
+| :--- | :--- |
+| `pcap/` | Wireshark PCAP, PCAPNG — GSMTAP, SCTP, NGAP, Diameter |
+| `iq/` | Raw SDR I/Q recordings (`.cfile`, `.cs8`, `.cf32`, `.iq`) |
+| `apdu/` | SIM/USIM APDU batch scripts and pySim-shell session logs |
+| `evidence/` | Chain-of-custody forensic artefacts with SHA-256 manifests |
+EOF
+
+# Telecom tool source tree (git repos land here via telcosec-pkg install)
+mkdir -p /opt/telcosec
+cat << 'EOF' > /opt/telcosec/README.md
+# TelcoChisel Tool Source Tree
+Installed via: telcosec-pkg install <tool>
+EOF
+
+# Telecom wordlists (MCC/MNC tables, APN databases, IMSI pools, carrier passwords)
+mkdir -p /usr/share/wordlists/telecom
+cat << 'EOF' > /usr/share/wordlists/telecom/README.md
+# TelcoSec Telecom Wordlists
+- mcc-mnc.csv — ITU-T E.212 MCC/MNC assignments
+- apn-database.txt — Common APN names per carrier
+- default-passwords.txt — Default device credentials (routers, eNBs)
+EOF
+
+# Write skel gtk-bookmarks for Thunar sidebar
+mkdir -p /etc/skel/.config/gtk-3.0
+cat << 'EOF' > /etc/skel/.config/gtk-3.0/bookmarks
+file:///home/telcosec/captures 📦 Captures
+file:///home/telcosec/captures/pcap 📡 PCAP Captures
+file:///home/telcosec/captures/iq 📻 I/Q Recordings
+file:///home/telcosec/captures/apdu 💳 APDU Scripts
+file:///home/telcosec/captures/evidence 🔒 Evidence Chain
+file:///opt/telcosec 🛠️ TelcoSec Tools
+file:///usr/share/wordlists/telecom 📖 Telecom Wordlists
+file:///usr/share/doc/telcosec 📚 Offline Documentation
+EOF
+
+if [ -d /home/telcosec ]; then
+  mkdir -p /home/telcosec/captures/pcap \
+            /home/telcosec/captures/iq \
+            /home/telcosec/captures/apdu \
+            /home/telcosec/captures/evidence
+  cp /etc/skel/captures/README.md /home/telcosec/captures/README.md 2>/dev/null || true
+  mkdir -p /home/telcosec/.config/gtk-3.0
+  cp /etc/skel/.config/gtk-3.0/bookmarks /home/telcosec/.config/gtk-3.0/bookmarks 2>/dev/null || true
+  chown -R telcosec:telcosec /home/telcosec/captures /home/telcosec/.config/gtk-3.0 2>/dev/null || true
+fi
+# ─────────────────────────────────────────────────────────────────────────────
 
 # 2. Message of the Day (MOTD)
 echo "Configuring MOTD..."
@@ -2168,48 +2258,131 @@ EOF
 
 # 10.4 Picom Compositor Configuration for Glitch-Free FFT Waterfalls
 cat << 'EOF' > /etc/skel/.config/picom/picom.conf
-# Picom Compositor Configuration for Telecom Red Team Workstation
+# =============================================================================
+# TelcoChisel OS — Picom GLX Compositor Configuration
+# Optimized for zero-drop SDR FFT waterfall rendering.
+#
+# Design principles:
+#   1. GLX backend with XPresent VSync — lowest GPU-to-display latency path.
+#   2. use-damage = false — redraws the entire frame each tick, avoiding
+#      partial-update artifacts on high-frequency OpenGL SDR waterfalls.
+#   3. unredirect_on_fullscreen — SDR windows that go fullscreen bypass the
+#      compositor entirely (raw GPU scanout) for maximum throughput.
+#   4. SDR tools (Gqrx, Inspectrum, GNU Radio, URH, Wireshark) are excluded
+#      from ALL opacity, shadow, and fading rules to eliminate overhead.
+#   5. Conky HUD excluded from shadows so it renders as a flat surface overlay.
+# =============================================================================
+
+# ── Backend ──────────────────────────────────────────────────────────────────
 backend = "glx";
 glx-no-stencil = true;
 glx-copy-from-front = false;
-vsync = true;
 
-# Opacity
-active-opacity = 1.0;
-inactive-opacity = 0.94;
-frame-opacity = 1.0;
+# ── VSync ────────────────────────────────────────────────────────────────────
+# xpresent: uses X11 Present extension for sub-millisecond vsync accuracy.
+# Falls back to drm if xpresent is unavailable (older mesa / nvidia prop).
+vsync = true;
+vblank-mode = "xpresent";
+glx-use-copysubbuffer-mesa = false;
+
+# ── Damage tracking ──────────────────────────────────────────────────────────
+# CRITICAL for SDR waterfall: use-damage=false forces full-frame redraws.
+# This prevents the partial-damage algorithm from leaving stale FFT columns
+# when the waterfall scrolls faster than the compositor damage region updates.
+use-damage = false;
+
+# ── Full-screen unredirect ────────────────────────────────────────────────────
+# SDR apps (Gqrx, GNU Radio, Inspectrum) that go fullscreen for waterfall
+# analysis bypass the compositor entirely → raw GPU scanout, zero overhead.
+unredir-if-possible = true;
+unredir-if-possible-delay = 0;
+unredir-if-possible-exclude = [
+  "class_g = 'Conky'",
+  "class_g = 'xfce4-panel'"
+];
+
+# ── Opacity ──────────────────────────────────────────────────────────────────
+active-opacity   = 1.0;
+inactive-opacity = 0.95;
+frame-opacity    = 1.0;
 inactive-opacity-override = false;
 
+# SDR + critical windows always 100% opacity — no translucency overhead
 opacity-rule = [
   "100:class_g = 'Gqrx'",
   "100:class_g = 'Inspectrum'",
+  "100:class_g *=  'gnuradio'",
   "100:class_g = 'URH'",
+  "100:class_g = 'universal-radio-hacker'",
   "100:class_g = 'Wireshark'",
   "100:class_g = 'firefox'",
-  "92:class_g = 'Terminator' && !focused",
+  "100:class_g = 'Conky'",
+  "100:name    *=  'GNU Radio Companion'",
+  "100:name    *=  'Inspectrum'",
+  "100:name    *=  'GQRX'",
+  "100:name    *=  'Wireshark'",
+  "92:class_g  = 'Terminator' && !focused",
   "100:class_g = 'Terminator' && focused"
 ];
 
-# Fading
-fading = true;
-fade-delta = 4;
-fade-in-step = 0.03;
-fade-out-step = 0.03;
+# ── Fading ───────────────────────────────────────────────────────────────────
+# Fast fade deltas keep UI snappy; SDR/fullscreen apps are excluded.
+fading      = true;
+fade-delta  = 5;
+fade-in-step  = 0.04;
+fade-out-step = 0.04;
+no-fading-openclose = false;
+no-fading-destroyed-argb = true;
 
-# Shadow
-shadow = true;
-shadow-radius = 12;
-shadow-opacity = 0.4;
-shadow-offset-x = -10;
-shadow-offset-y = -10;
+fade-exclude = [
+  "class_g = 'Gqrx'",
+  "class_g = 'Inspectrum'",
+  "class_g *=  'gnuradio'",
+  "class_g = 'URH'",
+  "class_g = 'universal-radio-hacker'",
+  "class_g = 'Wireshark'",
+  "name    *=  'GNU Radio Companion'",
+  "class_g = 'Conky'"
+];
+
+# ── Shadow ────────────────────────────────────────────────────────────────────
+# Subtle tactical shadows; SDR tools, Conky HUD, and notifications excluded.
+shadow         = true;
+shadow-radius  = 10;
+shadow-opacity = 0.35;
+shadow-offset-x = -8;
+shadow-offset-y = -8;
+
 shadow-exclude = [
-  "name = 'Notification'",
+  "name    = 'Notification'",
   "class_g = 'Conky'",
   "class_g ?= 'Notify-osd'",
   "class_g = 'Cairo-clock'",
+  "class_g = 'Gqrx'",
+  "class_g = 'Inspectrum'",
+  "class_g *=  'gnuradio'",
+  "class_g = 'URH'",
+  "class_g = 'universal-radio-hacker'",
+  "class_g = 'Wireshark'",
+  "name    *=  'GNU Radio Companion'",
+  "name    *=  'GQRX'",
   "_GTK_FRAME_EXTENTS@:c"
 ];
+
+# ── Window type overrides ─────────────────────────────────────────────────────
+# Dock (xfce4-panel), desktop (wallpaper), and tooltip get zero overhead.
+wintypes = {
+  tooltip      = { fade = false; shadow = false; opacity = 1.0; };
+  dock         = { shadow = false; opacity = 1.0; };
+  desktop      = { shadow = false; };
+  dnd          = { shadow = false; };
+  popup_menu   = { opacity = 1.0; };
+  dropdown_menu = { opacity = 1.0; };
+};
 EOF
+# Ensure picom config is also deployed to /etc/xdg for system-wide default
+mkdir -p /etc/xdg/picom
+cp /etc/skel/.config/picom/picom.conf /etc/xdg/picom/picom.conf
 
 # 10.5 Telecom Red Team Tmux Operational Workspace Script
 cat << 'EOF' > /usr/local/bin/telcosec-tmux-redteam
