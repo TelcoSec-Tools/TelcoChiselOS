@@ -35,8 +35,8 @@ Rather than running slow nested virtualization (which is fragile in CI and requi
    - Synchronizes rootfs into partition via `guestfish`, `kpartx`, or `qemu-nbd`.
    - Installs GRUB EFI (`grub-efi-amd64`) and sets `/etc/fstab` with UUIDs.
 3. **Appliance Conversion**:
-   - Proxmox: `qemu-img convert -c -f raw -O qcow2 disk.raw telcochisel-2026.1-proxmox.qcow2`
-   - VMware: `qemu-img convert -f raw -O vmdk -o subformat=streamOptimized disk.raw telcochisel-2026.1-vmware.vmdk`
+   - Proxmox: `qemu-img convert -c -f raw -O qcow2 disk.raw telcochisel-2026.2-proxmox.qcow2`
+   - VMware: `qemu-img convert -f raw -O vmdk -o subformat=streamOptimized disk.raw telcochisel-2026.2-vmware.vmdk`
    - VirtualBox: Packages streamOptimized VMDK + custom `.ovf` descriptor + SHA256 manifest into `.ova`.
 
 ### B. Guest Additions & System Services
@@ -80,7 +80,7 @@ Create a single modular script `builder/vm/build-vm.sh` capable of:
    - Configured with 4 vCPUs, 8 GB RAM, 40 GB dynamic disk, VirtIO/Intel NIC, xHCI USB 3.0 controller.
 2. Create `builder/vm/templates/vmware.ovf`:
    - Configured with Hardware Version 19, VMXNET3 NIC, xHCI USB 3.1 controller, 3D accelerated SVGA.
-3. Automated OVA assembly: `tar -cf TelcoChisel-2026.1-VirtualBox.ova template.ovf disk.vmdk ...` with SHA-256 `.mf` manifest.
+3. Automated OVA assembly: `tar -cf TelcoChisel-2026.2-VirtualBox.ova template.ovf disk.vmdk ...` with SHA-256 `.mf` manifest.
 
 ### Phase 4: CI/CD & SourceForge Distribution
 1. Add `release-vm.yml` workflow or integrate into `release.yml` under an on-demand trigger:

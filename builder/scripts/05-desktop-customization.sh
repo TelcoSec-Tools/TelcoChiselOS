@@ -1425,7 +1425,7 @@ conky.config = {
 };
 
 conky.text = [[
-${color1}${font IBM Plex Mono:bold:size=10}📡 TELCOCHISEL OS — TACTICAL HUD${font}${alignr}${color3}v2026.1
+${color1}${font IBM Plex Mono:bold:size=10}📡 TELCOCHISEL OS — TACTICAL HUD${font}${alignr}${color3}v2026.2
 ${color0}${hr 1}
 ${color3}Host:${color} ${nodename}${alignr}${color3}Uptime:${color} ${uptime_short}
 ${color3}Kernel:${color} ${kernel} ${alignr}${color1}[Low-Latency]${color}

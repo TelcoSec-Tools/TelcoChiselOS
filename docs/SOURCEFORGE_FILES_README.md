@@ -11,14 +11,14 @@
 
 ---
 
-### Latest Release: TelcoChisel OS 2026.1 (Noble Numbat)
+### Latest Release: TelcoChisel OS 2026.2 (Noble Numbat)
 
 TelcoChisel is distributed in two official editions tailored for offensive security researchers, telecom operators, and radio engineers:
 
 | Edition | Primary ISO File | Approx Size | Target Profile | Key Capabilities |
 | :--- | :--- | :--- | :--- | :--- |
-| **Flagship Field Edition (Full)** | `TelcoChisel-2026.1-amd64.iso`<br>*(symlinked as `TelcoChisel-live.iso`)* | **~5.5 GB** | Field auditing, air-gapped cellular testing, complete radio labs | All 100 telecom security tools pre-installed across 11 categories; UHD FPGA images, GNU Radio 3.10, Open5GS, srsRAN, O-RAN E2/O1, 5G SBI fuzzers, FirmWire, 5Ghoul, PySIM, Wireshark dissectors offline ready. |
-| **Modular Lite Edition (Lite)** | `TelcoChisel-2026.1-lite-amd64.iso` | **~1.8 GB** | Lightweight deployments, VMs, custom tailored toolsets | Clean base XFCE desktop, 1000Hz Low-Latency kernel, Wireshark, Python runtime + `telcosec-pkg` CLI to pull modular domain metapackages on-demand. |
+| **Flagship Field Edition (Full)** | `TelcoChisel-2026.2-amd64.iso`<br>*(symlinked as `TelcoChisel-live.iso`)* | **~5.5 GB** | Field auditing, air-gapped cellular testing, complete radio labs | All 100 telecom security tools pre-installed across 11 categories; UHD FPGA images, GNU Radio 3.10, Open5GS, srsRAN, O-RAN E2/O1, 5G SBI fuzzers, FirmWire, 5Ghoul, PySIM, Wireshark dissectors offline ready. |
+| **Modular Lite Edition (Lite)** | `TelcoChisel-2026.2-lite-amd64.iso` | **~1.8 GB** | Lightweight deployments, VMs, custom tailored toolsets | Clean base XFCE desktop, 1000Hz Low-Latency kernel, Wireshark, Python runtime + `telcosec-pkg` CLI to pull modular domain metapackages on-demand. |
 
 - **Base Distribution:** Ubuntu 24.04 LTS (*Noble Numbat*)
 - **Kernel Architecture:** Linux Real-Time Low-Latency (`linux-image-lowlatency`, 1000Hz timer, preemptible)

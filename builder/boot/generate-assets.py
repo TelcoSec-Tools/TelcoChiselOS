@@ -476,7 +476,7 @@ tw.text((W - 64 - tr_w, 40), top_r, fill=(0, 212, 230, 100), font=font_small)
 
 tw.text((64, line_y + 12), "telcochisel.com  •  telco-sec.com",
         fill=(0, 212, 230, 140), font=font_small)
-bot_r  = "FLAGSHIP FIELD EDITION 2026.1  •  AIR-GAPPED FIELD WORKSTATION"
+bot_r  = "FLAGSHIP FIELD EDITION 2026.2  •  AIR-GAPPED FIELD WORKSTATION"
 br_w, _ = text_size(tw, bot_r, font_small)
 tw.text((W - 64 - br_w, line_y + 12), bot_r, fill=(140, 160, 180, 120), font=font_small)
 yr_text = "2026"

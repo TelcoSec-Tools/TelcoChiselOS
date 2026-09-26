@@ -7,10 +7,10 @@ windowPlacement: center
 strings:
     productName:         TelcoChisel
     shortProductName:    TelcoChisel
-    version:             2026.1
-    shortVersion:        2026.1
-    versionedName:       TelcoChisel OS 2026.1 (Noble Cellular)
-    shortVersionedName:  TelcoChisel 2026.1
+    version:             2026.2
+    shortVersion:        2026.2
+    versionedName:       TelcoChisel OS 2026.2 (Noble Cellular)
+    shortVersionedName:  TelcoChisel 2026.2
     bootloaderEntryName: TelcoChisel
     productUrl:          https://telcochisel.com
     supportUrl:          https://telcochisel.com

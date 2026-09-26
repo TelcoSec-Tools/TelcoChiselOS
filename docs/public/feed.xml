@@ -20,6 +20,30 @@
     <category>Computer Security/Telecommunications</category>
 
     <item>
+      <title>TelcoChisel OS 2026.2 Released: Tactical Cyberpunk XFCE Desktop, Zero-Drop Compositor &amp; Live Hardware Telemetry HUD</title>
+      <link>https://telcochisel.com/#release-2026-2</link>
+      <guid isPermaLink="false">telcochisel-release-2026-2-launch</guid>
+      <pubDate>Sat, 26 Sep 2026 12:00:00 +0000</pubDate>
+      <dc:creator>TelcoChisel Core Security Engineering</dc:creator>
+      <category>Linux Distribution</category>
+      <category>Telecom Security</category>
+      <category>XFCE Desktop</category>
+      <category>Software-Defined Radio</category>
+      <description><![CDATA[TelcoChisel OS 2026.2 has been released, featuring a ground-up tactical cyberpunk XFCE 4.18 desktop environment with 450+ lines of custom GTK3 CSS, zero-drop Picom GLX compositor optimized for high-framerate SDR waterfalls, live Genmon panel telemetry widgets (SDR prober, 5G Core daemon monitor, VPN tunnel state), forensic Thunar UCA actions, and the Tactical Conky HUD (Super+H).]]></description>
+      <content:encoded><![CDATA[
+        <p><strong>TelcoChisel OS 2026.2</strong> delivers a comprehensive upgrade to the graphical desktop experience, specifically engineered for radio frequency auditors, telecommunications penetration testers, and signals intelligence operators.</p>
+        <h2>Key Highlights of TelcoChisel OS 2026.2:</h2>
+        <ul>
+          <li><strong>Tactical Cyberpunk GTK3 Theme</strong>: Deep obsidian canvas (#0a0e17) accented with neon cyan (#00ffd5), electric amber (#e8921e), and alert coral (#ff4466).</li>
+          <li><strong>Zero-Drop GLX Compositor (Picom)</strong>: Tailored with <code>use-damage = false</code> and explicit window exclusions for Gqrx, Inspectrum, URH, and Wireshark to guarantee zero tearing and zero dropped frames during wideband SDR I/Q waterfall sweeps.</li>
+          <li><strong>Live Taskbar Telemetry (Genmon)</strong>: Real-time panel indicators for attached USB SDR transceivers (USRP, HackRF, BladeRF, LimeSDR, PlutoSDR), Open5GS 5G Core daemon health, and WireGuard/OpenVPN tunnel interfaces.</li>
+          <li><strong>Tactical Conky HUD</strong>: Heads-up display activated via <code>Super + H</code> providing instant visibility into RF hardware, 5G Core subscriber state, and CPU real-time performance.</li>
+          <li><strong>Forensic Thunar File Manager</strong>: Pinned capture trees and 8 context actions for GSMTAP dissection, I/Q analysis, pySim-shell SIM interaction, and SHA-256 evidence hashing.</li>
+        </ul>
+      ]]></content:encoded>
+    </item>
+
+    <item>
       <title>TelcoChisel OS 2026.1 Released: The Ultimate Linux Distribution for Telecom Red Teams, 5G SA Core &amp; SDR Security</title>
       <link>https://telcochisel.com/#release-2026-1</link>
       <guid isPermaLink="false">telcochisel-release-2026-1-launch</guid>

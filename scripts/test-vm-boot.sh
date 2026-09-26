@@ -7,7 +7,7 @@
 #
 # Usage:
 #   ./scripts/test-vm-boot.sh [OPTIONS] [VM_IMAGE_PATH]
-#   ./scripts/test-vm-boot.sh --timeout=60 dist/vm/TelcoChisel-2026.1-Proxmox.qcow2
+#   ./scripts/test-vm-boot.sh --timeout=60 dist/vm/TelcoChisel-2026.2-Proxmox.qcow2
 # =============================================================================
 
 set -eo pipefail
@@ -61,8 +61,8 @@ Options:
   --help, -h       Display this help manual
 
 Examples:
-  ./scripts/test-vm-boot.sh dist/vm/TelcoChisel-2026.1-Proxmox.qcow2
-  ./scripts/test-vm-boot.sh --timeout=60 --memory=2048 dist/vm/TelcoChisel-2026.1-VMware.vmdk
+  ./scripts/test-vm-boot.sh dist/vm/TelcoChisel-2026.2-Proxmox.qcow2
+  ./scripts/test-vm-boot.sh --timeout=60 --memory=2048 dist/vm/TelcoChisel-2026.2-VMware.vmdk
 HELP
       exit 0
       ;;

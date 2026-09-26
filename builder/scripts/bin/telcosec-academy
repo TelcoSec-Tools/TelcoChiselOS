@@ -11,7 +11,7 @@ ACADEMY_DIR="/etc/telcosec/academy"
 USER_ACADEMY_DIR="${HOME}/.config/telcosec/academy"
 ACADEMY_URL="https://app.telcosec.net"
 COURSES_URL="https://app.telcosec.net/courses"
-VERSION="2026.1"
+VERSION="2026.2"
 
 # Terminal Colors
 if [ -t 1 ]; then

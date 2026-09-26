@@ -7,7 +7,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST_DIR="${SCRIPT_DIR}/dist"
 BUILD_DIR="${SCRIPT_DIR}/build"
-VERSION="2026.1-1"
+VERSION="2026.2-1"
 
 echo "=== Building TelcoChisel Modular Debian Metapackages (v${VERSION}) ==="
 
@@ -78,7 +78,7 @@ Origin: TelcoChisel
 Label: TelcoChisel Metapackages Repository
 Suite: noble
 Codename: noble
-Version: 2026.1
+Version: 2026.2
 Architectures: all amd64
 Components: main
 Description: Official TelcoChisel Modular Telecom Security Metapackages

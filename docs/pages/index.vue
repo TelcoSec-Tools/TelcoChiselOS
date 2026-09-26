@@ -21,7 +21,7 @@
             <img src="/repo_cover.png" alt="TelcoChisel OS: Advanced Telecom Security Distribution by TelcoSec" style="width: 100%; border-radius: 12px; border: 1px solid rgba(0, 242, 255, 0.25); box-shadow: 0 10px 30px rgba(0, 242, 255, 0.18); display: block;" />
           </div>
 
-          <div class="section-header" data-label="// PROTOCOL_INTEL // TELCOCHISEL OS v2026.1">
+          <div class="section-header" data-label="// PROTOCOL_INTEL // TELCOCHISEL OS v2026.2">
             <h1>TelcoChisel: <span class="kinetic-gradient">Advanced Telecom Security OS</span> by TelcoSec</h1>
             <p class="subtitle">The definitive high-fidelity live OS for Telecom Security, 5G/4G research, and SDR penetration testing</p>
             <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
@@ -39,7 +39,7 @@
 
           <!-- Download CTA -->
           <div class="download-cta">
-            <span class="beta-badge">RELEASE // v2026.1</span>
+            <span class="beta-badge">RELEASE // v2026.2</span>
             <button class="btn-download" @click="trackDownload">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -1124,7 +1124,7 @@ evemu-record /dev/input/event0 2>&1 | head -20`' />
             </svg>
             <div>
               <div class="dl-modal-title" id="dl-modal-title">Download TelcoChisel OS</div>
-              <div class="dl-modal-sub">Release &mdash; v2026.1 (Noble Numbat)</div>
+              <div class="dl-modal-sub">Release &mdash; v2026.2 (Noble Numbat)</div>
             </div>
           </div>
 
@@ -1273,7 +1273,7 @@ useHead({
           "description": "TelcoChisel is a free, bootable live Linux distribution purpose-built for 5G and 4G telecom security research. It ships with 100 pre-configured tools including GNU Radio, FirmWire baseband emulation, srsRAN, Open5GS, SIMtrace 2, QCSuper, Wireshark, and the 5Ghoul 5G NR fuzzer.",
           "url": "https://telcochisel.com/",
           "downloadUrl": "https://sourceforge.net/projects/telcochisel/files/latest/download",
-          "softwareVersion": "2026.1",
+          "softwareVersion": "2026.2",
           "releaseNotes": "https://github.com/TelcoSec-Tools/TelcoChiselOS/releases",
           "screenshot": "https://raw.githubusercontent.com/TelcoSec-Tools/TelcoChiselOS/main/assets/repo_cover.png",
           "featureList": [

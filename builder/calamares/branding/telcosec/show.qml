@@ -121,7 +121,7 @@ Rectangle {
                     spacing: 12
 
                     Text {
-                        text: "TelcoChisel OS 2026.1 (Noble Cellular)"
+                        text: "TelcoChisel OS 2026.2 (Noble Cellular)"
                         color: "#00ffd5"
                         font.pixelSize: 22
                         font.bold: true

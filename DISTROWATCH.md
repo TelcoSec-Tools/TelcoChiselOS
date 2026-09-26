@@ -16,7 +16,7 @@ This document provides the complete, structured submission package for listing *
 | **Desktop Environments** | XFCE 4.18, i3 4.23 (*RFS Style Tiling Window Manager*) |
 | **Category** | Security, Telecommunications, Forensics, Live Medium, Data Rescue |
 | **Status** | Active |
-| **Release Model** | Fixed / Point Release (`2026.1`) with rolling security updates via APT |
+| **Release Model** | Fixed / Point Release (`2026.2`) with rolling security updates via APT |
 | **Init System** | systemd |
 | **Package Management** | `dpkg`, `apt`, `telcosec-pkg` |
 | **Installation Method** | Calamares GUI Installer (Automated LUKS encryption, Btrfs subvolumes, UEFI/BIOS support) |
@@ -60,9 +60,9 @@ Built upon Ubuntu 24.04 LTS with an ultra-low-latency 1000Hz preemptible real-ti
 
 ## 4. Key Tracked Software Packages & Versions
 
-DistroWatch tracks specific package versions across distributions. TelcoChisel OS `2026.1` ships with:
+DistroWatch tracks specific package versions across distributions. TelcoChisel OS `2026.2` ships with:
 
-| DistroWatch Tracked Package | Upstream Name | Version in TelcoChisel OS 2026.1 |
+| DistroWatch Tracked Package | Upstream Name | Version in TelcoChisel OS 2026.2 |
 | :--- | :--- | :--- |
 | **Kernel** | `linux-image-lowlatency` | 6.8.0-lowlatency (1000Hz preemptible) |
 | **Base System** | Ubuntu Linux | 24.04 LTS (*Noble Numbat*) |
@@ -90,8 +90,8 @@ DistroWatch tracks specific package versions across distributions. TelcoChisel O
 
 | Edition | ISO Image Filename | Size | Target Environment |
 | :--- | :--- | :--- | :--- |
-| **Flagship Field Edition** | `TelcoChisel-2026.1-amd64.iso` | ~5.5 GB | Full offline air-gapped field operations with all 100 tools, FPGA bitstreams, and offline documentation |
-| **Modular Lite Edition** | `TelcoChisel-2026.1-lite-amd64.iso` | ~1.8 GB | Lightweight virtual machines and field laptops with on-demand `telcosec-pkg` modular suite fetching |
+| **Flagship Field Edition** | `TelcoChisel-2026.2-amd64.iso` | ~5.5 GB | Full offline air-gapped field operations with all 100 tools, FPGA bitstreams, and offline documentation |
+| **Modular Lite Edition** | `TelcoChisel-2026.2-lite-amd64.iso` | ~1.8 GB | Lightweight virtual machines and field laptops with on-demand `telcosec-pkg` modular suite fetching |
 
 ### Four High-Assurance Boot Modes in GRUB:
 1. `TelcoChisel OS Live (Low-Latency Realtime — Default)`

@@ -243,8 +243,8 @@ TelcoChisel is published in two official edition flavors:
 
 | Edition Flavor | Primary ISO Image | Image Size | Deployment Scope |
 | :--- | :--- | :--- | :--- |
-| **Flagship Field Edition** *(Default)* | `TelcoChisel-2026.1-amd64.iso` | **~5.5 GB** | **100% Self-Contained & Air-Gapped**: All 100 tools pre-compiled, offline UHD FPGA bitstreams, Conda SDR environment, Open5GS, O-RAN, and 5Ghoul ready for immediate live execution without network access. |
-| **Modular Lite Edition** | `TelcoChisel-2026.1-lite-amd64.iso` | **~1.8 GB** | **Minimal Footprint**: Base XFCE desktop, 1000Hz Low-Latency Kernel, Wireshark, and `telcosec-pkg` client to pull domain suites on-demand from `meta.telcosec.net`. |
+| **Flagship Field Edition** *(Default)* | `TelcoChisel-2026.2-amd64.iso` | **~5.5 GB** | **100% Self-Contained & Air-Gapped**: All 100 tools pre-compiled, offline UHD FPGA bitstreams, Conda SDR environment, Open5GS, O-RAN, and 5Ghoul ready for immediate live execution without network access. |
+| **Modular Lite Edition** | `TelcoChisel-2026.2-lite-amd64.iso` | **~1.8 GB** | **Minimal Footprint**: Base XFCE desktop, 1000Hz Low-Latency Kernel, Wireshark, and `telcosec-pkg` client to pull domain suites on-demand from `meta.telcosec.net`. |
 
 ### Four High-Assurance Boot Modes
 
@@ -269,17 +269,17 @@ Always verify integrity prior to writing to physical flash media:
 
 ```bash
 # Linux / macOS SHA-256 Verification
-sha256sum -c TelcoChisel-2026.1-amd64.iso.sha256
+sha256sum -c TelcoChisel-2026.2-amd64.iso.sha256
 
 # Windows PowerShell SHA-256 Verification
-Get-FileHash .\TelcoChisel-2026.1-amd64.iso -Algorithm SHA256
+Get-FileHash .\TelcoChisel-2026.2-amd64.iso -Algorithm SHA256
 ```
 
 ### 2. Flashing to USB Flash Drive
 
 ```bash
 # Direct Block Write (Linux / macOS — replace /dev/sdX with target drive)
-sudo dd if=TelcoChisel-2026.1-amd64.iso of=/dev/sdX bs=4M status=progress conv=fsync
+sudo dd if=TelcoChisel-2026.2-amd64.iso of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
 * **Windows Users**: Flash via **Rufus** in *DD Image Mode* or copy directly into a **Ventoy** drive.

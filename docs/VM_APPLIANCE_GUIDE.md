@@ -28,11 +28,11 @@ Download `TelcoChisel-<VERSION>-Proxmox.qcow2` to your Proxmox host (e.g., `/var
 VMID=1050
 STORAGE="local-lvm"
 BRIDGE="vmbr0"
-IMAGE="TelcoChisel-2026.1-Proxmox.qcow2"
+IMAGE="TelcoChisel-2026.2-Proxmox.qcow2"
 
 # 1. Create VM shell with optimal telco settings (host CPU, q35, UEFI OVMF)
 qm create $VMID \
-  --name "TelcoChisel-2026.1" \
+  --name "TelcoChisel-2026.2" \
   --memory 8192 \
   --cores 4 \
   --cpu host \

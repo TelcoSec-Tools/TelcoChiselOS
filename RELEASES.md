@@ -35,7 +35,7 @@ TelcoChisel is published in two official edition flavors:
 
 ```mermaid
 graph TD
-    A["TelcoChisel OS 2026.1"] --> B["Flagship Field Edition (full)"]
+    A["TelcoChisel OS 2026.2"] --> B["Flagship Field Edition (full)"]
     A --> C["Modular Lite Edition (lite)"]
     
     B --> B1["~5.5 GB Bootable Hybrid Live ISO"]
@@ -48,12 +48,12 @@ graph TD
 ```
 
 ### 1. Flagship Field Edition (`full` — Default)
-- **Artifact**: `TelcoChisel-2026.1-amd64.iso` (~5.5 GB)
+- **Artifact**: `TelcoChisel-2026.2-amd64.iso` (~5.5 GB)
 - **Characteristics**: 100% self-contained, air-gapped field workstation with all 100 telecom security tools pre-compiled and pre-configured.
 - **Includes**: Real-time low-latency kernel, SDR transceivers, O-RAN, 5G Core, SIM/eSIM, and 5Ghoul fuzzer environments.
 
 ### 2. Modular Lite Edition (`lite`)
-- **Artifact**: `TelcoChisel-2026.1-lite-amd64.iso` (~1.8 GB)
+- **Artifact**: `TelcoChisel-2026.2-lite-amd64.iso` (~1.8 GB)
 - **Characteristics**: Streamlined footprint for fast deployment and cloud instances.
 - **Includes**: Base XFCE desktop, Wireshark, network analysis tools, and `telcosec-pkg` client to pull domain suites on demand from `meta.telcosec.net`.
 
@@ -64,17 +64,17 @@ graph TD
 Every release build generates a standard quartet of integrity assets:
 
 ```
-├── TelcoChisel-2026.1-amd64.iso                  # Hybrid UEFI/BIOS Bootable ISO
-├── TelcoChisel-2026.1-amd64.iso.sha256           # SHA-256 Checksum Verification
-├── TelcoChisel-2026.1-amd64.iso.md5              # MD5 Legacy Hash
-└── TelcoChisel-2026.1-amd64.iso.build-info.json  # Reproducibility Metadata & Tool Inventory
+├── TelcoChisel-2026.2-amd64.iso                  # Hybrid UEFI/BIOS Bootable ISO
+├── TelcoChisel-2026.2-amd64.iso.sha256           # SHA-256 Checksum Verification
+├── TelcoChisel-2026.2-amd64.iso.md5              # MD5 Legacy Hash
+└── TelcoChisel-2026.2-amd64.iso.build-info.json  # Reproducibility Metadata & Tool Inventory
 ```
 
 ### Build Info Manifest Example:
 ```json
 {
   "project": "TelcoChisel OS",
-  "version": "2026.1",
+  "version": "2026.2",
   "flavor": "full",
   "build_date": "2026-09-22T08:12:00Z",
   "base_os": "Ubuntu 24.04 LTS (Noble Numbat)",
@@ -90,7 +90,7 @@ Every release build generates a standard quartet of integrity assets:
 
 Releases are triggered automatically via `.github/workflows/release.yml`:
 
-1. **Tag Push**: `git tag v2026.1 && git push origin v2026.1`
+1. **Tag Push**: `git tag v2026.2 && git push origin v2026.2`
 2. **Workflow Dispatch**: Triggers manual bump (`2026.1`, `2026.2`, `2026.3`, `2026.4`, or `nightly`) with flavor selector (`full` / `lite`).
 3. **Multi-Mirror Synchronization**:
    - Pushes release assets and checksums to GitHub Releases.

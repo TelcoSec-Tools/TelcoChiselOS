@@ -11,7 +11,7 @@
 #   sudo ./builder/vm/build-vm.sh [OPTIONS]
 #
 # Examples:
-#   sudo ./builder/vm/build-vm.sh --iso TelcoChisel-2026.1-amd64.iso --target all
+#   sudo ./builder/vm/build-vm.sh --iso TelcoChisel-2026.2-amd64.iso --target all
 #   sudo ./builder/vm/build-vm.sh --target proxmox
 #   sudo ./builder/vm/build-vm.sh --rootfs /var/tmp/live-iso-work/chroot --target vmware
 #   sudo ./builder/vm/build-vm.sh --target virtualbox --output-dir ./dist/vm
@@ -74,7 +74,7 @@ Supported Targets:
   all                      Build all three appliances from a single raw master disk
 
 Examples:
-  sudo ./builder/vm/build-vm.sh --iso TelcoChisel-2026.1-amd64.iso
+  sudo ./builder/vm/build-vm.sh --iso TelcoChisel-2026.2-amd64.iso
   sudo ./builder/vm/build-vm.sh --target proxmox --output-dir /mnt/storage/vm
   sudo ./builder/vm/build-vm.sh --rootfs live-iso-work/chroot --target vmware
 EOF
@@ -170,7 +170,7 @@ if [ -z "$VERSION" ]; then
   if [ -f "${REPO_ROOT}/VERSION" ]; then
     VERSION=$(head -n 1 "${REPO_ROOT}/VERSION" | tr -d '[:space:]')
   else
-    VERSION="2026.1"
+    VERSION="2026.2"
   fi
 fi
 VERSION="${VERSION#v}"

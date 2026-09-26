@@ -27,7 +27,7 @@ import (
 
 var (
 	// Version is populated at build time via -ldflags.
-	Version   = "2026.1"
+	Version   = "2026.2"
 	GitCommit = "development"
 	BuildDate = "unknown"
 )
