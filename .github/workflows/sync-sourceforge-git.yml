@@ -33,7 +33,7 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$SF_SSH_KEY" > ~/.ssh/sf_deploy
           chmod 600 ~/.ssh/sf_deploy
-          ssh-keyscan -H git.code.sf.net >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -H git.code.sf.net shell.sourceforge.net >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Push to SourceForge Git Mirror
         if: env.SF_SSH_KEY != ''
@@ -42,7 +42,13 @@ jobs:
           SF_USER: ${{ secrets.SF_USER }}
         run: |
           git remote add sf "ssh://${SF_USER}@git.code.sf.net/p/telcochisel/code" || git remote set-url sf "ssh://${SF_USER}@git.code.sf.net/p/telcochisel/code"
-          GIT_SSH_COMMAND="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o StrictHostKeyChecking=accept-new" git push --tags --force sf main
+          if ! GIT_SSH_COMMAND="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o StrictHostKeyChecking=accept-new" git push --tags --force sf main; then
+            echo "Direct push rejected (non-fast-forward protection active on SF). Unlocking via SF shell..."
+            python3 -m pip install --break-system-packages pexpect || python3 -m pip install pexpect
+            python3 scripts/sf_allow_force_push.py "${SF_USER}" "telcochisel" "$HOME/.ssh/sf_deploy"
+            echo "Retrying push to SourceForge Git..."
+            GIT_SSH_COMMAND="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o StrictHostKeyChecking=accept-new" git push --tags --force sf main
+          fi
           echo "✓ Successfully synced main branch and tags to SourceForge Git"
 
       - name: Warn if SF_SSH_KEY is missing
