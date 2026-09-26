@@ -370,6 +370,11 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
         <value type="int" value="15"/>
         <value type="int" value="2"/>
         <value type="int" value="16"/>
+        <value type="int" value="21"/>
+        <value type="int" value="18"/>
+        <value type="int" value="19"/>
+        <value type="int" value="20"/>
+        <value type="int" value="22"/>
         <value type="int" value="3"/>
         <value type="int" value="17"/>
         <value type="int" value="4"/>
@@ -438,6 +443,35 @@ cat << 'EOF' > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
       <property name="show-labels" type="bool" value="true"/>
     </property>
     <property name="plugin-16" type="string" value="separator">
+      <property name="style" type="uint" value="0"/>
+    </property>
+    <!-- Live Telecom Telemetry: left separator -->
+    <property name="plugin-21" type="string" value="separator">
+      <property name="style" type="uint" value="0"/>
+    </property>
+    <!-- Genmon 18: SDR Hardware Probe (every 3s, click opens lsusb sdr probe) -->
+    <property name="plugin-18" type="string" value="genmon">
+      <property name="command" type="string" value="/usr/local/bin/telcosec-genmon-sdr"/>
+      <property name="use-label" type="bool" value="false"/>
+      <property name="update-period" type="uint" value="3"/>
+      <property name="font" type="string" value="IBM Plex Mono Bold 9"/>
+    </property>
+    <!-- Genmon 19: 5G Core and Cellular Stack Status -->
+    <property name="plugin-19" type="string" value="genmon">
+      <property name="command" type="string" value="/usr/local/bin/telcosec-genmon-core"/>
+      <property name="use-label" type="bool" value="false"/>
+      <property name="update-period" type="uint" value="3"/>
+      <property name="font" type="string" value="IBM Plex Mono Bold 9"/>
+    </property>
+    <!-- Genmon 20: VPN / Tunnel / ProLabs Network Status -->
+    <property name="plugin-20" type="string" value="genmon">
+      <property name="command" type="string" value="/usr/local/bin/telcosec-genmon-net"/>
+      <property name="use-label" type="bool" value="false"/>
+      <property name="update-period" type="uint" value="3"/>
+      <property name="font" type="string" value="IBM Plex Mono Bold 9"/>
+    </property>
+    <!-- Live Telecom Telemetry: right separator -->
+    <property name="plugin-22" type="string" value="separator">
       <property name="style" type="uint" value="0"/>
     </property>
     <property name="plugin-3" type="string" value="pager">
@@ -1015,6 +1049,174 @@ else
 fi
 EOF
 chmod 755 /usr/local/bin/telcosec-toggle-hud
+
+# ─── Genmon Panel Telemetry Scripts ──────────────────────────────────────────
+# Three xfce4-genmon-plugin scripts for live panel indicators.
+# Output is a single-line genmon XML fragment: <txt>LABEL</txt><click>CMD</click>
+# Each script is called every 3s by genmon; must complete in <1s.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Genmon 18 ▸ SDR Hardware Probe
+# Shows first detected SDR transceiver in panel; click opens full probe terminal.
+cat << 'GENMON_SDR' > /usr/local/bin/telcosec-genmon-sdr
+#!/bin/bash
+# =============================================================================
+# telcosec-genmon-sdr — XFCE Panel Live SDR Hardware Indicator (genmon)
+# Probes USB bus for known SDR VID:PIDs and emits a colour-coded genmon label.
+# Output: single-line genmon XML: <txt>…</txt><click>…</click><tool>…</tool>
+# =============================================================================
+
+# Detected transceivers list (max 1 shown inline, rest in tooltip)
+declare -a DETECTED=()
+TOOLTIP=""
+
+# USRP B200/B210 — FX3 USB bootloader (pre-firmware) or post-firmware ID
+if lsusb 2>/dev/null | grep -qiE "04b4:00f3|2500:0020|2500:0022|Ettus"; then
+    DETECTED+=("USRP")
+    TOOLTIP+="• Ettus USRP B200/B210\n"
+fi
+# HackRF One
+if lsusb 2>/dev/null | grep -qiE "1d50:6089|HackRF"; then
+    DETECTED+=("HackRF")
+    TOOLTIP+="• HackRF One (1d50:6089)\n"
+fi
+# Nuand BladeRF 2.0
+if lsusb 2>/dev/null | grep -qiE "2cf0:5246|BladeRF"; then
+    DETECTED+=("BladeRF")
+    TOOLTIP+="• Nuand BladeRF 2.0 micro\n"
+fi
+# MyriadRF LimeSDR
+if lsusb 2>/dev/null | grep -qiE "0403:601f|LimeSDR"; then
+    DETECTED+=("LimeSDR")
+    TOOLTIP+="• MyriadRF LimeSDR-USB\n"
+fi
+# RTL-SDR
+if lsusb 2>/dev/null | grep -qiE "RTL2838|RTL2832"; then
+    DETECTED+=("RTL-SDR")
+    TOOLTIP+="• RTL-SDR (R820T2/R828D)\n"
+fi
+# SIMtrace 2
+if lsusb 2>/dev/null | grep -qiE "1d50:60e3|simtrace"; then
+    DETECTED+=("SIMtrace")
+    TOOLTIP+="• Sysmocom SIMtrace 2\n"
+fi
+
+COUNT="${#DETECTED[@]}"
+if [ "$COUNT" -eq 0 ]; then
+    # No SDR — amber warning
+    printf '<txt><span foreground="#f5aa35" weight="bold">📻 NO-SDR</span></txt>'
+    printf '<click>terminator -e "lsusb; echo; echo No SDR detected. Plug USRP/HackRF/BladeRF/RTL-SDR; read -p Press-enter..."</click>'
+    printf '<tool>No SDR transceiver detected on USB bus</tool>'
+elif [ "$COUNT" -eq 1 ]; then
+    printf '<txt><span foreground="#00ffd5" weight="bold">📻 %s</span></txt>' "${DETECTED[0]}"
+    printf '<click>terminator -e "/usr/local/bin/telcosec-hud-sdr; read -p Press-enter..."</click>'
+    printf '<tool>SDR Active: %s\nClick for full hardware probe</tool>' "${DETECTED[0]}"
+else
+    printf '<txt><span foreground="#00ffd5" weight="bold">📻 %dx SDR</span></txt>' "$COUNT"
+    printf '<click>terminator -e "/usr/local/bin/telcosec-hud-sdr; read -p Press-enter..."</click>'
+    printf '<tool>%d SDR transceivers detected:\n%s\nClick for full hardware probe</tool>' "$COUNT" "$TOOLTIP"
+fi
+GENMON_SDR
+chmod 755 /usr/local/bin/telcosec-genmon-sdr
+
+# Genmon 19 ▸ 5G Core & Cellular Stack Status
+# Shows Open5GS/srsRAN running state; click opens journalctl for open5gs-smfd.
+cat << 'GENMON_CORE' > /usr/local/bin/telcosec-genmon-core
+#!/bin/bash
+# =============================================================================
+# telcosec-genmon-core — XFCE Panel 5G/LTE Core Network Status (genmon)
+# Checks for active Open5GS, srsRAN, UERANSIM, OsmocomBB and OGS processes.
+# =============================================================================
+
+declare -a ACTIVE=()
+
+# Open5GS AMF (5G) or MME (4G)
+if pgrep -x open5gs-amfd >/dev/null 2>&1; then
+    ACTIVE+=("5GC")
+elif pgrep -x open5gs-mmed >/dev/null 2>&1; then
+    ACTIVE+=("EPC")
+fi
+# srsRAN gNB or eNB
+if pgrep -x gnb >/dev/null 2>&1 || pgrep -x srsenb >/dev/null 2>&1; then
+    ACTIVE+=("gNB")
+fi
+# UERANSIM gNB
+if pgrep -x nr-gnb >/dev/null 2>&1; then
+    ACTIVE+=("UERAN")
+fi
+# UERANSIM UE
+if pgrep -x nr-ue >/dev/null 2>&1; then
+    ACTIVE+=("UE")
+fi
+# OsmocomBB
+if pgrep -x osmocon >/dev/null 2>&1; then
+    ACTIVE+=("OsmoBB")
+fi
+# OGS TUN interface presence (ogstun = 5G core data plane active)
+if ip link show ogstun >/dev/null 2>&1; then
+    ACTIVE+=("ogstun↑")
+fi
+
+COUNT="${#ACTIVE[@]}"
+if [ "$COUNT" -eq 0 ]; then
+    printf '<txt><span foreground="#484f58" weight="bold">⚡ CORE:OFF</span></txt>'
+    printf '<click>terminator -e "systemctl status open5gs-amfd open5gs-mmed 2>/dev/null || echo No 5G/LTE core running; read -p Press-enter..."</click>'
+    printf '<tool>No 5G/LTE core stack running\nServices: open5gs, srsRAN, UERANSIM, OsmocomBB</tool>'
+else
+    LABEL=$(IFS='+'; echo "${ACTIVE[*]}")
+    printf '<txt><span foreground="#26d464" weight="bold">⚡ %s</span></txt>' "$LABEL"
+    printf '<click>terminator -e "journalctl -u open5gs-amfd -u open5gs-smfd -n 50 --no-pager 2>/dev/null; read -p Press-enter..."</click>'
+    printf '<tool>Active 5G/LTE core processes: %s\nClick for Open5GS service logs</tool>' "$LABEL"
+fi
+GENMON_CORE
+chmod 755 /usr/local/bin/telcosec-genmon-core
+
+# Genmon 20 ▸ VPN / Tunnel / ProLabs Network Status
+# Shows WireGuard, OpenVPN tun, ProLabs GRE, and monitor interfaces.
+cat << 'GENMON_NET' > /usr/local/bin/telcosec-genmon-net
+#!/bin/bash
+# =============================================================================
+# telcosec-genmon-net — XFCE Panel Tunnel/VPN/Monitor Interface Status (genmon)
+# Checks for active WireGuard, OpenVPN, ProLabs GRE, and RF monitor interfaces.
+# =============================================================================
+
+declare -a TUNNELS=()
+
+# WireGuard (wg0, wg-*)
+if ip link show wg0 >/dev/null 2>&1; then
+    TUNNELS+=("wg0")
+elif ip link | grep -qE "^[0-9]+: wg[0-9]"; then
+    WG=$(ip link | grep -oE "wg[0-9]+" | head -1)
+    TUNNELS+=("$WG")
+fi
+# OpenVPN tunnel
+if ip link | grep -qE "^[0-9]+: tun[0-9]"; then
+    TUN=$(ip link | grep -oE "tun[0-9]+" | head -1)
+    TUNNELS+=("$TUN")
+fi
+# ProLabs named tunnel
+if ip link show tun-prolabs >/dev/null 2>&1; then
+    TUNNELS+=("ProLabs")
+fi
+# RF Monitor mode interface (mon0, wlan*mon)
+if ip link | grep -qE "^[0-9]+: (mon[0-9]+|wlan[0-9]+mon)"; then
+    MON=$(ip link | grep -oE "(mon[0-9]+|wlan[0-9]+mon)" | head -1)
+    TUNNELS+=("${MON}↑")
+fi
+
+COUNT="${#TUNNELS[@]}"
+if [ "$COUNT" -eq 0 ]; then
+    printf '<txt><span foreground="#484f58" weight="bold">🔒 VPN:OFF</span></txt>'
+    printf '<click>terminator -e "ip -br link show; echo; read -p Press-enter..."</click>'
+    printf '<tool>No VPN tunnels or monitor interfaces active\nClick to show all network interfaces</tool>'
+else
+    LABEL=$(IFS=' '; echo "${TUNNELS[*]}")
+    printf '<txt><span foreground="#bc8cff" weight="bold">🔒 %s</span></txt>' "$LABEL"
+    printf '<click>terminator -e "ip -br addr show; echo; wg show 2>/dev/null; read -p Press-enter..."</click>'
+    printf '<tool>Active tunnels: %s\nClick for interface detail + WireGuard status</tool>' "$LABEL"
+fi
+GENMON_NET
+chmod 755 /usr/local/bin/telcosec-genmon-net
 
 # Deploy Desktop Menu Entry for HUD Toggle
 cat << 'EOF' > /usr/share/applications/telcosec-hud-toggle.desktop

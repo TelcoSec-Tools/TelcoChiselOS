@@ -27,7 +27,7 @@ PKGS_BASE=(
   grub-pc-bin grub-efi-amd64-bin shim-signed grub-efi-amd64-signed
   rsync squashfs-tools dosfstools e2fsprogs parted gparted
   # Desktop (XFCE + i3 Tiling WM + LightDM)
-  xfce4 xfce4-goodies lightdm thunar
+  xfce4 xfce4-goodies xfce4-genmon-plugin lightdm thunar
   i3 i3status i3lock rofi feh picom conky-all
   xserver-xorg xserver-xorg-input-all
   # GPU Drivers, OpenCL & Hardware Acceleration (Intel, AMD, NVIDIA, Vulkan, VA-API)
