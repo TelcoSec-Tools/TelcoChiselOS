@@ -28,7 +28,7 @@ The central gathering place for mobile security researchers. Connect, collaborat
 *   **YouTube Channel**: Watch lab walkthroughs and tutorials on [YouTube](https://www.youtube.com/@Telecom-Security)
 *   **CTF Platform**: Test your cellular auditing skills on our [CTF Portal](https://ctf.telcosec.net/)
 *   **Calculators & Tools**: Access online cellular protocol calculators at [calculators.telcosec.net](https://calculators.telcosec.net/) and tools at [tools.telcosec.net](https://tools.telcosec.net/)
-*   **Official Updates**: Follow us on [LinkedIn](https://www.linkedin.com/company/telco-sec) and connect with the founder [Ruben Silva](https://www.linkedin.com/in/ruben-silva85/)
+*   **Official Updates**: Follow us on [LinkedIn](https://www.linkedin.com/company/telco-sec)
 *   **Open-Source Projects**: Check out our code repositories at [GitHub (TelcoSec)](https://github.com/TelcoSec) and [GitHub (TelcoSec Labs)](https://github.com/TelcoSec-Labs)
 
 ---

@@ -12,6 +12,7 @@ concurrency:
 
 env:
   SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+  SF_USER: ${{ secrets.SF_USER }}
 
 jobs:
   sync:
@@ -38,8 +39,9 @@ jobs:
         if: env.SF_SSH_KEY != ''
         env:
           SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+          SF_USER: ${{ secrets.SF_USER }}
         run: |
-          git remote add sf ssh://rfs85@git.code.sf.net/p/telcochisel/code || git remote set-url sf ssh://rfs85@git.code.sf.net/p/telcochisel/code
+          git remote add sf "ssh://${SF_USER}@git.code.sf.net/p/telcochisel/code" || git remote set-url sf "ssh://${SF_USER}@git.code.sf.net/p/telcochisel/code"
           GIT_SSH_COMMAND="ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o StrictHostKeyChecking=accept-new" git push --tags --force sf main
           echo "✓ Successfully synced main branch and tags to SourceForge Git"
 

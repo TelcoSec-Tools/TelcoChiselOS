@@ -43,7 +43,7 @@ concurrency:
 # "Set ISO Environment Name" step via $GITHUB_ENV (versioned or nightly
 # name). A static default here would shadow that and cause stale filenames.
 env:
-  SF_USER: rfs85
+  SF_USER: ${{ secrets.SF_USER }}
   SF_PROJECT: telcochisel
   SF_HOST: frs.sourceforge.net
   SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}

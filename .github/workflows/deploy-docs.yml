@@ -21,6 +21,7 @@ concurrency:
 
 env:
   SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
+  SF_USER: ${{ secrets.SF_USER }}
 
 # Runs on GitHub-hosted runners (ubuntu-latest).
 # Uses Node 20 to build the static Nuxt 3 site and deploy to GitHub Pages and SourceForge.
@@ -85,7 +86,7 @@ jobs:
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/sf_deploy -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
             docs/.output/public/ \
-            rfs85,telcochisel@web.sourceforge.net:/home/project-web/telcochisel/htdocs/
+            "${SF_USER},telcochisel@web.sourceforge.net:/home/project-web/telcochisel/htdocs/"
           echo "✓ Deployed to https://telcochisel.sourceforge.io"
 
       - uses: actions/upload-pages-artifact@v3

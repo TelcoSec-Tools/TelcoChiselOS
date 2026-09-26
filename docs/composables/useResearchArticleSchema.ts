@@ -17,8 +17,8 @@ export const useResearchArticleSchema = (articleData: {
       datePublished: articleData.datePublished,
       dateModified: articleData.dateModified || articleData.datePublished,
       author: {
-        name: 'Ruben Silva',
-        url: 'https://www.linkedin.com/in/ruben-silva85/'
+        name: 'TelcoSec Research Team',
+        url: 'https://www.linkedin.com/company/telco-sec'
       },
       // Adding specific tech article properties
       keywords: articleData.keywords?.join(', '),
@@ -28,7 +28,7 @@ export const useResearchArticleSchema = (articleData: {
 
   // Automate Meta Tags
   useSeoMeta({
-    title: `${articleData.title} | TelcoSec RFS`,
+    title: `${articleData.title} | TelcoSec Research`,
     description: articleData.description,
     ogTitle: articleData.title,
     ogDescription: articleData.description,

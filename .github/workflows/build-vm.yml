@@ -34,7 +34,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SF_USER: rfs85
+  SF_USER: ${{ secrets.SF_USER }}
   SF_PROJECT: telcochisel
   SF_HOST: frs.sourceforge.net
   SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
