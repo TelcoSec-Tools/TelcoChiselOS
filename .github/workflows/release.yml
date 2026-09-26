@@ -2,7 +2,7 @@ name: Build and Release TelcoChisel
 
 on:
   push:
-    tags: ['v*.*.*']
+    tags: ['v*.*.*', 'v*.*']
   schedule:
     - cron: '0 2 * * 0'   # weekly — Sunday 02:00 UTC
   workflow_dispatch:
@@ -80,7 +80,7 @@ jobs:
             # Bump version from latest git tag (source of truth); VERSION file
             # is only a fallback. Prevents building a stale version if the file
             # drifts from the last published release tag.
-            LATEST_TAG=$(git tag --list 'v*.*.*' --sort=-version:refname 2>/dev/null | head -1 || true)
+            LATEST_TAG=$(git tag --list 'v*.*' --sort=-version:refname 2>/dev/null | head -1 || true)
             if [[ -n "$LATEST_TAG" ]]; then
               CURRENT="${LATEST_TAG#v}"
             elif [ -f "VERSION" ]; then
