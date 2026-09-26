@@ -202,6 +202,41 @@ Tools in TelcoChisel are organized into 11 distinct XFCE desktop categories with
 
 ---
 
+## Tactical Cyberpunk Desktop Environment
+
+TelcoChisel OS features a custom-engineered XFCE 4.18 desktop environment optimized specifically for telecommunications security auditors, RF engineers, and field operators.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                              XFCE TACTICAL PANEL (TOP)                                 │
+│ [Whisker Menu] [7 Workspaces] [Active Tasks] [SDR: USRP B210] [5G Core: UP] [wg0: OK] │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│                               POLAR RADAR DISPLAY                                      │
+│                                                                                        │
+│               0° N                     CONKY TELEMETRY HUD (Super+H)                  │
+│          .---'---.                     ┌───────────────────────────────┐               │
+│        /   -60dBm  \                   │ SDR HW: USRP B210 (USB 3.0)   │               │
+│   270° |   -80dBm  | 90° E             │ 5G Core: Open5GS Active (UP)  │               │
+│    W   \  -100dBm  /                   │ Tunnel: wg0 (10.8.0.2/24)     │               │
+│          '---.---'                     │ RT Kernel: 1000Hz (SCHED_RR)  │               │
+│             180° S                     │ Captures: 412 GB free         │               │
+│                                        └───────────────────────────────┘               │
+│                                                                                        │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+- **Zero-Drop FFT Display Engine**: Custom Picom GLX compositor (`use-damage = false`, `unredir-if-possible = true`) with explicit exclusions for `Gqrx`, `Inspectrum`, `URH`, and `Wireshark` to prevent waterfall frame-dropping and tearing during multi-megasample I/Q streaming.
+- **Live Panel Genmon Telemetry**:
+  - `SDR Prober`: Auto-detects connected USRP, HackRF, BladeRF, LimeSDR, RTL-SDR, and PlutoSDR transceivers directly on the top panel.
+  - `5G Core Monitor`: Displays live daemon state for Open5GS and srsRAN network functions.
+  - `Tunnel & Net Monitor`: Real-time status for WireGuard (`wg0`), OpenVPN (`tun0`), and cellular modems (`wwan0`).
+- **Tactical Conky HUD**: On-demand hardware and network heads-up display toggleable via **`Super + H`** or the panel monitor.
+- **Forensic Thunar File Manager**: Pre-configured with dedicated capture trees (`/home/telcosec/captures/{pcap,iq,apdu,evidence}`) and 8 right-click custom actions for instant GSMTAP Wireshark decoding, Inspectrum playback, pySim-shell access, and SHA-256 evidence hashing.
+- **7-Workspace Telecom Pager**: Dedicated virtual workspaces for RF & SDR, Cellular RAN, Core Network, Firmware & BB, Wireline & VoIP, Hardware & SIM, and Evidence & Logs.
+
+---
+
 ## Distribution Flavors & Field Deployment
 
 TelcoChisel is published in two official edition flavors:

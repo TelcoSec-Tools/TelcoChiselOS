@@ -23,11 +23,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `voiphopper`: Voice VLAN hopping security audit tool.
     - `rtpbleed`: Real-time RTP audio stream bleeding and interception scanner.
     - `sipsak`: SIP Swiss Army Knife for SIP server and PBX stress testing.
-- **Brand Vector Icons & XFCE Desktop Theme**:
-  - Designed scalable vector SVG brand icons (`telcosec.svg` and `telcochisel.svg`) installed to `/usr/share/icons/hicolor/scalable/apps/` and Papirus-Dark paths.
-  - Deployed custom GTK3 CSS (`gtk.css`) styling the XFCE 4.18 panel (`rgba(10, 14, 23, 0.95)` with `#00ffd5` bottom line), active window outlines, and Whisker Menu.
-  - Added 7-workspace pager configuration with telecom-tailored desktop shortcuts.
-  - Regenerated 1920x1080 wallpaper (`wallpaper.jpg`) with polar radar angle ticks, frequency crosshairs, telemetry pill badge, and typography exclusion masking.
+- **Tactical Cyberpunk XFCE Desktop Environment & Theme**:
+  - **Full GTK3 Theme Integration (`gtk.css`)**: 450+ line tactical styling system applying obsidian `#0a0e17` canvas, cyan `#00ffd5` accents, amber `#e8921e` warnings, and coral `#ff4466` alerts across panel plugins, menus, text entries, buttons, notebooks, treeviews, and Whisker Menu.
+  - **11-Domain XDG Whisker Menu Structure**: Built `telcosec-applications.menu` paired with 11 localized `.directory` metadata definitions mapping all 100 instruments into curated tactical operational categories.
+  - **Live Genmon Panel Telemetry Widgets**:
+    - `telcosec-genmon-sdr`: Real-time probe enumerating connected USRP, HackRF, BladeRF, LimeSDR, RTL-SDR, and PlutoSDR hardware transceivers directly on the XFCE panel.
+    - `telcosec-genmon-core`: Live status indicator monitoring Open5GS and srsRAN systemd daemon lifecycle and active subscribers.
+    - `telcosec-genmon-net`: Continuous monitor for WireGuard (`wg0`), OpenVPN (`tun0`), and cellular dialers (`wwan0`) displaying active tunnel IPs.
+  - **Zero-Drop Picom GLX Compositor**: Configured `use-damage = false` and GLX XPresent vsync with comprehensive SDR window exclusions (`Gqrx`, `Inspectrum`, `URH`, `Wireshark`) to eliminate display tearing and waterfall packet-drop during high-bandwidth I/Q rendering.
+  - **Low-Latency Xfwm4 Window Management**: Disabled internal compositor (`use_compositing = false`), enabled focus-follows-mouse, and configured edge snap resistance.
+  - **Tactical Conky HUD (`telcosec-hud-sdr`)**: Translucent desktop head-up display providing live RF transceiver enumeration, Open5GS daemon matrix, CPU core load, and capture drive storage, toggleable via `Super + H` or `/usr/local/bin/telcosec-toggle-hud`.
+  - **Forensic Thunar File Manager Enhancements**:
+    - Deployed 8 custom context actions: Open Terminal Here, Dissect with Wireshark (GSMTAP), Inspect I/Q with Inspectrum, pySim-shell SIM Access, Calculate SHA-256 Evidence Hash, SCAT IMSI Extraction, TShark 5G NAS Filter, and Analyze with URH.
+    - Deployed 8 pinned sidebar bookmarks pointing to `/home/telcosec/captures` (`pcap`, `iq`, `apdu`, `evidence`), `/opt/telcosec`, `/usr/share/wordlists/telecom`, and `/usr/share/doc/telcosec`.
+  - **Polar Radar Calibrated Wallpaper**: Overhauled `generate-assets.py` to synthesize a 1920x1080 tactical radar display with calibrated dBm concentric rings, 30° radial bearing lines, cardinal markers, and radar sweep arc.
+  - **Brand Vector Icons**: Scalable SVG brand icons (`telcosec.svg` and `telcochisel.svg`) installed to `/usr/share/icons/hicolor/scalable/apps/` and Papirus-Dark paths.
+  - **Multi-Workspace Configuration**: 7-workspace pager pre-mapped to RF & SDR (WS1), Cellular RAN (WS2), Core Network (WS3), Firmware & BB (WS4), Wireline & VoIP (WS5), Hardware & SIM (WS6), and Evidence & Logs (WS7).
 - **Calamares Installer Cyberpunk Redesign**:
   - Developed custom dark-mode Qt stylesheet (`stylesheet.qss`) matching the TelcoChisel obsidian `#0c0f16` and neon cyan `#00ffd5` palette.
   - Updated installer QML slideshow (`show.qml`) highlighting 100 tools, Falcon LTE, LimeSuite, VoIP tools, and modular metapackages.
