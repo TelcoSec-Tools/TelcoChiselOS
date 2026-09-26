@@ -431,7 +431,7 @@ network:
 EOF
 chmod 600 "$MNT_TARGET/etc/netplan/01-telcochisel-vm.yaml"
 
-log_info "Configuring Cloud-Init datasource defaults..."
+log_info "Configuring Cloud-Init datasource and user defaults..."
 mkdir -p "$MNT_TARGET/etc/cloud/cloud.cfg.d"
 cat << 'EOF' > "$MNT_TARGET/etc/cloud/cloud.cfg.d/99-pve-nocloud.cfg"
 # Allow Proxmox VE NoCloud and ConfigDrive metadata
@@ -439,7 +439,25 @@ datasource_list: [ NoCloud, ConfigDrive, None ]
 manage_etc_hosts: true
 EOF
 
-log_info "Configuring hostname..."
+cat << 'EOF' > "$MNT_TARGET/etc/cloud/cloud.cfg.d/99-telcosec-user.cfg"
+# TelcoSec TelcoChisel VM default provisioning
+system_info:
+  default_user:
+    name: telcosec
+    gecos: TelcoSec Operator
+    groups: [sudo, dialout, plugdev, netdev, wireshark]
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    shell: /bin/bash
+EOF
+
+log_info "Configuring TelcoSec login issue and hostname..."
+cat << 'EOF' > "$MNT_TARGET/etc/issue"
+TelcoSec TelcoChisel OS \r (\l) - Telecom Security Operations
+TelcoSec Academy: https://app.telcosec.net | ProLabs: https://app.telcosec.net/prolabs
+
+EOF
+cp -f "$MNT_TARGET/etc/issue" "$MNT_TARGET/etc/issue.net"
+
 if [ ! -s "$MNT_TARGET/etc/hostname" ]; then
   echo "telcochisel" > "$MNT_TARGET/etc/hostname"
 fi
@@ -455,7 +473,7 @@ cat << 'EOF' > "$MNT_TARGET/etc/default/grub.d/50-telcochisel-vm.cfg"
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=3
 GRUB_TIMEOUT_STYLE=menu
-GRUB_DISTRIBUTOR="TelcoChisel OS"
+GRUB_DISTRIBUTOR="TelcoSec TelcoChisel OS"
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash console=tty1 net.ifnames=0 biosdevname=0"
 GRUB_TERMINAL="console"
 EOF
@@ -515,7 +533,8 @@ if [ "$BUILD_PROXMOX" = true ]; then
   cat << EOF > "$PVE_SCRIPT"
 #!/usr/bin/env bash
 # =============================================================================
-# TelcoChisel OS ${VERSION} — Proxmox VE Import Helper Script
+# TelcoSec TelcoChisel OS ${VERSION} — Proxmox VE Import Helper Script
+# Powered by TelcoSec | TelcoSec Academy: https://app.telcosec.net
 #
 # Run this script on your Proxmox VE cluster node to deploy the appliance.
 # =============================================================================
