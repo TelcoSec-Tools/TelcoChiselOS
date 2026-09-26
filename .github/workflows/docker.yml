@@ -4,11 +4,35 @@ on:
   workflow_dispatch:
     inputs:
       version_tag:
-        description: 'Version tag to publish (e.g. v3.0.0 or latest)'
+        description: 'Version tag to publish (e.g. v2026.2, v3.0.0, or latest)'
         required: false
         default: 'latest'
+      publish_ghcr:
+        description: 'Publish to GitHub Container Registry (ghcr.io)'
+        type: boolean
+        required: false
+        default: true
+      publish_dockerhub:
+        description: 'Publish to Docker Hub (docker.io)'
+        type: boolean
+        required: false
+        default: true
+      publish_digitalocean:
+        description: 'Publish to DigitalOcean Container Registry (registry.digitalocean.com)'
+        type: boolean
+        required: false
+        default: true
+      do_registry:
+        description: 'DigitalOcean Registry Name (e.g. telcosec)'
+        required: false
+        default: 'telcosec'
       update_descriptions:
         description: 'Sync Markdown documentation to Docker Hub repository overview'
+        type: boolean
+        required: false
+        default: true
+      run_smoke_tests:
+        description: 'Execute post-publish sanity tests on images'
         type: boolean
         required: false
         default: true
@@ -17,18 +41,17 @@ on:
 
 concurrency:
   group: docker-release
-  cancel-in-progress: false   # never cancel a running push mid-way
+  cancel-in-progress: false
 
 env:
-  REGISTRY: ghcr.io
+  REGISTRY_GHCR: ghcr.io
+  REGISTRY_DO: registry.digitalocean.com
   DOCKERHUB_NAMESPACE: ${{ secrets.DOCKERHUB_USERNAME || 'telcosec' }}
+  DO_REGISTRY_DEFAULT: ${{ secrets.DO_REGISTRY_NAME || secrets.DO_REGISTRY || 'telcosec' }}
 
 jobs:
-  # telcochisel-base is built and pushed first — every add-on image is
-  # `FROM ${BASE_IMAGE}` (see docker/*.Dockerfile's ARG BASE_IMAGE), and
-  # buildx's containerized builder doesn't share the local Docker daemon's
-  # image cache, so add-ons resolve the base by PULLING the tag this job
-  # just pushed rather than a same-runner local image.
+  # ─── 1. Build and Publish Base Image ──────────────────────────────────────────
+  # telcochisel-base is the foundation for all add-on images.
   base:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -40,13 +63,17 @@ jobs:
       clean_version: ${{ steps.meta.outputs.clean_version }}
       owner_lc: ${{ steps.meta.outputs.owner_lc }}
       base_tag: ${{ steps.meta.outputs.base_tag }}
+      has_ghcr: ${{ steps.meta.outputs.has_ghcr }}
       has_dockerhub: ${{ steps.meta.outputs.has_dockerhub }}
+      has_do: ${{ steps.meta.outputs.has_do }}
+      do_registry: ${{ steps.meta.outputs.do_registry }}
+      smoke_tag: ${{ steps.tags.outputs.smoke_tag }}
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Resolve version and image namespace
+      - name: Resolve metadata and registry readiness
         id: meta
         run: |
           OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
@@ -55,26 +82,53 @@ jobs:
           elif [ -n "${{ github.event.inputs.version_tag }}" ] && [ "${{ github.event.inputs.version_tag }}" != "latest" ]; then
             VERSION="${{ github.event.inputs.version_tag }}"
           else
-            VERSION="nightly-$(git rev-parse --short HEAD)"
+            VERSION="v2026.2"
           fi
           CLEAN_VERSION="${VERSION#v}"
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+
+          # Target Registry Toggles
+          WANT_GHCR="${{ github.event.inputs.publish_ghcr != 'false' }}"
+          WANT_DH="${{ github.event.inputs.publish_dockerhub != 'false' }}"
+          WANT_DO="${{ github.event.inputs.publish_digitalocean != 'false' }}"
+
+          HAS_GHCR="${WANT_GHCR}"
+          HAS_DH="false"
+          if [ "${WANT_DH}" = "true" ] && [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+            HAS_DH="true"
+          fi
+
+          HAS_DO="false"
+          DO_TOKEN="${{ secrets.DIGITALOCEAN_ACCESS_TOKEN || secrets.DO_TOKEN || secrets.DO_REGISTRY_TOKEN }}"
+          if [ "${WANT_DO}" = "true" ] && [ -n "${DO_TOKEN}" ]; then
+            HAS_DO="true"
+          fi
+
+          DO_REG="${{ github.event.inputs.do_registry || env.DO_REGISTRY_DEFAULT }}"
+
           echo "owner_lc=${OWNER_LC}" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "clean_version=${CLEAN_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "base_tag=${{ env.REGISTRY }}/${OWNER_LC}/telcochisel-base:${VERSION}" >> "$GITHUB_OUTPUT"
-          if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-            echo "has_dockerhub=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_dockerhub=false" >> "$GITHUB_OUTPUT"
-          fi
+          echo "commit_sha=${COMMIT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "base_tag=${{ env.REGISTRY_GHCR }}/${OWNER_LC}/telcochisel-base:${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "has_ghcr=${HAS_GHCR}" >> "$GITHUB_OUTPUT"
+          echo "has_dockerhub=${HAS_DH}" >> "$GITHUB_OUTPUT"
+          echo "has_do=${HAS_DO}" >> "$GITHUB_OUTPUT"
+          echo "do_registry=${DO_REG}" >> "$GITHUB_OUTPUT"
+
+          echo "=== Registry Resolution ==="
+          echo "GitHub Container Registry (GHCR): ${HAS_GHCR}"
+          echo "Docker Hub (${DOCKERHUB_NAMESPACE}): ${HAS_DH}"
+          echo "DigitalOcean Container Registry (${DO_REG}): ${HAS_DO}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GHCR
+      - name: Log in to GitHub Container Registry (GHCR)
+        if: steps.meta.outputs.has_ghcr == 'true'
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -85,16 +139,62 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME || 'telcosec' }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Prepare tags for telcochisel-base
+      - name: Log in to DigitalOcean Container Registry (DOCR)
+        if: steps.meta.outputs.has_do == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_DO }}
+          username: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN || secrets.DO_TOKEN || secrets.DO_REGISTRY_TOKEN }}
+          password: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN || secrets.DO_TOKEN || secrets.DO_REGISTRY_TOKEN }}
+
+      - name: Generate multi-registry tags for telcochisel-base
         id: tags
         run: |
-          TAGS="${{ env.REGISTRY }}/${{ steps.meta.outputs.owner_lc }}/telcochisel-base:latest"
-          TAGS="${TAGS},${{ steps.meta.outputs.base_tag }}"
-          if [ "${{ steps.meta.outputs.has_dockerhub }}" = "true" ]; then
-            TAGS="${TAGS},${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-base:latest"
-            TAGS="${TAGS},${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-base:${{ steps.meta.outputs.version }}"
+          TAGS=""
+          OWNER="${{ steps.meta.outputs.owner_lc }}"
+          VER="${{ steps.meta.outputs.version }}"
+          C_VER="${{ steps.meta.outputs.clean_version }}"
+          SHA="${{ steps.meta.outputs.commit_sha }}"
+          SMOKE_TAG=""
+
+          # GHCR Tags
+          if [ "${{ steps.meta.outputs.has_ghcr }}" = "true" ]; then
+            TAGS="${TAGS},${{ env.REGISTRY_GHCR }}/${OWNER}/telcochisel-base:latest"
+            TAGS="${TAGS},${{ env.REGISTRY_GHCR }}/${OWNER}/telcochisel-base:${VER}"
+            if [ -n "${C_VER}" ] && [ "${C_VER}" != "${VER}" ]; then
+              TAGS="${TAGS},${{ env.REGISTRY_GHCR }}/${OWNER}/telcochisel-base:${C_VER}"
+            fi
+            TAGS="${TAGS},${{ env.REGISTRY_GHCR }}/${OWNER}/telcochisel-base:sha-${SHA}"
+            SMOKE_TAG="${{ env.REGISTRY_GHCR }}/${OWNER}/telcochisel-base:${VER}"
           fi
+
+          # Docker Hub Tags
+          if [ "${{ steps.meta.outputs.has_dockerhub }}" = "true" ]; then
+            DH_NS="${{ env.DOCKERHUB_NAMESPACE }}"
+            TAGS="${TAGS},${DH_NS}/telcochisel-base:latest"
+            TAGS="${TAGS},${DH_NS}/telcochisel-base:${VER}"
+            if [ -n "${C_VER}" ] && [ "${C_VER}" != "${VER}" ]; then
+              TAGS="${TAGS},${DH_NS}/telcochisel-base:${C_VER}"
+            fi
+            TAGS="${TAGS},${DH_NS}/telcochisel-base:sha-${SHA}"
+            [ -z "$SMOKE_TAG" ] && SMOKE_TAG="${DH_NS}/telcochisel-base:${VER}"
+          fi
+
+          # DigitalOcean Container Registry Tags
+          if [ "${{ steps.meta.outputs.has_do }}" = "true" ]; then
+            DO_NS="${{ steps.meta.outputs.do_registry }}"
+            TAGS="${TAGS},${{ env.REGISTRY_DO }}/${DO_NS}/telcochisel-base:latest"
+            TAGS="${TAGS},${{ env.REGISTRY_DO }}/${DO_NS}/telcochisel-base:${VER}"
+            if [ -n "${C_VER}" ] && [ "${C_VER}" != "${VER}" ]; then
+              TAGS="${TAGS},${{ env.REGISTRY_DO }}/${DO_NS}/telcochisel-base:${C_VER}"
+            fi
+            TAGS="${TAGS},${{ env.REGISTRY_DO }}/${DO_NS}/telcochisel-base:sha-${SHA}"
+            [ -z "$SMOKE_TAG" ] && SMOKE_TAG="${{ env.REGISTRY_DO }}/${DO_NS}/telcochisel-base:${VER}"
+          fi
+
+          TAGS="${TAGS#,}"
           echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+          echo "smoke_tag=${SMOKE_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Build & push telcochisel-base
         uses: docker/build-push-action@v6
@@ -108,7 +208,14 @@ jobs:
           cache-from: type=gha,scope=telcochisel-base
           cache-to: type=gha,mode=max,scope=telcochisel-base
 
-      - name: Update Docker Hub Description for base
+      - name: Verify telcochisel-base healthcheck
+        if: github.event.inputs.run_smoke_tests != 'false' && steps.tags.outputs.smoke_tag != ''
+        run: |
+          echo "Pulling and executing healthcheck on ${{ steps.tags.outputs.smoke_tag }}..."
+          docker run --rm --entrypoint /bin/bash ${{ steps.tags.outputs.smoke_tag }} -c "/usr/local/bin/container-healthcheck.sh"
+          echo "✓ telcochisel-base healthcheck passed!"
+
+      - name: Sync Docker Hub Description for base
         if: steps.meta.outputs.has_dockerhub == 'true' && github.event.inputs.update_descriptions != 'false'
         uses: peter-evans/dockerhub-description@v4
         continue-on-error: true
@@ -119,9 +226,8 @@ jobs:
           readme-filepath: docker/descriptions/base.md
           short-description: "TelcoSec TelcoChisel Base — Headless CLI telecom security penetration testing and research toolset"
 
-  # SDR, core-network, and device-tools all pull the base pushed above and
-  # build independently — no ordering dependency between them, so they run
-  # as a matrix rather than sequentially.
+  # ─── 2. Build and Publish Add-On Specialized Images ───────────────────────────
+  # Specialized suites (SDR, Core Network, Device Tools) build in parallel.
   add-ons:
     needs: base
     runs-on: ubuntu-24.04
@@ -141,16 +247,17 @@ jobs:
             short_desc: "TelcoSec TelcoChisel Device Tools — Mobile device & baseband flashing & diagnostics"
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GHCR
+      - name: Log in to GitHub Container Registry (GHCR)
+        if: needs.base.outputs.has_ghcr == 'true'
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -161,16 +268,62 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME || 'telcosec' }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Prepare tags for telcochisel-${{ matrix.image }}
+      - name: Log in to DigitalOcean Container Registry (DOCR)
+        if: needs.base.outputs.has_do == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_DO }}
+          username: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN || secrets.DO_TOKEN || secrets.DO_REGISTRY_TOKEN }}
+          password: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN || secrets.DO_TOKEN || secrets.DO_REGISTRY_TOKEN }}
+
+      - name: Generate multi-registry tags for telcochisel-${{ matrix.image }}
         id: tags
         run: |
-          TAGS="${{ env.REGISTRY }}/${{ needs.base.outputs.owner_lc }}/telcochisel-${{ matrix.image }}:latest"
-          TAGS="${TAGS},${{ env.REGISTRY }}/${{ needs.base.outputs.owner_lc }}/telcochisel-${{ matrix.image }}:${{ needs.base.outputs.version }}"
-          if [ "${{ needs.base.outputs.has_dockerhub }}" = "true" ]; then
-            TAGS="${TAGS},${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-${{ matrix.image }}:latest"
-            TAGS="${TAGS},${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-${{ matrix.image }}:${{ needs.base.outputs.version }}"
+          TAGS=""
+          OWNER="${{ needs.base.outputs.owner_lc }}"
+          VER="${{ needs.base.outputs.version }}"
+          C_VER="${{ needs.base.outputs.clean_version }}"
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+          SMOKE_TAG=""
+
+          # GHCR Tags
+          if [ "${{ needs.base.outputs.has_ghcr }}" = "true" ]; then
+            TAGS="${TAGS},${{ env.REGISTRY_GHCR }}/${OWNER}/telcochisel-${{ matrix.image }}:latest"
+            TAGS="${TAGS},${{ env.REGISTRY_GHCR }}/${OWNER}/telcochisel-${{ matrix.image }}:${VER}"
+            if [ -n "${C_VER}" ] && [ "${C_VER}" != "${VER}" ]; then
+              TAGS="${TAGS},${{ env.REGISTRY_GHCR }}/${OWNER}/telcochisel-${{ matrix.image }}:${C_VER}"
+            fi
+            TAGS="${TAGS},${{ env.REGISTRY_GHCR }}/${OWNER}/telcochisel-${{ matrix.image }}:sha-${COMMIT_SHA}"
+            SMOKE_TAG="${{ env.REGISTRY_GHCR }}/${OWNER}/telcochisel-${{ matrix.image }}:${VER}"
           fi
+
+          # Docker Hub Tags
+          if [ "${{ needs.base.outputs.has_dockerhub }}" = "true" ]; then
+            DH_NS="${{ env.DOCKERHUB_NAMESPACE }}"
+            TAGS="${TAGS},${DH_NS}/telcochisel-${{ matrix.image }}:latest"
+            TAGS="${TAGS},${DH_NS}/telcochisel-${{ matrix.image }}:${VER}"
+            if [ -n "${C_VER}" ] && [ "${C_VER}" != "${VER}" ]; then
+              TAGS="${TAGS},${DH_NS}/telcochisel-${{ matrix.image }}:${C_VER}"
+            fi
+            TAGS="${TAGS},${DH_NS}/telcochisel-${{ matrix.image }}:sha-${COMMIT_SHA}"
+            [ -z "$SMOKE_TAG" ] && SMOKE_TAG="${DH_NS}/telcochisel-${{ matrix.image }}:${VER}"
+          fi
+
+          # DigitalOcean Container Registry Tags
+          if [ "${{ needs.base.outputs.has_do }}" = "true" ]; then
+            DO_NS="${{ needs.base.outputs.do_registry }}"
+            TAGS="${TAGS},${{ env.REGISTRY_DO }}/${DO_NS}/telcochisel-${{ matrix.image }}:latest"
+            TAGS="${TAGS},${{ env.REGISTRY_DO }}/${DO_NS}/telcochisel-${{ matrix.image }}:${VER}"
+            if [ -n "${C_VER}" ] && [ "${C_VER}" != "${VER}" ]; then
+              TAGS="${TAGS},${{ env.REGISTRY_DO }}/${DO_NS}/telcochisel-${{ matrix.image }}:${C_VER}"
+            fi
+            TAGS="${TAGS},${{ env.REGISTRY_DO }}/${DO_NS}/telcochisel-${{ matrix.image }}:sha-${COMMIT_SHA}"
+            [ -z "$SMOKE_TAG" ] && SMOKE_TAG="${{ env.REGISTRY_DO }}/${DO_NS}/telcochisel-${{ matrix.image }}:${VER}"
+          fi
+
+          TAGS="${TAGS#,}"
           echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+          echo "smoke_tag=${SMOKE_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Build & push telcochisel-${{ matrix.image }}
         uses: docker/build-push-action@v6
@@ -185,7 +338,14 @@ jobs:
           cache-from: type=gha,scope=telcochisel-${{ matrix.image }}
           cache-to: type=gha,mode=max,scope=telcochisel-${{ matrix.image }}
 
-      - name: Update Docker Hub Description for ${{ matrix.image }}
+      - name: Verify telcochisel-${{ matrix.image }} healthcheck
+        if: github.event.inputs.run_smoke_tests != 'false' && steps.tags.outputs.smoke_tag != ''
+        run: |
+          echo "Pulling and executing healthcheck on ${{ steps.tags.outputs.smoke_tag }}..."
+          docker run --rm --entrypoint /bin/bash ${{ steps.tags.outputs.smoke_tag }} -c "/usr/local/bin/container-healthcheck.sh"
+          echo "✓ telcochisel-${{ matrix.image }} healthcheck passed!"
+
+      - name: Sync Docker Hub Description for ${{ matrix.image }}
         if: needs.base.outputs.has_dockerhub == 'true' && github.event.inputs.update_descriptions != 'false'
         uses: peter-evans/dockerhub-description@v4
         continue-on-error: true
@@ -195,3 +355,40 @@ jobs:
           repository: ${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-${{ matrix.image }}
           readme-filepath: docker/descriptions/${{ matrix.image }}.md
           short-description: ${{ matrix.short_desc }}
+
+  # ─── 3. Deployment Summary ────────────────────────────────────────────────────
+  summary:
+    needs: [base, add-ons]
+    runs-on: ubuntu-24.04
+    if: always()
+    steps:
+      - name: Output Pipeline Summary
+        run: |
+          echo "## 🚀 TelcoChisel Container Release Matrix" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Target Registry | Registry URI | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| :--- | :--- | :--- |" >> "$GITHUB_STEP_SUMMARY"
+          
+          if [ "${{ needs.base.outputs.has_ghcr }}" = "true" ]; then
+            echo "| **GitHub Container Registry (GHCR)** | \`ghcr.io/${{ needs.base.outputs.owner_lc }}/telcochisel-*\` | ✅ Published |" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "| **GitHub Container Registry (GHCR)** | \`ghcr.io/${{ needs.base.outputs.owner_lc }}/telcochisel-*\` | ⚪ Disabled |" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [ "${{ needs.base.outputs.has_dockerhub }}" = "true" ]; then
+            echo "| **Docker Hub** | \`docker.io/${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-*\` | ✅ Published |" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "| **Docker Hub** | \`docker.io/${{ env.DOCKERHUB_NAMESPACE }}/telcochisel-*\` | ⚠️ Skipped (Set \`DOCKERHUB_TOKEN\` secret) |" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [ "${{ needs.base.outputs.has_do }}" = "true" ]; then
+            echo "| **DigitalOcean Container Registry** | \`registry.digitalocean.com/${{ needs.base.outputs.do_registry }}/telcochisel-*\` | ✅ Published |" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "| **DigitalOcean Container Registry** | \`registry.digitalocean.com/${{ needs.base.outputs.do_registry }}/telcochisel-*\` | ⚠️ Skipped (Set \`DIGITALOCEAN_ACCESS_TOKEN\` secret) |" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Version Tag:** \`${{ needs.base.outputs.version }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Base Image:** \`${{ needs.base.outputs.base_tag }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "🎓 *Test these containers with guided telecom exploit scenarios at [TelcoSec Academy](https://app.telcosec.net)*." >> "$GITHUB_STEP_SUMMARY"
